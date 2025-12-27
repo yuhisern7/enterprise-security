@@ -1,0 +1,17 @@
+{
+  "crawled_at": "2025-12-27T21:51:34.379355",
+  "summary": {
+    "cves": 0,
+    "malware_samples": 0,
+    "threat_pulses": 0,
+    "malicious_urls": 0,
+    "assessments": 0
+  },
+  "data": {
+    "cves": [],
+    "malware_samples": [],
+    "threat_pulses": [],
+    "malicious_urls": [],
+    "assessments": []
+  }
+}

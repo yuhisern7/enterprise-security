@@ -1,0 +1,48 @@
+# Environment variables (contains API keys)
+.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# ML Models (generated at runtime)
+AI/ml_models/*.pkl
+
+# Threat logs (user data)
+server/json/threat_log.json
+server/json/blocked_ips.json
+
+# Docker volumes
+docker-volumes/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# ExploitDB database (too large for git, auto-downloaded)
+AI/exploitdb/
+
+# Learned signatures (generated at runtime)
+AI/learned_signatures.json
+
+# Temporary files
+*.tmp
+temp/
