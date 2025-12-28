@@ -1297,6 +1297,155 @@ def get_current_time():
         return jsonify({'error': str(e)}), 500
 
 
+# API endpoint to get current ports
+@app.route('/api/current-ports', methods=['GET'])
+def get_current_ports():
+    """Get current port configuration"""
+    try:
+        dashboard_port = int(os.getenv('DASHBOARD_PORT', '60000'))
+        p2p_port = int(os.getenv('P2P_PORT', '60001'))
+        
+        return jsonify({
+            'dashboard_port': dashboard_port,
+            'p2p_port': p2p_port
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# API endpoint to update ports
+@app.route('/api/update-ports', methods=['POST'])
+def update_ports():
+    """Update port configuration in .env file"""
+    try:
+        data = request.json
+        dashboard_port = data.get('dashboard_port')
+        p2p_port = data.get('p2p_port')
+        
+        # Validation
+        if not dashboard_port or not p2p_port:
+            return jsonify({'success': False, 'error': 'Both ports required'}), 400
+        
+        if dashboard_port < 1024 or dashboard_port > 65535:
+            return jsonify({'success': False, 'error': 'Dashboard port must be between 1024 and 65535'}), 400
+        
+        if p2p_port < 1024 or p2p_port > 65535:
+            return jsonify({'success': False, 'error': 'P2P port must be between 1024 and 65535'}), 400
+        
+        if dashboard_port == p2p_port:
+            return jsonify({'success': False, 'error': 'Ports must be different'}), 400
+        
+        # Update .env file
+        env_path = '/app/../.env'
+        if not os.path.exists(env_path):
+            env_path = '../.env'
+        if not os.path.exists(env_path):
+            env_path = '.env'
+        
+        # Read current .env
+        env_lines = []
+        if os.path.exists(env_path):
+            with open(env_path, 'r') as f:
+                env_lines = f.readlines()
+        else:
+            # Create from .env.example if .env doesn't exist
+            example_path = '../.env.example'
+            if os.path.exists(example_path):
+                with open(example_path, 'r') as f:
+                    env_lines = f.readlines()
+        
+        # Update ports
+        dashboard_updated = False
+        p2p_updated = False
+        
+        for i, line in enumerate(env_lines):
+            if line.startswith('DASHBOARD_PORT='):
+                env_lines[i] = f'DASHBOARD_PORT={dashboard_port}\n'
+                dashboard_updated = True
+            elif line.startswith('P2P_PORT='):
+                env_lines[i] = f'P2P_PORT={p2p_port}\n'
+                p2p_updated = True
+        
+        # Add if not found
+        if not dashboard_updated:
+            env_lines.append(f'DASHBOARD_PORT={dashboard_port}\n')
+        if not p2p_updated:
+            env_lines.append(f'P2P_PORT={p2p_port}\n')
+        
+        # Write back to .env
+        with open(env_path, 'w') as f:
+            f.writelines(env_lines)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Port configuration saved! Download the .env file and restart Docker container to apply changes.',
+            'dashboard_port': dashboard_port,
+            'p2p_port': p2p_port
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# API endpoint to generate .env file with updated ports
+@app.route('/api/generate-env-file', methods=['POST'])
+def generate_env_file():
+    """Generate .env file with updated ports for download"""
+    try:
+        data = request.json
+        dashboard_port = data.get('dashboard_port', 60000)
+        p2p_port = data.get('p2p_port', 60001)
+        
+        # Read current .env or .env.example
+        env_path = '/app/../.env'
+        if not os.path.exists(env_path):
+            env_path = '../.env'
+        if not os.path.exists(env_path):
+            env_path = '../.env.example'
+        if not os.path.exists(env_path):
+            env_path = '.env.example'
+        
+        env_lines = []
+        if os.path.exists(env_path):
+            with open(env_path, 'r') as f:
+                env_lines = f.readlines()
+        
+        # Update ports
+        dashboard_updated = False
+        p2p_updated = False
+        
+        for i, line in enumerate(env_lines):
+            if line.startswith('DASHBOARD_PORT='):
+                env_lines[i] = f'DASHBOARD_PORT={dashboard_port}  # Dashboard web interface (HTTP)\n'
+                dashboard_updated = True
+            elif line.startswith('P2P_PORT='):
+                env_lines[i] = f'P2P_PORT={p2p_port}        # P2P mesh synchronization (HTTPS)\n'
+                p2p_updated = True
+        
+        # Add if not found
+        if not dashboard_updated:
+            env_lines.append(f'\n# Port Configuration\nDASHBOARD_PORT={dashboard_port}  # Dashboard web interface (HTTP)\n')
+        if not p2p_updated:
+            env_lines.append(f'P2P_PORT={p2p_port}        # P2P mesh synchronization (HTTPS)\n')
+        
+        # Create downloadable .env file
+        env_content = ''.join(env_lines)
+        
+        from io import BytesIO
+        env_bytes = BytesIO(env_content.encode('utf-8'))
+        env_bytes.seek(0)
+        
+        return send_file(
+            env_bytes,
+            mimetype='text/plain',
+            as_attachment=True,
+            download_name='.env'
+        )
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # API endpoint to toggle honeypots
 @app.route('/api/honeypot/toggle', methods=['POST'])
 def toggle_honeypot():

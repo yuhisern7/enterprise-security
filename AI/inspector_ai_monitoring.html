@@ -212,6 +212,72 @@
           </div>
         </div>
         
+        <!-- Port Configuration Section -->
+        <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+          <h3 style="margin-top: 0; color: #ff5fe2;">🔌 Port Configuration</h3>
+          <p style="font-size: 0.85rem; color: #8a92b6; margin-bottom: 1rem;">
+            Configure custom ports for Docker AI services. <strong>Note:</strong> Changing ports requires restarting the Docker container.
+          </p>
+          
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; color: #a9b3d4; margin-bottom: 0.5rem; font-weight: 600;">📊 Dashboard Port (HTTP)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="dashboardPort" placeholder="60000" min="1024" max="65535"
+                style="flex: 1; padding: 0.6rem; border-radius: 6px; border: 1px solid #232a3d; background: #0b1020; color: #f5f7ff; font-family: monospace; font-size: 0.9rem;">
+              <span style="color: #8a92b6; font-size: 0.85rem;">Current: <span id="currentDashboardPort" style="color: #5fe2ff; font-weight: 600;">60000</span></span>
+            </div>
+            <p style="font-size: 0.75rem; color: #8a92b6; margin-top: 0.5rem;">
+              ℹ️ This is the web interface port. Default: 60000
+            </p>
+          </div>
+          
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; color: #a9b3d4; margin-bottom: 0.5rem; font-weight: 600;">🌐 P2P Mesh Port (HTTPS)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="p2pPort" placeholder="60001" min="1024" max="65535"
+                style="flex: 1; padding: 0.6rem; border-radius: 6px; border: 1px solid #232a3d; background: #0b1020; color: #f5f7ff; font-family: monospace; font-size: 0.9rem;">
+              <span style="color: #8a92b6; font-size: 0.85rem;">Current: <span id="currentP2pPort" style="color: #5fe2ff; font-weight: 600;">60001</span></span>
+            </div>
+            <p style="font-size: 0.75rem; color: #8a92b6; margin-top: 0.5rem;">
+              ℹ️ This is the encrypted P2P synchronization port. Default: 60001
+            </p>
+          </div>
+          
+          <div style="background: rgba(255, 184, 95, 0.1); padding: 1rem; border-radius: 6px; border: 1px solid #ffb85f; margin-bottom: 1rem;">
+            <p style="margin: 0; font-size: 0.85rem; color: #ffb85f;">
+              <strong>⚠️ Important:</strong> After changing ports, you must:
+            </p>
+            <ol style="margin: 0.5rem 0 0 1.5rem; font-size: 0.85rem; color: #a9b3d4; line-height: 1.8;">
+              <li>Update your <code style="background: #0b1020; padding: 0.2rem 0.4rem; border-radius: 3px;">server/.env</code> file manually</li>
+              <li>Restart the Docker container: <code style="background: #0b1020; padding: 0.2rem 0.4rem; border-radius: 3px;">docker compose restart</code></li>
+              <li>Update firewall rules to allow new ports</li>
+              <li>Update PEER_URLS in other containers if using P2P mesh</li>
+            </ol>
+          </div>
+          
+          <div style="display: flex; gap: 0.5rem;">
+            <button onclick="savePortConfiguration()" style="flex: 1; background: linear-gradient(135deg, #5fff9f, #4fdd88);">
+              💾 Save Port Configuration
+            </button>
+            <button onclick="downloadEnvFile()" style="flex: 1; background: linear-gradient(135deg, #5fe2ff, #4fc9dd);">
+              📥 Download Updated .env File
+            </button>
+          </div>
+          <div id="portConfigStatus" style="margin-top: 0.75rem; font-size: 0.85rem;"></div>
+          
+          <div style="margin-top: 1rem; padding: 1rem; background: rgba(95, 226, 255, 0.1); border-radius: 6px; border: 1px solid #5fe2ff;">
+            <p style="margin: 0; font-size: 0.85rem; color: #5fe2ff;">
+              <strong>💡 Quick Restart Commands:</strong>
+            </p>
+            <div style="margin-top: 0.5rem;">
+              <code style="display: block; background: #0b1020; padding: 0.5rem; border-radius: 4px; font-size: 0.8rem; color: #5fff9f; margin-bottom: 0.5rem;">
+                cd server && docker compose down && docker compose up -d
+              </code>
+              <p style="margin: 0; font-size: 0.75rem; color: #8a92b6;">Run this after updating the .env file</p>
+            </div>
+          </div>
+        </div>
+        
         <!-- System Health Status -->
         <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
           <h3 style="margin-top: 0; color: #5fe2ff;">🏥 System Health</h3>
@@ -1524,6 +1590,7 @@
       function showSystemStatus() {
         document.getElementById('statusModal').style.display = 'flex';
         loadSystemStatus();
+        loadCurrentPorts();
       }
       
       function closeStatusModal() {
@@ -1824,6 +1891,122 @@
         
         // Update time every 30 seconds
         setTimeout(loadCurrentTime, 30000);
+      }
+      
+      // Port Configuration Functions
+      async function savePortConfiguration() {
+        const dashboardPort = parseInt(document.getElementById('dashboardPort').value);
+        const p2pPort = parseInt(document.getElementById('p2pPort').value);
+        const statusDiv = document.getElementById('portConfigStatus');
+        
+        // Validation
+        if (!dashboardPort || dashboardPort < 1024 || dashboardPort > 65535) {
+          statusDiv.innerHTML = '<span style="color: #ff5f5f;">❌ Dashboard port must be between 1024 and 65535</span>';
+          return;
+        }
+        
+        if (!p2pPort || p2pPort < 1024 || p2pPort > 65535) {
+          statusDiv.innerHTML = '<span style="color: #ff5f5f;">❌ P2P port must be between 1024 and 65535</span>';
+          return;
+        }
+        
+        if (dashboardPort === p2pPort) {
+          statusDiv.innerHTML = '<span style="color: #ff5f5f;">❌ Dashboard and P2P ports must be different</span>';
+          return;
+        }
+        
+        try {
+          const response = await fetch('/api/update-ports', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              dashboard_port: dashboardPort,
+              p2p_port: p2pPort
+            })
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            statusDiv.innerHTML = `
+              <div style="background: rgba(95, 255, 159, 0.1); padding: 1rem; border-radius: 6px; border: 1px solid #5fff9f;">
+                <p style="margin: 0; color: #5fff9f;"><strong>✅ ${result.message}</strong></p>
+                <p style="margin: 0.5rem 0 0; font-size: 0.85rem; color: #a9b3d4;">
+                  Download the updated .env file and restart your Docker container to apply changes.
+                </p>
+              </div>
+            `;
+            
+            // Update current port displays
+            document.getElementById('currentDashboardPort').textContent = dashboardPort;
+            document.getElementById('currentP2pPort').textContent = p2pPort;
+          } else {
+            statusDiv.innerHTML = `<span style="color: #ff5f5f;">❌ ${result.error}</span>`;
+          }
+        } catch (error) {
+          statusDiv.innerHTML = `<span style="color: #ff5f5f;">❌ Network error: ${error.message}</span>`;
+        }
+      }
+      
+      async function downloadEnvFile() {
+        const dashboardPort = parseInt(document.getElementById('dashboardPort').value) || 60000;
+        const p2pPort = parseInt(document.getElementById('p2pPort').value) || 60001;
+        
+        try {
+          const response = await fetch('/api/generate-env-file', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              dashboard_port: dashboardPort,
+              p2p_port: p2pPort
+            })
+          });
+          
+          if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '.env';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            document.getElementById('portConfigStatus').innerHTML = `
+              <span style="color: #5fff9f;">✅ .env file downloaded! Place it in server/.env and restart Docker container.</span>
+            `;
+          } else {
+            const result = await response.json();
+            document.getElementById('portConfigStatus').innerHTML = `
+              <span style="color: #ff5f5f;">❌ ${result.error || 'Failed to generate .env file'}</span>
+            `;
+          }
+        } catch (error) {
+          document.getElementById('portConfigStatus').innerHTML = `
+            <span style="color: #ff5f5f;">❌ Network error: ${error.message}</span>
+          `;
+        }
+      }
+      
+      async function loadCurrentPorts() {
+        try {
+          const response = await fetch('/api/current-ports');
+          const result = await response.json();
+          
+          if (result.dashboard_port && result.p2p_port) {
+            document.getElementById('dashboardPort').value = result.dashboard_port;
+            document.getElementById('p2pPort').value = result.p2p_port;
+            document.getElementById('currentDashboardPort').textContent = result.dashboard_port;
+            document.getElementById('currentP2pPort').textContent = result.p2p_port;
+          }
+        } catch (error) {
+          console.error('Error loading current ports:', error);
+        }
       }
       
       async function toggleHoneypot(serviceId, enabled) {
