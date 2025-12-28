@@ -135,10 +135,11 @@ bash setup_peer.sh
 The script will:
 - ✅ Install Docker (if needed on Linux)
 - ✅ Download ExploitDB database (46,948 exploits)
+- ✅ Configure ports (default: 60000 dashboard, 60001 P2P)
 - ✅ Configure VirusTotal API (optional)
 - ✅ Set up P2P mesh connections (optional)
 - ✅ Build and start container
-- ✅ Open dashboard: http://localhost:5000
+- ✅ Open dashboard: http://localhost:60000
 
 **3. Connect More Containers (Optional - For P2P Mesh)**
 
@@ -152,21 +153,21 @@ To connect multiple Docker containers worldwide:
    ```
    Example input: 192.168.1.100,office.example.com,home.example.com
    
-   The system will auto-convert to HTTPS URLs:
-   → https://192.168.1.100:5443
-   → https://office.example.com:5443
-   → https://home.example.com:5443
+   The system will auto-convert to HTTPS URLs with P2P_PORT:
+   → https://192.168.1.100:60001
+   → https://office.example.com:60001
+   → https://home.example.com:60001
    ```
 
 3. **Open firewall ports** (if connecting across networks):
    ```bash
-   # Allow port 5443 (HTTPS P2P sync)
+   # Allow P2P_PORT (default 60001) for HTTPS P2P sync
    # Mac: System Preferences → Security & Privacy → Firewall
    # Windows: Windows Defender Firewall → Advanced Settings
    # Linux:
-   sudo ufw allow 5443/tcp
+   sudo ufw allow 60001/tcp
    # OR
-   sudo firewall-cmd --permanent --add-port=5443/tcp
+   sudo firewall-cmd --permanent --add-port=60001/tcp
    sudo firewall-cmd --reload
    ```
 
@@ -188,12 +189,6 @@ Done! All containers now share threats automatically via encrypted HTTPS.
 - ✅ Avoids conflicts with common services (80, 443, 3000, 5000, 8080)
 - ✅ No root/admin privileges needed
 - ✅ Safe dynamic port range (49152-65535)
-
-**🔧 Need different ports?** See [PORT_CONFIGURATION.md](PORT_CONFIGURATION.md) for:
-- How to change ports if already in use
-- Running multiple containers on same machine
-- Firewall configuration for custom ports
-- Port conflict troubleshooting
 
 **Connection Architecture:**
 ```
@@ -220,9 +215,168 @@ PEER_URLS=https://peer1:60001,https://peer2:60001
 
 **Auto-refresh rate:** Dashboard updates every 5 minutes
 
+**📖 See Port Configuration section below for:**
+- Checking port availability
+- Changing ports if already in use
+- Running multiple containers on same machine
+- Firewall configuration
+- Port conflict troubleshooting
+
 ---
 
-## ⚡ Quick Start
+## 🔌 Port Configuration
+
+### Default Ports
+
+| Port | Protocol | Purpose | Access |
+|------|----------|---------|--------|
+| **60000** | HTTP | Dashboard | Local only |
+| **60001** | HTTPS | P2P Sync | Worldwide |
+
+**Why high ports (60000+)?**
+- ✅ Avoids conflicts with common services (80, 443, 3000, 5000, 8080)
+- ✅ No root/admin privileges needed
+- ✅ Safe dynamic port range (49152-65535)
+- ✅ Less likely to be blocked by firewalls
+
+### Check Port Availability
+
+**Before installation, verify ports are free:**
+
+**Linux/Mac:**
+```bash
+sudo lsof -i :60000  # Empty output = port is FREE ✅
+sudo lsof -i :60001
+```
+
+**Windows (PowerShell):**
+```powershell
+netstat -ano | findstr :60000  # No output = port is FREE ✅
+netstat -ano | findstr :60001
+```
+
+### Change Ports (If Needed)
+
+**Method 1: Interactive Setup**
+```bash
+./setup_peer.sh
+# Answer "n" when asked "Use default ports?"
+# Enter your custom ports
+```
+
+**Method 2: Edit `.env` File**
+```bash
+# Create/edit server/.env
+nano server/.env
+
+# Add or modify these lines:
+DASHBOARD_PORT=60000  # Change to your desired port
+P2P_PORT=60001        # Change to your desired port
+
+# Save and restart
+cd server
+docker compose down
+docker compose up -d
+```
+
+**Recommended Alternative Ports:**
+- `50000-50001` (if 60000 conflicts)
+- `55000-55001` (alternative)
+- `65000-65001` (highest safe range)
+
+### Multiple Containers on Same Machine
+
+Each container needs **unique ports**:
+
+```bash
+# Container 1
+DASHBOARD_PORT=60000
+P2P_PORT=60001
+
+# Container 2 (same machine)
+DASHBOARD_PORT=60100
+P2P_PORT=60101
+
+# Container 3 (same machine)
+DASHBOARD_PORT=60200
+P2P_PORT=60201
+```
+
+Then connect them via `PEER_URLS`:
+```bash
+# Container 1's .env
+PEER_URLS=https://localhost:60101,https://localhost:60201
+
+# Container 2's .env
+PEER_URLS=https://localhost:60001,https://localhost:60201
+
+# Container 3's .env
+PEER_URLS=https://localhost:60001,https://localhost:60101
+```
+
+### Firewall Configuration
+
+**⚠️ Important:** Only open `P2P_PORT` on firewall (not `DASHBOARD_PORT`)
+
+**Linux (UFW):**
+```bash
+sudo ufw allow 60001/tcp  # Replace with your P2P_PORT
+sudo ufw reload
+```
+
+**Linux (firewalld):**
+```bash
+sudo firewall-cmd --permanent --add-port=60001/tcp
+sudo firewall-cmd --reload
+```
+
+**Mac:**
+```
+System Preferences → Security & Privacy → Firewall
+→ Firewall Options → Add rule for port 60001
+```
+
+**Windows:**
+```
+Windows Defender Firewall → Advanced Settings
+→ Inbound Rules → New Rule → Port → TCP → 60001
+```
+
+**Router (Port Forwarding):**
+```
+External Port: 60001 → Internal Port: 60001 → Your PC's IP
+```
+
+### Port Troubleshooting
+
+**Error: Port already in use**
+```
+Error: Bind for 0.0.0.0:60000 failed: port is already allocated
+```
+
+**Solution:**
+1. Find what's using the port:
+   ```bash
+   sudo lsof -i :60000          # Linux/Mac
+   netstat -ano | findstr :60000  # Windows
+   ```
+
+2. Either:
+   - Stop the conflicting service, OR
+   - Change `DASHBOARD_PORT`/`P2P_PORT` in `.env`
+
+3. Rebuild:
+   ```bash
+   docker compose down
+   docker compose up -d
+   ```
+
+**Peers not connecting?**
+- Verify firewall allows P2P_PORT
+- Check peer URLs use correct ports
+- Test: `curl -k https://peer-ip:60001/api/p2p/status`
+
+---
 
 ## 🎯 Features
 
@@ -245,7 +399,7 @@ PEER_URLS=https://peer1:60001,https://peer2:60001
 
 ## 📊 Dashboard
 
-Access: **http://localhost:5000**
+Access: **http://localhost:60000** (configurable via `DASHBOARD_PORT`)
 
 Shows real-time:
 - 🔗 Connected peers (e.g., "3 / 5 peers online")
@@ -259,18 +413,24 @@ Shows real-time:
 
 ## ⚙️ Configuration
 
+**Port Configuration**
+
+Default ports (configurable in `.env`):
+```bash
+DASHBOARD_PORT=60000  # Dashboard web interface
+P2P_PORT=60001        # P2P mesh synchronization
+```
+
 **Connect to Peers**
 
 Edit `.env` file:
 ```bash
-# P2P Mesh Network
-PEER_URLS=http://office.example.com:5000,http://192.168.1.100:5000
+# P2P Mesh Network (use each peer's P2P_PORT)
+PEER_URLS=https://office.example.com:60001,https://192.168.1.100:60001
 PEER_NAME=home-main
 P2P_SYNC_ENABLED=true
 P2P_SYNC_INTERVAL=180
 ```
-
-Or add peers via dashboard: Click "Add Peer Container" button
 
 **VirusTotal API** (Recommended)
 ```bash
@@ -283,7 +443,8 @@ Get free key: https://www.virustotal.com/gui/join-us
 ## 🏗️ Architecture
 
 **Single Container**
-- Python 3.11 + Flask web server (port 5000)
+- Python 3.11 + Flask web server
+- Dual ports: 60000 (dashboard), 60001 (P2P sync)
 - AI engine with ML models (scikit-learn)
 - Network monitoring (Scapy)
 - P2P sync client (background thread)
@@ -294,8 +455,9 @@ Get free key: https://www.virustotal.com/gui/join-us
 - Each container = peer (both client AND server)
 - No master/slave hierarchy
 - Automatic discovery via configured URLs
-- Encrypted communication (upgradable to HTTPS)
+- HTTPS encrypted communication (TLS 1.3)
 - Resilient to peer failures
+- Configurable ports (default 60001)
 
 ---
 
@@ -343,10 +505,21 @@ Each container:
 
 ## 🛠️ Troubleshooting
 
+**Port conflicts?**
+- Check if ports are in use: `sudo lsof -i :60000` (Linux/Mac)
+- Change ports in `.env` file (see Port Configuration section above)
+- Restart: `docker compose down && docker compose up -d`
+
 **Peers not connecting?**
-- Verify firewall allows port 5000
-- Check peer URLs are reachable: `curl http://peer:5000/api/stats`
+- Verify firewall allows P2P_PORT (default 60001)
+- Check peer URLs use correct P2P_PORT for each peer
+- Test connectivity: `curl -k https://peer-ip:60001/api/p2p/status`
 - Ensure P2P_SYNC_ENABLED=true in .env
+
+**Dashboard not loading?**
+- Check container is running: `docker compose ps`
+- Verify correct port: `docker compose logs | grep "Dashboard:"`
+- Try: http://localhost:60000 (or your configured DASHBOARD_PORT)
 
 **Dashboard not loading?**
 - Check container is running: `docker compose ps`
