@@ -8,10 +8,11 @@ services:
     container_name: enterprise-security-ai
     restart: unless-stopped
     
-    # Network mode: host is required for device scanning to see network devices
-    # This allows the container to scan the actual host network (192.168.x.x)
-    # Note: In host mode, port mapping is not needed - uses host ports directly
-    network_mode: host
+    # Port mapping (works on Windows, Mac, and Linux)
+    # Note: On Linux, use 'network_mode: host' for full network scanning if needed
+    ports:
+      - "${DASHBOARD_PORT:-60000}:60000"  # Dashboard
+      - "${P2P_PORT:-60001}:60001"        # P2P mesh
     
     # Capabilities for packet capture (more secure than privileged: true)
     cap_add:
