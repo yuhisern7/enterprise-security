@@ -1,0 +1,174 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║  🛡️  AI-Powered Global Threat Intelligence Network                   ║
+║  Quick Deployment Guide                                              ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  📋 ARCHITECTURE                                                     │
+└──────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────┐
+│  Central Server     │  ← YOU host this (1 instance)
+│  Port: 5001 (HTTPS) │
+│  • Aggregates       │
+│  • Distributes      │
+└──────────┬──────────┘
+           │
+    ┌──────┼──────┐
+    │      │      │
+┌───▼───┐ ┌▼─────┐ ┌▼───────┐
+│Client1│ │Client2│ │Client3 │ ← Customers deploy (N instances)
+│Co. A  │ │Home B │ │Branch C│   Port: 5000 each
+└───────┘ └───────┘ └────────┘
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  🚀 FOR YOU (Service Provider)                                       │
+└──────────────────────────────────────────────────────────────────────┘
+
+1. Deploy Central Server:
+
+   $ git clone https://github.com/yuhisern7/enterprise-security.git
+   $ cd enterprise-security
+   $ ./setup_central.sh
+
+2. Save Master API Key (shown in output)
+
+3. Open Firewall:
+
+   $ sudo ufw allow 5001/tcp
+
+4. Your server is now at: https://YOUR-IP:5001
+
+5. Share these with customers:
+   • Server URL: https://YOUR-IP:5001
+   • Installation instructions (see below)
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  🏢 FOR CUSTOMERS (Companies & Homes)                                │
+└──────────────────────────────────────────────────────────────────────┘
+
+1. Deploy Client Container:
+
+   $ git clone https://github.com/yuhisern7/enterprise-security.git
+   $ cd enterprise-security
+   $ ./setup_client.sh
+
+2. Script will ask:
+   ✓ VirusTotal API key (optional)
+   ✓ Connect to central server? (yes)
+   ✓ Central server URL: https://YOUR-SERVER-IP:5001
+   ✓ Organization name
+
+3. Auto-registers and connects
+
+4. Dashboard: http://localhost:5000
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  📊 WHAT CUSTOMERS SEE ON DASHBOARD                                  │
+└──────────────────────────────────────────────────────────────────────┘
+
+🌍 Global Threat Intelligence Network
+  ✅ CONNECTED           ⏰ Last Sync: 2m ago
+  📤 Threats Shared: 5   📥 Global Threats: 1,247
+
+🌐 Central Server: https://your-server:5001
+🔑 Authenticated: ✅ Active
+🎓 Learning Mode: Collective Intelligence Enabled
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  🔄 HOW IT WORKS                                                     │
+└──────────────────────────────────────────────────────────────────────┘
+
+Company A detects attack from 1.2.3.4
+         ↓
+Blocks locally + uploads to central (encrypted)
+         ↓
+Central server receives threat
+         ↓
+    ┌────┼────┐
+    │    │    │
+   B    C    D   ← All clients download
+    │    │    │
+All update ML models
+         ↓
+Attacker tries Company B → INSTANT BLOCK
+(B never saw attacker before, but learned from A!)
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  💰 MONETIZATION                                                     │
+└──────────────────────────────────────────────────────────────────────┘
+
+Charge customers per connection:
+
+Free:    1 client     $0/month
+Pro:     10 clients   $99/month
+Enterprise: Unlimited $499/month
+
+Example Revenue:
+  100 customers × $99 = $9,900/month
+  1,000 customers × $99 = $99,000/month
+
+Your Cost: $50-500/month VPS (handles 10,000+ clients)
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  🔐 SECURITY                                                         │
+└──────────────────────────────────────────────────────────────────────┘
+
+✅ HTTPS/TLS encryption (self-signed cert, upgradable)
+✅ API key authentication per client
+✅ Only threat metadata shared (IP, type, severity)
+✅ No internal network data leaked
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  🛠️ MANAGEMENT                                                       │
+└──────────────────────────────────────────────────────────────────────┘
+
+View Central Server Logs:
+  $ cd central_server && docker compose logs -f
+
+View Connected Clients:
+  $ curl -k https://localhost:5001/api/v1/clients \
+      -H "X-API-Key: YOUR_MASTER_KEY"
+
+Backup Central Server Data:
+  $ tar -czf backup.tar.gz central_server/data/
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  📞 SUPPORT                                                          │
+└──────────────────────────────────────────────────────────────────────┘
+
+Documentation: README.md
+Architecture: ARCHITECTURE.md
+GitHub: https://github.com/yuhisern7/enterprise-security
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  ✅ CHECKLIST                                                        │
+└──────────────────────────────────────────────────────────────────────┘
+
+Service Provider (You):
+[ ] Deployed central server (./setup_central.sh)
+[ ] Saved master API key
+[ ] Opened firewall port 5001
+[ ] Tested: curl -k https://localhost:5001/health
+[ ] Shared server URL with customers
+
+Customer:
+[ ] Cloned repository
+[ ] Ran ./setup_client.sh
+[ ] Entered VirusTotal API key (optional)
+[ ] Connected to central server
+[ ] Dashboard shows "Connected" status
+[ ] Can see global threats on dashboard
+
+═══════════════════════════════════════════════════════════════════════
+            🎉 You're ready to deploy!
+═══════════════════════════════════════════════════════════════════════
