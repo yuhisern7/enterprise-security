@@ -1,4 +1,4 @@
-# 🎉 Marketing & Multi-Platform Deployment - Complete
+# 🎉 Marketing & Multi-Platform Deployment - Complete ✅
 
 ## ✅ What Was Accomplished
 
@@ -39,20 +39,55 @@ Added **157 lines** of persuasive marketing content targeting three key audience
 ✅ True P2P Mesh (no central server)
 ✅ Privacy-Preserving (dashboard privacy + collective learning)
 ✅ Zero Cost ($0 forever)
-✅ 5-Minute Setup
+✅ Platform-Specific Setup (Windows/Mac manual, Linux automated)
 ✅ Infinite Scale (1 to 1,000,000 nodes)
 ✅ Collective Intelligence (every node makes others smarter)
 ```
 
 ---
 
-### 2. **Multi-Platform Deployment Support**
+### 2. **Platform-Specific Installation Methods**
 
-Created comprehensive deployment infrastructure for various platforms:
+Updated installation to respect platform capabilities:
+
+#### **🪟 Windows Installation (Manual Only)**
+- ❌ No .sh script support
+- ✅ Clear PowerShell step-by-step instructions
+- ✅ Manual ExploitDB download (Git clone)
+- ✅ Native Windows commands (`copy`, `notepad`, `docker compose`)
+- ✅ Windows Defender Firewall setup guide
+- **Setup Time**: 10-15 minutes
+
+#### **🍎 macOS Installation (Manual Only)**
+- ❌ No .sh script support  
+- ✅ Clear Terminal step-by-step instructions
+- ✅ Manual ExploitDB download (Git clone)
+- ✅ Native macOS commands (`cp`, `nano`, `docker compose`)
+- ✅ System Preferences firewall setup guide
+- **Setup Time**: 10-15 minutes
+
+#### **🐧 Linux Installation (Automated + Manual)**
+- ✅ Automated script available (`./setup_peer.sh`)
+- ✅ Manual option also available (same as macOS)
+- ✅ Best performance (native Docker)
+- ✅ Cloud/VPS automated deployment
+- **Setup Time**: 5 minutes (automated) or 10 minutes (manual)
+
+**Benefits:**
+- No confusion about .sh scripts on Windows/Mac
+- Clear, platform-native instructions
+- Users follow commands they understand
+- Reduced support requests
+
+---
+
+### 3. **Multi-Platform Deployment Support**
+
+Created comprehensive deployment infrastructure for cloud and edge:
 
 #### **A. Cloud Deployment Script** (`cloud-deploy.sh` - 131 lines)
 
-**One-command deployment for any VPS/cloud:**
+**Linux VPS/Cloud Only - One-command deployment:**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/yuhisern7/enterprise-security/main/cloud-deploy.sh | bash
 ```
@@ -83,36 +118,39 @@ curl -fsSL https://raw.githubusercontent.com/yuhisern7/enterprise-security/main/
 
 ---
 
-#### **B. Platform Deployment Guide** (`DEPLOYMENT_PLATFORMS.md` - 320 lines)
+#### **B. Updated Platform Deployment Guide** (`DEPLOYMENT_PLATFORMS.md` - now 554 lines)
 
-**Comprehensive guide covering:**
+**Completely rewritten for new logical flow:**
 
-1. **Tested Platforms**
-   - Local Docker (Mac/Windows/Linux)
-   - Cloud platforms (AWS, GCP, Azure, DigitalOcean, Linode, Vultr, Hetzner)
-   - Raspberry Pi / ARM devices
-   - Kubernetes (self-hosted, managed)
-   - Edge/IoT platforms (Balena, AWS Greengrass, Azure IoT Edge)
+1. **Platform-Specific Installation Methods**
+   - Windows: Manual PowerShell steps (no .sh)
+   - macOS: Manual Terminal steps (no .sh)
+   - Linux: Automated script + manual option
+   - Raspberry Pi: Linux ARM manual/script
+   - Kubernetes: YAML manifest (platform-agnostic)
 
-2. **Deployment Methods**
-   - Cloud VPS deployment script
-   - Raspberry Pi deployment script
-   - Kubernetes YAML manifest
-   - Docker Compose with persistent volumes
-   - AWS EC2 one-line deploy
+2. **Platform-Specific Notes**
+   - Windows limitations and workarounds
+   - macOS native commands
+   - Linux advantages (automated, cloud support)
+   - Raspberry Pi requirements
+   - Kubernetes considerations
 
-3. **Testing Checklist**
-   - 6 local OS variations
-   - 7 cloud VPS providers
-   - 4 ARM/edge devices
-   - 8 container orchestration platforms
-   - 5 network configurations
+3. **Updated Testing Checklist**
+   - Organized by platform type
+   - Clear OS/architecture requirements
+   - Manual vs automated methods labeled
 
-4. **Platform Comparison Table**
-   - Cost per month
-   - Setup time
-   - RAM usage
-   - Best use cases
+4. **Quick Reference Commands**
+   - Windows PowerShell commands
+   - macOS/Linux Terminal commands
+   - Cloud/VPS one-line deploy
+   - Kubernetes kubectl commands
+
+5. **Removed Outdated Content**
+   - Deleted DEPLOYMENT_GUIDE.txt (central server model)
+   - Removed references to .sh scripts on Windows/Mac
+   - Updated all examples to platform-native commands
 
 ---
 
@@ -144,6 +182,95 @@ curl -fsSL https://raw.githubusercontent.com/yuhisern7/enterprise-security/main/
 - ⚠️ Ports 60000-60001 in use (existing container running)
 - System ready for deployment
 
+
+**Platform-agnostic YAML manifest:**
+- Works on any Kubernetes platform (Windows/Mac/Linux masters)
+- Self-hosted clusters (K3s, MicroK8s)
+- Managed Kubernetes (EKS, GKE, AKS)
+- Includes namespace, ConfigMap, Deployment, Service
+- NET_ADMIN capability for Scapy
+- Resource limits defined
+
+---
+
+### 4. **README.md Updated** (added +172 lines)
+
+**New Quick Start Section with 3 Platform Paths:**
+
+**🪟 Windows Installation**
+- Prerequisites check
+- Clone repository (PowerShell)
+- Download ExploitDB (Git clone OR manual download link)
+- Configure environment (copy .env, edit in Notepad)
+- Build and start (docker compose)
+- Firewall setup (Windows Defender)
+
+**🍎 macOS Installation**
+- Prerequisites check
+- Clone repository (Terminal)
+- Download ExploitDB (Git clone)
+- Configure environment (cp, nano)
+- Build and start (docker compose)
+- Firewall setup (System Preferences)
+
+**🐧 Linux Installation**
+- One-command automated script
+- Manual option (same as macOS)
+- Fastest setup (5 minutes)
+
+**🌐 Connecting Multiple Containers (P2P Mesh)**
+- Platform-specific IP detection commands
+- Windows: `ipconfig` + `curl ifconfig.me`
+- macOS: `ifconfig` + `curl ifconfig.me`
+- Linux: `ip addr` + `curl ifconfig.me`
+- Universal .env configuration
+- Firewall setup for each platform
+
+---
+
+## 📊 Updated Statistics
+
+**Total Lines Modified/Added:**
+- README.md: +361 lines (marketing + installation rewrite)
+- DEPLOYMENT_PLATFORMS.md: +485 lines (complete rewrite)
+- cloud-deploy.sh: 131 lines (Linux VPS only)
+- test-platform.sh: 178 lines (compatibility test)
+- **Total: 1,155 lines**
+
+**Files Deleted:**
+- DEPLOYMENT_GUIDE.txt (outdated central server model)
+
+**Git Commits:**
+1. `025d675` - Marketing content (157 lines)
+2. `a2318bf` - Multi-platform deployment (538 lines)
+3. `d57aab3` - Cleanup nested repo
+4. `b709599` - Platform test script (178 lines)
+5. `f5ebf49` - Platform-specific manual steps (172 lines)
+6. `78f5ec5` - Updated DEPLOYMENT_PLATFORMS.md (485 lines)
+
+---
+
+## 🎯 Final Installation Flow
+
+**By Platform:**
+
+| Platform | Method | Script Support | Setup Time |
+|----------|--------|----------------|------------|
+| **Windows** | Manual PowerShell | ❌ No .sh | 10-15 min |
+| **macOS** | Manual Terminal | ❌ No .sh | 10-15 min |
+| **Linux Desktop** | Automated OR Manual | ✅ ./setup_peer.sh | 5-10 min |
+| **Cloud/VPS (Linux)** | One-line command | ✅ cloud-deploy.sh | 5 min |
+| **Raspberry Pi** | Manual OR Script | ✅ Both options | 10-15 min |
+| **Kubernetes** | YAML manifest | ✅ kubectl apply | 15-30 min |
+
+**Key Improvements:**
+- ✅ No more confusion about .sh scripts on Windows/Mac
+- ✅ Clear, platform-native instructions for each OS
+- ✅ Linux users get automation benefits
+- ✅ Cloud deployments remain one-command simple
+- ✅ All platforms well-documented with quick reference
+
+---
 ---
 
 #### **D. Kubernetes Deployment** (in DEPLOYMENT_PLATFORMS.md)
