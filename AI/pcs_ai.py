@@ -659,20 +659,26 @@ def _train_ml_models_from_history() -> None:
         _feature_scaler.fit(X)
         X_scaled = _feature_scaler.transform(X)
         
-        # Train anomaly detector (unsupervised)
+        # Train anomaly detector (unsupervised - doesn't need labels)
         print("[AI] Training anomaly detector (IsolationForest)...")
         _anomaly_detector.fit(X_scaled)
         
         # Train threat classifier if we have enough diverse labels
         unique_labels = set(y_threat)
+        unique_anomaly_classes = set(y_anomaly)
+        
         if len(unique_labels) >= 2:
             print(f"[AI] Training threat classifier with {len(unique_labels)} threat types...")
             _threat_classifier.fit(X_scaled, y_threat)
+        else:
+            print(f"[AI] ⚠️  Threat classifier needs 2+ threat types (currently: {len(unique_labels)}). Skipping...")
         
-        # Train IP reputation model
-        if len(y_anomaly) >= 10:
+        # Train IP reputation model only if we have diverse classes
+        if len(unique_anomaly_classes) >= 2 and len(y_anomaly) >= 10:
             print("[AI] Training IP reputation model...")
             _ip_reputation_model.fit(X_scaled, y_anomaly)
+        else:
+            print(f"[AI] ⚠️  IP reputation model needs diverse data (classes: {len(unique_anomaly_classes)}). Skipping...")
         
         _ml_last_trained = datetime.utcnow()
         

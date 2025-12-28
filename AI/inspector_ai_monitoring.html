@@ -1927,8 +1927,8 @@
           document.getElementById('server-details').textContent = 'Failed to load status';
         }
         
-        // Refresh every 30 seconds
-        setTimeout(loadP2PStatus, 30000);
+        // Refresh every 5 minutes
+        setTimeout(loadP2PStatus, 300000);
       }
       
       async function showAddPeerModal() {
