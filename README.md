@@ -384,16 +384,36 @@ cd ..
    ```
 3. Wait 2-3 minutes for initial setup
 
-**Step 5: Access Dashboard**
+**Step 5: Configure Windows Firewall (REQUIRED)**
+
+**Method 1: Using PowerShell (Recommended - Run as Administrator)**
+```powershell
+# Open PowerShell as Administrator (Right-click → Run as Administrator)
+
+# Allow Dashboard Port (60000)
+New-NetFirewallRule -DisplayName "Enterprise Security Dashboard" -Direction Inbound -Protocol TCP -LocalPort 60000 -Action Allow
+
+# Allow P2P Mesh Port (60001) - Required for multi-container setup
+New-NetFirewallRule -DisplayName "Enterprise Security P2P" -Direction Inbound -Protocol TCP -LocalPort 60001 -Action Allow
+
+# Verify rules created
+Get-NetFirewallRule -DisplayName "Enterprise Security*" | Format-Table DisplayName, Enabled, Direction
+```
+
+**Method 2: Using Windows Defender Firewall GUI**
+1. Press `Win + R`, type `wf.msc`, press Enter
+2. Click **Inbound Rules** → **New Rule** (right panel)
+3. Rule Type: **Port** → Next
+4. Protocol: **TCP**, Specific local ports: **60000** → Next
+5. Action: **Allow the connection** → Next
+6. Profile: Check **all three** (Domain, Private, Public) → Next
+7. Name: **Enterprise Security Dashboard** → Finish
+8. **Repeat steps 2-7** for port **60001** (name it "Enterprise Security P2P")
+
+**Step 6: Access Dashboard**
 - Open browser: http://localhost:60000
 - Dashboard should load automatically
-
-**Step 6: Configure Firewall (Optional - for P2P mesh)**
-1. Open **Windows Defender Firewall** → Advanced Settings
-2. Inbound Rules → New Rule
-3. Port → TCP → Specific Port: **60001**
-4. Allow the connection
-5. Name: "Enterprise Security P2P"
+- If blocked, check firewall rules are enabled
 
 ---
 
@@ -444,14 +464,43 @@ cd ..
    ```
 3. Wait 2-3 minutes for initial setup
 
-**Step 5: Access Dashboard**
+**Step 5: Configure macOS Firewall (If Enabled)**
+
+**Check if Firewall is enabled:**
+```bash
+# Check firewall status
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate
+# If "Firewall is enabled", continue below. If disabled, skip to Step 6.
+```
+
+**Method 1: Using Terminal (Recommended)**
+```bash
+# Allow Docker.app (covers all container ports)
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /Applications/Docker.app
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblockapp /Applications/Docker.app
+
+# Verify
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --listapps | grep -i docker
+```
+
+**Method 2: Using System Preferences GUI**
+1. **System Preferences** → **Security & Privacy** → **Firewall** tab
+2. Click the **lock icon** (bottom-left) to make changes (enter password)
+3. Click **Firewall Options** button
+4. Click **+** button to add application
+5. Navigate to **Applications** → Select **Docker.app** → Add
+6. Set Docker.app to **Allow incoming connections**
+7. Click **OK**, then lock the settings
+
+**Note:** macOS firewall typically allows localhost (127.0.0.1) connections by default. These steps are needed if:
+- You're accessing from another machine on your network
+- Setting up P2P mesh with other containers
+- Firewall is blocking Docker connections
+
+**Step 6: Access Dashboard**
 - Open browser: http://localhost:60000
 - Dashboard should load automatically
-
-**Step 6: Configure Firewall (Optional - for P2P mesh)**
-1. System Preferences → Security & Privacy → Firewall
-2. Firewall Options → Add application or port
-3. Allow port **60001** for incoming connections
+- On first access, macOS may prompt to allow Docker - click **Allow**
 
 ---
 
@@ -477,7 +526,106 @@ The script automatically:
 
 **Option 2: Manual Installation (10 minutes)**
 
-Follow the same steps as macOS above. All commands are identical.
+**Step 1: Clone Repository**
+```bash
+git clone https://github.com/yuhisern7/enterprise-security.git
+cd enterprise-security
+```
+
+**Step 2: Download ExploitDB Database**
+```bash
+cd AI
+git clone https://github.com/offensive-security/exploitdb.git exploitdb
+cd ..
+```
+
+**Step 3: Configure Environment**
+```bash
+cp .env.example server/.env
+nano server/.env  # or use vim, vi, etc.
+# Set VIRUSTOTAL_API_KEY (optional)
+# Add PEER_URLS if connecting to other containers (optional)
+# Save: Ctrl+O, Exit: Ctrl+X
+```
+
+**Step 4: Configure Firewall (REQUIRED)**
+
+**For UFW (Ubuntu/Debian):**
+```bash
+# Check if UFW is active
+sudo ufw status
+
+# Allow Dashboard Port (60000)
+sudo ufw allow 60000/tcp comment 'Enterprise Security Dashboard'
+
+# Allow P2P Mesh Port (60001)
+sudo ufw allow 60001/tcp comment 'Enterprise Security P2P'
+
+# Reload firewall
+sudo ufw reload
+
+# Verify rules
+sudo ufw status numbered | grep -E '60000|60001'
+```
+
+**For firewalld (RHEL/CentOS/Fedora):**
+```bash
+# Check if firewalld is running
+sudo firewall-cmd --state
+
+# Allow Dashboard Port (60000)
+sudo firewall-cmd --permanent --add-port=60000/tcp
+sudo firewall-cmd --permanent --add-port=60000/tcp --add-service=http
+
+# Allow P2P Mesh Port (60001)
+sudo firewall-cmd --permanent --add-port=60001/tcp
+
+# Reload firewall
+sudo firewall-cmd --reload
+
+# Verify rules
+sudo firewall-cmd --list-ports
+sudo firewall-cmd --list-all | grep -E '60000|60001'
+```
+
+**For iptables (Manual configuration):**
+```bash
+# Allow Dashboard Port (60000)
+sudo iptables -A INPUT -p tcp --dport 60000 -j ACCEPT
+
+# Allow P2P Mesh Port (60001)
+sudo iptables -A INPUT -p tcp --dport 60001 -j ACCEPT
+
+# Save rules (Ubuntu/Debian)
+sudo netfilter-persistent save
+# OR for RHEL/CentOS
+sudo service iptables save
+
+# Verify rules
+sudo iptables -L -n | grep -E '60000|60001'
+```
+
+**For systems without firewall:**
+```bash
+# Check if any firewall is running
+sudo iptables -L -n  # If empty, no iptables rules
+systemctl status ufw  # Check UFW
+systemctl status firewalld  # Check firewalld
+
+# If all show inactive/not found, no firewall configuration needed
+```
+
+**Step 5: Build and Start**
+```bash
+cd server
+docker compose up -d --build
+# Wait 2-3 minutes for initial setup
+```
+
+**Step 6: Access Dashboard**
+- Open browser: http://localhost:60000
+- Or from another machine: http://YOUR_SERVER_IP:60000
+- Dashboard should load automatically
 
 ---
 
