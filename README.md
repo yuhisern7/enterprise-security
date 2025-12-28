@@ -302,7 +302,121 @@ Compatible with:
 
 ## 💼 Deployment & Scaling
 
-### Single Server Deployment (Recommended)
+### Mode 1: Standalone (Default)
+
+**Single container**, no central server - ideal for testing or small deployments:
+
+```bash
+git clone https://github.com/yuhisern7/enterprise-security.git
+cd enterprise-security
+./setup.sh
+```
+
+Runs independently - all learning is local.
+
+---
+
+### Mode 2: Global Threat Sharing Network (Recommended)
+
+**Architecture:** 1 central server + multiple client containers  
+**Benefit:** All clients learn from each other's attacks in real-time  
+**Encryption:** HTTPS/TLS with API key authentication
+
+```
+┌─────────────────────────────────────────┐
+│   Central Server (Your Infrastructure)  │
+│   • Aggregates all threats              │
+│   • Distributes global threat feed      │
+│   • Encrypted HTTPS + API key auth      │
+└─────────────────┬───────────────────────┘
+                  │
+        ┌─────────┼─────────┐
+        │         │         │
+    ┌───▼───┐ ┌──▼───┐ ┌──▼───┐
+    │Client1│ │Client2│ │Client3│
+    │Company│ │ Home  │ │Branch│
+    │   A   │ │   B   │ │   C  │
+    └───────┘ └──────┘ └──────┘
+```
+
+#### Step 1: Deploy Central Server (One-Time)
+
+```bash
+cd central_server
+docker compose up -d
+```
+
+Get master API key:
+```bash
+docker compose logs | grep "master API key"
+```
+
+**Output:**
+```
+Generated new master API key: abc123xyz789...
+SAVE THIS KEY - it will not be shown again!
+```
+
+#### Step 2: Register Client Nodes
+
+Each company/home deploying your system registers:
+
+```bash
+curl -k -X POST https://your-server-ip:5001/api/v1/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "client_name": "Company ABC HQ",
+    "client_info": {
+      "location": "New York",
+      "network_size": "500 users"
+    }
+  }'
+```
+
+**Response:**
+```json
+{
+  "client_id": "a1b2c3d4e5f6g7h8",
+  "api_key": "xyz789abc123def456...",
+  "message": "Registration successful. SAVE YOUR API KEY!"
+}
+```
+
+#### Step 3: Configure Client Containers
+
+On **each client machine** (company/home), edit `.env`:
+
+```bash
+# Central threat intelligence server
+CENTRAL_SERVER_URL=https://your-central-server-ip:5001
+CENTRAL_SERVER_API_KEY=xyz789abc123def456...
+SYNC_ENABLED=true
+SYNC_INTERVAL=300  # Sync every 5 minutes
+```
+
+Deploy client:
+```bash
+cd enterprise-security
+./setup.sh
+# Container automatically connects to central server
+```
+
+#### How It Works
+
+**When Client A detects an attack:**
+1. Local AI blocks the attacker
+2. Threat data (IP, attack type, severity) sent to central server (encrypted)
+3. Central server distributes to all clients (B, C, D...)
+4. All clients update their ML models with this new attack pattern
+5. Next time any client sees this attacker, they block instantly
+
+**Privacy:** Only threat metadata is shared (IP, attack type), not internal network data.
+
+**Resilience:** Clients continue working if central server is down (standalone mode).
+
+---
+
+### Mode 3: Horizontal Scaling (Large Enterprise)
 
 **Current setup runs 1 Docker container** that handles:
 - Packet capture + threat detection

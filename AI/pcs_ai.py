@@ -94,6 +94,16 @@ except ImportError as e:
     print(f"[WARNING] Enterprise features not available: {e}")
     print("[INFO] System will run in standard mode without external threat intelligence")
 
+# Central Server Sync Integration
+try:
+    from AI.central_sync import get_sync_client, sync_threat, start_sync, get_sync_status
+    CENTRAL_SYNC_AVAILABLE = True
+    print("[CENTRAL] Central server sync module loaded")
+except ImportError as e:
+    CENTRAL_SYNC_AVAILABLE = False
+    print(f"[INFO] Central server sync not available: {e}")
+    print("[INFO] Running in standalone mode (no global threat sharing)")
+
 
 class ThreatLevel(str, Enum):
     SAFE = "SAFE"
@@ -1275,6 +1285,13 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
         print(f"[AI] 🎓 AUTO-TRAINING triggered after logging threat (total: {len(_threat_log)} events)...")
         _train_ml_models_from_history()
 
+
+    # 🌍 CENTRAL SYNC: Share threat with global network
+    if CENTRAL_SYNC_AVAILABLE:
+        try:
+            sync_threat(event)
+        except Exception as e:
+            print(f"[CENTRAL] Warning: Failed to sync threat: {e}")
 
 def _block_ip(ip_address: str) -> None:
     """Block an IP address and save to persistent storage."""
@@ -3040,6 +3057,21 @@ def clear_blocked_ips_only() -> dict:
     }
 
 
+def add_global_threat_to_learning(global_threat: Dict) -> None:
+    """Add a threat from central server to local learning database"""
+    # Add to local threat log for ML training
+    _threat_log.append(global_threat)
+    
+    # Keep only last 1000 events
+    if len(_threat_log) > 1000:
+        _threat_log.pop(0)
+    
+    # Trigger retraining if needed
+    if ML_AVAILABLE and len(_threat_log) % 10 == 0:  # Retrain every 10 global threats
+        _train_ml_models_from_history()
+        print(f"[CENTRAL] 🎓 Learned from global threat network ({len(_threat_log)} total events)")
+
+
 # Load persistent threat data on module import
 _load_threat_data()
 
@@ -3052,3 +3084,16 @@ if ENTERPRISE_FEATURES_AVAILABLE:
         print(f"[ENTERPRISE] Demo API Key: {demo_api_key}")
     except Exception as e:
         print(f"[ENTERPRISE WARNING] Failed to start enterprise features: {e}")
+
+# Start Central Server Sync
+if CENTRAL_SYNC_AVAILABLE:
+    try:
+        start_sync()
+        sync_status = get_sync_status()
+        if sync_status['enabled']:
+            print(f"[CENTRAL] Connected to threat intelligence network: {sync_status['server_url']}")
+            print(f"[CENTRAL] Global learning enabled - sharing threats across all nodes")
+        else:
+            print(f"[CENTRAL] Running in standalone mode")
+    except Exception as e:
+        print(f"[CENTRAL WARNING] Failed to start sync: {e}")

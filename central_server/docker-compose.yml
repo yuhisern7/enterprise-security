@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  central-server:
+    build: .
+    container_name: threat-intel-central
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./data:/app/data
+      - ./certs:/app/certs  # Mount custom SSL certs if you have them
+    environment:
+      - USE_SSL=true
+      - SSL_CERT=/app/certs/cert.pem
+      - SSL_KEY=/app/certs/key.pem
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

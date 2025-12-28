@@ -903,6 +903,74 @@ def remove_from_whitelist():
     })
 
 
+@app.route('/api/central-sync/status', methods=['GET'])
+def get_central_sync_status():
+    """Get central server sync status"""
+    try:
+        from AI.central_sync import get_sync_status
+        status = get_sync_status()
+        return jsonify({
+            'success': True,
+            'sync_status': status
+        })
+    except ImportError:
+        return jsonify({
+            'success': True,
+            'sync_status': {'enabled': False, 'message': 'Central sync not available'}
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/central-sync/register', methods=['POST'])
+def register_with_central():
+    """Register this client with central server"""
+    data = request.get_json()
+    server_url = data.get('server_url')
+    client_name = data.get('client_name', 'Unknown Client')
+    
+    if not server_url:
+        return jsonify({
+            'success': False,
+            'message': 'server_url is required'
+        }), 400
+    
+    try:
+        import requests
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        
+        response = requests.post(
+            f"{server_url}/api/v1/register",
+            json={'client_name': client_name},
+            verify=False,
+            timeout=10
+        )
+        
+        if response.status_code == 201:
+            result = response.json()
+            return jsonify({
+                'success': True,
+                'client_id': result['client_id'],
+                'api_key': result['api_key'],
+                'message': 'Registration successful! Add these to your .env file:'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': f'Registration failed: {response.text}'
+            }), response.status_code
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 def start_network_monitoring():
     """Start network monitoring in background"""
     try:
