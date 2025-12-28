@@ -1,18 +1,79 @@
 # 🛡️ AI-Powered Network Security System
 
-**Enterprise-grade threat detection with self-learning AI and automated threat intelligence crawlers.**
+**Enterprise-grade threat detection with self-learning AI and global threat sharing network.**
 
 🤖 **Self-Learning AI** - Trains on 46,948 real exploits from ExploitDB  
-🌍 **Real-Time Detection** - VirusTotal integration (70+ security vendors)  
+🌍 **Global Threat Network** - All clients learn from each other's attacks (encrypted)  
+⚡ **Real-Time Detection** - VirusTotal integration (70+ security vendors)  
 🕷️ **12 Threat Crawlers** - Continuous learning from CVE, MalwareBazaar, OTX, URLhaus & more  
 🎯 **Attack Signatures** - Detects nmap, sqlmap, nikto, burp, metasploit  
-⚡ **Smart IP Management** - Unblock, whitelist, or keep blocked with one click  
+🔒 **Encrypted Sharing** - HTTPS/TLS + API key authentication  
 📊 **Live Dashboard** - Real-time threat feed with geolocation & scrollable logs  
-🏢 **Enterprise Ready** - SIEM/SOC integration via REST API  
+🏢 **Enterprise Ready** - SIEM/SOC integration via REST API
 
 ---
 
-## 🚀 Quick Start (ONE COMMAND)
+## 🚀 Quick Start - 3 Deployment Modes
+
+### Mode 1: Standalone (Fastest)
+
+**For:** Testing, single site, no global sharing
+
+```bash
+git clone https://github.com/yuhisern7/enterprise-security.git
+cd enterprise-security
+./setup.sh  # Linux/Mac
+# OR
+setup.bat   # Windows
+```
+
+Access: `http://localhost:5000`
+
+**Done!** Single container protecting your network.
+
+---
+
+### Mode 2: Global Threat Network (Recommended)
+
+**For:** Multiple customers, global learning, collective defense
+
+**Architecture:** 1 central server (you host) + N client containers (customers deploy)
+
+**Step 1 - Deploy Central Server (Once):**
+```bash
+cd central_server
+docker compose up -d
+# Get master API key from logs
+```
+
+**Step 2 - Deploy Clients (Each Customer):**
+```bash
+git clone https://github.com/yuhisern7/enterprise-security.git
+cd enterprise-security
+
+# Edit .env:
+# CENTRAL_SERVER_URL=https://your-server:5001
+# CENTRAL_SERVER_API_KEY=<get from registration>
+# SYNC_ENABLED=true
+
+./setup.sh
+```
+
+**Result:** When Client A is attacked, B, C, D all learn instantly!
+
+📖 **Full Guide:** See [GLOBAL_SETUP.md](GLOBAL_SETUP.md) and [ARCHITECTURE.md](ARCHITECTURE.md)
+
+---
+
+### Mode 3: Horizontal Scaling
+
+**For:** High-traffic networks, enterprise scale
+
+Deploy same client container on multiple servers, add load balancer.
+
+**See:** [README.md - Deployment & Scaling](#💼-deployment--scaling)
+
+---
 
 ### Prerequisites
 - **Docker Desktop** (Windows/Mac) or **Docker Engine** (Linux)
