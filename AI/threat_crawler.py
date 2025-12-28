@@ -89,6 +89,9 @@ class CVECrawler(ThreatCrawler):
             return cves
             
         except Exception as e:
+            logger.warning(f"[{self.name}] CVE API temporarily unavailable: {e}")
+            return []  # Return empty list instead of crashing
+        except Exception as e:
             logger.error(f"[{self.name}] Error crawling CVEs: {e}")
             # Fallback: return sample data for testing
             logger.info(f"[{self.name}] Using sample CVE data for testing")
