@@ -903,21 +903,113 @@ def remove_from_whitelist():
     })
 
 
-@app.route('/api/central-sync/status', methods=['GET'])
-def get_central_sync_status():
-    """Get central server sync status"""
+@app.route('/api/p2p/status', methods=['GET'])
+def get_p2p_status():
+    """Get P2P sync status"""
     try:
-        from AI.central_sync import get_sync_status
-        status = get_sync_status()
+        from AI.p2p_sync import get_p2p_status
+        status = get_p2p_status()
         return jsonify({
             'success': True,
-            'sync_status': status
+            'p2p_status': status
         })
     except ImportError:
         return jsonify({
             'success': True,
-            'sync_status': {'enabled': False, 'message': 'Central sync not available'}
+            'p2p_status': {'enabled': False, 'message': 'P2P sync not available'}
         })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/p2p/threats', methods=['GET', 'POST'])
+def p2p_threats():
+    """
+    Peer-to-peer threat exchange endpoint
+    GET: Return our threats for peer to fetch
+    POST: Receive threats from peer
+    """
+    try:
+        from AI.p2p_sync import get_p2p_sync, get_peer_threats
+        
+        if request.method == 'POST':
+            # Receive threats from peer
+            data = request.get_json()
+            threats = data.get('threats', [])
+            
+            sync = get_p2p_sync()
+            new_count = 0
+            for threat in threats:
+                if sync.receive_threat(threat):
+                    new_count += 1
+                    # Learn from peer's threat
+                    try:
+                        pcs_ai.add_global_threat_to_learning(threat)
+                    except:
+                        pass
+            
+            return jsonify({
+                'success': True,
+                'received': new_count,
+                'message': f'Received {new_count} new threats'
+            })
+        
+        else:
+            # GET: Return our threats for peer to fetch
+            since = request.args.get('since', '')
+            limit = int(request.args.get('limit', 100))
+            
+            # Return our detected threats
+            threats = pcs_ai._threat_log[-limit:]
+            
+            # Filter by timestamp if requested
+            if since:
+                threats = [t for t in threats if t.get('timestamp', '') > since]
+            
+            return jsonify({
+                'success': True,
+                'threats': threats,
+                'count': len(threats)
+            })
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/p2p/add-peer', methods=['POST'])
+def add_peer():
+    """Add a new peer URL dynamically"""
+    data = request.get_json()
+    peer_url = data.get('peer_url')
+    
+    if not peer_url:
+        return jsonify({
+            'success': False,
+            'message': 'peer_url is required'
+        }), 400
+    
+    try:
+        from AI.p2p_sync import get_p2p_sync
+        sync = get_p2p_sync()
+        
+        if peer_url not in sync.peer_urls:
+            sync.peer_urls.append(peer_url)
+            return jsonify({
+                'success': True,
+                'message': f'Added peer: {peer_url}'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Peer already configured'
+            })
+    
     except Exception as e:
         return jsonify({
             'success': False,
@@ -927,48 +1019,17 @@ def get_central_sync_status():
 
 @app.route('/api/central-sync/register', methods=['POST'])
 def register_with_central():
-    """Register this client with central server"""
-    data = request.get_json()
-    server_url = data.get('server_url')
-    client_name = data.get('client_name', 'Unknown Client')
-    
-    if not server_url:
-        return jsonify({
-            'success': False,
-            'message': 'server_url is required'
-        }), 400
-    
-    try:
-        import requests
-        import urllib3
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        
-        response = requests.post(
-            f"{server_url}/api/v1/register",
-            json={'client_name': client_name},
-            verify=False,
-            timeout=10
-        )
-        
-        if response.status_code == 201:
-            result = response.json()
-            return jsonify({
-                'success': True,
-                'client_id': result['client_id'],
-                'api_key': result['api_key'],
-                'message': 'Registration successful! Add these to your .env file:'
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'message': f'Registration failed: {response.text}'
-            }), response.status_code
-    
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    """DEPRECATED: No central server needed in P2P architecture"""
+    return jsonify({
+        'success': False,
+        'message': 'Central server deprecated - using P2P mesh instead. Set PEER_URLS environment variable.'
+    }), 410
+
+
+@app.route('/api/central-sync/status', methods=['GET'])
+def get_central_sync_status():
+    """DEPRECATED: Redirect to P2P status"""
+    return get_p2p_status()
 
 
 def start_network_monitoring():

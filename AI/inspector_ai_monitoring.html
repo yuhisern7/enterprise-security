@@ -254,62 +254,63 @@
     </div>
 
     <main>
-      <!-- Central Threat Intelligence Network Status -->
-      <section id="central-network-status" style="background: linear-gradient(135deg, #1a2a3d, #1a1e2e); border: 2px solid #5fe2ff;">
-        <h2>🌍 Global Threat Intelligence Network</h2>
+      <!-- P2P Mesh Network Status -->
+      <section id="p2p-network-status" style="background: linear-gradient(135deg, #1a2a3d, #1a1e2e); border: 2px solid #5fe2ff;">
+        <h2>🌐 P2P Mesh Network - All Containers Are Equal</h2>
         <p class="muted" style="margin-bottom: 1rem;">
-          <strong id="network-status-text">⏳ Checking connection...</strong>
+          <strong id="network-status-text">When A gets attacked, B and C learn automatically. Brilliant. 🚀</strong>
         </p>
         
         <div class="stats-grid" id="network-stats-grid">
           <div class="stat-card" style="border-left-color: #5fe2ff;">
-            <div class="stat-label">🔗 CONNECTION STATUS</div>
-            <div class="stat-value" id="connection-status" style="font-size: 1.3rem;">⏳</div>
-            <div class="muted" id="connection-details">Initializing...</div>
+            <div class="stat-label">🔗 CONNECTED PEERS</div>
+            <div class="stat-value" id="peers-online" style="font-size: 1.3rem;">⏳</div>
+            <div class="muted" id="peer-details">Checking connections...</div>
           </div>
           
           <div class="stat-card" style="border-left-color: #5fff9f;">
             <div class="stat-label">⏰ LAST SYNC</div>
             <div class="stat-value" id="last-sync" style="font-size: 1.1rem;">--</div>
-            <div class="muted">Syncs every 5 minutes</div>
+            <div class="muted">Syncs every 3 minutes</div>
           </div>
           
           <div class="stat-card warning">
             <div class="stat-label">📤 THREATS SHARED</div>
-            <div class="stat-value" id="threats-queued">--</div>
-            <div class="muted">Pending upload to network</div>
+            <div class="stat-value" id="threats-sent">--</div>
+            <div class="muted">Broadcast to all peers</div>
           </div>
           
           <div class="stat-card success">
-            <div class="stat-label">📥 GLOBAL THREATS</div>
-            <div class="stat-value" id="global-threats-cached">--</div>
-            <div class="muted">Learned from other clients</div>
+            <div class="stat-label">📥 PEER THREATS</div>
+            <div class="stat-value" id="threats-received">--</div>
+            <div class="muted">Learned from peer attacks</div>
           </div>
         </div>
         
-        <!-- Connected Clients List (only shown if this is central server) -->
-        <div id="connected-clients-section" style="margin-top: 1.5rem; display: none;">
-          <h3 style="color: #5fe2ff; font-size: 1.1rem; margin-bottom: 1rem;">👥 Connected Client Nodes</h3>
-          <div id="clients-list" class="ip-list">
-            <div class="loading-spinner">Loading client list...</div>
+        <!-- Peer List -->
+        <div id="peer-list-section" style="margin-top: 1.5rem; display: none;">
+          <h3 style="color: #5fe2ff; font-size: 1.1rem; margin-bottom: 1rem;">👥 Connected Peer Containers</h3>
+          <div id="peers-list" class="ip-list">
+            <div class="loading-spinner">Loading peer list...</div>
           </div>
         </div>
         
-        <!-- Server URL Display -->
-        <div id="server-info" style="margin-top: 1.5rem; padding: 1rem; background: rgba(95, 226, 255, 0.1); border-radius: 6px; border: 1px solid #5fe2ff; display: none;">
+        <!-- P2P Active Display -->
+        <div id="p2p-info" style="margin-top: 1.5rem; padding: 1rem; background: rgba(95, 226, 255, 0.1); border-radius: 6px; border: 1px solid #5fe2ff; display: none;">
           <p class="muted" style="margin: 0; line-height: 1.8;">
-            <strong>🌐 Central Server:</strong> <span id="server-url-display">--</span><br>
-            <strong>🔑 Authenticated:</strong> <span id="auth-status">--</span><br>
-            <strong>🎓 Learning Mode:</strong> <span style="color: #5fff9f;">Collective Intelligence Enabled</span> - Your AI learns from all network attacks
+            <strong>🌐 P2P Mesh:</strong> <span id="peer-count-display">--</span> containers sharing threats<br>
+            <strong>🎓 Learning Mode:</strong> <span style="color: #5fff9f;">Collective Intelligence Enabled</span> - Every container learns from all attacks<br>
+            <strong>⚡ Efficiency:</strong> Small file size, extremely effective - hackers cannot scan or attack without detection
           </p>
         </div>
         
         <!-- Standalone Mode Notice -->
         <div id="standalone-notice" style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 184, 95, 0.1); border-radius: 6px; border: 1px solid #ffb85f; display: none;">
           <p class="muted" style="margin: 0; line-height: 1.8;">
-            <strong>ℹ️ Standalone Mode:</strong> Running without global threat sharing<br>
-            <strong>💡 Upgrade:</strong> Connect to central server to learn from attacks on other clients globally<br>
-            <button onclick="showRegistrationModal()" style="margin-top: 0.75rem;">🌍 Connect to Global Network</button>
+            <strong>ℹ️ Standalone Mode:</strong> Running without peer connections<br>
+            <strong>💡 Upgrade:</strong> Connect to other containers to share threats in real-time<br>
+            <strong>How to connect:</strong> Set PEER_URLS in your .env file or run setup_peer.sh again<br>
+            <button onclick="showAddPeerModal()" style="margin-top: 0.75rem;">🌐 Add Peer Container</button>
           </p>
         </div>
       </section>
@@ -1888,83 +1889,104 @@
         }, 3000);
       }
       
-      // Central Server Sync Status
-      async function loadCentralSyncStatus() {
+      // P2P Mesh Network Status
+      async function loadP2PStatus() {
         try {
-          const response = await fetch('/api/central-sync/status');
+          const response = await fetch('/api/p2p/status');
           const result = await response.json();
           
-          if (result.success && result.sync_status) {
-            const status = result.sync_status;
+          if (result.success && result.p2p_status) {
+            const status = result.p2p_status;
             
-            if (status.enabled) {
-              // Connected to central server
-              document.getElementById('connection-status').innerHTML = '✅ CONNECTED';
-              document.getElementById('connection-details').textContent = 'Syncing with global network';
-              document.getElementById('network-status-text').innerHTML = '<strong style="color: #5fff9f;">✅ Connected to Global Threat Intelligence Network</strong>';
+            if (status.enabled && status.peers_configured > 0) {
+              // Connected to P2P mesh
+              document.getElementById('peers-online').innerHTML = `${status.peers_online} / ${status.peers_configured}`;
+              document.getElementById('peer-details').textContent = 'Peers connected and sharing';
+              document.getElementById('network-status-text').innerHTML = '<strong style="color: #5fff9f;">🌐 P2P Mesh Active - All containers learn from each attack!</strong>';
               
-              document.getElementById('last-sync').textContent = status.last_sync ? new Date(status.last_sync).toLocaleTimeString() : 'Never';
-              document.getElementById('threats-queued').textContent = status.queued_threats || 0;
-              document.getElementById('global-threats-cached').textContent = status.cached_global_threats || 0;
+              const lastSync = status.last_sync && Object.keys(status.last_sync).length > 0 
+                ? new Date(Math.max(...Object.values(status.last_sync).map(t => new Date(t)))).toLocaleTimeString()
+                : 'Never';
+              document.getElementById('last-sync').textContent = lastSync;
+              document.getElementById('threats-sent').textContent = status.threats_sent || 0;
+              document.getElementById('threats-received').textContent = status.threats_received || 0;
               
-              document.getElementById('server-info').style.display = 'block';
+              document.getElementById('p2p-info').style.display = 'block';
               document.getElementById('standalone-notice').style.display = 'none';
-              document.getElementById('server-url-display').textContent = status.server_url || '--';
-              document.getElementById('auth-status').innerHTML = status.server_reachable ? '<span style="color: #5fff9f;">✅ Active</span>' : '<span style="color: #ff5f5f;">❌ Offline</span>';
+              document.getElementById('peer-count-display').textContent = status.peers_configured;
+              
+              // Show peer list
+              if (status.peer_urls && status.peer_urls.length > 0) {
+                const peersList = document.getElementById('peers-list');
+                peersList.innerHTML = status.peer_urls.map((url, i) => {
+                  const isOnline = status.peer_status && status.peer_status[url];
+                  const statusIcon = isOnline ? '✅' : '⚠️';
+                  return `<div class="ip-item">${statusIcon} ${url}</div>`;
+                }).join('');
+                document.getElementById('peer-list-section').style.display = 'block';
+              }
               
             } else {
               // Standalone mode
-              document.getElementById('connection-status').innerHTML = '⚪ STANDALONE';
-              document.getElementById('connection-details').textContent = 'No global sharing';
-              document.getElementById('network-status-text').innerHTML = '<strong style="color: #ffb85f;">⚠️ Running in Standalone Mode</strong>';
+              document.getElementById('peers-online').innerHTML = '0';
+              document.getElementById('peer-details').textContent = 'No peers configured';
+              document.getElementById('network-status-text').innerHTML = '<strong style="color: #ffb85f;">⚠️ Standalone Mode - Configure peers to enable mesh learning</strong>';
               
               document.getElementById('last-sync').textContent = 'N/A';
-              document.getElementById('threats-queued').textContent = '0';
-              document.getElementById('global-threats-cached').textContent = '0';
+              document.getElementById('threats-sent').textContent = '0';
+              document.getElementById('threats-received').textContent = '0';
               
-              document.getElementById('server-info').style.display = 'none';
+              document.getElementById('p2p-info').style.display = 'none';
               document.getElementById('standalone-notice').style.display = 'block';
+              document.getElementById('peer-list-section').style.display = 'none';
             }
           }
         } catch (error) {
-          console.error('Error loading sync status:', error);
-          document.getElementById('connection-status').innerHTML = '❌ ERROR';
-          document.getElementById('connection-details').textContent = 'Failed to load status';
+          console.error('Error loading P2P status:', error);
+          document.getElementById('peers-online').innerHTML = '❌';
+          document.getElementById('peer-details').textContent = 'Failed to load status';
         }
         
         // Refresh every 30 seconds
-        setTimeout(loadCentralSyncStatus, 30000);
+        setTimeout(loadP2PStatus, 30000);
       }
       
-      async function showRegistrationModal() {
-        const serverUrl = prompt('Enter central server URL (e.g., https://server-ip:5001):');
-        if (!serverUrl) return;
-        
-        const orgName = prompt('Enter your organization name:');
-        if (!orgName) return;
+      async function showAddPeerModal() {
+        const peerUrl = prompt('Enter peer container URL (e.g., http://192.168.1.100:5000):');
+        if (!peerUrl) return;
         
         try {
-          const response = await fetch('/api/central-sync/register', {
+          const response = await fetch('/api/p2p/add-peer', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-              server_url: serverUrl,
-              client_name: orgName
-            })
+            body: JSON.stringify({ peer_url: peerUrl })
           });
           
           const result = await response.json();
-          
           if (result.success) {
-            alert(`✅ Registration Successful!\n\nClient ID: ${result.client_id}\nAPI Key: ${result.api_key}\n\n⚠️ SAVE THESE TO YOUR .env FILE:\n\nCENTRAL_SERVER_URL=${serverUrl}\nCENTRAL_SERVER_API_KEY=${result.api_key}\nSYNC_ENABLED=true\n\nThen restart your container.`);
+            alert('✅ ' + result.message + '\n\nP2P sync will connect to this peer automatically.');
+            loadP2PStatus(); // Refresh status
           } else {
-            alert(`❌ Registration Failed:\n${result.message}`);
+            alert('❌ ' + result.message);
           }
         } catch (error) {
-          alert(`❌ Error: ${error.message}`);
+          alert('❌ Failed to add peer: ' + error.message);
         }
+      }
+      
+      async function showRegistrationModal() {
+        alert('Central server is deprecated in P2P architecture.\n\n' +
+              'To connect to other containers:\n' +
+              '1. Click "Add Peer Container" button above, OR\n' +
+              '2. Set PEER_URLS in your .env file, OR\n' +
+              '3. Run ./setup_peer.sh again');
+      }
+      
+      // DEPRECATED - kept for backward compatibility
+      async function loadCentralSyncStatus() {
+        loadP2PStatus(); // Redirect to P2P status
       }
       
       // Load sync status on page load

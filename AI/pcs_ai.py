@@ -94,15 +94,15 @@ except ImportError as e:
     print(f"[WARNING] Enterprise features not available: {e}")
     print("[INFO] System will run in standard mode without external threat intelligence")
 
-# Central Server Sync Integration
+# Peer-to-Peer Threat Sharing
 try:
-    from AI.central_sync import get_sync_client, sync_threat, start_sync, get_sync_status
-    CENTRAL_SYNC_AVAILABLE = True
-    print("[CENTRAL] Central server sync module loaded")
+    from AI.p2p_sync import get_p2p_sync, sync_threat, start_p2p_sync, get_p2p_status, get_peer_threats
+    P2P_SYNC_AVAILABLE = True
+    print("[P2P] Peer-to-peer sync module loaded - all containers share threats equally")
 except ImportError as e:
-    CENTRAL_SYNC_AVAILABLE = False
-    print(f"[INFO] Central server sync not available: {e}")
-    print("[INFO] Running in standalone mode (no global threat sharing)")
+    P2P_SYNC_AVAILABLE = False
+    print(f"[INFO] P2P sync not available: {e}")
+    print("[INFO] Running standalone (no peer threat sharing)")
 
 
 class ThreatLevel(str, Enum):
@@ -1286,12 +1286,12 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
         _train_ml_models_from_history()
 
 
-    # 🌍 CENTRAL SYNC: Share threat with global network
-    if CENTRAL_SYNC_AVAILABLE:
+    # � P2P SYNC: Broadcast threat to all peers
+    if P2P_SYNC_AVAILABLE:
         try:
             sync_threat(event)
         except Exception as e:
-            print(f"[CENTRAL] Warning: Failed to sync threat: {e}")
+            print(f"[P2P] Warning: Failed to broadcast threat: {e}")
 
 def _block_ip(ip_address: str) -> None:
     """Block an IP address and save to persistent storage."""
@@ -3085,15 +3085,16 @@ if ENTERPRISE_FEATURES_AVAILABLE:
     except Exception as e:
         print(f"[ENTERPRISE WARNING] Failed to start enterprise features: {e}")
 
-# Start Central Server Sync
-if CENTRAL_SYNC_AVAILABLE:
+# Start P2P Threat Sharing
+if P2P_SYNC_AVAILABLE:
     try:
-        start_sync()
-        sync_status = get_sync_status()
+        start_p2p_sync()
+        sync_status = get_p2p_status()
         if sync_status['enabled']:
-            print(f"[CENTRAL] Connected to threat intelligence network: {sync_status['server_url']}")
-            print(f"[CENTRAL] Global learning enabled - sharing threats across all nodes")
+            print(f"[P2P] Connected to {sync_status['peers_configured']} peer containers")
+            print(f"[P2P] Mesh network active - all containers share threats equally")
+            print(f"[P2P] When A gets attacked, B and C learn automatically 🌐")
         else:
-            print(f"[CENTRAL] Running in standalone mode")
+            print(f"[P2P] Running standalone - configure PEER_URLS to join mesh")
     except Exception as e:
-        print(f"[CENTRAL WARNING] Failed to start sync: {e}")
+        print(f"[P2P WARNING] Failed to start P2P sync: {e}")
