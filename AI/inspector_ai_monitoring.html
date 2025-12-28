@@ -254,6 +254,66 @@
     </div>
 
     <main>
+      <!-- Central Threat Intelligence Network Status -->
+      <section id="central-network-status" style="background: linear-gradient(135deg, #1a2a3d, #1a1e2e); border: 2px solid #5fe2ff;">
+        <h2>🌍 Global Threat Intelligence Network</h2>
+        <p class="muted" style="margin-bottom: 1rem;">
+          <strong id="network-status-text">⏳ Checking connection...</strong>
+        </p>
+        
+        <div class="stats-grid" id="network-stats-grid">
+          <div class="stat-card" style="border-left-color: #5fe2ff;">
+            <div class="stat-label">🔗 CONNECTION STATUS</div>
+            <div class="stat-value" id="connection-status" style="font-size: 1.3rem;">⏳</div>
+            <div class="muted" id="connection-details">Initializing...</div>
+          </div>
+          
+          <div class="stat-card" style="border-left-color: #5fff9f;">
+            <div class="stat-label">⏰ LAST SYNC</div>
+            <div class="stat-value" id="last-sync" style="font-size: 1.1rem;">--</div>
+            <div class="muted">Syncs every 5 minutes</div>
+          </div>
+          
+          <div class="stat-card warning">
+            <div class="stat-label">📤 THREATS SHARED</div>
+            <div class="stat-value" id="threats-queued">--</div>
+            <div class="muted">Pending upload to network</div>
+          </div>
+          
+          <div class="stat-card success">
+            <div class="stat-label">📥 GLOBAL THREATS</div>
+            <div class="stat-value" id="global-threats-cached">--</div>
+            <div class="muted">Learned from other clients</div>
+          </div>
+        </div>
+        
+        <!-- Connected Clients List (only shown if this is central server) -->
+        <div id="connected-clients-section" style="margin-top: 1.5rem; display: none;">
+          <h3 style="color: #5fe2ff; font-size: 1.1rem; margin-bottom: 1rem;">👥 Connected Client Nodes</h3>
+          <div id="clients-list" class="ip-list">
+            <div class="loading-spinner">Loading client list...</div>
+          </div>
+        </div>
+        
+        <!-- Server URL Display -->
+        <div id="server-info" style="margin-top: 1.5rem; padding: 1rem; background: rgba(95, 226, 255, 0.1); border-radius: 6px; border: 1px solid #5fe2ff; display: none;">
+          <p class="muted" style="margin: 0; line-height: 1.8;">
+            <strong>🌐 Central Server:</strong> <span id="server-url-display">--</span><br>
+            <strong>🔑 Authenticated:</strong> <span id="auth-status">--</span><br>
+            <strong>🎓 Learning Mode:</strong> <span style="color: #5fff9f;">Collective Intelligence Enabled</span> - Your AI learns from all network attacks
+          </p>
+        </div>
+        
+        <!-- Standalone Mode Notice -->
+        <div id="standalone-notice" style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 184, 95, 0.1); border-radius: 6px; border: 1px solid #ffb85f; display: none;">
+          <p class="muted" style="margin: 0; line-height: 1.8;">
+            <strong>ℹ️ Standalone Mode:</strong> Running without global threat sharing<br>
+            <strong>💡 Upgrade:</strong> Connect to central server to learn from attacks on other clients globally<br>
+            <button onclick="showRegistrationModal()" style="margin-top: 0.75rem;">🌍 Connect to Global Network</button>
+          </p>
+        </div>
+      </section>
+
       <!-- VPN/Tor De-Anonymization Stats -->
       <section style="background: linear-gradient(135deg, #2a1a3d, #1a1a2e); border: 2px solid #ff5fff;">
         <h2>🔓 VPN/Tor De-Anonymization Statistics</h2>
@@ -1827,6 +1887,90 @@
           setTimeout(() => notification.remove(), 300);
         }, 3000);
       }
+      
+      // Central Server Sync Status
+      async function loadCentralSyncStatus() {
+        try {
+          const response = await fetch('/api/central-sync/status');
+          const result = await response.json();
+          
+          if (result.success && result.sync_status) {
+            const status = result.sync_status;
+            
+            if (status.enabled) {
+              // Connected to central server
+              document.getElementById('connection-status').innerHTML = '✅ CONNECTED';
+              document.getElementById('connection-details').textContent = 'Syncing with global network';
+              document.getElementById('network-status-text').innerHTML = '<strong style="color: #5fff9f;">✅ Connected to Global Threat Intelligence Network</strong>';
+              
+              document.getElementById('last-sync').textContent = status.last_sync ? new Date(status.last_sync).toLocaleTimeString() : 'Never';
+              document.getElementById('threats-queued').textContent = status.queued_threats || 0;
+              document.getElementById('global-threats-cached').textContent = status.cached_global_threats || 0;
+              
+              document.getElementById('server-info').style.display = 'block';
+              document.getElementById('standalone-notice').style.display = 'none';
+              document.getElementById('server-url-display').textContent = status.server_url || '--';
+              document.getElementById('auth-status').innerHTML = status.server_reachable ? '<span style="color: #5fff9f;">✅ Active</span>' : '<span style="color: #ff5f5f;">❌ Offline</span>';
+              
+            } else {
+              // Standalone mode
+              document.getElementById('connection-status').innerHTML = '⚪ STANDALONE';
+              document.getElementById('connection-details').textContent = 'No global sharing';
+              document.getElementById('network-status-text').innerHTML = '<strong style="color: #ffb85f;">⚠️ Running in Standalone Mode</strong>';
+              
+              document.getElementById('last-sync').textContent = 'N/A';
+              document.getElementById('threats-queued').textContent = '0';
+              document.getElementById('global-threats-cached').textContent = '0';
+              
+              document.getElementById('server-info').style.display = 'none';
+              document.getElementById('standalone-notice').style.display = 'block';
+            }
+          }
+        } catch (error) {
+          console.error('Error loading sync status:', error);
+          document.getElementById('connection-status').innerHTML = '❌ ERROR';
+          document.getElementById('connection-details').textContent = 'Failed to load status';
+        }
+        
+        // Refresh every 30 seconds
+        setTimeout(loadCentralSyncStatus, 30000);
+      }
+      
+      async function showRegistrationModal() {
+        const serverUrl = prompt('Enter central server URL (e.g., https://server-ip:5001):');
+        if (!serverUrl) return;
+        
+        const orgName = prompt('Enter your organization name:');
+        if (!orgName) return;
+        
+        try {
+          const response = await fetch('/api/central-sync/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              server_url: serverUrl,
+              client_name: orgName
+            })
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            alert(`✅ Registration Successful!\n\nClient ID: ${result.client_id}\nAPI Key: ${result.api_key}\n\n⚠️ SAVE THESE TO YOUR .env FILE:\n\nCENTRAL_SERVER_URL=${serverUrl}\nCENTRAL_SERVER_API_KEY=${result.api_key}\nSYNC_ENABLED=true\n\nThen restart your container.`);
+          } else {
+            alert(`❌ Registration Failed:\n${result.message}`);
+          }
+        } catch (error) {
+          alert(`❌ Error: ${error.message}`);
+        }
+      }
+      
+      // Load sync status on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        loadCentralSyncStatus();
+      });
     </script>
   </body>
 </html>

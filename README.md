@@ -1,735 +1,480 @@
-# 🛡️ AI-Powered Network Security System
+# 🛡️ AI-Powered Global Threat Intelligence Network
 
-**Enterprise-grade threat detection with self-learning AI and global threat sharing network.**
+**Enterprise-grade security with collective AI defense - when one client is attacked, all clients learn.**
 
 🤖 **Self-Learning AI** - Trains on 46,948 real exploits from ExploitDB  
-🌍 **Global Threat Network** - All clients learn from each other's attacks (encrypted)  
+🌍 **Global Threat Network** - All clients learn from each other (encrypted HTTPS/TLS)  
 ⚡ **Real-Time Detection** - VirusTotal integration (70+ security vendors)  
-🕷️ **12 Threat Crawlers** - Continuous learning from CVE, MalwareBazaar, OTX, URLhaus & more  
+🕷️ **12 Threat Crawlers** - CVE, NVD, MalwareBazaar, OTX, URLhaus & more  
 🎯 **Attack Signatures** - Detects nmap, sqlmap, nikto, burp, metasploit  
-🔒 **Encrypted Sharing** - HTTPS/TLS + API key authentication  
-📊 **Live Dashboard** - Real-time threat feed with geolocation & scrollable logs  
-🏢 **Enterprise Ready** - SIEM/SOC integration via REST API
+🔒 **Encrypted Sharing** - API key authentication + self-signed SSL  
+📊 **Live Dashboard** - Real-time threat feed with scrollable logs  
 
 ---
 
-## 🚀 Quick Start - 3 Deployment Modes
+## 🚀 Quick Start - Choose Your Role
 
-### Mode 1: Standalone (Fastest)
+### For Service Provider (YOU)
 
-**For:** Testing, single site, no global sharing
+**Deploy central server once:**
 
 ```bash
 git clone https://github.com/yuhisern7/enterprise-security.git
 cd enterprise-security
-./setup.sh  # Linux/Mac
-# OR
-setup.bat   # Windows
+./setup_central.sh
 ```
 
-Access: `http://localhost:5000`
+This creates the central threat aggregation server that all clients connect to.
 
-**Done!** Single container protecting your network.
+**What you get:**
+- Central server running on port 5001 (HTTPS)
+- Master API key for admin operations
+- Dashboard showing all connected clients
+- Global threat database
 
 ---
 
-### Mode 2: Global Threat Network (Recommended)
+### For Companies & Homes (YOUR CUSTOMERS)
 
-**For:** Multiple customers, global learning, collective defense
+**Deploy client container:**
 
-**Architecture:** 1 central server (you host) + N client containers (customers deploy)
-
-**Step 1 - Deploy Central Server (Once):**
 ```bash
+git clone https://github.com/yuhisern7/enterprise-security.git
+cd enterprise-security
+./setup_client.sh
+```
+
+The script will:
+1. ✅ Check Docker installation
+2. ✅ Download ExploitDB database (46,948 exploits)
+3. ✅ Ask for VirusTotal API key (optional)
+4. ✅ Ask to connect to central server (optional)
+5. ✅ Auto-register with central server
+6. ✅ Build and start container
+7. ✅ Open dashboard in browser
+
+**Access:** http://localhost:5000
+
+**What they get:**
+- Local network monitoring
+- AI-powered threat detection
+- Auto-blocking malicious IPs
+- Learning from global network attacks
+- Web dashboard
+
+---
+
+## 📊 How Global Learning Works
+
+```
+Company A detects port scan from 1.2.3.4
+         ↓
+Blocks IP locally + uploads threat (encrypted)
+         ↓
+Central Server receives threat
+         ↓
+┌────────┼────────┐
+│        │        │
+Company B  Home C  Branch D
+│        │        │
+All update ML models
+         ↓
+Next time attacker tries Company B → INSTANT BLOCK
+(B was never attacked, but learned from A's experience!)
+```
+
+**Sync Frequency:** Every 5 minutes  
+**Privacy:** Only threat metadata shared (IP, attack type, severity)  
+**Encryption:** HTTPS/TLS with API key authentication  
+
+---
+
+## 🏗️ Architecture
+
+### Containers
+
+**Total: 2 container types**
+
+1. **Central Server** (1 instance - service provider hosts)
+   - Port: 5001 (HTTPS)
+   - Purpose: Aggregate threats from all clients
+   - Tech: Python 3.11 + Flask + SSL/TLS
+   - Storage: JSON (scalable to PostgreSQL)
+   - RAM: ~200MB
+
+2. **Client Container** (N instances - one per customer)
+   - Port: 5000 (HTTP dashboard)
+   - Purpose: Monitor local network + share threats
+   - Tech: Python 3.11 + Flask + scikit-learn + Scapy
+   - Storage: JSON files for local data
+   - RAM: ~500MB
+
+### Data Flow
+
+```
+Client → Central Server: POST /api/v1/submit-threats
+  • IP address
+  • Attack type
+  • Severity level
+  • Timestamp
+  • Geolocation
+
+Central Server → Client: GET /api/v1/get-threats
+  • Global threat feed
+  • Attack patterns
+  • Malicious IPs
+  • ML training data
+```
+
+---
+
+## 🔐 Security
+
+### Encryption
+
+✅ **HTTPS/TLS** - All client-server communication encrypted  
+✅ **API Keys** - 32-byte secure tokens per client  
+✅ **Self-signed cert** - Auto-generated (replace with real cert for production)  
+✅ **Privacy-preserving** - No internal network data shared  
+
+### Authentication Flow
+
+1. Client registers → Central server generates API key
+2. Client stores API key in `.env`
+3. Every API request includes: `X-API-Key: <token>`
+4. Central server validates before accepting/sending data
+
+### Production SSL Setup
+
+Replace self-signed cert with Let's Encrypt:
+
+```bash
+# Get real certificate
+certbot certonly --standalone -d threat-intel.yourcompany.com
+
+# Copy to central server
+cp /etc/letsencrypt/live/yourcompany.com/fullchain.pem central_server/certs/cert.pem
+cp /etc/letsencrypt/live/yourcompany.com/privkey.pem central_server/certs/key.pem
+
+# Restart
 cd central_server
-docker compose up -d
-# Get master API key from logs
-```
-
-**Step 2 - Deploy Clients (Each Customer):**
-```bash
-git clone https://github.com/yuhisern7/enterprise-security.git
-cd enterprise-security
-
-# Edit .env:
-# CENTRAL_SERVER_URL=https://your-server:5001
-# CENTRAL_SERVER_API_KEY=<get from registration>
-# SYNC_ENABLED=true
-
-./setup.sh
-```
-
-**Result:** When Client A is attacked, B, C, D all learn instantly!
-
-📖 **Full Guide:** See [GLOBAL_SETUP.md](GLOBAL_SETUP.md) and [ARCHITECTURE.md](ARCHITECTURE.md)
-
----
-
-### Mode 3: Horizontal Scaling
-
-**For:** High-traffic networks, enterprise scale
-
-Deploy same client container on multiple servers, add load balancer.
-
-**See:** [README.md - Deployment & Scaling](#💼-deployment--scaling)
-
----
-
-### Prerequisites
-- **Docker Desktop** (Windows/Mac) or **Docker Engine** (Linux)
-- 4GB+ RAM, 10GB+ disk space
-- Internet connection
-
-### Installation
-
-#### **Windows:**
-```bash
-# 1. Clone repository
-git clone https://github.com/yuhisern7/enterprise-security.git
-cd enterprise-security
-
-# 2. Run setup (ONE COMMAND)
-setup.bat
-```
-
-#### **Linux/Mac:**
-```bash
-# 1. Clone repository
-git clone https://github.com/yuhisern7/enterprise-security.git
-cd enterprise-security
-
-# 2. Run setup (ONE COMMAND)
-chmod +x setup.sh
-./setup.sh
-```
-
-**That's it!** The script automatically:
-- ✅ Checks Docker installation
-- ✅ Downloads ExploitDB database (46,948 exploits)
-- ✅ Creates configuration files
-- ✅ Builds Docker images
-- ✅ Starts all services
-- ✅ Opens dashboard in browser
-
-### Access Dashboard
-
-**Local:** http://localhost:5000  
-**Network:** http://YOUR_IP:5000
-
-### Get VirusTotal API Key (Optional but Recommended)
-
-1. Visit: https://www.virustotal.com/gui/join-us
-2. Sign up (free account)
-3. Go to: Profile → API Key
-4. Copy your API key (64 characters)
-5. Edit `.env` file and paste your key
-6. Restart: `cd server && docker compose restart`
-
-✅ **Done!** Your AI security system is now protecting your network.
-
----
-
-## 📋 What This System Does
-
-### Real-Time Protection
-
-✅ **Port Scan Detection** - Detects network reconnaissance (nmap, masscan)  
-✅ **DDoS Prevention** - Identifies and blocks flood attacks  
-✅ **SQL Injection Detection** - 100+ attack patterns  
-✅ **XSS Prevention** - Cross-site scripting protection  
-✅ **Brute Force Protection** - Auto-blocks failed login attempts  
-✅ **Tool Detection** - Identifies hacking tools by signature  
-✅ **IP Reputation** - Checks attackers against 70+ security vendors  
-✅ **Geolocation Tracking** - Shows where attacks come from  
-✅ **IP Whitelisting** - Permanent whitelist for trusted IPs (GitHub, Google Cloud, etc.)  
-✅ **Smart IP Management** - Interactive UI to unblock, whitelist, or keep IPs blocked  
-
-### AI Learning & Threat Intelligence
-
-The system continuously learns from **12 automated crawlers** monitoring:
-
-**1. Local Database (Pre-loaded)**
-   - **ExploitDB** (46,948 exploits, 1,066 shellcodes) ✅ Active
-     - SQL injection techniques
-     - XSS vulnerabilities
-     - Buffer overflows, RCE patterns
-     - Authentication bypasses
-
-**2. Live Threat Intelligence Sources**
-   - **CVE Database** (MITRE) - 200K+ vulnerability identifiers
-   - **NVD (NIST)** - CVSS scores, CPE data, comprehensive analysis
-   - **MalwareBazaar** - 1M+ malware samples with hashes & families
-   - **AlienVault OTX** - 100K+ threat pulses, 30M+ IOCs
-   - **URLhaus** - 500K+ malicious URLs, phishing, C&C servers
-   - **AttackerKB** - Expert vulnerability analysis & PoC code
-   - **VirusTotal** - 70+ AV engines, file/URL/IP reputation
-   - **AbuseIPDB** - 5M+ abuse reports with confidence scores
-   - **GitHub Advisories** - 50K+ software security advisories
-   - **SANS ISC** - Real-time global threat statistics
-   - **MISP Feeds** - 100+ IOC sharing feeds
-
-**3. Real-Time Analysis**
-   - **Your Network** - Live attack patterns & behavior
-   - **Honeypots** - 8 fake endpoints for threat collection
-   - **Attack Tool Detection** - User-Agent signatures
-
-### Automatic Actions
-
-⚙️ **Every Second**: Monitors network packets with Scapy  
-⚙️ **Every Attack**: 
-   - Checks VirusTotal for IP reputation
-   - Validates against whitelist
-   - Geolocation & anonymization detection  
-⚙️ **Every 5 Attacks**: Retrains ML models with new data  
-⚙️ **Every 6 Hours**: Updates ML models automatically  
-⚙️ **Every 24 Hours**: Refreshes ExploitDB signatures  
-⚙️ **On Demand**: Crawls threat intelligence sources  
-⚙️ **On Threat**: Auto-blocks malicious IPs (unless whitelisted)  
-
----
-
-## 🎯 Configuration
-
-### Required: VirusTotal API Key
-
-Edit `.env` file:
-
-```bash
-VIRUSTOTAL_API_KEY=your_64_character_key_here
-```
-
-Get free key: https://www.virustotal.com/gui/join-us (4 requests/minute)
-
-### Optional Settings
-
-```bash
-# Optional: AbuseIPDB key (community IP blacklist)
-ABUSEIPDB_API_KEY=
-
-# Timezone (change to your location)
-TZ=Asia/Kuala_Lumpur
-
-# Auto-blocking
-AUTO_BLOCK_ENABLED=true
-MAX_BLOCKED_IPS=10000
-
-# AI Learning
-AI_LEARNING_ENABLED=true
-AUTO_TRAIN_THRESHOLD=5
-```
-
-After editing `.env`:
-```bash
-cd server
-sudo docker compose restart
+docker compose restart
 ```
 
 ---
 
-## 📊 Dashboard Features
+## 💰 Business Model
 
-Access at: **http://localhost:5000**
+### Pricing Tiers
 
-### Real-Time Threat Monitor (Scrollable)
-- Live attack log with auto-refresh (30 seconds)
-- **Scrollable table** - View all threats (latest 100 events)
-- Sticky headers for easy navigation
-- Threat severity levels (SAFE → CRITICAL)
-- Attack tool signatures (nmap, sqlmap, etc.)
-- Geolocation of attackers (country, city, ISP)
-- IP reputation scores from VirusTotal
-- Anonymization detection (VPN/Tor/Proxy)
+**Free Tier:**
+- 1 client node
+- Basic threat sharing
+- Community support
 
-### Smart IP Management
-**Interactive controls for every blocked IP:**
-- **🔓 Unblock** - Remove from block list (can be blocked again if detected)
-- **✅ Whitelist** - Permanently allow IP (never blocked again)
-- **🔒 Keep Blocked** - Leave as is
+**Professional - $99/month:**
+- Up to 10 client nodes
+- Priority threat distribution
+- Email support
+- API access
 
-**Recommended for whitelisting:**
-- GitHub (140.82.x.x) - Git operations, webhooks, Dependabot
-- Google Cloud (AS396982) - Cloud services
-- Microsoft Azure (AS8075) - Cloud infrastructure
-- Your trusted servers and monitoring services
+**Enterprise - $499/month:**
+- Unlimited nodes
+- Dedicated central server instance
+- White-label option
+- 24/7 support
+- SLA guarantee
 
-### AI Threat Intelligence Crawlers
-**12 automated crawlers** visible on dashboard:
-- Visual status indicators (Active/Ready/API Configured)
-- Direct links to each threat intelligence source
-- Live statistics for each crawler
-- One-click access to external resources
+### Revenue Example
 
-### API Endpoints
-- **GET** `/api/whitelist` - List all whitelisted IPs
-- **POST** `/api/whitelist/add` - Add IP to permanent whitelist
-- **POST** `/api/whitelist/remove` - Remove from whitelist
-- **POST** `/api/unblock/<ip>` - Unblock specific IP
-- **GET** `/api/blocked-ips` - List all blocked IPs
+| Customers | Price/mo | Revenue/mo |
+|-----------|----------|------------|
+| 10 | $99 | $990 |
+| 100 | $99 | $9,900 |
+| 1,000 | $99 | $99,000 |
+| 10,000 | $99 | $990,000 |
 
-### Data Management
-- **Export Data**: Download threats as JSON
-- **Clear Data**: Remove old logs (by date range)
-  - Clear all data
-  - Clear threats only
-  - Clear blocked IPs only
-- **Statistics**: Attack counts, top attackers, threat types
-- **ML Model Retraining**: Force retrain on demand
+**Your Cost:** $50-500/month VPS (handles 10,000+ clients)
 
 ---
 
-## 🏢 Enterprise Integration
+## 📖 Configuration
 
-### REST API Endpoints
+### Environment Variables (.env)
 
-**1. Check IP Reputation**
+**Client Container:**
 ```bash
-curl -X POST http://your-server:5000/api/v1/threat-check \
-  -H "X-API-Key: YOUR_ENTERPRISE_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"ip": "1.2.3.4"}'
-```
+# VirusTotal API Key (get from https://www.virustotal.com/gui/join-us)
+VIRUSTOTAL_API_KEY=your_64_char_key
 
-**2. Get Threat Feed**
-```bash
-curl http://your-server:5000/api/v1/threats \
-  -H "X-API-Key: YOUR_ENTERPRISE_KEY"
-```
-
-**3. Submit Threat Data**
-```bash
-curl -X POST http://your-server:5000/api/v1/submit-threat \
-  -H "X-API-Key: YOUR_ENTERPRISE_KEY" \
-  -d '{"ip": "1.2.3.4", "attack_type": "port_scan"}'
-```
-
-**4. IP Whitelist Management**
-```bash
-# Add IP to whitelist
-curl -X POST http://localhost:5000/api/whitelist/add \
-  -H "Content-Type: application/json" \
-  -d '{"ip_address": "140.82.114.21"}'
-
-# Remove from whitelist
-curl -X POST http://localhost:5000/api/whitelist/remove \
-  -H "Content-Type: application/json" \
-  -d '{"ip_address": "140.82.114.21"}'
-
-# Get all whitelisted IPs
-curl http://localhost:5000/api/whitelist
-```
-
-**5. Unblock IP**
-```bash
-curl -X POST http://localhost:5000/api/unblock/1.2.3.4
-```
-
-**Get Enterprise API Key**:
-```bash
-sudo docker compose logs | grep "Demo API Key"
-```
-
-### Threat Intelligence Crawler
-
-Run manual crawl to collect latest threats:
-
-```bash
-# From host system
-python3 AI/threat_crawler.py
-
-# From Docker container
-sudo docker exec -it enterprise-security-ai python3 AI/threat_crawler.py
-```
-
-**Output**: `AI/ml_models/threat_intelligence_crawled.json`
-
-**Crawled data includes:**
-- Latest CVEs with CVSS scores
-- Recent malware samples (SHA256, MD5, signatures)
-- Threat pulses from OTX
-- Malicious URLs from URLhaus
-- Vulnerability assessments from AttackerKB
-
-### SIEM/SOC Integration
-
-Compatible with:
-- **Splunk** - Forward threat logs via syslog
-- **QRadar** - REST API integration
-- **ArcSight** - CEF format export
-- **Elasticsearch** - JSON bulk import
-- **Firewalls** - iptables, pfSense, FortiGate
-- **IDS/IPS** - Snort, Suricata rule generation
-
----
-
-## 💼 Deployment & Scaling
-
-### Mode 1: Standalone (Default)
-
-**Single container**, no central server - ideal for testing or small deployments:
-
-```bash
-git clone https://github.com/yuhisern7/enterprise-security.git
-cd enterprise-security
-./setup.sh
-```
-
-Runs independently - all learning is local.
-
----
-
-### Mode 2: Global Threat Sharing Network (Recommended)
-
-**Architecture:** 1 central server + multiple client containers  
-**Benefit:** All clients learn from each other's attacks in real-time  
-**Encryption:** HTTPS/TLS with API key authentication
-
-```
-┌─────────────────────────────────────────┐
-│   Central Server (Your Infrastructure)  │
-│   • Aggregates all threats              │
-│   • Distributes global threat feed      │
-│   • Encrypted HTTPS + API key auth      │
-└─────────────────┬───────────────────────┘
-                  │
-        ┌─────────┼─────────┐
-        │         │         │
-    ┌───▼───┐ ┌──▼───┐ ┌──▼───┐
-    │Client1│ │Client2│ │Client3│
-    │Company│ │ Home  │ │Branch│
-    │   A   │ │   B   │ │   C  │
-    └───────┘ └──────┘ └──────┘
-```
-
-#### Step 1: Deploy Central Server (One-Time)
-
-```bash
-cd central_server
-docker compose up -d
-```
-
-Get master API key:
-```bash
-docker compose logs | grep "master API key"
-```
-
-**Output:**
-```
-Generated new master API key: abc123xyz789...
-SAVE THIS KEY - it will not be shown again!
-```
-
-#### Step 2: Register Client Nodes
-
-Each company/home deploying your system registers:
-
-```bash
-curl -k -X POST https://your-server-ip:5001/api/v1/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "client_name": "Company ABC HQ",
-    "client_info": {
-      "location": "New York",
-      "network_size": "500 users"
-    }
-  }'
-```
-
-**Response:**
-```json
-{
-  "client_id": "a1b2c3d4e5f6g7h8",
-  "api_key": "xyz789abc123def456...",
-  "message": "Registration successful. SAVE YOUR API KEY!"
-}
-```
-
-#### Step 3: Configure Client Containers
-
-On **each client machine** (company/home), edit `.env`:
-
-```bash
-# Central threat intelligence server
-CENTRAL_SERVER_URL=https://your-central-server-ip:5001
-CENTRAL_SERVER_API_KEY=xyz789abc123def456...
+# Central Server Connection
+CENTRAL_SERVER_URL=https://your-server-ip:5001
+CENTRAL_SERVER_API_KEY=<from registration>
 SYNC_ENABLED=true
 SYNC_INTERVAL=300  # Sync every 5 minutes
+
+# Timezone
+TZ=Asia/Kuala_Lumpur
 ```
 
-Deploy client:
+**Central Server:**
 ```bash
-cd enterprise-security
-./setup.sh
-# Container automatically connects to central server
+# SSL Configuration
+USE_SSL=true
+SSL_CERT=/app/certs/cert.pem
+SSL_KEY=/app/certs/key.pem
 ```
-
-#### How It Works
-
-**When Client A detects an attack:**
-1. Local AI blocks the attacker
-2. Threat data (IP, attack type, severity) sent to central server (encrypted)
-3. Central server distributes to all clients (B, C, D...)
-4. All clients update their ML models with this new attack pattern
-5. Next time any client sees this attacker, they block instantly
-
-**Privacy:** Only threat metadata is shared (IP, attack type), not internal network data.
-
-**Resilience:** Clients continue working if central server is down (standalone mode).
 
 ---
 
-### Mode 3: Horizontal Scaling (Large Enterprise)
+## 🎯 Features
 
-**Current setup runs 1 Docker container** that handles:
-- Packet capture + threat detection
-- ML model training + inference
-- Web dashboard + REST API
-- ExploitDB + threat intelligence
+### Client Features
 
-**Capacity**: 10,000+ packets/sec, 1000s of users
+✅ **Real-Time Threat Detection**
+- Port scan detection (nmap, masscan)
+- DDoS prevention
+- SQL injection (100+ patterns)
+- XSS attacks
+- Brute force protection
+- Tool detection (sqlmap, nikto, burp)
 
-**Ideal for:**
-- Small-Medium Business (1-500 employees)
-- Startups and growing companies
-- Branch offices
-- Development teams
+✅ **AI/ML Models**
+- IsolationForest (anomaly detection)
+- RandomForest (threat classification)
+- GradientBoosting (IP reputation)
+- Auto-retraining every 5 attacks
 
-### Horizontal Scaling (Large Enterprise)
+✅ **Threat Intelligence**
+- VirusTotal (70+ AV engines)
+- ExploitDB (46,948 exploits)
+- 12 threat crawlers (CVE, MalwareBazaar, etc.)
+- Geolocation tracking
+- VPN/Tor detection
 
-**For 10K+ users or high-traffic networks:**
+✅ **Smart IP Management**
+- Auto-blocking malicious IPs
+- Whitelist for trusted IPs (GitHub, cloud providers)
+- Interactive dashboard management
+- Unblock/Whitelist/Keep blocked actions
 
-1. **Load Balancer** (use existing F5/HAProxy/Nginx)
-   - Route traffic to multiple instances
-   - Health checks on port 5000
+### Central Server Features
 
-2. **Multiple Containers** (same image, different servers)
-   ```bash
-   # Server 1
-   docker compose up -d
-   
-   # Server 2
-   docker compose up -d
-   
-   # Server 3
-   docker compose up -d
-   ```
+✅ **Threat Aggregation**
+- Collects threats from all clients
+- Deduplicates similar attacks
+- Stores last 10,000 threats (JSON)
+- Upgradable to PostgreSQL for millions
 
-3. **Shared Storage** (for threat logs)
-   - NFS mount for `server/json/`
-   - Or use S3/Azure Blob for backups
-   - Each node can run independently
+✅ **Client Management**
+- Registration API with API key generation
+- Client activity tracking
+- Last seen timestamps
+- Threat submission statistics
 
-4. **Optional: External Database**
-   - Modify `pcs_ai.py` to use PostgreSQL instead of JSON
-   - Share threat data across nodes
-   - Only needed for 100K+ events/day
-
-**Benefits:**
-- Same simple Docker image
-- No complex orchestration
-- Use your existing infrastructure
-- Scale by adding servers
-
-### Commercial Pricing
-
-**Basic** - $99/month
-- 1 server instance
-- 1,000 API calls/day
-- Email alerts
-
-**Professional** - $299/month
-- 3 server instances
-- 10,000 API calls/day
-- SIEM integration
-- IP whitelist management
-
-**Enterprise** - Custom pricing
-- Unlimited instances
-- Unlimited API calls
-- Custom ML training
-- Dedicated support  
+✅ **API Endpoints**
+- `/api/v1/register` - Client registration
+- `/api/v1/submit-threats` - Receive threats
+- `/api/v1/get-threats` - Distribute threats
+- `/api/v1/threat-patterns` - Attack patterns
+- `/api/v1/stats` - Network statistics
+- `/api/v1/clients` - List connected clients (admin)
 
 ---
 
-## 🔧 Maintenance
+## 📊 Dashboard
 
-### Update ExploitDB Database
+### Central Server Connection Status
 
+The client dashboard shows:
+
+🌍 **Global Threat Intelligence Network**
+- ✅/❌ Connection status
+- ⏰ Last sync time
+- 📤 Threats shared (queued for upload)
+- 📥 Global threats received
+
+**Live updates every 30 seconds**
+
+### If Not Connected
+
+Dashboard shows:
+- ⚠️ Standalone Mode warning
+- 🌍 "Connect to Global Network" button
+- Click to register with central server
+
+---
+
+## 🔧 Management
+
+### Central Server
+
+**View Logs:**
 ```bash
-cd AI/exploitdb
-git pull
-cd ../../server
-sudo docker compose restart
+cd central_server
+docker compose logs -f
 ```
 
-### Run Threat Intelligence Crawlers
-
+**View Connected Clients:**
 ```bash
-# Manual crawl
-python3 AI/threat_crawler.py
-
-# Schedule with cron (daily at 2 AM)
-0 2 * * * cd /path/to/enterprise-security && python3 AI/threat_crawler.py >> logs/crawler.log 2>&1
+curl -k https://localhost:5001/api/v1/clients \
+  -H "X-API-Key: YOUR_MASTER_KEY"
 ```
 
-### Whitelist Management
-
+**Backup Data:**
 ```bash
-# Add trusted IPs (GitHub example)
-curl -X POST http://localhost:5000/api/whitelist/add \
-  -H "Content-Type: application/json" \
-  -d '{"ip_address": "140.82.114.21"}'
-
-# View all whitelisted IPs
-curl http://localhost:5000/api/whitelist | python3 -m json.tool
+tar -czf backup-$(date +%Y%m%d).tar.gz central_server/data/
 ```
 
-### View System Logs
+### Client Container
 
+**View Logs:**
 ```bash
 cd server
-sudo docker compose logs -f
+docker compose logs -f
 ```
 
-### Backup Data
-
+**Restart:**
 ```bash
-cp server/json/threat_log.json ~/backup/
-cp server/json/blocked_ips.json ~/backup/
-cp server/json/whitelist.json ~/backup/
-cp AI/ml_models/threat_intelligence_crawled.json ~/backup/
-cp -r AI/ml_models ~/backup/
+cd server
+docker compose restart
 ```
+
+**Stop:**
+```bash
+cd server
+docker compose down
+```
+
+---
+
+## 📈 Scaling
+
+### Current Capacity (JSON Storage)
+
+| Metric | Capacity |
+|--------|----------|
+| Clients | 1,000+ |
+| Threats/day | 100,000 |
+| Sync latency | <5 minutes |
+| Storage | ~10GB/year |
+| Central RAM | 200MB |
+| Client RAM | 500MB each |
+
+### Upgrade to PostgreSQL (100K+ Clients)
+
+Modify `central_server/server.py`:
+
+```python
+import psycopg2
+
+# Replace JSON file operations with:
+conn = psycopg2.connect("postgresql://user:pass@db:5432/threats")
+cursor = conn.cursor()
+cursor.execute("INSERT INTO threats (ip, type, severity) VALUES (%s, %s, %s)", ...)
+```
+
+**Schema:** See `central_server/README.md`
 
 ---
 
 ## 🛠️ Troubleshooting
 
-**"VirusTotal API error"**
-- Check your API key in `.env` file
-- Verify key is 64 characters (no quotes)
-- Free tier limited to 4 requests/minute
-
-**"GitHub/Cloud IPs blocked"**
-- These are false positives from legitimate services
-- Use dashboard to whitelist: **✅ Whitelist** button
-- Or via API: `curl -X POST http://localhost:5000/api/whitelist/add -d '{"ip_address":"140.82.114.21"}'`
-- GitHub IPs: 140.82.x.x range
-- Google Cloud: Check AS396982
-- Microsoft Azure: Check AS8075
-
-**"Threat crawler errors"**
-- Some APIs require authentication (free accounts available)
-- Check `AI/ml_models/threat_intelligence_crawled.json` for results
-- Most errors are normal (rate limits, API changes)
-
-**"No network traffic detected"**
-- Must run with `sudo`
-- Check `network_mode: host` in docker-compose.yml
-
-**"Port 5000 already in use"**
+**"Connection refused" on central server**
 ```bash
-sudo lsof -ti:5000 | xargs kill -9
+# Check if running
+cd central_server && docker compose ps
+
+# Check logs
+docker compose logs
+
+# Open firewall
+sudo ufw allow 5001/tcp
 ```
 
-**"ExploitDB not found"**
+**"SSL certificate verify failed" on client**
+- Normal for self-signed certs
+- Clients use `-k` flag in curl (already handled)
+- For production, use real SSL cert
+
+**"Not syncing" on client**
 ```bash
-cd AI && ./setup_exploitdb.sh && cd ../server
-sudo docker compose restart
+# Check .env
+cat .env | grep SYNC
+
+# Should show:
+# SYNC_ENABLED=true
+# CENTRAL_SERVER_URL=https://...
+# CENTRAL_SERVER_API_KEY=...
+
+# Check logs
+cd server && docker compose logs | grep CENTRAL
 ```
 
----
-
-## 📁 Project Structure
-
-```
-enterprise-security/
-├── AI/
-│   ├── pcs_ai.py                    # Core AI engine with whitelist
-│   ├── threat_intelligence.py       # VirusTotal integration
-│   ├── threat_crawler.py            # 12 threat intelligence crawlers
-│   ├── exploitdb_scraper.py         # Learning from exploits
-│   ├── inspector_ai_monitoring.html # Dashboard UI (scrollable logs)
-│   ├── ml_models/
-│   │   ├── threat_intelligence_crawled.json  # Crawler results
-│   │   └── [ML model files]
-│   └── exploitdb/                   # 46,948 exploits
-├── server/
-│   ├── server.py                    # Flask web server + whitelist API
-│   ├── network_monitor.py           # Packet capture
-│   ├── docker-compose.yml           # Container orchestration
-│   └── json/
-│       ├── threat_log.json          # Attack history
-│       ├── blocked_ips.json         # Blocked IPs
-│       └── whitelist.json           # Permanently whitelisted IPs
-├── .env                             # Configuration (API keys)
-└── README.md                        # This file
-```
+**"Dashboard shows Standalone Mode"**
+- Edit `.env` file
+- Set `SYNC_ENABLED=true`
+- Add server URL and API key
+- Restart: `cd server && docker compose restart`
 
 ---
 
-## 🔒 Security Notes
+## 🎓 Learning Resources
 
-⚠️ **Runs with elevated privileges** (required for packet capture)  
-⚠️ **Keep `.env` file private** (contains API keys)  
-⚠️ **Regular updates recommended** (ExploitDB, system packages)  
+### API Documentation
 
----
+Full API reference: See `central_server/README.md`
 
-## 📈 Performance & Capacity
+### Architecture Details
 
-**Single Container Performance:**
-- **RAM**: ~500MB (idle), ~1GB (active learning)
-- **CPU**: 5-10% (monitoring), 20-30% (under attack)
-- **Disk**: ~5GB (with ExploitDB), +500MB (crawler cache)
-- **Detection Speed**: <250ms per threat
-- **Whitelist Check**: <1ms (in-memory)
-- **Crawler Speed**: ~5 minutes for all 12 sources
-- **Network Throughput**: 10,000+ packets/second
-- **Concurrent Users**: 1000s of dashboard users
+System architecture diagram: See `ARCHITECTURE.md`
 
-**Scaling Options:**
-- **Single server**: Handles most SMB deployments (up to 500 employees)
-- **Multi-server**: Add more containers behind load balancer for 10K+ users
-- **External DB**: Optional PostgreSQL for 100K+ events/day (requires code modification)
+### Support
+
+- GitHub Issues: https://github.com/yuhisern7/enterprise-security/issues
+- Email: support@yourcompany.com
 
 ---
 
-## 🔄 How It Works
+## 🚦 Project Status
 
-### 1. **Network Monitoring** (Real-time)
-   - Scapy captures all network packets
-   - Pattern matching against 46,948 exploit signatures
-   - Behavioral analysis with ML models
+✅ **Production Ready**
+- Single container deployment (standalone)
+- Global threat sharing network
+- Encrypted HTTPS communication
+- Dashboard with network status
+- Auto-registration flow
+- 46,948 ExploitDB signatures
+- 12 threat intelligence crawlers
+- VirusTotal integration
+- ML model auto-training
 
-### 2. **Threat Detection** (AI-Powered)
-   - **IsolationForest** - Anomaly detection
-   - **RandomForest** - Threat classification
-   - **GradientBoosting** - IP reputation scoring
-   - Attack tool signature matching (User-Agent analysis)
-
-### 3. **Whitelist Validation** (Pre-block check)
-   - Checks IP against permanent whitelist
-   - Prevents blocking of trusted services
-   - In-memory cache for instant validation
-
-### 4. **Reputation Check** (VirusTotal API)
-   - Queries 70+ security vendors
-   - Aggregates malicious verdicts
-   - Geolocation & ASN lookup
-
-### 5. **Action Decision**
-   - **Whitelisted** → ✅ Allow (never blocked)
-   - **Low confidence** → 👁️ Monitor only
-   - **Medium confidence** → ⚠️ Log & watch
-   - **High confidence** → 🚫 Block immediately
-
-### 6. **Continuous Learning**
-   - Retrains ML models every 5 attacks
-   - Updates from crawler data
-   - Learns from false positives (via whitelist feedback)
+📋 **Roadmap**
+- [ ] PostgreSQL backend for 100K+ clients
+- [ ] Prometheus metrics export
+- [ ] Grafana dashboard templates
+- [ ] Mobile app for alerts
+- [ ] Slack/Teams integration
+- [ ] Advanced analytics dashboard
+- [ ] Threat report generation
 
 ---
 
-**Built with**: Python • Flask • Scapy • scikit-learn • Docker • VirusTotal • ExploitDB • CVE • MalwareBazaar • OTX
+## 📄 License
 
-**Protect your network with AI.** 🛡️
+MIT License - Free for commercial use
+
+---
+
+## 🙏 Credits
+
+Built with:
+- Python 3.11
+- Flask 3.0
+- scikit-learn 1.3
+- Scapy 2.5
+- ExploitDB (Offensive Security)
+- VirusTotal API
+- Docker
+
+**Protect your network with collective AI intelligence.** 🛡️
