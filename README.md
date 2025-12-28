@@ -353,6 +353,39 @@ To connect multiple Docker containers worldwide:
 
 Done! All containers now share threats automatically via encrypted HTTPS.
 
+**🌐 Cloud/VPS Deployment (DigitalOcean, AWS, GCP, Azure, Linode, etc.)**
+
+Deploy on any cloud provider with one command:
+
+```bash
+# SSH into your cloud instance, then run:
+curl -fsSL https://raw.githubusercontent.com/yuhisern7/enterprise-security/main/cloud-deploy.sh | bash
+```
+
+This works on:
+- ✅ **DigitalOcean** ($6/month Droplet)
+- ✅ **Linode** ($5/month VPS)
+- ✅ **Vultr** ($6/month VPS)
+- ✅ **AWS EC2** (t3.micro)
+- ✅ **Google Cloud** (e2-micro)
+- ✅ **Azure** (B1s VM)
+- ✅ **Hetzner** (€5/month)
+
+The script automatically:
+- Installs Docker & Docker Compose
+- Configures firewall (opens P2P port 60001)
+- Clones repository
+- Runs setup
+- Shows your public IP and URLs
+
+**Minimum VPS Requirements:**
+- **RAM**: 1GB (2GB recommended)
+- **CPU**: 1 core
+- **Storage**: 5GB
+- **OS**: Ubuntu 20.04+, Debian 11+, RHEL 8+
+
+📖 **See [DEPLOYMENT_PLATFORMS.md](DEPLOYMENT_PLATFORMS.md)** for Raspberry Pi, Kubernetes, and other platforms.
+
 ---
 
 ## 🌐 P2P Mesh Network Configuration
