@@ -53,8 +53,6 @@ curl -s http://localhost:60000/api/system-status | grep ml_models
 # Output: "3 models trained (90 samples: 90 local + 0 peer)"
 ```
 
-📖 **Full Privacy Guide**: [PRIVACY.md](PRIVACY.md)
-
 ---
 
 ## 📋 Pre-Requisites
@@ -290,7 +288,6 @@ docker compose down && docker compose up -d  # Restart with new ports
 - **Privacy-Preserving**: Dashboard shows ONLY your attacks, AI learns from everyone
   - **Storage**: `_threat_log` (yours: dashboard+disk+AI) | `_peer_threats` (theirs: AI only)
   - **Verify**: `docker logs enterprise-security-ai | grep Privacy`
-  - **Details**: See [PRIVACY.md](PRIVACY.md) and [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
 - **Dynamic Peers**: Add/remove peers without restart
 - **Resilient**: No single point of failure
 - **Collective Intelligence**: Network gets smarter with each container
@@ -528,7 +525,431 @@ This project is for security research and educational purposes.
 
 ---
 
-## 📚 Documentation
+## � Privacy-Preserving P2P Learning (Deep Dive)
+
+### How Privacy Works
+
+**The Problem We Solved:**
+- ❌ **Before**: Container B's dashboard would show Container A's attacks (privacy violation)
+- ✅ **After**: Container B's AI learns from A's attacks, but dashboard shows ONLY B's own attacks
+
+### Architecture
+
+```
+CONTAINER A                          CONTAINER B
+┌────────────────┐                  ┌────────────────┐
+│ Dashboard      │                  │ Dashboard      │
+│ Shows: 10 local│                  │ Shows: 25 local│
+│ Hides: 25 peer │                  │ Hides: 10 peer │
+└────────┬───────┘                  └────────┬───────┘
+         │                                   │
+         │  P2P Sync (HTTPS)                 │
+         │◄──────────────────────────────────┤
+         │                                   │
+┌────────▼───────┐                  ┌────────▼───────┐
+│ AI Training    │                  │ AI Training    │
+│ Uses: 35 total │                  │ Uses: 35 total │
+│ (10+25)        │                  │ (25+10)        │
+└────────────────┘                  └────────────────┘
+```
+
+### Technical Implementation
+
+**Separated Threat Storage:**
+```python
+_threat_log: List[Dict] = []     # YOUR attacks (dashboard + disk + AI)
+_peer_threats: List[Dict] = []   # THEIR attacks (AI only, memory-only)
+```
+
+**Threat Logging:**
+```python
+def _log_threat(..., is_local: bool = True):
+    event['source'] = 'local' if is_local else 'peer'
+    
+    if is_local:
+        _threat_log.append(event)  # Dashboard ✅ + Disk ✅ + AI ✅
+        _save_threat_log()
+    else:
+        _peer_threats.append(event)  # Dashboard ❌ + Disk ❌ + AI ✅
+```
+
+**ML Training (Collective Intelligence):**
+```python
+def train_ml_models():
+    all_threats = _threat_log + _peer_threats  # Combine for training
+    print(f"[AI] Training with {len(all_threats)} threats")
+    print(f"     (local: {len(_threat_log)}, peer: {len(_peer_threats)})")
+    print(f"[AI] 🔒 Privacy: Dashboard shows only {len(_threat_log)} local")
+    model.fit(all_threats)  # Train on ALL data
+```
+
+### Privacy Guarantees
+
+| Feature | Local Threats | Peer Threats |
+|---------|--------------|--------------|
+| **Dashboard** | ✅ Visible | ❌ Hidden |
+| **Disk Storage** | ✅ Saved | ❌ Memory only |
+| **ML Training** | ✅ Used | ✅ Used |
+| **API Endpoints** | ✅ Returned | ❌ Not returned |
+| **Persistence** | ✅ Survives restart | ❌ Deleted on restart |
+| **Max Storage** | 1000 events | 500 events |
+
+### Example Scenario
+
+**Setup:**
+- Container A: Home WiFi (192.168.1.100)
+- Container B: Office Network (10.0.0.50)
+
+**Attack Flow:**
+1. Container A detects SQL injection from 203.0.113.25
+   - A's dashboard: ✅ Shows attack
+   - B's dashboard: ❌ No visibility (privacy)
+
+2. P2P Sync (background)
+   - A shares threat with B via HTTPS
+   - B receives threat → calls `add_global_threat_to_learning(threat)`
+   - Threat added to B's `_peer_threats` (not `_threat_log`)
+
+3. Container B's AI
+   ```
+   [AI] Training with 1 threat (local: 0, peer: 1)
+   [AI] 🔒 Privacy: Dashboard shows only 0 local, but AI learns from all 1
+   ```
+   - AI now recognizes SQL injection pattern ✅
+   - Dashboard still shows 0 threats ✅ (privacy preserved)
+
+4. Similar attack on Container B
+   - Attacker 203.0.113.30 tries SQL injection on B
+   - B's AI: ✅ Recognizes pattern (learned from A's attack)
+   - B: ✅ Blocks instantly with 98% confidence
+   - B's dashboard: ✅ Shows this attack (source: local)
+
+**Result:** Network learns collectively, dashboards stay private!
+
+### Verification Commands
+
+**Check ML Training Logs:**
+```bash
+docker logs enterprise-security-ai | grep Privacy
+# Output: "[AI] 🔒 Privacy: Dashboard shows only 90 local, but AI learns from all 91"
+```
+
+**Check System Status:**
+```bash
+curl -s http://localhost:60000/api/system-status | grep ml_models
+# Output: "3 models trained (90 samples: 90 local + 0 peer)"
+```
+
+**Test Privacy Isolation:**
+```bash
+docker exec enterprise-security-ai python -c "
+from AI import pcs_ai
+print(f'Before: Local={len(pcs_ai._threat_log)}, Peer={len(pcs_ai._peer_threats)}')
+pcs_ai.add_global_threat_to_learning({'ip': '1.2.3.4', 'type': 'TEST'})
+print(f'After: Local={len(pcs_ai._threat_log)}, Peer={len(pcs_ai._peer_threats)}')
+"
+# Expected: Local unchanged, Peer +1 ✅
+```
+
+### What's Shared vs Not Shared
+
+**✅ Shared via P2P:**
+- Threat type (SQL_INJECTION, PORT_SCAN, etc.)
+- Attacking IP address
+- Timestamp
+- Severity level
+- Detection patterns
+
+**❌ Never Shared:**
+- Dashboard visibility (peer threats hidden)
+- Disk persistence (peer threats not saved)
+- API exposure (no endpoints return peer threats)
+- Internal network data
+- Application logs
+- Victim details
+
+### Benefits
+
+**🔒 Privacy:**
+- No data leakage between containers
+- Compliance-friendly (sensitive data stays private)
+- Organizations trust to join P2P mesh
+
+**🧠 Intelligence:**
+- AI learns from ALL attacks globally
+- Better detection through collective learning
+- Network gets smarter with each container
+
+**📊 Transparency:**
+- ML status shows: "90 samples: 90 local + 0 peer"
+- Clear source tracking ('local' vs 'peer')
+- Audit trail preserved
+
+---
+
+## 🔌 Port Configuration (Advanced)
+
+### Port Overview
+
+| Port | Default | Protocol | Purpose | Firewall |
+|------|---------|----------|---------|----------|
+| DASHBOARD_PORT | 60000 | HTTP | Web interface | ❌ Block external |
+| P2P_PORT | 60001 | HTTPS | P2P mesh sync | ✅ Open worldwide |
+
+**Why 60000+?**
+- ✅ Avoids conflicts with common services (80, 443, 3000, 5000, 8080)
+- ✅ No root/admin privileges needed
+- ✅ Safe IANA dynamic/private port range (49152-65535)
+- ✅ Less likely blocked by corporate firewalls
+
+### Check Port Availability
+
+**Before installation:**
+
+**Linux/Mac:**
+```bash
+sudo lsof -i :60000  # Empty output = port is FREE ✅
+sudo lsof -i :60001
+```
+
+**Windows (PowerShell):**
+```powershell
+netstat -ano | findstr :60000  # No output = port is FREE ✅
+netstat -ano | findstr :60001
+```
+
+### Custom Port Configuration
+
+**Method 1: Interactive Setup**
+```bash
+./setup_peer.sh
+# Answer "n" when asked "Use default ports?"
+# Enter your custom ports (e.g., 55000, 55001)
+```
+
+**Method 2: Edit `.env` File**
+```bash
+# Create from example if needed
+cp .env.example .env
+
+# Edit server/.env
+nano server/.env
+
+# Add/modify:
+DASHBOARD_PORT=60000  # Change to your port
+P2P_PORT=60001        # Change to your port
+
+# Save and restart
+cd server
+docker compose down
+docker compose up -d
+```
+
+**Recommended Alternative Ports:**
+- `50000-50001` (if 60000 conflicts)
+- `55000-55001` (alternative)
+- `60100-60101` (for 2nd container on same machine)
+- `65000-65001` (highest safe range)
+
+### Multiple Containers on Same Machine
+
+**Scenario:** Running 3 containers on one machine
+
+**Container 1:**
+```bash
+DASHBOARD_PORT=60000
+P2P_PORT=60001
+PEER_URLS=https://localhost:60101,https://localhost:60201
+```
+
+**Container 2:**
+```bash
+DASHBOARD_PORT=60100
+P2P_PORT=60101
+PEER_URLS=https://localhost:60001,https://localhost:60201
+```
+
+**Container 3:**
+```bash
+DASHBOARD_PORT=60200
+P2P_PORT=60201
+PEER_URLS=https://localhost:60001,https://localhost:60101
+```
+
+### Firewall Configuration
+
+**⚠️ Important:** Only open `P2P_PORT` (not `DASHBOARD_PORT`)
+
+**Linux (UFW):**
+```bash
+sudo ufw allow 60001/tcp  # Replace with your P2P_PORT
+sudo ufw reload
+sudo ufw status  # Verify rule added
+```
+
+**Linux (firewalld - RHEL/CentOS):**
+```bash
+sudo firewall-cmd --permanent --add-port=60001/tcp
+sudo firewall-cmd --reload
+sudo firewall-cmd --list-ports  # Verify
+```
+
+**Mac:**
+```
+System Preferences → Security & Privacy → Firewall
+→ Firewall Options → Add rule for port 60001 (or your P2P_PORT)
+→ Allow incoming connections
+```
+
+**Windows:**
+```
+Windows Defender Firewall → Advanced Settings → Inbound Rules
+→ New Rule → Port → TCP → Specific Port: 60001
+→ Allow the connection → Domain, Private, Public
+→ Name: "Enterprise Security P2P"
+```
+
+**Router (Port Forwarding):**
+```
+1. Log into router admin panel
+2. Find "Port Forwarding" or "Virtual Server"
+3. Add rule:
+   - External Port: 60001
+   - Internal Port: 60001
+   - Internal IP: 192.168.1.100 (your PC's local IP)
+   - Protocol: TCP
+4. Save and test: curl -k https://your-public-ip:60001/api/p2p/status
+```
+
+### Troubleshooting
+
+**Error: Port already in use**
+```
+Error: Bind for 0.0.0.0:60000 failed: port is already allocated
+```
+
+**Solution:**
+1. Find what's using the port:
+   ```bash
+   sudo lsof -i :60000          # Linux/Mac
+   netstat -ano | findstr :60000  # Windows
+   ```
+
+2. Kill the process OR change port:
+   - Kill: `sudo kill -9 <PID>` (Linux/Mac) or Task Manager (Windows)
+   - Change: Edit `DASHBOARD_PORT` in `.env`
+
+3. Restart container:
+   ```bash
+   docker compose down
+   docker compose up -d
+   ```
+
+**Peers not connecting?**
+
+**Check firewall:**
+```bash
+# Test from peer machine
+curl -k https://your-ip:60001/api/p2p/status
+# Should return JSON, not timeout
+```
+
+**Verify peer URLs:**
+```bash
+cat server/.env | grep PEER_URLS
+# Ensure each peer uses correct P2P_PORT
+# Example: https://peer1:60001,https://peer2:60101
+```
+
+**Check container logs:**
+```bash
+docker compose logs | grep -i "p2p\|peer\|sync"
+# Look for connection errors
+```
+
+**Corporate network blocking high ports?**
+
+Use lower ports (requires root/admin):
+```bash
+DASHBOARD_PORT=8080  # Standard alternative HTTP
+P2P_PORT=8443        # Standard alternative HTTPS
+```
+
+**Note:** Ports <1024 require root privileges.
+
+### Docker Network Modes
+
+**Current: Bridge Mode (Recommended)**
+```yaml
+network_mode: bridge
+ports:
+  - "${DASHBOARD_PORT:-60000}:${DASHBOARD_PORT:-60000}"
+  - "${P2P_PORT:-60001}:${P2P_PORT:-60001}"
+```
+
+**Advantages:**
+- ✅ Port mapping flexibility
+- ✅ Change ports without rebuilding
+- ✅ Multiple containers on same host
+- ✅ Better security isolation
+
+**Alternative: Host Mode** (not recommended)
+```yaml
+network_mode: host
+```
+
+**Advantages:**
+- ✅ Direct network access
+- ✅ Better performance
+
+**Disadvantages:**
+- ❌ Ports hardcoded (can't remap)
+- ❌ Can't run multiple containers
+- ❌ Less security isolation
+
+### Environment Variables Reference
+
+```bash
+# Port Configuration
+DASHBOARD_PORT=60000  # Dashboard web interface
+P2P_PORT=60001        # P2P mesh synchronization
+
+# P2P Mesh
+PEER_URLS=https://peer1:60001,https://peer2:60101
+PEER_NAME=home-main
+P2P_SYNC_ENABLED=true
+P2P_SYNC_INTERVAL=180  # Seconds between syncs
+
+# Optional APIs
+VIRUSTOTAL_API_KEY=your_key_here
+ABUSEIPDB_API_KEY=your_key_here
+```
+
+### Verification
+
+**Check container logs for ports:**
+```bash
+docker compose logs | grep "Dashboard:\|P2P Sync:"
+# Should show your configured ports:
+# 📊 Dashboard: http://localhost:60000
+# 🌐 P2P Sync: https://localhost:60001
+```
+
+**Test dashboard access:**
+```bash
+curl http://localhost:60000
+# Should return HTML (dashboard page)
+```
+
+**Test P2P port (from another machine):**
+```bash
+curl -k https://your-ip:60001/api/p2p/status
+# Should return: {"status": "ok", ...}
+```
+
+---
+
+## �📚 Documentation
 
 - **[PRIVACY.md](PRIVACY.md)** - Complete privacy-preserving P2P guide (355 lines)
 - **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Privacy verification & quick commands
