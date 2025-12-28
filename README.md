@@ -32,7 +32,86 @@ Hackers cannot scan or attack without detection.
 
 ---
 
+## 📋 Pre-Requisites
+
+Before installation, ensure you have:
+
+### System Requirements
+- **Operating System**: macOS 10.15+, Windows 10/11, or Linux (Ubuntu 20.04+, Debian 11+, RHEL/CentOS 8+)
+- **RAM**: Minimum 2GB, Recommended 4GB
+- **Storage**: 2GB free disk space
+- **Network**: Internet connection for initial setup
+
+### Required Software
+
+#### For Mac (macOS)
+1. **Docker Desktop for Mac**
+   - Download: https://www.docker.com/products/docker-desktop
+   - Requires macOS 10.15 (Catalina) or newer
+   - Includes Docker Engine, Docker CLI, and Docker Compose
+   
+2. **Git** (usually pre-installed)
+   - Check: `git --version`
+   - Install via Homebrew: `brew install git`
+   - Or download from: https://git-scm.com/download/mac
+
+#### For Windows
+1. **Docker Desktop for Windows**
+   - Download: https://www.docker.com/products/docker-desktop
+   - Requires Windows 10 64-bit Pro/Enterprise/Education or Windows 11
+   - Enable WSL 2 (Windows Subsystem for Linux)
+   - Includes Docker Engine, Docker CLI, and Docker Compose
+   
+2. **Git for Windows**
+   - Download: https://git-scm.com/download/win
+   - During installation, select "Git Bash" option
+   
+3. **WSL 2** (recommended for Docker Desktop)
+   - Open PowerShell as Administrator:
+   ```powershell
+   wsl --install
+   ```
+
+#### For Linux
+1. **Docker Engine**
+   ```bash
+   # Ubuntu/Debian
+   curl -fsSL https://get.docker.com -o get-docker.sh
+   sudo sh get-docker.sh
+   sudo usermod -aG docker $USER
+   
+   # OR manually: https://docs.docker.com/engine/install/
+   ```
+
+2. **Docker Compose** (if not included)
+   ```bash
+   sudo apt-get install docker-compose-plugin
+   ```
+
+3. **Git**
+   ```bash
+   # Ubuntu/Debian
+   sudo apt-get update && sudo apt-get install git
+   
+   # RHEL/CentOS/Fedora
+   sudo yum install git
+   ```
+
+### Verify Installation
+```bash
+# Check Docker
+docker --version          # Should show: Docker version 20.x or newer
+docker compose version    # Should show: Docker Compose version 2.x or newer
+
+# Check Git
+git --version            # Should show: git version 2.x or newer
+```
+
+---
+
 ## ⚡ Quick Start
+
+### Installation Steps (All Platforms)
 
 **1. Clone Repository**
 ```bash
@@ -41,28 +120,91 @@ cd enterprise-security
 ```
 
 **2. Run Setup (One Command)**
+
+**For Mac/Linux:**
 ```bash
+chmod +x setup_peer.sh
 ./setup_peer.sh
 ```
 
+**For Windows (Git Bash):**
+```bash
+bash setup_peer.sh
+```
+
 The script will:
-- ✅ Install Docker (if needed)
+- ✅ Install Docker (if needed on Linux)
 - ✅ Download ExploitDB database (46,948 exploits)
 - ✅ Configure VirusTotal API (optional)
 - ✅ Set up P2P mesh connections (optional)
 - ✅ Build and start container
 - ✅ Open dashboard: http://localhost:5000
 
-**3. Connect More Containers**
+**3. Connect More Containers (Optional - For P2P Mesh)**
 
-Run `./setup_peer.sh` on each machine and provide peer URLs:
-```
-Peer URLs: http://office.example.com:5000,http://192.168.1.100:5000
-```
+To connect multiple Docker containers worldwide:
 
-Done! All containers now share threats automatically.
+1. **Find your container's IP address:**
+   - **Mac/Windows**: Use your computer's public IP or local network IP
+   - **Linux**: `ip addr show` or `hostname -I`
+
+2. **Run setup on each machine** and enter peer IPs/domains:
+   ```
+   Example input: 192.168.1.100,office.example.com,home.example.com
+   
+   The system will auto-convert to HTTPS URLs:
+   → https://192.168.1.100:5443
+   → https://office.example.com:5443
+   → https://home.example.com:5443
+   ```
+
+3. **Open firewall ports** (if connecting across networks):
+   ```bash
+   # Allow port 5443 (HTTPS P2P sync)
+   # Mac: System Preferences → Security & Privacy → Firewall
+   # Windows: Windows Defender Firewall → Advanced Settings
+   # Linux:
+   sudo ufw allow 5443/tcp
+   # OR
+   sudo firewall-cmd --permanent --add-port=5443/tcp
+   sudo firewall-cmd --reload
+   ```
+
+Done! All containers now share threats automatically via encrypted HTTPS.
 
 ---
+
+## 🌐 P2P Mesh Network Configuration
+
+**File responsible for connecting all Docker ports worldwide:**
+- **`AI/p2p_sync.py`** - Core P2P synchronization engine
+- **`setup_peer.sh`** - Setup script that configures peer connections
+
+**Ports Used:**
+- **5000** (HTTP) - Dashboard access (local only)
+- **5443** (HTTPS) - Encrypted P2P threat synchronization (global)
+
+**Connection Architecture:**
+```
+┌─────────────────┐         ┌─────────────────┐
+│   Container A   │◄───────►│   Container B   │
+│ (Office - Mac)  │  HTTPS  │ (Home - Linux)  │
+│ port 5443       │  5443   │ port 5443       │
+└─────────────────┘         └─────────────────┘
+       ▲                           ▲
+       │                           │
+       │      ┌─────────────────┐  │
+       └─────►│   Container C   │◄─┘
+        HTTPS │ (Cloud-Windows) │ HTTPS
+        5443  │ port 5443       │ 5443
+              └─────────────────┘
+```
+
+**Auto-refresh rate:** Dashboard updates every 5 minutes
+
+---
+
+## ⚡ Quick Start
 
 ## 🎯 Features
 
