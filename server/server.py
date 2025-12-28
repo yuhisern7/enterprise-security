@@ -1017,6 +1017,101 @@ def add_peer():
         }), 500
 
 
+# ==============================================================================
+# ExploitDB Signature Distribution Endpoints (P2P Signature Sharing)
+# ==============================================================================
+
+@app.route('/api/signatures/types', methods=['GET'])
+def get_signature_types():
+    """Get list of available attack types for signature distribution."""
+    try:
+        from AI.signature_distribution import get_signature_distribution
+        dist = get_signature_distribution()
+        
+        attack_types = dist.get_all_attack_types()
+        
+        return jsonify({
+            'success': True,
+            'attack_types': attack_types,
+            'count': len(attack_types),
+            'mode': dist.mode,
+            'is_master': dist.mode == 'master'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/signatures/<attack_type>', methods=['GET'])
+def get_signatures_for_type(attack_type):
+    """Serve signatures for a specific attack type (master nodes)."""
+    try:
+        from AI.signature_distribution import get_signature_distribution
+        dist = get_signature_distribution()
+        
+        result = dist.serve_signatures(attack_type)
+        
+        if 'error' in result:
+            return jsonify(result), 403
+        
+        return jsonify({
+            'success': True,
+            **result
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/signatures/stats', methods=['GET'])
+def get_signature_stats():
+    """Get signature distribution statistics."""
+    try:
+        from AI.signature_distribution import get_signature_distribution
+        dist = get_signature_distribution()
+        
+        return jsonify({
+            'success': True,
+            'stats': dist.get_stats()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/signatures/sync', methods=['POST'])
+def sync_signatures():
+    """Trigger manual signature sync with peers (client nodes)."""
+    try:
+        from AI.signature_distribution import get_signature_distribution
+        dist = get_signature_distribution()
+        
+        if dist.mode != 'client':
+            return jsonify({
+                'success': False,
+                'message': 'Only client nodes can request sync'
+            }), 400
+        
+        dist.sync_with_peers()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Signature sync completed',
+            'stats': dist.get_stats()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @app.route('/api/central-sync/register', methods=['POST'])
 def register_with_central():
     """DEPRECATED: No central server needed in P2P architecture"""
@@ -1599,6 +1694,15 @@ if __name__ == '__main__':
     print(f"[INFO] Encrypted P2P: https://localhost:5443 (HTTPS)")
     print(f"[INFO] AI/ML Security Engine: {'ACTIVE' if pcs_ai.ML_AVAILABLE else 'DISABLED (install scikit-learn)'}")
     print("=" * 70)
+    
+    # Initialize Signature Distribution System
+    try:
+        from AI.signature_distribution import start_signature_distribution
+        sig_dist = start_signature_distribution()
+        print(f"[SIGNATURE DIST] Initialized in {sig_dist.mode.upper()} mode")
+        print(f"[SIGNATURE DIST] Signatures available: {len(sig_dist._signature_index)}")
+    except Exception as e:
+        print(f"[WARNING] Signature distribution not available: {e}")
     
     # Start network monitoring in background
     monitoring_thread = threading.Thread(target=start_network_monitoring, daemon=True)

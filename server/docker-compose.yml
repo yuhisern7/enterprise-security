@@ -27,7 +27,7 @@ services:
     volumes:
       - ./json:/app/json
       - ../AI:/app/AI
-      - ../AI/exploitdb:/app/AI/exploitdb
+      - ../AI/exploitdb:/app/AI/exploitdb:ro  # Optional: read-only, can be removed for client mode
     
     # Environment variables (load from .env file in parent directory)
     env_file:
@@ -40,6 +40,7 @@ services:
       - AI_LEARNING_ENABLED=${AI_LEARNING_ENABLED:-true}
       - DASHBOARD_PORT=${DASHBOARD_PORT:-60000}
       - P2P_PORT=${P2P_PORT:-60001}
+      - SIGNATURE_MODE=${SIGNATURE_MODE:-auto}  # auto, master, or client
     
     # Health check (uses configured dashboard port)
     healthcheck:
