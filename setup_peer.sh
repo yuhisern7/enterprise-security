@@ -68,36 +68,51 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 echo "Connect to other containers to share threats automatically."
 echo "Each container learns from all others in real-time."
+echo "🔐 All connections are HTTPS encrypted - hackers cannot sniff."
 echo ""
 read -p "Do you want to connect to other peer containers? (y/n): " connect_peers
 
 if [[ "$connect_peers" == "y" ]]; then
     echo ""
-    echo "Enter peer container URLs (comma-separated)"
-    echo "Example: http://192.168.1.100:5000,http://192.168.1.101:5000"
+    echo "Enter peer container IPs or domains (comma-separated)"
+    echo "Example: 192.168.1.100,192.168.1.101,office.example.com"
+    echo "Note: Connections will be automatically encrypted with HTTPS"
     echo ""
-    read -p "Peer URLs: " peer_urls
+    read -p "Peer IPs/Domains: " peer_hosts
     
-    if [ ! -z "$peer_urls" ]; then
+    if [ ! -z "$peer_hosts" ]; then
+        # Convert to HTTPS URLs automatically (encrypted by default)
+        peer_urls=""
+        IFS=',' read -ra HOSTS <<< "$peer_hosts"
+        for host in "${HOSTS[@]}"; do
+            host=$(echo "$host" | xargs)  # trim whitespace
+            if [ ! -z "$peer_urls" ]; then
+                peer_urls="$peer_urls,"
+            fi
+            # Auto-use HTTPS port 5443 for encrypted P2P
+            peer_urls="${peer_urls}https://${host}:5443"
+        done
+        
         # Enable P2P sync
-        sed -i "s/P2P_SYNC_ENABLED=.*/P2P_SYNC_ENABLED=true/" server/.env
-        sed -i "s|PEER_URLS=.*|PEER_URLS=$peer_urls|" server/.env
+        sed -i "s/P2P_SYNC_ENABLED=.*/P2P_SYNC_ENABLED=true/" .env
+        sed -i "s|PEER_URLS=.*|PEER_URLS=$peer_urls|" .env
         
         # Set peer name
         read -p "Enter a name for this container (e.g., office-1, home-main): " peer_name
         if [ ! -z "$peer_name" ]; then
-            sed -i "s/PEER_NAME=.*/PEER_NAME=$peer_name/" server/.env
+            sed -i "s/PEER_NAME=.*/PEER_NAME=$peer_name/" .env
         fi
         
         echo ""
-        echo "✅ P2P mesh configured:"
+        echo "✅ P2P mesh configured with HTTPS encryption:"
         echo "   - Peers: $peer_urls"
         echo "   - Name: ${peer_name:-auto}"
-        echo "   - Sync: Every 3 minutes"
+        echo "   - Sync: Every 3 minutes (encrypted)"
+        echo "   - 🔐 All ML training data encrypted in transit"
     fi
 else
     echo "ℹ️  Running in standalone mode (no peer sharing)"
-    echo "   You can configure peers later in server/.env"
+    echo "   You can configure peers later in .env file"
 fi
 
 # Build and start container

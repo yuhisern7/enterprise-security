@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
-Peer-to-Peer Threat Intelligence Synchronization
+Peer-to-Peer Threat Intelligence Synchronization with Encrypted Communication
 
 Every container is equal - all share threats with each other automatically.
 No central server needed. Simple, efficient, brilliant.
 
 When A gets attacked, B and C learn immediately.
 The network gets smarter every hour, automatically.
+
+🔐 All connections are HTTPS encrypted - hackers cannot sniff the data.
 """
 
 import os
@@ -17,6 +19,7 @@ import logging
 import requests
 from datetime import datetime
 from typing import List, Dict, Any, Optional
+import ssl
 
 # Disable SSL warnings for self-signed certificates
 import urllib3
@@ -26,12 +29,23 @@ logger = logging.getLogger(__name__)
 
 
 class P2PSync:
-    """Peer-to-peer threat intelligence synchronization"""
+    """Peer-to-peer threat intelligence synchronization with encrypted connections"""
     
     def __init__(self):
-        # Load peer URLs from environment
+        # Load peer URLs from environment - automatically use HTTPS
         peer_urls_str = os.getenv('PEER_URLS', '')
-        self.peer_urls = [url.strip() for url in peer_urls_str.split(',') if url.strip()]
+        raw_urls = [url.strip() for url in peer_urls_str.split(',') if url.strip()]
+        
+        # Auto-upgrade HTTP to HTTPS for encryption
+        self.peer_urls = []
+        for url in raw_urls:
+            if url.startswith('http://'):
+                # Upgrade to HTTPS for encrypted communication
+                https_url = url.replace('http://', 'https://')
+                self.peer_urls.append(https_url)
+                logger.info(f"🔐 Auto-upgraded to HTTPS: {https_url}")
+            else:
+                self.peer_urls.append(url)
         
         # Configuration
         self.enabled = os.getenv('P2P_SYNC_ENABLED', 'false').lower() == 'true'

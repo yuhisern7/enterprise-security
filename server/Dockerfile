@@ -30,8 +30,16 @@ COPY server/report_generator.py .
 RUN mkdir -p json
 COPY server/json/ json/
 
-# Expose port
-EXPOSE 5000
+# Generate self-signed SSL certificate for encrypted P2P communication
+RUN mkdir -p /app/ssl && \
+    openssl req -x509 -newkey rsa:4096 -nodes \
+    -keyout /app/ssl/key.pem \
+    -out /app/ssl/cert.pem \
+    -days 3650 \
+    -subj "/C=US/ST=State/L=City/O=Security/CN=enterprise-security"
+
+# Expose ports (HTTP and HTTPS)
+EXPOSE 5000 5443
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
@@ -41,7 +49,7 @@ USER root
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:5000')" || exit 1
+    CMD python -c "import requests; requests.get('http://localhost:5000', verify=False)" || exit 1
 
 # Start the server
 CMD ["python", "server.py"]

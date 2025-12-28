@@ -1347,7 +1347,8 @@ if __name__ == '__main__':
     print("🛡️  HOME WIFI SECURITY SYSTEM - STARTING")
     print("=" * 70)
     print(f"[INFO] Server starting at: {_get_current_time()}")
-    print(f"[INFO] Dashboard will be available at: http://localhost:5000")
+    print(f"[INFO] Dashboard: http://localhost:5000")
+    print(f"[INFO] Encrypted P2P: https://localhost:5443 (HTTPS)")
     print(f"[INFO] AI/ML Security Engine: {'ACTIVE' if pcs_ai.ML_AVAILABLE else 'DISABLED (install scikit-learn)'}")
     print("=" * 70)
     
@@ -1355,10 +1356,36 @@ if __name__ == '__main__':
     monitoring_thread = threading.Thread(target=start_network_monitoring, daemon=True)
     monitoring_thread.start()
     
-    # Start Flask server
-    app.run(
-        host='0.0.0.0',  # Listen on all interfaces
-        port=5000,
-        debug=True,
-        threaded=True
-    )
+    # Check if we should run HTTPS (for P2P encryption)
+    import os
+    ssl_cert = '/app/ssl/cert.pem'
+    ssl_key = '/app/ssl/key.pem'
+    
+    if os.path.exists(ssl_cert) and os.path.exists(ssl_key):
+        # Run HTTPS server for encrypted P2P communication
+        print("🔐 Starting HTTPS server for encrypted P2P connections...")
+        
+        # Start HTTP server in background (for dashboard)
+        http_thread = threading.Thread(
+            target=lambda: app.run(host='0.0.0.0', port=5000, debug=False, threaded=True),
+            daemon=True
+        )
+        http_thread.start()
+        
+        # Run HTTPS server in main thread (for P2P)
+        app.run(
+            host='0.0.0.0',
+            port=5443,
+            debug=True,
+            threaded=True,
+            ssl_context=(ssl_cert, ssl_key)
+        )
+    else:
+        # Fall back to HTTP only
+        print("ℹ️  Running HTTP only (no SSL cert found)")
+        app.run(
+            host='0.0.0.0',
+            port=5000,
+            debug=True,
+            threaded=True
+        )
