@@ -11,6 +11,8 @@ Blocking devices you don't own is illegal.
 import threading
 import time
 from datetime import datetime
+import json
+import os
 
 try:
     from scapy.all import ARP, Ether, sendp, conf, get_if_hwaddr
@@ -23,6 +25,35 @@ except ImportError:
 _blocked_devices = {}  # {mac: {'ip': ip, 'gateway': gateway, 'blocker_thread': thread}}
 _blocker_lock = threading.Lock()
 _blocker_running = True
+
+# Persistent storage
+BLOCKED_DEVICES_FILE = os.path.join(os.path.dirname(__file__), 'json', 'blocked_devices.json')
+
+def _save_blocked_devices():
+    """Save blocked devices to disk"""
+    try:
+        os.makedirs(os.path.dirname(BLOCKED_DEVICES_FILE), exist_ok=True)
+        # Only save MAC, IP, and timestamp (threads can't be serialized)
+        persistent_data = {
+            mac: {'ip': info['ip'], 'blocked_at': info['blocked_at']}
+            for mac, info in _blocked_devices.items()
+        }
+        with open(BLOCKED_DEVICES_FILE, 'w') as f:
+            json.dump(persistent_data, f, indent=2)
+    except Exception as e:
+        print(f"[WARNING] Could not save blocked devices: {e}")
+
+def _load_blocked_devices():
+    """Load blocked devices from disk and re-establish blocks"""
+    try:
+        if os.path.exists(BLOCKED_DEVICES_FILE):
+            with open(BLOCKED_DEVICES_FILE, 'r') as f:
+                data = json.load(f)
+            print(f"[BLOCKER] Loaded {len(data)} previously blocked devices")
+            return data
+    except Exception as e:
+        print(f"[WARNING] Could not load blocked devices: {e}")
+    return {}
 
 
 class DeviceBlocker:
@@ -128,6 +159,7 @@ class DeviceBlocker:
             }
             
             blocker_thread.start()
+            _save_blocked_devices()  # Persist to disk
             
             print(f"[BLOCKER] 🚫 BLOCKING DEVICE: {ip} ({mac})")
             print(f"[BLOCKER] Method: ARP Spoofing (telling device we are gateway)")
@@ -154,6 +186,7 @@ class DeviceBlocker:
             
             # Remove from blocked list
             del _blocked_devices[mac]
+            _save_blocked_devices()  # Persist to disk
             
             print(f"[BLOCKER] ✅ UNBLOCKED DEVICE: {ip} ({mac})")
             print(f"[BLOCKER] Device should regain internet access")
@@ -253,6 +286,14 @@ class DeviceBlocker:
 
 # Global blocker instance
 blocker = DeviceBlocker() if SCAPY_AVAILABLE else None
+
+# Restore previously blocked devices on startup
+if blocker:
+    _previously_blocked = _load_blocked_devices()
+    if _previously_blocked:
+        print(f"[BLOCKER] Restoring {len(_previously_blocked)} previously blocked devices...")
+        for mac, info in _previously_blocked.items():
+            blocker.block_device(info['ip'], mac)
 
 
 def block_device(mac, ip):

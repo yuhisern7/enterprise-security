@@ -127,10 +127,18 @@ if os.path.exists('/app'):  # Running in Docker
     _THREAT_LOG_FILE = "/app/json/threat_log.json"  # Absolute path in Docker
     _BLOCKED_IPS_FILE = "/app/json/blocked_ips.json"
     _WHITELIST_FILE = "/app/json/whitelist.json"
+    _TRACKING_DATA_FILE = "/app/json/tracking_data.json"  # Brute force, rate limits, etc.
+    _PEER_THREATS_FILE = "/app/json/peer_threats.json"  # P2P threat intel
+    _ML_TRAINING_FILE = "/app/json/ml_training_data.json"  # ML training buffer
+    _ML_METRICS_FILE = "/app/json/ml_performance_metrics.json"  # ML performance
 else:  # Running natively from server/ directory  
     _THREAT_LOG_FILE = "../server/json/threat_log.json"  # AI/pcs_ai.py -> server/json/
     _BLOCKED_IPS_FILE = "../server/json/blocked_ips.json"
     _WHITELIST_FILE = "../server/json/whitelist.json"
+    _TRACKING_DATA_FILE = "../server/json/tracking_data.json"
+    _PEER_THREATS_FILE = "../server/json/peer_threats.json"
+    _ML_TRAINING_FILE = "../server/json/ml_training_data.json"
+    _ML_METRICS_FILE = "../server/json/ml_performance_metrics.json"
 
 # Whitelist for localhost/development (never block these IPs)
 _WHITELISTED_IPS = {"127.0.0.1", "localhost", "::1"}
@@ -315,9 +323,80 @@ def _save_whitelist() -> None:
         print(f"[WARNING] Failed to save whitelist: {e}")
 
 
+def _save_tracking_data() -> None:
+    """Save brute force, rate limiting, and fingerprinting data."""
+    try:
+        os.makedirs("data", exist_ok=True)
+        tracking_data = {
+            'failed_login_tracker': {
+                ip: [ts.isoformat() for ts in timestamps]
+                for ip, timestamps in _failed_login_tracker.items()
+            },
+            'request_tracker': {
+                ip: [ts.isoformat() for ts in timestamps]
+                for ip, timestamps in _request_tracker.items()
+            },
+            'fingerprint_tracker': dict(_fingerprint_tracker),
+            'behavioral_signatures': dict(_behavioral_signatures),
+            'proxy_chain_tracker': dict(_proxy_chain_tracker),
+            'real_ip_correlation': {ip: list(real_ips) for ip, real_ips in _real_ip_correlation.items()},
+            'honeypot_beacons': dict(_honeypot_beacons)
+        }
+        with open(_TRACKING_DATA_FILE, 'w') as f:
+            json.dump(tracking_data, f, indent=2)
+    except Exception as e:
+        print(f"[WARNING] Failed to save tracking data: {e}")
+
+
+def _save_peer_threats() -> None:
+    """Save P2P peer threat intelligence."""
+    try:
+        os.makedirs("data", exist_ok=True)
+        with open(_PEER_THREATS_FILE, 'w') as f:
+            json.dump(_peer_threats, f, indent=2)
+    except Exception as e:
+        print(f"[WARNING] Failed to save peer threats: {e}")
+
+
+def _save_ml_training_data() -> None:
+    """Save ML training data buffer."""
+    try:
+        os.makedirs("data", exist_ok=True)
+        # Convert numpy arrays to lists if present
+        serializable_data = []
+        for item in _ml_training_data:
+            if isinstance(item, dict):
+                serializable_item = {}
+                for key, value in item.items():
+                    if hasattr(value, 'tolist'):  # numpy array
+                        serializable_item[key] = value.tolist()
+                    else:
+                        serializable_item[key] = value
+                serializable_data.append(serializable_item)
+            else:
+                serializable_data.append(item)
+        
+        with open(_ML_TRAINING_FILE, 'w') as f:
+            json.dump(serializable_data, f, indent=2)
+    except Exception as e:
+        print(f"[WARNING] Failed to save ML training data: {e}")
+
+
+def _save_ml_metrics() -> None:
+    """Save ML performance metrics."""
+    try:
+        os.makedirs("data", exist_ok=True)
+        with open(_ML_METRICS_FILE, 'w') as f:
+            json.dump(_ml_performance_metrics, f, indent=2)
+    except Exception as e:
+        print(f"[WARNING] Failed to save ML metrics: {e}")
+
+
 def _load_threat_data() -> None:
     """Load threat log and blocked IPs from persistent storage."""
-    global _threat_log, _blocked_ips, _WHITELISTED_IPS
+    global _threat_log, _blocked_ips, _WHITELISTED_IPS, _failed_login_tracker, _request_tracker
+    global _peer_threats, _fingerprint_tracker, _behavioral_signatures, _proxy_chain_tracker
+    global _real_ip_correlation, _honeypot_beacons, _ml_training_data, _ml_performance_metrics
     
     # Load threat log
     try:
@@ -346,6 +425,61 @@ def _load_threat_data() -> None:
             print(f"[SECURITY] Loaded {len(loaded_whitelist)} whitelisted IPs from disk")
     except Exception as e:
         print(f"[WARNING] Failed to load whitelist: {e}")
+    
+    # Load tracking data (brute force, rate limits, fingerprints)
+    try:
+        if os.path.exists(_TRACKING_DATA_FILE):
+            with open(_TRACKING_DATA_FILE, 'r') as f:
+                tracking_data = json.load(f)
+            
+            # Restore failed login tracker
+            for ip, timestamps in tracking_data.get('failed_login_tracker', {}).items():
+                _failed_login_tracker[ip] = [datetime.fromisoformat(ts) for ts in timestamps]
+            
+            # Restore request tracker
+            for ip, timestamps in tracking_data.get('request_tracker', {}).items():
+                _request_tracker[ip] = [datetime.fromisoformat(ts) for ts in timestamps]
+            
+            # Restore other trackers
+            _fingerprint_tracker.update(tracking_data.get('fingerprint_tracker', {}))
+            for ip, sigs in tracking_data.get('behavioral_signatures', {}).items():
+                _behavioral_signatures[ip] = sigs
+            for ip, chains in tracking_data.get('proxy_chain_tracker', {}).items():
+                _proxy_chain_tracker[ip] = chains
+            for ip, real_ips in tracking_data.get('real_ip_correlation', {}).items():
+                _real_ip_correlation[ip] = set(real_ips)
+            _honeypot_beacons.update(tracking_data.get('honeypot_beacons', {}))
+            
+            print(f"[SECURITY] Loaded tracking data for {len(_failed_login_tracker)} IPs")
+    except Exception as e:
+        print(f"[WARNING] Failed to load tracking data: {e}")
+    
+    # Load peer threats
+    try:
+        if os.path.exists(_PEER_THREATS_FILE):
+            with open(_PEER_THREATS_FILE, 'r') as f:
+                _peer_threats = json.load(f)
+            print(f"[P2P] Loaded {len(_peer_threats)} peer threat events")
+    except Exception as e:
+        print(f"[WARNING] Failed to load peer threats: {e}")
+    
+    # Load ML training data
+    try:
+        if os.path.exists(_ML_TRAINING_FILE):
+            with open(_ML_TRAINING_FILE, 'r') as f:
+                _ml_training_data = json.load(f)
+            print(f"[ML] Loaded {len(_ml_training_data)} training samples")
+    except Exception as e:
+        print(f"[WARNING] Failed to load ML training data: {e}")
+    
+    # Load ML performance metrics
+    try:
+        if os.path.exists(_ML_METRICS_FILE):
+            with open(_ML_METRICS_FILE, 'r') as f:
+                _ml_performance_metrics.update(json.load(f))
+            print(f"[ML] Loaded performance metrics: {_ml_performance_metrics.get('accuracy', 0):.2%} accuracy")
+    except Exception as e:
+        print(f"[WARNING] Failed to load ML metrics: {e}")
     
     # Fetch GitHub IP ranges and unblock any GitHub IPs
     _fetch_github_ip_ranges()
@@ -1374,10 +1508,13 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
         # Save to disk for persistence
         _save_threat_log()
     else:
-        _peer_threats.append(event)  # Peer threats (AI training only, not saved)
+        _peer_threats.append(event)  # Peer threats (AI training only)
         # Keep only last 500 peer events in memory
         if len(_peer_threats) > 500:
             _peer_threats.pop(0)
+        # Save peer threats for ML training persistence
+        if len(_peer_threats) % 10 == 0:  # Save every 10 events
+            _save_peer_threats()
     
     # � THREAT INTELLIGENCE: Check IP reputation with VirusTotal & AbuseIPDB
     if ENTERPRISE_FEATURES_AVAILABLE:
@@ -1571,6 +1708,7 @@ def assess_login_attempt(
     # Track failed login attempts
     if not success:
         _failed_login_tracker[ip_address].append(datetime.utcnow())
+        _save_tracking_data()  # Persist brute force tracking
     
     # Check for brute force attack (10+ failed attempts in 30 minutes - increased threshold)
     failed_count = len(_failed_login_tracker.get(ip_address, []))
@@ -1847,6 +1985,10 @@ def assess_request_pattern(
     
     # Track request
     _request_tracker[ip_address].append(datetime.utcnow())
+    
+    # Periodically save (every 100th request to avoid constant I/O)
+    if sum(len(reqs) for reqs in _request_tracker.values()) % 100 == 0:
+        _save_tracking_data()
     
     # Check for DDoS (more than 500 requests in 5 minutes)
     request_count = len(_request_tracker.get(ip_address, []))
@@ -3188,6 +3330,10 @@ def add_global_threat_to_learning(global_threat: Dict) -> None:
     # Keep only last 500 peer events in memory
     if len(_peer_threats) > 500:
         _peer_threats.pop(0)
+    
+    # Save peer threats periodically
+    if len(_peer_threats) % 10 == 0:
+        _save_peer_threats()
     
     # Trigger retraining if needed
     if ML_AVAILABLE and len(_threat_log) % 10 == 0:  # Retrain every 10 global threats

@@ -12,6 +12,7 @@ import socket
 import struct
 import os
 import re
+import json
 
 try:
     from scapy.all import ARP, Ether, srp, conf
@@ -173,6 +174,58 @@ _devices_lock = threading.Lock()
 _last_scan_time = None
 HISTORY_RETENTION_DAYS = 7
 
+# Persistent storage files
+DEVICE_HISTORY_FILE = os.path.join(os.path.dirname(__file__), 'json', 'device_history.json')
+CONNECTED_DEVICES_FILE = os.path.join(os.path.dirname(__file__), 'json', 'connected_devices.json')
+
+# Load existing device data on startup
+def _load_device_data():
+    """Load device history and connected devices from disk"""
+    global _device_history, _connected_devices, _last_scan_time
+    
+    # Load device history
+    try:
+        if os.path.exists(DEVICE_HISTORY_FILE):
+            with open(DEVICE_HISTORY_FILE, 'r') as f:
+                _device_history = json.load(f)
+            print(f"[DEVICE SCANNER] Loaded {len(_device_history)} devices from history")
+    except Exception as e:
+        print(f"[WARNING] Could not load device history: {e}")
+    
+    # Load connected devices
+    try:
+        if os.path.exists(CONNECTED_DEVICES_FILE):
+            with open(CONNECTED_DEVICES_FILE, 'r') as f:
+                data = json.load(f)
+                _connected_devices = data.get('devices', {})
+                _last_scan_time = data.get('last_scan_time')
+            print(f"[DEVICE SCANNER] Loaded {len(_connected_devices)} previously connected devices")
+    except Exception as e:
+        print(f"[WARNING] Could not load connected devices: {e}")
+
+def _save_device_data():
+    """Save device history and connected devices to disk"""
+    # Save device history
+    try:
+        os.makedirs(os.path.dirname(DEVICE_HISTORY_FILE), exist_ok=True)
+        with open(DEVICE_HISTORY_FILE, 'w') as f:
+            json.dump(_device_history, f, indent=2)
+    except Exception as e:
+        print(f"[WARNING] Could not save device history: {e}")
+    
+    # Save connected devices
+    try:
+        with open(CONNECTED_DEVICES_FILE, 'w') as f:
+            json.dump({
+                'devices': _connected_devices,
+                'last_scan_time': _last_scan_time
+            }, f, indent=2)
+    except Exception as e:
+        print(f"[WARNING] Could not save connected devices: {e}")
+
+# Load data on module import
+_load_device_data()
+
 # Import real blocker (ARP spoofing)
 try:
     from device_blocker import block_device as _block_device_real
@@ -273,6 +326,9 @@ class DeviceScanner:
                 # Add all devices to history (for 7-day tracking)
                 for mac, device in devices.items():
                     _device_history[mac] = device.copy()
+                
+                # Persist to disk
+                _save_device_data()
             
             print(f"[DEVICE SCANNER] Found {len(devices)} devices on network")
             

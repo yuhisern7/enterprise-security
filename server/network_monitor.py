@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 import sys
 import os
 import pytz
+import json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import AI.pcs_ai as pcs_ai
 
@@ -31,15 +32,77 @@ except ImportError:
     print("[WARNING] Scapy not installed. Network monitoring disabled.")
     print("[INFO] Install with: pip install scapy")
 
+# Persistent storage paths
+NETWORK_MONITOR_STATE_FILE = os.path.join(os.path.dirname(__file__), 'json', 'network_monitor_state.json')
+
+def _serialize_monitor_state(port_scan_tracker, arp_tracker, connection_tracker):
+    """Convert monitor state to JSON-serializable format"""
+    return {
+        'port_scan_tracker': {
+            ip: {
+                'ports': list(data['ports']),
+                'last_seen': data['last_seen'].isoformat() if isinstance(data.get('last_seen'), datetime) else data.get('last_seen')
+            }
+            for ip, data in port_scan_tracker.items()
+        },
+        'arp_tracker': dict(arp_tracker),
+        'connection_tracker': dict(connection_tracker)
+    }
+
+def _deserialize_monitor_state(data):
+    """Convert JSON data back to monitor state"""
+    port_scan = defaultdict(lambda: defaultdict(set))
+    for ip, info in data.get('port_scan_tracker', {}).items():
+        port_scan[ip]['ports'] = set(info.get('ports', []))
+        last_seen = info.get('last_seen')
+        if last_seen:
+            try:
+                port_scan[ip]['last_seen'] = datetime.fromisoformat(last_seen)
+            except:
+                port_scan[ip]['last_seen'] = _get_current_time()
+    
+    arp = defaultdict(list)
+    arp.update(data.get('arp_tracker', {}))
+    
+    conn = defaultdict(int)
+    conn.update(data.get('connection_tracker', {}))
+    
+    return port_scan, arp, conn
+
+def _save_monitor_state(port_scan_tracker, arp_tracker, connection_tracker):
+    """Save network monitor state to disk"""
+    try:
+        os.makedirs(os.path.dirname(NETWORK_MONITOR_STATE_FILE), exist_ok=True)
+        state = _serialize_monitor_state(port_scan_tracker, arp_tracker, connection_tracker)
+        with open(NETWORK_MONITOR_STATE_FILE, 'w') as f:
+            json.dump(state, f, indent=2)
+    except Exception as e:
+        print(f"[WARNING] Could not save network monitor state: {e}")
+
+def _load_monitor_state():
+    """Load network monitor state from disk"""
+    try:
+        if os.path.exists(NETWORK_MONITOR_STATE_FILE):
+            with open(NETWORK_MONITOR_STATE_FILE, 'r') as f:
+                data = json.load(f)
+            port_scan, arp, conn = _deserialize_monitor_state(data)
+            print(f"[NETWORK] Loaded monitor state: {len(port_scan)} IPs tracked")
+            return port_scan, arp, conn
+    except Exception as e:
+        print(f"[WARNING] Could not load network monitor state: {e}")
+    return defaultdict(lambda: defaultdict(set)), defaultdict(list), defaultdict(int)
+
 
 class NetworkMonitor:
     """Monitor network traffic for security threats"""
     
     def __init__(self):
         self.running = False
-        self.port_scan_tracker = defaultdict(lambda: defaultdict(set))  # IP -> {port_count, ports_set}
-        self.arp_tracker = defaultdict(list)  # Track ARP requests
-        self.connection_tracker = defaultdict(int)  # Track connection attempts
+        # Load previous state
+        port_scan, arp, conn = _load_monitor_state()
+        self.port_scan_tracker = port_scan
+        self.arp_tracker = arp
+        self.connection_tracker = conn
         
     def start(self):
         """Start monitoring network traffic"""
@@ -227,6 +290,9 @@ class NetworkMonitor:
             
             # Reset connection trackers
             self.connection_tracker.clear()
+            
+            # Save state to disk
+            _save_monitor_state(self.port_scan_tracker, self.arp_tracker, self.connection_tracker)
 
 
 if __name__ == '__main__':
