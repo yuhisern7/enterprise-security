@@ -8,14 +8,10 @@ services:
     container_name: enterprise-security-ai
     restart: unless-stopped
     
-    # Port mapping - configurable via .env file
-    ports:
-      - "${DASHBOARD_PORT:-60000}:${DASHBOARD_PORT:-60000}"  # Dashboard HTTP
-      - "${P2P_PORT:-60001}:${P2P_PORT:-60001}"              # P2P HTTPS
-    
-    # Network mode: bridge allows port mapping (better than host for flexibility)
-    # Note: For packet capture, we use cap_add instead of privileged
-    network_mode: bridge
+    # Network mode: host is required for device scanning to see network devices
+    # This allows the container to scan the actual host network (192.168.x.x)
+    # Note: In host mode, port mapping is not needed - uses host ports directly
+    network_mode: host
     
     # Capabilities for packet capture (more secure than privileged: true)
     cap_add:

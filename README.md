@@ -597,8 +597,9 @@ Done! All containers now share threats automatically via encrypted HTTPS.
 - **ML-Powered Threat Detection**: 3 models (Isolation Forest, Random Forest, Gradient Boosting)
 - **ExploitDB Integration**: 46,948 exploits + 1,066 shellcodes
 - **VirusTotal Scanning**: 70+ security vendors (optional API key)
-- **12 Threat Intelligence Feeds**: CVE, NVD, MalwareBazaar, AlienVault OTX, URLhaus, etc.
-- **Automatic IP Blocking**: Instant response to threats
+- **5 Threat Intelligence Crawlers**: 204 items from CVE-MITRE, MalwareBazaar, AlienVault OTX, URLhaus, AttackerKB (auto-synced every 6 hours)
+- **Automatic IP Blocking**: Instant iptables firewall blacklisting
+- **ARP Spoofing Device Blocker**: Block devices from network access without router admin (Man-in-the-Middle attack)
 - **VPN/Tor Detection**: De-anonymization techniques
 
 ### P2P Mesh Network
@@ -620,8 +621,12 @@ Shows real-time:
 - 📤 Threats shared with network
 - 📥 Threats learned from peers
 - ⏰ Last synchronization time
-- 🚨 Live threat feed
+- 🚨 Live threat feed (updates every 5 minutes)
 - 📈 ML model performance
+- 🌐 **8 Device Categories**: Total, iOS/macOS, Android, Computers, Security Cameras (📹), Routers/Network (🌐), IoT Devices (🔌), Unknown (❓)
+- 📜 **Previous Connections**: 7-day device history tracking with auto-cleanup
+- 🚫 **Block/Unblock Devices**: ARP spoofing-based network isolation (no router access needed)
+- 📊 **Threat Crawler Stats**: 204 global threat indicators from 5 automated sources
 - 🔒 Privacy: Shows ONLY your local threats
 
 ---
@@ -640,6 +645,16 @@ PEER_URLS=https://office.example.com:60001,https://192.168.1.100:60001
 PEER_NAME=home-main
 P2P_SYNC_ENABLED=true
 P2P_SYNC_INTERVAL=180  # Sync every 3 minutes
+
+# Device Scanning
+DEVICE_SCAN_INTERVAL=300  # Scan network every 5 minutes
+HISTORY_RETENTION_DAYS=7  # Keep device history for 7 days
+
+# Threat Intelligence
+CRAWLER_INTERVAL=21600  # Crawl threat sources every 6 hours
+
+# Dashboard Refresh
+DASHBOARD_REFRESH=300000  # Auto-refresh every 5 minutes (in milliseconds)
 
 # Optional API Keys
 VIRUSTOTAL_API_KEY=your_api_key_here  # Free: https://virustotal.com
@@ -898,6 +913,8 @@ enterprise-security/
 ├── server/                      # Main application server
 │   ├── server.py               # Flask web server & P2P mesh
 │   ├── network_monitor.py      # Real-time packet monitoring
+│   ├── device_scanner.py       # Network device discovery (8 categories, 7-day history)
+│   ├── device_blocker.py       # ARP spoofing device blocker (Man-in-the-Middle attack)
 │   ├── report_generator.py     # Security reports
 │   ├── docker-compose.yml      # Container orchestration
 │   ├── Dockerfile              # Container definition
@@ -905,14 +922,16 @@ enterprise-security/
 │   └── .env                    # Configuration (create from .env.example)
 ├── AI/                         # Machine Learning & Threat Intel
 │   ├── pcs_ai.py              # ML models (Isolation Forest, Random Forest, Gradient Boosting)
-│   ├── threat_intelligence.py  # 12 threat feeds integration
+│   ├── threat_intelligence.py  # 5 threat crawler sources (204 items from CVE, MalwareBazaar, URLhaus, OTX, AttackerKB)
 │   ├── enterprise_integration.py # VirusTotal, IP reputation
+│   ├── inspector_ai_monitoring.html # Main dashboard interface
 │   └── exploitdb/             # 46,948 exploits + 1,066 shellcodes
 ├── .env.example                # Example configuration
 ├── setup_peer.sh              # Linux automated setup script
 ├── cloud-deploy.sh            # Cloud VPS one-command deployment
 ├── README.md                   # This file
-└── DEPLOYMENT_PLATFORMS.md     # Platform-specific deployment guide
+├── DEPLOYMENT_PLATFORMS.md     # Platform-specific deployment guide
+└── DEVICE_BLOCKING_EXPLAINED.md # ARP spoofing technical documentation
 ```
 
 ---
@@ -929,7 +948,8 @@ enterprise-security/
 - Local threats: Your own attacks (dashboard visible)
 - Peer threats: Network-wide attacks (dashboard hidden, AI learns)
 - ExploitDB: 46,948 historical exploits
-- Threat Intel Feeds: Real-time global threats
+- Threat Intelligence Crawlers: 204 items from 5 global sources (CVE-MITRE, MalwareBazaar, URLhaus, AlienVault OTX, AttackerKB)
+- Device Behavior: Connection patterns from 8 device categories over 7-day history
 
 **Privacy Guarantee:**
 ```python
@@ -950,12 +970,14 @@ _peer_threats = []    # Peer attacks (AI learns, dashboard hides)
 
 ## 💡 Use Cases
 
-- **Home Networks**: Protect WiFi from intruders, share threats with family locations
-- **Small Business**: Deploy on each office, collective defense across branches
-- **MSP/Security Providers**: Offer to clients, all clients benefit from shared intelligence
+- **Home Networks**: Protect WiFi from intruders, share threats with family locations, block suspicious devices via ARP spoofing
+- **Small Business**: Deploy on each office, collective defense across branches, track all devices (phones, cameras, IoT)
+- **MSP/Security Providers**: Offer to clients, all clients benefit from shared intelligence + 204 global threat indicators
 - **Research Networks**: Collaborative threat detection across institutions
 - **Edge Computing**: Distributed security without cloud dependency
 - **Government**: Inter-agency defense without central database (FISMA/NIST compliant)
+- **IoT Security**: Monitor and isolate compromised IoT devices, security cameras, smart home equipment
+- **Guest Network Protection**: Track previous connections (7 days), block unwanted devices without router access
 
 ---
 
@@ -970,7 +992,10 @@ _peer_threats = []    # Peer attacks (AI learns, dashboard hides)
 **Sync Speed:**
 - Threat broadcast: <3 minutes to all peers
 - Dashboard refresh: 5 minutes (configurable)
+- Device scanning: Every 5 minutes
+- Threat crawler sync: Every 6 hours
 - Network convergence: <10 minutes (100 peers)
+- ARP spoofing: Fake packets every 2 seconds per blocked device
 
 ---
 

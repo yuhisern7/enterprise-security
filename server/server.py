@@ -1482,6 +1482,67 @@ def get_connected_devices_api():
         }), 500
 
 
+@app.route('/api/device-history', methods=['GET'])
+def get_device_history_api():
+    """Get device connection history (last 7 days)"""
+    try:
+        from device_scanner import get_device_history
+        history_data = get_device_history()
+        return jsonify(history_data)
+    except Exception as e:
+        return jsonify({
+            'devices': [],
+            'total_count': 0,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/device/block', methods=['POST'])
+def block_device_api():
+    """Block a device from network access"""
+    try:
+        from device_scanner import block_device
+        data = request.json
+        mac = data.get('mac')
+        ip = data.get('ip')
+        
+        if not mac or not ip:
+            return jsonify({'success': False, 'error': 'MAC and IP required'}), 400
+        
+        success = block_device(mac, ip)
+        return jsonify({
+            'success': success,
+            'message': f'Device {mac} blocked',
+            'mac': mac,
+            'ip': ip
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/device/unblock', methods=['POST'])
+def unblock_device_api():
+    """Unblock a device to restore network access"""
+    try:
+        from device_scanner import unblock_device
+        data = request.json
+        mac = data.get('mac')
+        ip = data.get('ip')
+        
+        if not mac or not ip:
+            return jsonify({'success': False, 'error': 'MAC and IP required'}), 400
+        
+        success = unblock_device(mac, ip)
+        return jsonify({
+            'success': success,
+            'message': f'Device {mac} unblocked',
+            'mac': mac,
+            'ip': ip
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # API endpoint to toggle honeypots
 @app.route('/api/honeypot/toggle', methods=['POST'])
 def toggle_honeypot():

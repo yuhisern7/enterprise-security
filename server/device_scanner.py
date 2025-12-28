@@ -85,14 +85,14 @@ MAC_VENDORS = {
                 '00:17:c9', '00:17:d5', '00:18:af', '00:1a:8a', '00:1b:98', '00:1c:43', '00:1d:25',
                 '00:1d:f6', '00:1e:7d', '00:1f:cc', '00:21:19', '00:21:4c', '00:23:39', '00:23:d6',
                 '00:23:d7', '00:24:54', '00:24:90', '00:24:91', '00:24:e9', '00:25:38', '00:25:66',
-                '00:26:37', 'a0:21:95', 'a0:75:91', 'a4:08:ea', 'a8:a1:95', 'ac:36:13', 'b4:07:f9',
+                '00:26:37', '1c:86:9a', 'a0:21:95', 'a0:75:91', 'a4:08:ea', 'a8:a1:95', 'ac:36:13', 'b4:07:f9',
                 'bc:20:ba', 'c0:bd:d1', 'cc:3a:61', 'd0:22:be', 'd0:66:7b', 'd4:87:d8', 'd8:57:ef',
                 'dc:71:44', 'e4:12:1d', 'e4:40:e2', 'e8:03:9a', 'e8:50:8b', 'e8:e5:d6', 'ec:1d:8b',
                 'f0:25:b7', 'f0:e7:7e', 'f4:09:d8', 'f4:7b:5e', 'f8:04:2e', 'f8:d0:bd'],
     'xiaomi': ['00:9e:c8', '04:cf:8c', '14:f6:5a', '18:59:36', '28:6c:07', '34:80:b3', '34:ce:00',
-               '50:8f:4c', '64:09:80', '68:df:dd', '6c:fa:89', '74:23:44', '78:02:f8', '8c:be:be',
-               '98:fa:e3', 'a0:86:c6', 'ac:c1:ee', 'ac:f7:f3', 'b0:e2:35', 'b4:0b:44', 'c4:0b:cb',
-               'd0:7e:28', 'd4:61:fe', 'dc:d9:ae', 'f0:b4:29', 'f4:8b:32', 'f8:a4:5f'],
+               '50:8f:4c', '64:09:80', '68:df:dd', '6c:fa:89', '74:23:44', '78:02:f8', '84:46:93',
+               '8c:be:be', '98:fa:e3', 'a0:86:c6', 'ac:c1:ee', 'ac:f7:f3', 'b0:e2:35', 'b4:0b:44',
+               'c4:0b:cb', 'd0:7e:28', 'd4:61:fe', 'dc:d9:ae', 'f0:b4:29', 'f4:8b:32', 'f8:a4:5f'],
     'huawei': ['00:1e:10', '00:25:68', '00:46:4b', '00:66:4b', '00:9a:cd', '00:e0:fc', '04:02:1f',
                '04:c0:6f', '08:19:a6', '0c:37:dc', '0c:96:bf', '10:1f:74', '18:68:cb', '20:08:ed',
                '20:76:00', '28:31:52', '2c:ab:a4', '34:6b:d3', '40:4d:8e', '48:46:fb', '48:7d:2e',
@@ -140,12 +140,48 @@ MAC_VENDORS = {
     
     # Linux/Raspberry Pi
     'raspberry': ['b8:27:eb', 'dc:a6:32', 'e4:5f:01'],
+    
+    # Network Equipment / Routers
+    'tplink': ['00:27:19', '04:95:e6', '08:57:00', '0c:80:63', '10:fe:ed', '14:cc:20', '18:a6:f7',
+               '1c:3b:f3', '20:e5:2a', '24:a4:3c', '28:2c:b2', '2c:30:33', '30:b5:c2', '34:2e:b7',
+               '38:2c:4a', '3c:84:6a', '40:16:9f', '44:d9:e7', '48:0e:ec', '4c:ed:fb', '50:c7:bf',
+               '54:a7:03', '58:d9:d5', '5c:e9:1e', '60:32:b1', '64:66:b3', '68:72:51', '6c:5a:b0',
+               '70:4f:57', '74:da:88', '78:8a:20', '7c:8b:ca', '80:ea:96', '84:16:f9', '88:25:93',
+               '8c:a6:df', '90:9a:4a', '94:0c:6d', '98:de:d0', '9c:a2:f4', 'a0:f3:c1', 'a4:2b:b0',
+               'a8:40:41', 'ac:84:c6', 'b0:95:75', 'b4:b0:24', 'b8:27:eb', 'bc:46:99', 'c0:25:e9',
+               'c4:6e:1f', 'c8:3a:35', 'cc:32:e5', 'd0:76:e7', 'd4:6e:0e', 'd8:07:b6', 'dc:9f:db',
+               'e0:28:6d', 'e4:6f:13', 'e8:48:b8', 'ec:08:6b', 'ec:26:ca', 'f0:1c:2d', 'f4:ec:38',
+               'f8:1a:67', 'fc:d7:33'],
+    
+    # Security Cameras / IoT
+    'hikvision': ['00:12:41', '04:68:3a', '08:60:6e', '0c:d2:92', '10:40:f3', '14:8d:c7', '18:4e:16',
+                  '1c:bb:22', '20:47:ed', '24:0f:9b', '28:57:be', '2c:ab:25', '30:d1:7e', '34:c6:87',
+                  '38:0a:94', '3c:7a:8a', '40:ac:bf', '44:19:b6', '48:e1:e9', '4c:bd:8f', '50:30:18',
+                  '54:c4:15', '58:1f:28', '5c:f9:dd', '60:44:f7', '64:6e:97', '68:3b:78', '6c:c2:17',
+                  '70:4d:7b', '74:95:ec', '78:11:dc', '7c:b7:33', '80:1f:12', '84:25:db', '88:12:4e',
+                  '8c:ab:8e', '90:55:de', '94:57:a5', '98:91:21', '9c:8c:d8', 'a0:14:3d', 'a4:14:37',
+                  'a8:63:7d', 'ac:cc:8e', 'b0:e1:7e', 'b4:a3:82', 'b8:a4:4f', 'bc:ad:28', 'c0:56:e3',
+                  'c4:2f:90', 'c8:1f:66', 'cc:d5:39', 'd0:c6:37', 'd4:6e:5c', 'd8:6c:63', 'dc:d3:21',
+                  'e0:31:9c', 'e4:d5:3d', 'e8:ab:fa', 'ec:71:db', 'f0:4d:a2', 'f4:84:8d', 'f8:e0:79',
+                  'fc:f5:28'],
 }
 
 # Connected devices storage
 _connected_devices = {}
+_device_history = {}  # All devices seen in last 7 days
 _devices_lock = threading.Lock()
 _last_scan_time = None
+HISTORY_RETENTION_DAYS = 7
+
+# Import real blocker (ARP spoofing)
+try:
+    from device_blocker import block_device as _block_device_real
+    from device_blocker import unblock_device as _unblock_device_real
+    from device_blocker import is_device_blocked as _is_blocked_real
+    BLOCKER_AVAILABLE = True
+except ImportError:
+    BLOCKER_AVAILABLE = False
+    print("[WARNING] Device blocker not available")
 
 
 class DeviceScanner:
@@ -153,7 +189,7 @@ class DeviceScanner:
     
     def __init__(self):
         self.running = False
-        self.scan_interval = 60  # Scan every 60 seconds
+        self.scan_interval = 300  # Scan every 5 minutes
     
     def start(self):
         """Start device scanning"""
@@ -211,9 +247,14 @@ class DeviceScanner:
                 ip = received.psrc
                 mac = received.hwsrc
                 
-                # Identify device type
+                # Identify device type and vendor
                 device_type = self._identify_device(mac)
+                vendor = self._get_vendor_name(mac)
                 hostname = self._get_hostname(ip)
+                
+                # Generate friendly name if hostname is unknown
+                if hostname == 'Unknown':
+                    hostname = self._generate_device_name(ip, mac, device_type, vendor)
                 
                 devices[mac] = {
                     'ip': ip,
@@ -224,10 +265,14 @@ class DeviceScanner:
                     'first_seen': _connected_devices.get(mac, {}).get('first_seen', datetime.now().isoformat())
                 }
             
-            # Update global device list
+            # Update global device list and history
             with _devices_lock:
                 _connected_devices = devices
                 _last_scan_time = datetime.now().isoformat()
+                
+                # Add all devices to history (for 7-day tracking)
+                for mac, device in devices.items():
+                    _device_history[mac] = device.copy()
             
             print(f"[DEVICE SCANNER] Found {len(devices)} devices on network")
             
@@ -282,17 +327,136 @@ class DeviceScanner:
                     return 'Windows/Linux'
                 elif device_type == 'raspberry':
                     return 'Linux (Raspberry Pi)'
+                elif device_type == 'tplink':
+                    return 'Router/Network'
+                elif device_type == 'hikvision':
+                    return 'Security Camera'
         
         # Unknown device
         return 'Unknown'
     
+    def _get_vendor_name(self, mac):
+        """Get vendor name from MAC address"""
+        mac = mac.lower()
+        mac_prefix = ':'.join(mac.split(':')[:3])
+        
+        # Check against known vendors
+        for vendor_name, prefixes in MAC_VENDORS.items():
+            if mac_prefix in [p.lower() for p in prefixes]:
+                return vendor_name.capitalize()
+        
+        return 'Unknown'
+    
+    def _generate_device_name(self, ip, mac, device_type, vendor):
+        """Generate a friendly device name when hostname is unknown"""
+        # Get last octet of IP for uniqueness
+        ip_suffix = ip.split('.')[-1]
+        
+        # Create name based on vendor and device type
+        if vendor != 'Unknown':
+            if vendor.lower() == 'apple':
+                # Differentiate iOS/Mac by common patterns
+                if device_type == 'iOS/macOS':
+                    return f"Apple-Device-{ip_suffix}"
+            elif vendor.lower() in ['samsung', 'xiaomi', 'huawei', 'google']:
+                return f"{vendor}-Phone-{ip_suffix}"
+            elif vendor.lower() in ['dell', 'hp', 'lenovo', 'asus']:
+                return f"{vendor}-Computer-{ip_suffix}"
+            elif vendor.lower() == 'raspberry':
+                return f"RaspberryPi-{ip_suffix}"
+            elif vendor.lower() == 'tplink':
+                return f"TP-Link-Router-{ip_suffix}"
+            elif vendor.lower() == 'hikvision':
+                return f"Hikvision-Camera-{ip_suffix}"
+            else:
+                return f"{vendor}-Device-{ip_suffix}"
+        
+        # Fallback to device type
+        if device_type != 'Unknown':
+            type_short = device_type.replace('/', '-').replace(' ', '-')
+            return f"{type_short}-{ip_suffix}"
+        
+        # Last resort: just use IP suffix
+        return f"Device-{ip_suffix}"
+    
     def _get_hostname(self, ip):
-        """Try to get device hostname"""
+        """Try to get device hostname using multiple methods"""
+        hostname = 'Unknown'
+        
+        # Method 1: Try reverse DNS lookup
         try:
             hostname = socket.gethostbyaddr(ip)[0]
-            return hostname
+            if hostname and hostname != ip:
+                return hostname
         except:
-            return 'Unknown'
+            pass
+        
+        # Method 2: Try NetBIOS name resolution (Windows devices)
+        try:
+            import subprocess
+            result = subprocess.check_output(['nmblookup', '-A', ip], timeout=2, stderr=subprocess.DEVNULL).decode()
+            for line in result.split('\n'):
+                if '<00>' in line and 'GROUP' not in line:
+                    # Extract NetBIOS name
+                    name = line.split()[0].strip()
+                    if name and name != ip:
+                        return name
+        except:
+            pass
+        
+        # Method 3: Try mDNS/Avahi (Apple devices and some Linux)
+        try:
+            import subprocess
+            result = subprocess.check_output(['avahi-resolve', '-a', ip], timeout=2, stderr=subprocess.DEVNULL).decode()
+            if result:
+                parts = result.strip().split()
+                if len(parts) >= 2:
+                    name = parts[1].replace('.local', '')
+                    if name and name != ip:
+                        return name
+        except:
+            pass
+        
+        # Method 4: Check /etc/hosts
+        try:
+            with open('/etc/hosts', 'r') as f:
+                for line in f:
+                    if line.strip() and not line.startswith('#'):
+                        parts = line.split()
+                        if len(parts) >= 2 and parts[0] == ip:
+                            return parts[1]
+        except:
+            pass
+        
+        # Method 5: Try to get hostname from DHCP leases (if running as router)
+        try:
+            # Common DHCP lease file locations
+            lease_files = [
+                '/var/lib/dhcp/dhcpd.leases',
+                '/var/lib/dhcpd/dhcpd.leases',
+                '/var/db/dhcpd.leases'
+            ]
+            for lease_file in lease_files:
+                try:
+                    with open(lease_file, 'r') as f:
+                        content = f.read()
+                        # Look for this IP in leases
+                        if ip in content:
+                            lines = content.split('\n')
+                            for i, line in enumerate(lines):
+                                if f'lease {ip}' in line:
+                                    # Look for hostname in next few lines
+                                    for j in range(i, min(i+10, len(lines))):
+                                        if 'client-hostname' in lines[j]:
+                                            name = lines[j].split('"')[1]
+                                            if name:
+                                                return name
+                except:
+                    continue
+        except:
+            pass
+        
+        return hostname
 
 
 def get_connected_devices():
@@ -313,6 +477,69 @@ def _get_device_summary():
         device_type = device['type']
         summary[device_type] += 1
     return dict(summary)
+
+
+def get_device_history():
+    """Get devices seen in last 7 days (excluding currently connected)"""
+    with _devices_lock:
+        # Clean old history
+        _cleanup_device_history()
+        
+        # Get devices that are in history but NOT currently connected
+        current_macs = set(_connected_devices.keys())
+        historical_devices = []
+        
+        for mac, device in _device_history.items():
+            if mac not in current_macs:
+                historical_devices.append(device)
+        
+        # Sort by last seen (most recent first)
+        historical_devices.sort(key=lambda d: d['last_seen'], reverse=True)
+        
+        return {
+            'devices': historical_devices,
+            'total_count': len(historical_devices)
+        }
+
+
+def _cleanup_device_history():
+    """Remove devices older than HISTORY_RETENTION_DAYS"""
+    cutoff_time = (datetime.now() - timedelta(days=HISTORY_RETENTION_DAYS)).isoformat()
+    to_remove = []
+    
+    for mac, device in _device_history.items():
+        if device['last_seen'] < cutoff_time:
+            to_remove.append(mac)
+    
+    for mac in to_remove:
+        del _device_history[mac]
+
+
+def block_device(mac, ip):
+    """Block a device by MAC/IP address using ARP spoofing"""
+    if not BLOCKER_AVAILABLE:
+        print(f"[DeviceScanner] ERROR: Blocker not available")
+        return False
+    
+    print(f"[DeviceScanner] Blocking device: {mac} ({ip}) via ARP spoofing")
+    return _block_device_real(mac, ip)
+
+
+def unblock_device(mac, ip):
+    """Unblock a device by MAC/IP address"""
+    if not BLOCKER_AVAILABLE:
+        print(f"[DeviceScanner] ERROR: Blocker not available")
+        return False
+    
+    print(f"[DeviceScanner] Unblocking device: {mac} ({ip})")
+    return _unblock_device_real(mac, ip)
+
+
+def is_device_blocked(mac):
+    """Check if a device is blocked"""
+    if not BLOCKER_AVAILABLE:
+        return False
+    return _is_blocked_real(mac)
 
 
 # Global scanner instance

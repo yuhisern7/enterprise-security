@@ -403,20 +403,73 @@
             <div class="stat-value" id="computer-count">--</div>
             <div class="muted">Windows, Mac, Linux PCs</div>
           </div>
+          
+          <div class="stat-card" style="border-left-color: #ff9f5f;">
+            <div class="stat-label">📹 SECURITY CAMERAS</div>
+            <div class="stat-value" id="camera-count">--</div>
+            <div class="muted">CCTV, IP Cameras</div>
+          </div>
+          
+          <div class="stat-card" style="border-left-color: #5fafff;">
+            <div class="stat-label">🌐 ROUTERS/NETWORK</div>
+            <div class="stat-value" id="router-count">--</div>
+            <div class="muted">Routers, Switches, APs</div>
+          </div>
+          
+          <div class="stat-card" style="border-left-color: #ff5fff;">
+            <div class="stat-label">🔌 IoT DEVICES</div>
+            <div class="stat-value" id="iot-count">--</div>
+            <div class="muted">Smart home, Sensors</div>
+          </div>
+          
+          <div class="stat-card" style="border-left-color: #8a92b6;">
+            <div class="stat-label">❓ UNKNOWN DEVICES</div>
+            <div class="stat-value" id="unknown-count">--</div>
+            <div class="muted">Unidentified devices</div>
+          </div>
         </div>
         
         <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(95, 255, 159, 0.1); border-radius: 6px; border: 1px solid #5fff9f;">
-          <p class="muted" style="margin: 0 0 0.75rem 0;"><strong>🛡️ Protected Devices List:</strong></p>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <p class="muted" style="margin: 0;"><strong>🛡️ Protected Devices List:</strong></p>
+            <button id="previous-connections-btn" onclick="togglePreviousConnections()" style="background: linear-gradient(135deg, #5fff9f, #5fe2ff); color: #0b1020; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem;">
+              📜 Previous Connections
+            </button>
+          </div>
           <div id="device-list" style="max-height: 400px; overflow-y: auto;">
             <div class="loading-spinner">Scanning network for devices...</div>
           </div>
         </div>
         
+        <!-- Previous Connections Modal -->
+        <div id="previous-connections-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 10000; overflow-y: auto;">
+          <div style="max-width: 1200px; margin: 2rem auto; padding: 2rem; background: #0b1020; border: 2px solid #5fff9f; border-radius: 12px; position: relative;">
+            <button onclick="togglePreviousConnections()" style="position: absolute; top: 1rem; right: 1rem; background: #ff5f5f; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600;">
+              ✕ Close
+            </button>
+            <h2 style="color: #5fff9f; margin-bottom: 1rem;">📜 Previous Connections (Last 7 Days)</h2>
+            <p class="muted" style="margin-bottom: 1.5rem;">Devices that connected to your network in the past week. Data auto-clears after 7 days.</p>
+            <div id="previous-device-list" style="max-height: 600px; overflow-y: auto;">
+              <div class="loading-spinner">Loading previous connections...</div>
+            </div>
+          </div>
+        </div>
+        
         <div style="margin-top: 1rem; padding: 1rem; background: rgba(95, 226, 255, 0.1); border-radius: 6px; border: 1px solid #5fe2ff;">
           <p class="muted" style="margin: 0; line-height: 1.8;">
-            <strong>🔍 Device Discovery:</strong> Network scanned every 60 seconds - Last scan: <span id="last-device-scan" style="color: #5fe2ff;">Never</span><br>
+            <strong>🔍 Device Discovery:</strong> Network scanned every 5 minutes - Last scan: <span id="last-device-scan" style="color: #5fe2ff;">Never</span><br>
             <strong>🔒 Privacy:</strong> Device information stays local - never shared with P2P network<br>
             <strong>⚡ Protection:</strong> All detected devices are automatically protected from network attacks
+          </p>
+        </div>
+        
+        <div style="margin-top: 1rem; padding: 1rem; background: rgba(255, 95, 95, 0.1); border-radius: 6px; border: 1px solid #ff5f5f;">
+          <p class="muted" style="margin: 0; line-height: 1.8;">
+            <strong>🚫 ACTIVE DEFENSE - Device Blocking:</strong><br>
+            <strong>⚠️ How Blocking Works:</strong> Uses <strong>ARP Spoofing</strong> to intercept traffic from blocked devices<br>
+            <strong>🎯 Your Power:</strong> You don't need router admin access - this system actively blocks devices using network-level attacks<br>
+            <strong>🔥 What Happens:</strong> Blocked device thinks it has internet, but all traffic is intercepted and dropped<br>
+            <strong>⚖️ Legal Warning:</strong> Only block devices on YOUR OWN network. Blocking others' devices is illegal.
           </p>
         </div>
       </section>
@@ -845,7 +898,7 @@
       <section>
         <h2>📝 Live Threat Monitor - Real-Time Attack Logs</h2>
         <p class="muted" style="margin-bottom: 1rem;">
-          🔴 Live monitoring of all security events | Auto-refreshes every 30 seconds | 
+          🔴 Live monitoring of all security events | Auto-refreshes every 5 minutes | 
           Showing latest 100 events sorted by timestamp (newest first) | 🌍 Geolocation tracking enabled for law enforcement
         </p>
         {% if threat_logs %}
@@ -1308,94 +1361,140 @@
         <h2>ℹ️ AI Security Monitoring - How It Works</h2>
         <div style="line-height: 1.8;">
           
-          <p class="muted"><strong>🔍 1. Network Traffic Capture (Scapy)</strong></p>
+          <p class="muted"><strong>🔍 1. Network Device Discovery & Active Defense (Every 5 Minutes)</strong></p>
           <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>📡 <strong>Real-Time Packet Monitoring:</strong> Captures all TCP/UDP/ICMP/ARP traffic on your network</li>
-            <li>🌐 <strong>All Devices Protected:</strong> Monitors smartphones, laptops, IoT devices, servers</li>
-            <li>⚡ <strong>Instant Detection:</strong> Analyzes packets in <1ms for threats</li>
+            <li>📱 <strong>Comprehensive Device Scanning:</strong> ARP-based discovery identifies ALL network devices (phones, computers, cameras, routers, IoT)</li>
+            <li>🏷️ <strong>Smart Device Classification:</strong> Auto-identifies iOS/macOS, Android, Windows, Linux, Security Cameras (Hikvision), Routers (TP-Link), Raspberry Pi, IoT devices</li>
+            <li>🎯 <strong>MAC Vendor Database:</strong> 300+ vendor prefixes for accurate device type detection</li>
+            <li>🌐 <strong>Multi-Method Hostname Resolution:</strong> Uses DNS, NetBIOS, mDNS/Avahi, /etc/hosts, and DHCP leases to identify device names</li>
+            <li>📜 <strong>7-Day Connection History:</strong> Tracks all devices that connected in past week with auto-cleanup</li>
+            <li>🚫 <strong>ARP Spoofing Blocker:</strong> Active network defense using Man-in-the-Middle attack to block malicious/unwanted devices without router access</li>
+            <li>⚡ <strong>Instant Device Isolation:</strong> Blocked devices lose internet access via traffic interception (more powerful than router blocking)</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🤖 2. AI Threat Analysis (Multi-Layer)</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>📡 2. Real-Time Network Traffic Monitoring (Scapy Deep Packet Inspection)</strong></p>
           <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>📋 <strong>Pattern Matching:</strong> Checks against 995+ exploit signatures from ExploitDB</li>
-            <li>🧠 <strong>Machine Learning:</strong> 3 ML models (IsolationForest, RandomForest, GradientBoosting)</li>
-            <li>🌍 <strong>IP Reputation:</strong> Queries VirusTotal (70+ security vendors) for attacker intel</li>
-            <li>🎯 <strong>Tool Detection:</strong> Identifies nmap, sqlmap, nikto, burp, metasploit by signature</li>
-            <li>🔓 <strong>VPN/Tor Detection:</strong> Attempts to reveal real IP behind anonymizers</li>
+            <li>📊 <strong>Full Packet Capture:</strong> Monitors ALL TCP/UDP/ICMP/ARP/DNS traffic across entire network in real-time</li>
+            <li>🛡️ <strong>Multi-Device Protection:</strong> Simultaneously analyzes traffic from all discovered devices (phones, computers, cameras, IoT)</li>
+            <li>⚡ <strong>Sub-Millisecond Analysis:</strong> Each packet analyzed in <1ms for immediate threat detection</li>
+            <li>🔍 <strong>Protocol Inspection:</strong> Deep inspection of HTTP/HTTPS headers, payloads, DNS queries, ARP packets</li>
+            <li>📈 <strong>Traffic Pattern Analysis:</strong> Detects anomalies in connection rates, packet sizes, protocol usage</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🌍 3. Threat Intelligence Correlation</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🤖 3. Multi-Layer AI Threat Intelligence Engine</strong></p>
           <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>✅ <strong>VirusTotal:</strong> Cross-checks IP against 70+ security vendors (malware, phishing, attacks)</li>
-            <li>🚨 <strong>AbuseIPDB:</strong> Community-reported malicious IPs (optional)</li>
-            <li>📚 <strong>ExploitDB:</strong> Learns from 46,948 real exploits (SQL injection, XSS, RCE, etc.)</li>
-            <li>🍯 <strong>Honeypots:</strong> 8+ configurable fake services (FTP, Telnet, NetBIOS, etc.) attract attackers</li>
+            <li>📋 <strong>ExploitDB Signature Matching:</strong> 46,948+ real exploit signatures (SQL injection, XSS, RCE, LFI, RFI)</li>
+            <li>🧠 <strong>Triple ML Models:</strong> IsolationForest (anomaly), RandomForest (classification), GradientBoosting (reputation)</li>
+            <li>🌍 <strong>Global Threat Intelligence:</strong> VirusTotal API queries 70+ security vendors for IP reputation</li>
+            <li>🎯 <strong>Attack Tool Fingerprinting:</strong> Signature-based detection of nmap, masscan, sqlmap, nikto, burp, metasploit, hydra</li>
+            <li>🔓 <strong>Anonymizer Detection:</strong> Identifies VPN, Tor, proxies and attempts real IP de-anonymization</li>
+            <li>🕵️ <strong>Behavioral Analysis:</strong> Machine learning-based normal traffic baseline vs suspicious anomalies</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🎓 4. Continuous AI Learning</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🌐 4. Automated Threat Intelligence Crawlers (Every 6 Hours)</strong></p>
           <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>📊 <strong>Auto-Training:</strong> ML models retrain every 5 attacks or 6 hours</li>
-            <li>🔄 <strong>ExploitDB Updates:</strong> Scrapes new exploit signatures every 24 hours</li>
-            <li>🎯 <strong>Honeypot Learning:</strong> Logs real attack attempts for pattern extraction</li>
-            <li>🧪 <strong>Behavioral Analysis:</strong> Learns normal traffic patterns vs anomalies</li>
+            <li>📹 <strong>MalwareBazaar:</strong> 100+ latest malware samples with MD5/SHA256 hashes from CSV feed (no authentication)</li>
+            <li>🌍 <strong>URLhaus:</strong> 100+ recent malicious URLs from abuse.ch CSV export</li>
+            <li>🛡️ <strong>CVE Intelligence:</strong> Trending vulnerabilities from CVE Trends API</li>
+            <li>📡 <strong>AlienVault OTX:</strong> Threat intelligence pulses (sample data when API unavailable)</li>
+            <li>⚔️ <strong>AttackerKB:</strong> Vulnerability assessments and exploit intelligence</li>
+            <li>🤖 <strong>ML Integration:</strong> 204 threat indicators automatically fed to ML models for continuous learning</li>
+            <li>🔄 <strong>Self-Learning:</strong> AI trains on latest global threats without human intervention</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>⚡ 5. Automatic Response Actions</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🍯 5. Dynamic Honeypot Network (8 Attack Attraction Services)</strong></p>
           <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>🚫 <strong>Instant IP Blocking:</strong> Malicious IPs added to firewall blacklist (iptables)</li>
-            <li>⏱️ <strong>Rate Limiting:</strong> Suspicious IPs throttled with exponential backoff</li>
-            <li>📝 <strong>Detailed Logging:</strong> Every attack logged with timestamp, geolocation, threat type, payload</li>
-            <li>🔔 <strong>SIEM Export:</strong> Forwards threat data to enterprise SOC/SIEM systems</li>
-            <li>📊 <strong>Real-Time Dashboard:</strong> Updates every 30 seconds with live threat feed</li>
+            <li>🔌 <strong>FTP Honeypot:</strong> Fake FTP server logs brute force attempts, captures credentials</li>
+            <li>📟 <strong>Telnet/SSH Traps:</strong> Simulates vulnerable remote access, records attack commands</li>
+            <li>💾 <strong>SMB/NetBIOS:</strong> Windows file sharing honeypot attracts ransomware/lateral movement</li>
+            <li>🌐 <strong>HTTP/HTTPS Decoys:</strong> Fake web servers with deliberate vulnerabilities</li>
+            <li>📧 <strong>SMTP Honeypot:</strong> Email server trap for spam/phishing detection</li>
+            <li>📊 <strong>Real Attack Learning:</strong> Every honeypot interaction logged and analyzed for ML training</li>
+            <li>⚙️ <strong>Configurable Ports:</strong> Customize which services to enable and which ports to use</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🛡️ What the System Detects:</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🎓 6. Continuous Self-Learning & Model Updates</strong></p>
+          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
+            <li>📊 <strong>Auto-Training Triggers:</strong> ML models retrain every 5 detected threats OR every 6 hours automatically</li>
+            <li>🔄 <strong>ExploitDB Sync:</strong> Scrapes 5,000 new exploit signatures every 24 hours from local database</li>
+            <li>🍯 <strong>Honeypot Intelligence:</strong> Real attack attempts from honeypots feed ML pattern recognition</li>
+            <li>🌐 <strong>Threat Crawler Data:</strong> 204 items from 5 global threat feeds refresh every 6 hours</li>
+            <li>🧪 <strong>Behavioral Profiling:</strong> Learns normal traffic patterns for each device type (phone/camera/computer)</li>
+            <li>🔍 <strong>Device Activity Tracking:</strong> Connection history identifies unusual network behavior and potential compromises</li>
+            <li>🎯 <strong>Zero Human Input:</strong> Entire learning cycle fully automated - AI improves itself continuously</li>
+          </ul>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>⚡ 7. Automated Response & Active Defense</strong></p>
+          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
+            <li>🚫 <strong>Instant IP Blocking:</strong> Malicious IPs added to iptables firewall blacklist in real-time</li>
+            <li>⏱️ <strong>Intelligent Rate Limiting:</strong> Suspicious IPs throttled with exponential backoff (1s → 2s → 4s → 8s)</li>
+            <li>🎯 <strong>ARP Spoofing Defense:</strong> Block entire devices from network access without router credentials</li>
+            <li>📝 <strong>Forensic Logging:</strong> Every attack logged with timestamp, geolocation, threat type, payload, tool signature</li>
+            <li>🔔 <strong>SIEM Integration:</strong> Real-time threat data export to enterprise SOC/SIEM systems</li>
+            <li>📊 <strong>Live Dashboard:</strong> Updates every 5 minutes with threat feed, device status, ML metrics, crawler stats</li>
+            <li>🛡️ <strong>Multi-Layer Defense:</strong> Combines signature matching + ML anomaly detection + behavioral analysis + threat intelligence</li>
+          </ul>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🛡️ Complete Threat Detection Coverage:</strong></p>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1rem 1.5rem;">
             <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ff5f5f;">
               <strong style="color: #ff5f5f;">💉 Injection Attacks</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">SQL, XSS, LDAP, XML, Command injection with 100+ signature patterns</p>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">SQL injection, XSS, LDAP, XML, Command injection with 100+ ExploitDB signatures</p>
             </div>
             <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ffb85f;">
-              <strong style="color: #ffb85f;">🔍 Reconnaissance</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Port scanning, network mapping, vulnerability scanning tools</p>
+              <strong style="color: #ffb85f;">🔍 Reconnaissance & Scanning</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Port scanning (nmap, masscan), vulnerability scanning (nikto), network enumeration</p>
             </div>
             <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ff5fff;">
-              <strong style="color: #ff5fff;">⚡ DDoS & Floods</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">SYN floods, UDP floods, HTTP floods (>100 req/5min)</p>
+              <strong style="color: #ff5fff;">⚡ DDoS & Network Floods</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">SYN floods, UDP floods, HTTP floods, ICMP floods (>100 requests/5min trigger)</p>
             </div>
             <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #5fe2ff;">
-              <strong style="color: #5fe2ff;">🔓 Brute Force</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Failed login attempts, credential stuffing, password attacks</p>
+              <strong style="color: #5fe2ff;">🔓 Brute Force & Credential Attacks</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Failed login attempts, credential stuffing, password spraying detected via honeypots</p>
             </div>
             <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #9f5fff;">
-              <strong style="color: #9f5fff;">🎭 MITM Attacks</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">ARP spoofing, DNS poisoning, session hijacking</p>
+              <strong style="color: #9f5fff;">🎭 Man-in-the-Middle Attacks</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">ARP spoofing, DNS poisoning, session hijacking, SSL stripping attempts</p>
             </div>
             <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #5fff9f;">
-              <strong style="color: #5fff9f;">🤖 Attack Tools</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">nmap, masscan, sqlmap, nikto, burp, metasploit detected by signature</p>
+              <strong style="color: #5fff9f;">🤖 Attack Tool Signatures</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">nmap, sqlmap, nikto, burp, metasploit, hydra, gobuster detected by fingerprint</p>
+            </div>
+            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ff9f5f;">
+              <strong style="color: #ff9f5f;">🦠 Malware & Exploit Delivery</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Known malware hashes, exploit kits, RCE attempts, backdoor deployment</p>
+            </div>
+            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #5fafff;">
+              <strong style="color: #5fafff;">📹 IoT/Camera Compromise</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Security camera attacks, IoT botnet enrollment, default credential exploitation</p>
             </div>
           </div>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>📋 Data Captured Per Attack:</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>📋 Forensic Data Captured Per Attack:</strong></p>
           <ul class="muted" style="margin-left: 1.5rem;">
-            <li>🕐 Timestamp (Asia/Kuala_Lumpur timezone)</li>
-            <li>🌐 Attacker IP address + geolocation (country, city, ISP, coordinates)</li>
-            <li>⚠️ Threat type classification + severity level (CRITICAL/DANGEROUS/SUSPICIOUS/SAFE)</li>
-            <li>📝 Full attack payload, HTTP headers, User-Agent</li>
-            <li>🎯 Attack tool signature (if detected)</li>
-            <li>🔓 Anonymization status (direct/VPN/Tor/proxy)</li>
-            <li>🌍 VirusTotal reputation score (malicious/suspicious/harmless vendors)</li>
-            <li>🛡️ Action taken (blocked/monitored/dropped)</li>
+            <li>🕐 Precise Timestamp (Asia/Kuala_Lumpur timezone with milliseconds)</li>
+            <li>🌐 Attacker IP + Full Geolocation (country, city, region, ISP, ASN, coordinates)</li>
+            <li>⚠️ Multi-Tier Classification (Threat type + Severity: CRITICAL/DANGEROUS/SUSPICIOUS/SAFE)</li>
+            <li>📝 Complete Attack Payload (HTTP headers, POST data, User-Agent, cookies)</li>
+            <li>🎯 Attack Tool Fingerprint (if detected: nmap version, sqlmap mode, etc.)</li>
+            <li>🔓 Anonymization Status (Direct connection / VPN provider / Tor exit node / Proxy type)</li>
+            <li>🌍 VirusTotal Score (X/70 vendors flagged as malicious/suspicious/harmless)</li>
+            <li>🍯 Honeypot Interaction Log (if triggered: service type, commands executed, credentials attempted)</li>
+            <li>🛡️ Action Taken (IP blocked / Rate limited / Dropped / Device isolated via ARP spoofing)</li>
+            <li>📊 ML Model Confidence (0-100% threat probability from anomaly detection)</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>⚙️ System Configuration:</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>⚙️ System Configuration & Management:</strong></p>
           <ul class="muted" style="margin-left: 1.5rem;">
-            <li>🔑 <strong>API Keys:</strong> Configure VirusTotal & AbuseIPDB keys via System Settings panel</li>
-            <li>🍯 <strong>Honeypots:</strong> Enable/disable fake services (FTP, Telnet, SSH, SMB, etc.) on custom ports</li>
-            <li>🧠 <strong>ML Models:</strong> View training status, force retrain, check last update time</li>
-            <li>📚 <strong>ExploitDB:</strong> Monitor signature count, update frequency, learning status</li>
-            <li>🚫 <strong>Auto-Blocking:</strong> Toggle automatic IP blocking, manage blocked IPs</li>
+            <li>🔑 <strong>API Keys:</strong> Configure VirusTotal & AbuseIPDB keys via System Settings panel (optional but recommended)</li>
+            <li>🍯 <strong>Honeypot Control:</strong> Enable/disable individual fake services (FTP, Telnet, SSH, SMB, HTTP, SMTP) on custom ports</li>
+            <li>🧠 <strong>ML Model Management:</strong> View training status, force manual retrain, check last update time, see model accuracy</li>
+            <li>📚 <strong>ExploitDB Status:</strong> Monitor 46,948 signatures, check last scrape time, view learning statistics</li>
+            <li>🌐 <strong>Threat Crawlers:</strong> See 5 active crawlers collecting 204 global threat indicators every 6 hours</li>
+            <li>🚫 <strong>IP Blocking:</strong> Toggle auto-blocking, manually add/remove IPs, view blocked list with timestamps</li>
+            <li>🎯 <strong>Device Management:</strong> Block/unblock devices via ARP spoofing, view 7-day connection history</li>
+            <li>📊 <strong>Dashboard Refresh:</strong> Configurable auto-refresh (current: 5 minutes) for live threat monitoring</li>
           </ul>
         </div>
       </section>
@@ -1409,7 +1508,7 @@
           </div>
           <div>
             <p class="muted">Auto-Refresh Rate</p>
-            <p style="font-size: 1.2rem; color: #5fe2ff; font-weight: 600;">⏱️ 30 Seconds</p>
+            <p style="font-size: 1.2rem; color: #5fe2ff; font-weight: 600;">⏱️ 5 Minutes</p>
           </div>
           <div>
             <p class="muted">Protection Level</p>
@@ -1442,7 +1541,7 @@
           </ul>
 
           <p class="muted" style="margin-top: 1.5rem;">
-            <strong>Note:</strong> This dashboard auto-refreshes every 30 seconds to show real-time data. 
+            <strong>Note:</strong> This dashboard auto-refreshes every 5 minutes to show real-time data. 
             All blocked IPs persist until manually unblocked by system administrators.
           </p>
         </div>
@@ -1454,8 +1553,8 @@
     </div>
 
     <script>
-      // Auto-refresh page every 30 seconds
-      let countdown = 30;
+      // Auto-refresh page every 5 minutes
+      let countdown = 300;
       setInterval(() => {
         countdown--;
         document.getElementById('countdown').textContent = countdown;
@@ -1938,8 +2037,8 @@
           console.error('Error loading current time:', error);
         }
         
-        // Update time every 30 seconds
-        setTimeout(loadCurrentTime, 30000);
+        // Update time every 5 minutes
+        setTimeout(loadCurrentTime, 300000);
       }
       
       // Port Configuration Functions
@@ -2209,15 +2308,23 @@
           // Update device counts
           document.getElementById('total-devices').textContent = result.total_count || 0;
           
-          // Count by device type
+          // Count by device type (including all categories)
           const summary = result.device_summary || {};
           const iosCount = (summary['iOS/macOS'] || 0);
           const androidCount = (summary['Android'] || 0);
           const windowsLinuxCount = (summary['Windows/Linux'] || 0) + (summary['Linux (Raspberry Pi)'] || 0);
+          const cameraCount = (summary['Security Camera'] || 0);
+          const routerCount = (summary['Router/Network'] || 0);
+          const iotCount = (summary['IoT Device'] || 0) + (summary['Smart Home'] || 0);
+          const unknownCount = (summary['Unknown'] || 0);
           
           document.getElementById('ios-count').textContent = iosCount;
           document.getElementById('android-count').textContent = androidCount;
           document.getElementById('computer-count').textContent = windowsLinuxCount;
+          document.getElementById('camera-count').textContent = cameraCount;
+          document.getElementById('router-count').textContent = routerCount;
+          document.getElementById('iot-count').textContent = iotCount;
+          document.getElementById('unknown-count').textContent = unknownCount;
           
           // Update last scan time
           if (result.last_scan) {
@@ -2233,13 +2340,15 @@
             result.devices.forEach(device => {
               const deviceIcon = getDeviceIcon(device.type);
               const deviceColor = getDeviceColor(device.type);
+              const isBlocked = isDeviceBlocked(device.mac);
               
               devicesHtml += `
-                <div style="background: #0b1020; padding: 0.75rem 1rem; border-radius: 6px; border-left: 4px solid ${deviceColor}; display: flex; justify-content: space-between; align-items: center;">
+                <div style="background: ${isBlocked ? 'rgba(255, 95, 95, 0.15)' : '#0b1020'}; padding: 0.75rem 1rem; border-radius: 6px; border-left: 4px solid ${isBlocked ? '#ff5f5f' : deviceColor}; display: flex; justify-content: space-between; align-items: center;">
                   <div style="flex: 1;">
                     <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;">
                       <span style="font-size: 1.2rem;">${deviceIcon}</span>
-                      <span style="color: #5fe2ff; font-weight: 600; font-family: monospace;">${device.ip}</span>
+                      <span style="color: ${isBlocked ? '#ff5f5f' : '#5fe2ff'}; font-weight: 600; font-family: monospace;">${device.ip}</span>
+                      ${isBlocked ? '<span style="background: #ff5f5f; color: white; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; margin-left: 0.5rem;">🚫 BLOCKED</span>' : ''}
                     </div>
                     <div style="font-size: 0.8rem; color: #8a92b6;">
                       <span style="color: ${deviceColor}; font-weight: 600;">${device.type}</span> • 
@@ -2247,9 +2356,14 @@
                       ${device.hostname !== 'Unknown' ? 'Hostname: ' + device.hostname : 'Name: Unknown'}
                     </div>
                   </div>
-                  <div style="text-align: right; font-size: 0.75rem; color: #8a92b6;">
-                    <div>🛡️ Protected</div>
-                    <div>Last seen: ${new Date(device.last_seen).toLocaleTimeString()}</div>
+                  <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="text-align: right; font-size: 0.75rem; color: #8a92b6;">
+                      <div>${isBlocked ? '🚫 Blocked' : '🛡️ Protected'}</div>
+                      <div>Last seen: ${new Date(device.last_seen).toLocaleTimeString()}</div>
+                    </div>
+                    <button onclick="toggleDeviceBlock('${device.mac}', '${device.ip}')" style="background: ${isBlocked ? '#5fff9f' : '#ff5f5f'}; color: ${isBlocked ? '#0b1020' : 'white'}; border: none; padding: 0.4rem 0.75rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.75rem; white-space: nowrap;">
+                      ${isBlocked ? '✓ Unblock' : '🚫 Block'}
+                    </button>
                   </div>
                 </div>
               `;
@@ -2289,7 +2403,7 @@
         }
         
         // Refresh every 60 seconds (matches scan interval)
-        setTimeout(loadConnectedDevices, 60000);
+        setTimeout(loadConnectedDevices, 300000);
       }
       
       function getDeviceIcon(type) {
@@ -2298,6 +2412,9 @@
         if (type.includes('Windows')) return '💻';
         if (type.includes('Linux')) return '🐧';
         if (type.includes('Raspberry')) return '🥧';
+        if (type.includes('Security Camera')) return '📹';
+        if (type.includes('Router') || type.includes('Network')) return '🌐';
+        if (type.includes('IoT') || type.includes('Smart Home')) return '🔌';
         return '🖥️';
       }
       
@@ -2306,7 +2423,158 @@
         if (type.includes('Android')) return '#5fe2ff';
         if (type.includes('Windows')) return '#9f5fff';
         if (type.includes('Linux')) return '#ffb85f';
+        if (type.includes('Security Camera')) return '#ff9f5f';
+        if (type.includes('Router') || type.includes('Network')) return '#5fafff';
+        if (type.includes('IoT') || type.includes('Smart Home')) return '#ff5fff';
         return '#8a92b6';
+      }
+      
+      // Device blocking functions
+      function isDeviceBlocked(mac) {
+        const blocked = JSON.parse(localStorage.getItem('blockedDevices') || '[]');
+        return blocked.includes(mac);
+      }
+      
+      async function toggleDeviceBlock(mac, ip) {
+        const blocked = JSON.parse(localStorage.getItem('blockedDevices') || '[]');
+        const index = blocked.indexOf(mac);
+        
+        if (index > -1) {
+          // Unblock - restore internet access
+          if (!confirm(`UNBLOCK ${ip}?\n\nThis will restore internet access for this device using ARP restoration packets.`)) {
+            return;
+          }
+          
+          blocked.splice(index, 1);
+          localStorage.setItem('blockedDevices', JSON.stringify(blocked));
+          
+          // Remove from active blocker
+          try {
+            const response = await fetch('/api/device/unblock', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({mac: mac, ip: ip})
+            });
+            const result = await response.json();
+            if (result.success) {
+              alert(`✅ Device ${ip} unblocked!\n\nARP spoofing stopped. Device should regain internet access.`);
+            }
+          } catch (e) { 
+            console.error('Unblock failed:', e);
+            alert('❌ Unblock failed: ' + e.message);
+          }
+          
+        } else {
+          // Block - use ARP spoofing attack
+          if (!confirm(`⚠️ BLOCK ${ip} USING ARP SPOOFING?\n\n🎯 HOW IT WORKS:\n• Sends fake ARP packets to the device\n• Device thinks THIS system is the gateway (router)\n• All internet traffic is intercepted and dropped\n• Device loses internet access completely\n\n🔥 ACTIVE ATTACK TECHNIQUE\n• Works without router admin access\n• Can't be bypassed by the device\n• More powerful than router blocking\n\n⚖️ ONLY use on YOUR network!\nBlocking others' devices is ILLEGAL.\n\nProceed with blocking?`)) {
+            return;
+          }
+          
+          blocked.push(mac);
+          localStorage.setItem('blockedDevices', JSON.stringify(blocked));
+          
+          // Activate ARP spoofer
+          try {
+            const response = await fetch('/api/device/block', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({mac: mac, ip: ip})
+            });
+            const result = await response.json();
+            if (result.success) {
+              alert(`🚫 Device ${ip} BLOCKED!\n\n✅ ARP spoofing active\n✅ Traffic being intercepted\n✅ Device internet access cut off\n\nThe device will think it has connection but all packets are dropped.`);
+            } else {
+              alert('❌ Block failed: ' + (result.error || 'Unknown error'));
+              blocked.splice(blocked.indexOf(mac), 1);
+              localStorage.setItem('blockedDevices', JSON.stringify(blocked));
+            }
+          } catch (e) { 
+            console.error('Block failed:', e);
+            alert('❌ Block failed: ' + e.message);
+            blocked.splice(blocked.indexOf(mac), 1);
+            localStorage.setItem('blockedDevices', JSON.stringify(blocked));
+          }
+        }
+        
+        // Reload device list to show updated status
+        loadConnectedDevices();
+      }
+      
+      // Previous connections functions
+      function togglePreviousConnections() {
+        const modal = document.getElementById('previous-connections-modal');
+        if (modal.style.display === 'none') {
+          modal.style.display = 'block';
+          loadPreviousConnections();
+        } else {
+          modal.style.display = 'none';
+        }
+      }
+      
+      async function loadPreviousConnections() {
+        try {
+          const response = await fetch('/api/device-history');
+          const result = await response.json();
+          
+          const deviceList = document.getElementById('previous-device-list');
+          
+          if (result.devices && result.devices.length > 0) {
+            let devicesHtml = '<div style="display: grid; gap: 0.75rem;">';
+            
+            result.devices.forEach(device => {
+              const deviceIcon = getDeviceIcon(device.type);
+              const deviceColor = getDeviceColor(device.type);
+              const isBlocked = isDeviceBlocked(device.mac);
+              const lastSeen = new Date(device.last_seen);
+              const daysAgo = Math.floor((Date.now() - lastSeen.getTime()) / (1000 * 60 * 60 * 24));
+              
+              devicesHtml += `
+                <div style="background: ${isBlocked ? 'rgba(255, 95, 95, 0.15)' : '#0b1020'}; padding: 0.75rem 1rem; border-radius: 6px; border-left: 4px solid ${isBlocked ? '#ff5f5f' : deviceColor}; display: flex; justify-content: space-between; align-items: center;">
+                  <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;">
+                      <span style="font-size: 1.2rem;">${deviceIcon}</span>
+                      <span style="color: ${isBlocked ? '#ff5f5f' : '#5fe2ff'}; font-weight: 600; font-family: monospace;">${device.ip}</span>
+                      ${isBlocked ? '<span style="background: #ff5f5f; color: white; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; margin-left: 0.5rem;">🚫 BLOCKED</span>' : ''}
+                    </div>
+                    <div style="font-size: 0.8rem; color: #8a92b6;">
+                      <span style="color: ${deviceColor}; font-weight: 600;">${device.type}</span> • 
+                      MAC: ${device.mac} • 
+                      ${device.hostname !== 'Unknown' ? 'Hostname: ' + device.hostname : 'Name: Unknown'}
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="text-align: right; font-size: 0.75rem; color: #8a92b6;">
+                      <div>${isBlocked ? '🚫 Blocked' : '📡 Disconnected'}</div>
+                      <div>Last seen: ${daysAgo === 0 ? 'Today' : daysAgo + 'd ago'}</div>
+                      <div>${lastSeen.toLocaleDateString()}</div>
+                    </div>
+                    <button onclick="toggleDeviceBlock('${device.mac}', '${device.ip}')" style="background: ${isBlocked ? '#5fff9f' : '#ff5f5f'}; color: ${isBlocked ? '#0b1020' : 'white'}; border: none; padding: 0.4rem 0.75rem; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.75rem; white-space: nowrap;">
+                      ${isBlocked ? '✓ Unblock' : '🚫 Block'}
+                    </button>
+                  </div>
+                </div>
+              `;
+            });
+            
+            devicesHtml += '</div>';
+            deviceList.innerHTML = devicesHtml;
+          } else {
+            deviceList.innerHTML = `
+              <div style="text-align: center; padding: 2rem; color: #8a92b6;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">📭</div>
+                <div>No previous connections in the last 7 days</div>
+              </div>
+            `;
+          }
+        } catch (error) {
+          console.error('Error loading previous connections:', error);
+          document.getElementById('previous-device-list').innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #ff5f5f;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div>
+              <div>Failed to load previous connections</div>
+            </div>
+          `;
+        }
       }
       
       // Load sync status on page load

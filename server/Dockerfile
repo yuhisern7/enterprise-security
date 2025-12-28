@@ -7,6 +7,9 @@ RUN apt-get update && apt-get install -y \
     libpcap-dev \
     gcc \
     openssl \
+    iproute2 \
+    samba-common-bin \
+    avahi-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -24,6 +27,8 @@ COPY AI/ AI/
 # Copy server files
 COPY server/server.py .
 COPY server/network_monitor.py .
+COPY server/device_scanner.py .
+COPY server/device_blocker.py .
 COPY server/report_generator.py .
 
 # Create and copy JSON data directory

@@ -18,14 +18,33 @@ from typing import Dict, List, Optional, Any
 from collections import defaultdict
 import threading
 import os
+import sys
+
+# Add AI directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 
 # Import ExploitDB scraper
 try:
     from exploitdb_scraper import start_exploitdb_scraper, get_scraper
     SCRAPER_AVAILABLE = True
-except ImportError:
+except ImportError as e:
     SCRAPER_AVAILABLE = False
-    print("[WARNING] ExploitDB scraper not available")
+    print(f"[WARNING] ExploitDB scraper not available: {e}")
+
+# Import Threat Crawlers
+try:
+    from threat_crawler import (
+        ThreatCrawlerManager,
+        CVECrawler,
+        MalwareBazaarCrawler,
+        AlienVaultOTXCrawler,
+        URLhausCrawler,
+        AttackerKBCrawler
+    )
+    CRAWLER_AVAILABLE = True
+except ImportError as e:
+    CRAWLER_AVAILABLE = False
+    print(f"[WARNING] Threat crawlers not available: {e}")
 
 # Configuration - Load from environment variables
 VIRUSTOTAL_API_KEY = os.getenv("VIRUSTOTAL_API_KEY", "")  # REQUIRED: Get free key from https://www.virustotal.com/gui/join-us
@@ -606,6 +625,42 @@ def start_threat_intelligence_engine():
         # Start background updater
         updater_thread = threading.Thread(target=_background_exploitdb_updater, daemon=True)
         updater_thread.start()
+    
+    # Start Threat Crawlers (for continuous intelligence gathering)
+    if CRAWLER_AVAILABLE:
+        print("[ThreatIntel] Starting threat intelligence crawlers...")
+        crawler_manager = ThreatCrawlerManager()
+        
+        # Add all crawlers
+        crawler_manager.add_crawler(CVECrawler())
+        crawler_manager.add_crawler(MalwareBazaarCrawler())
+        crawler_manager.add_crawler(AlienVaultOTXCrawler())
+        crawler_manager.add_crawler(URLhausCrawler())
+        crawler_manager.add_crawler(AttackerKBCrawler())
+        
+        # Start crawling in background (every 6 hours)
+        def run_crawlers():
+            while True:
+                try:
+                    print("[ThreatIntel] Running threat intelligence crawlers...")
+                    threats = crawler_manager.crawl_all()
+                    print(f"[ThreatIntel] Collected {len(threats)} threat indicators from crawlers")
+                    
+                    # Feed to ML models for training
+                    global _threat_intel_log
+                    _threat_intel_log.extend(threats)
+                    
+                    # Sleep for 6 hours
+                    time.sleep(21600)
+                except Exception as e:
+                    print(f"[ThreatIntel] Crawler error: {e}")
+                    time.sleep(3600)  # Retry in 1 hour
+        
+        crawler_thread = threading.Thread(target=run_crawlers, daemon=True)
+        crawler_thread.start()
+        print("[ThreatIntel] ✅ Threat crawlers started (running every 6 hours)")
+    else:
+        print("[ThreatIntel] ⚠️ Threat crawlers not available - install requests library")
     
     # Deploy honeypots
     honeypot.deploy_honeypots()
