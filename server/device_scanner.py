@@ -337,6 +337,12 @@ class DeviceScanner:
     
     def _get_network_range(self):
         """Get the network IP range to scan"""
+        # Check for environment variable override first
+        env_range = os.getenv('NETWORK_RANGE')
+        if env_range:
+            print(f"[DEVICE SCANNER] Using network range from env: {env_range}")
+            return env_range
+        
         try:
             # Get default gateway
             import subprocess
@@ -358,9 +364,11 @@ class DeviceScanner:
                                     ip_addr = ip_line.strip().split()[1]
                                     # Convert to network range (e.g., 192.168.1.0/24)
                                     base_ip = '.'.join(ip_addr.split('.')[:3]) + '.0/24'
+                                    print(f"[DEVICE SCANNER] Auto-detected network range: {base_ip}")
                                     return base_ip
             
             # Fallback: common private network ranges
+            print("[DEVICE SCANNER] Using fallback network range: 192.168.1.0/24")
             return '192.168.1.0/24'
             
         except Exception as e:
