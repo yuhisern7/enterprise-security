@@ -1,4 +1,4 @@
-# 🛡️ Enterprise Security - P2P Mesh Network
+# 🛡️ Battle-Hardened AI – P2P Mesh Network
 
 **Every container is equal. No central server needed.**
 
@@ -6,6 +6,36 @@ When A gets attacked, B and C learn automatically.
 The network gets smarter every hour.  
 Small file, extremely effective.  
 Hackers cannot scan or attack without detection.
+
+---
+
+## 📑 Table of Contents
+
+- [How It Works](#-how-it-works)
+- [Why Choose This System](#-why-choose-this-system)
+- [Global Impact](#-global-impact-the-network-effect)
+- [What Makes This Unique](#-this-system-is-unique-on-the-planet)
+- [Pre-Requisites](#-pre-requisites)
+- [ExploitDB Signature Distribution (NEW!)](#-exploitdb-signature-distribution-new)
+- [Device Blocking via ARP Spoofing (NEW!)](#-device-blocking-via-arp-spoofing-new)
+- [Quick Start](#-quick-start)
+  - [Windows Installation](#-windows-installation-10-15-minutes)
+  - [macOS Installation](#-macos-installation-10-15-minutes)
+  - [Linux Installation](#-linux-installation-5-10-minutes)
+- [P2P Mesh Network](#-connecting-multiple-containers-p2p-mesh-network)
+- [Cloud & Advanced Deployments](#%EF%B8%8F-cloud--advanced-deployments)
+- [Features](#-features)
+- [Dashboard](#-dashboard)
+- [Configuration](#%EF%B8%8F-configuration)
+- [Architecture](#%EF%B8%8F-architecture)
+- [Management](#-management)
+- [Scaling](#-scaling)
+- [Troubleshooting](#%EF%B8%8F-troubleshooting)
+- [Project Structure](#%EF%B8%8F-project-structure)
+- [AI & Machine Learning](#-ai--machine-learning)
+- [Use Cases](#-use-cases)
+- [Performance](#-performance)
+- [License](#-license)
 
 ---
 
@@ -228,19 +258,72 @@ We analyzed every major security platform:
 
 #### 🪟 For Windows
 
-**1. Docker Desktop for Windows** (REQUIRED)
+**1. WSL 2 (Windows Subsystem for Linux)** (REQUIRED - Install FIRST)
+
+WSL 2 is **REQUIRED** for Docker Desktop to run Linux containers on Windows.
+
+**Install WSL 2:**
+1. Open **PowerShell** as Administrator (Right-click → Run as Administrator)
+2. Run the installation command:
+   ```powershell
+   wsl --install
+   ```
+3. **Restart your computer** (required for WSL to activate)
+4. After restart, verify WSL is installed:
+   ```powershell
+   wsl --version
+   # Should show WSL version info
+   ```
+
+**If you see "WSL needs updating" error:**
+```powershell
+# Update WSL to latest version
+wsl --update
+
+# Set WSL 2 as default version
+wsl --set-default-version 2
+
+# Verify the update
+wsl --version
+# Should show: WSL version: 2.x.x or newer
+```
+
+**Alternative: Manual WSL Update (if automatic update fails)**
+1. Download WSL Update Package: https://aka.ms/wsl2kernel
+2. Run the downloaded `wsl_update_x64.msi` installer
+3. Restart PowerShell and verify:
+   ```powershell
+   wsl --version
+   ```
+
+**Troubleshooting WSL Issues:**
+```powershell
+# Check if WSL 2 is enabled
+wsl --status
+
+# List installed Linux distributions
+wsl --list --verbose
+# Should show at least one distro with VERSION 2
+
+# If no distributions installed, install Ubuntu (recommended)
+wsl --install -d Ubuntu
+```
+
+**2. Docker Desktop for Windows** (REQUIRED - Install AFTER WSL 2)
 - Download: https://www.docker.com/products/docker-desktop
 - Requires Windows 10 64-bit Pro/Enterprise/Education or Windows 11
+- **WSL 2 must be installed BEFORE Docker Desktop**
 - Includes Docker Engine, Docker CLI, and Docker Compose
-- Enable WSL 2 (Windows Subsystem for Linux):
-  - Open PowerShell as Administrator:
-    ```powershell
-    wsl --install
-    ```
-  - Restart your computer
-  - Open Docker Desktop and enable WSL 2 backend
 
-**2. Git for Windows** (REQUIRED)
+**Installation Steps:**
+1. Download and run Docker Desktop installer
+2. During installation, ensure "Use WSL 2 instead of Hyper-V" is checked
+3. Complete installation and restart if prompted
+4. Launch Docker Desktop
+5. Go to Settings → General → Ensure "Use the WSL 2 based engine" is enabled
+6. Go to Settings → Resources → WSL Integration → Enable for your Linux distro
+
+**3. Git for Windows** (REQUIRED)
 - Download: https://git-scm.com/download/win
 - During installation, select "Git Bash" option
 - Verify installation:
@@ -249,14 +332,32 @@ We analyzed every major security platform:
   # Should show: git version 2.x or newer
   ```
 
-**Verify Docker Installation:**
+**Verify Complete Installation:**
 ```powershell
+# Check WSL
+wsl --version
+# Should show: WSL version: 2.x.x or newer
+
+# Check Docker
 docker --version
 # Should show: Docker version 20.x or newer
 
 docker compose version
 # Should show: Docker Compose version 2.x or newer
+
+# Test Docker with WSL 2
+docker run hello-world
+# Should download and run test container successfully
 ```
+
+**Common Windows Issues:**
+
+| Error | Solution |
+|-------|----------|
+| "WSL 2 installation is incomplete" | Run `wsl --update` then restart computer |
+| "Docker daemon is not running" | Enable WSL 2 in Docker Desktop Settings → General |
+| "Hardware virtualization is not enabled" | Enable VT-x/AMD-V in BIOS settings |
+| "WSL kernel update required" | Download from https://aka.ms/wsl2kernel |
 
 ---
 
@@ -335,6 +436,132 @@ git --version
 
 ---
 
+## 📚 ExploitDB Signature Distribution (NEW!)
+
+### 🎯 Problem Solved: No More 500MB Downloads!
+
+**Previously:** Every container needed to download full ExploitDB database (500MB+, 46,948 exploits)
+- ❌ Windows: 500MB download + potential Windows Defender blocks
+- ❌ Mac: 500MB download  
+- ❌ Linux: 500MB download
+
+**Now with Signature Distribution:**
+- ✅ **One** Linux container downloads ExploitDB (master mode)
+- ✅ All other containers receive signatures via P2P (client mode)  
+- ✅ **No ExploitDB download** needed on Windows/Mac!
+- ✅ Same 95% detection capability
+- ✅ Automatic signature updates via P2P mesh
+
+### 🏗️ How It Works
+
+**Master Mode (Linux with ExploitDB):**
+- Has full ExploitDB (46,948 signatures)
+- Serves signatures to requesting peers via HTTPS
+- Provides on-demand signature distribution
+
+**Client Mode (Windows/Mac without ExploitDB):**
+- NO ExploitDB download needed
+- Requests signatures from master via P2P
+- Caches signatures locally for performance
+- Gets 95% detection capability without 500MB download
+
+**Auto Mode (Default):**
+- System auto-detects: Has ExploitDB → MASTER, No ExploitDB → CLIENT
+
+### 💡 Setup Examples
+
+**Linux (becomes master automatically):**
+```bash
+cd AI
+git clone https://github.com/offensive-security/exploitdb.git exploitdb
+cd ../server
+docker compose up -d --build
+# Auto-detects as MASTER
+```
+
+**Windows/Mac (becomes client - NO ExploitDB needed!):**
+```bash
+# Skip ExploitDB download entirely!
+cd server
+
+# In server/.env, add:
+# PEER_URLS=https://LINUX_IP:60001
+
+docker compose up -d --build
+# Auto-detects as CLIENT, receives signatures from Linux
+```
+
+**Benefits:**
+- ✅ **Windows:** No 500MB download, no Defender issues, faster setup
+- ✅ **Mac:** No 500MB download, reduced disk usage
+- ✅ **All:** Centralized updates - update ONE container, all benefit
+
+---
+
+## 🚫 Device Blocking via ARP Spoofing (NEW!)
+
+### ❓ How Can I Block Devices Without Router Access?
+
+**This system uses ARP Spoofing** - a network-level attack that lets you block ANY device on your network without router admin access!
+
+### 🔥 How ARP Spoofing Works
+
+**Normal Network:**
+```
+Device → "Where is the gateway?" → Network  
+Gateway → "I'm at MAC address XX:XX:XX" → Device
+Device → Sends internet traffic to gateway ✅
+```
+
+**With ARP Spoofing (Active Blocking):**
+```
+Device → "Where is the gateway?" → Network
+YOUR SYSTEM → "I'M the gateway! (fake)" → Device  
+Device → Sends all traffic to YOUR system
+YOUR SYSTEM → Drops all packets (no forwarding)
+Result: Device has NO internet access! ❌
+```
+
+### ⚡ What Happens When You Block
+
+1. **Continuous Fake ARP Packets** (every 2 seconds):
+   - "Device-192.168.0.105, the gateway is at MY MAC!"
+   - Device updates its ARP cache
+   - Device thinks YOUR system is the router
+
+2. **Traffic Interception**:
+   - Device sends all packets to YOUR system
+   - Your system drops everything
+   - No packets forwarded to real gateway
+
+3. **Device Perspective**:
+   - ✅ Connected to WiFi
+   - ✅ Has IP address  
+   - ❌ **NO internet access**
+   - ❌ Apps don't work
+
+### 🛡️ Why More Powerful Than Router Blocking
+
+| Feature | Router Blocking | ARP Spoofing |
+|---------|----------------|--------------|
+| **Requires Admin** | ✅ YES (router password) | ❌ NO |
+| **Can be Bypassed** | ✅ YES (VPN, static routes) | ❌ NO |
+| **Works Anywhere** | ❌ NO (only your router) | ✅ YES |
+| **Power** | Medium | **MAXIMUM** |
+
+### 💻 Dashboard Features
+
+- **Block/Unblock Buttons** on every device
+- **Previous Connections** (7-day history)
+- **8 Device Categories**: iOS/macOS, Android, Computers, Security Cameras, Routers, IoT, Unknown
+- **Real-time Status** indicators
+
+### ⚖️ Legal Warning
+
+**Only use on networks you own or have permission to monitor.** Blocking others' devices without authorization is illegal. This is a security research tool for your own network protection.
+
+---
+
 ## ⚡ Quick Start
 
 ### 🪟 Windows Installation (10-15 minutes)
@@ -353,11 +580,24 @@ git --version
    cd enterprise-security
    ```
 
-**Step 2: Download ExploitDB Database**
+**Step 2: ExploitDB Database (OPTIONAL with Signature Distribution!)**
+
+**Option A: Skip ExploitDB (Recommended for Windows) - Use Signature Distribution:**
+```powershell
+# NO download needed! Will receive signatures from Linux master via P2P
+# In server\.env, add:
+# PEER_URLS=https://YOUR_LINUX_IP:60001
+# SIGNATURE_MODE=client
+
+# Skip to Step 3
+```
+
+**Option B: Download ExploitDB Locally (Full standalone mode):**
 ```powershell
 cd AI
 git clone https://github.com/offensive-security/exploitdb.git exploitdb
 cd ..
+# Note: Windows Defender may flag some files - add exclusion if needed
 ```
 
 **Step 3: Configure Environment**
@@ -370,7 +610,10 @@ cd ..
    notepad server\.env
    ```
    - Set `VIRUSTOTAL_API_KEY` (optional, get free at https://virustotal.com)
-   - Add `PEER_URLS` if connecting to other containers (optional)
+   - Add `PEER_URLS` if using signature distribution or P2P mesh
+   - Set `SIGNATURE_MODE=client` if skipping ExploitDB (receives from peers)
+   - Set `SIGNATURE_MODE=master` if downloaded ExploitDB
+   - Set `SIGNATURE_MODE=auto` to auto-detect (default)
    - Save and close
 
 **Step 4: Build and Start**
@@ -433,7 +676,19 @@ Get-NetFirewallRule -DisplayName "Enterprise Security*" | Format-Table DisplayNa
    cd enterprise-security
    ```
 
-**Step 2: Download ExploitDB Database**
+**Step 2: ExploitDB Database (OPTIONAL with Signature Distribution!)**
+
+**Option A: Skip ExploitDB (Recommended for macOS) - Use Signature Distribution:**
+```bash
+# NO download needed! Will receive signatures from Linux master via P2P
+# In server/.env, add:
+# PEER_URLS=https://YOUR_LINUX_IP:60001
+# SIGNATURE_MODE=client
+
+# Skip to Step 3
+```
+
+**Option B: Download ExploitDB Locally (Full standalone mode):**
 ```bash
 cd AI
 git clone https://github.com/offensive-security/exploitdb.git exploitdb
@@ -450,7 +705,10 @@ cd ..
    nano server/.env
    ```
    - Set `VIRUSTOTAL_API_KEY` (optional, get free at https://virustotal.com)
-   - Add `PEER_URLS` if connecting to other containers (optional)
+   - Add `PEER_URLS` if using signature distribution or P2P mesh
+   - Set `SIGNATURE_MODE=client` if skipping ExploitDB (receives from peers)
+   - Set `SIGNATURE_MODE=master` if downloaded ExploitDB
+   - Set `SIGNATURE_MODE=auto` to auto-detect (default)
    - Save: `Ctrl+O`, Exit: `Ctrl+X`
 
 **Step 4: Build and Start**
@@ -508,7 +766,9 @@ sudo /usr/libexec/ApplicationFirewall/socketfilterfw --listapps | grep -i docker
 
 **Prerequisites:** Docker Engine, Docker Compose, and Git must be installed (see above)
 
-**Option 1: Automated Script (5 minutes)**
+> 💡 **Linux Tip:** Linux containers are **ideal as MASTER nodes** in the signature distribution architecture. They serve ExploitDB signatures to Windows/Mac clients via P2P, eliminating the need for multiple 500MB downloads!
+
+**Option 1: Automated Script (5 minutes) - Recommended**
 
 ```bash
 git clone https://github.com/yuhisern7/enterprise-security.git
@@ -518,8 +778,8 @@ chmod +x setup_peer.sh
 ```
 
 The script automatically:
-- Downloads ExploitDB database (46,948 exploits)
-- Configures environment variables
+- Downloads ExploitDB database (46,948 exploits) - Linux becomes **MASTER**
+- Configures environment variables (SIGNATURE_MODE=auto)
 - Builds and starts container
 - Opens firewall (if ufw/firewalld detected)
 - Shows dashboard URL
@@ -532,19 +792,22 @@ git clone https://github.com/yuhisern7/enterprise-security.git
 cd enterprise-security
 ```
 
-**Step 2: Download ExploitDB Database**
+**Step 2: Download ExploitDB Database (Recommended for Linux - Becomes Master)**
 ```bash
 cd AI
 git clone https://github.com/offensive-security/exploitdb.git exploitdb
 cd ..
 ```
 
+> 💡 **Why download on Linux?** Linux containers with ExploitDB automatically become **MASTER** nodes that serve signatures to Windows/Mac clients. This eliminates 500MB downloads on other platforms!
+
 **Step 3: Configure Environment**
 ```bash
 cp .env.example server/.env
 nano server/.env  # or use vim, vi, etc.
 # Set VIRUSTOTAL_API_KEY (optional)
-# Add PEER_URLS if connecting to other containers (optional)
+# SIGNATURE_MODE=auto (default - auto-detects master mode since ExploitDB present)
+# Add PEER_URLS if connecting to other Linux containers (optional)
 # Save: Ctrl+O, Exit: Ctrl+X
 ```
 
@@ -736,6 +999,119 @@ docker compose logs -f
 ```
 
 Done! All containers now share threats automatically via encrypted HTTPS.
+
+---
+
+## ☁️ Cloud & Advanced Deployments
+
+### 🌥️ One-Command Cloud Deployment
+
+Deploy to any cloud provider (AWS, GCP, Azure, DigitalOcean, Linode, Vultr, Hetzner) with one command:
+
+```bash
+# On your Linux VPS (Ubuntu 20.04+, Debian 10+, CentOS 7+, RHEL 8+, or Fedora 30+)
+curl -fsSL https://raw.githubusercontent.com/yuhisern7/enterprise-security/main/cloud-deploy.sh | sudo bash
+```
+
+**The script automatically:**
+- ✅ Detects OS and installs Docker + Docker Compose
+- ✅ Clones repository and downloads ExploitDB (46,948 exploits)
+- ✅ Configures firewall (UFW/firewalld/iptables)
+- ✅ Builds and starts container
+- ✅ Makes firewall persistent across reboots
+- ✅ Shows dashboard URL with server IP
+
+**Supported Cloud Platforms:**
+- **AWS EC2** (Ubuntu, Amazon Linux, RHEL)
+- **Google Cloud Compute Engine** (Ubuntu, Debian, CentOS)
+- **Microsoft Azure VMs** (Ubuntu, RHEL)
+- **DigitalOcean Droplets** ($6/month)
+- **Linode** ($5/month)
+- **Vultr** ($5/month)
+- **Hetzner Cloud** (€4/month)
+
+**Manual Cloud Setup (if you prefer):**
+1. Create Linux VPS (Ubuntu 20.04+ recommended)
+2. SSH into server
+3. Run standard Linux installation (see above)
+
+### 🥧 Raspberry Pi / ARM Devices
+
+Battle-Hardened AI works on ARM devices! Perfect for edge deployments:
+
+**Supported Devices:**
+- Raspberry Pi 4 (4GB+ RAM recommended)
+- Raspberry Pi 5
+- Orange Pi, Rock Pi
+- ARM-based mini PCs
+
+**Installation:**
+```bash
+# Use standard Linux installation
+git clone https://github.com/yuhisern7/enterprise-security.git
+cd enterprise-security
+chmod +x setup_peer.sh
+./setup_peer.sh
+```
+
+### ☸️ Kubernetes Deployment
+
+Deploy across Kubernetes clusters (K8s, K3s, EKS, GKE, AKS):
+
+**Quick Deploy:**
+```bash
+# Apply Kubernetes manifest
+kubectl apply -f kubernetes-deployment.yaml
+
+# Check pods
+kubectl get pods -l app=enterprise-security
+
+# Get service URL
+kubectl get svc enterprise-security
+```
+
+**Scaling:**
+```bash
+# Scale to 3 replicas
+kubectl scale deployment enterprise-security --replicas=3
+
+# Auto-scaling
+kubectl autoscale deployment enterprise-security --min=2 --max=10 --cpu-percent=80
+```
+
+### 🏢 Enterprise Production Deployment
+
+For production environments with high availability:
+
+**Architecture:**
+```
+┌─────────────────────────────────────────────┐
+│         Load Balancer (nginx/HAProxy)        │
+└──────────────────┬──────────────────────────┘
+                   │
+    ┌──────────────┼──────────────┐
+    │              │              │
+┌───▼────┐    ┌───▼────┐    ┌───▼────┐
+│ Linux  │    │ Linux  │    │ Linux  │
+│ Master │◄───┤ Master │◄───┤ Master │
+│  Node  │    │  Node  │    │  Node  │
+└───┬────┘    └───┬────┘    └───┬────┘
+    │             │             │
+    └──────P2P────┴──────P2P────┘
+```
+
+**Setup:**
+1. Deploy 3+ Linux containers as masters (with ExploitDB)
+2. Configure P2P mesh between all masters
+3. Add load balancer (nginx/HAProxy) on port 60000
+4. Deploy Windows/Mac clients pointing to any master via `PEER_URLS`
+5. All nodes share threat intelligence automatically
+
+**High Availability Benefits:**
+- ✅ No single point of failure
+- ✅ Automatic threat sharing across all nodes
+- ✅ Clients failover to other masters if one is down
+- ✅ Load distributed across masters
 
 ---
 
