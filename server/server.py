@@ -1361,13 +1361,19 @@ if __name__ == '__main__':
     ssl_cert = '/app/ssl/cert.pem'
     ssl_key = '/app/ssl/key.pem'
     
+    # Get ports from environment variables (default to high ports to avoid conflicts)
+    dashboard_port = int(os.getenv('DASHBOARD_PORT', '60000'))
+    p2p_port = int(os.getenv('P2P_PORT', '60001'))
+    
     if os.path.exists(ssl_cert) and os.path.exists(ssl_key):
         # Run HTTPS server for encrypted P2P communication
         print("🔐 Starting HTTPS server for encrypted P2P connections...")
+        print(f"📊 Dashboard: http://localhost:{dashboard_port}")
+        print(f"🌐 P2P Sync: https://localhost:{p2p_port}")
         
         # Start HTTP server in background (for dashboard)
         http_thread = threading.Thread(
-            target=lambda: app.run(host='0.0.0.0', port=5000, debug=False, threaded=True),
+            target=lambda: app.run(host='0.0.0.0', port=dashboard_port, debug=False, threaded=True),
             daemon=True
         )
         http_thread.start()
@@ -1375,7 +1381,7 @@ if __name__ == '__main__':
         # Run HTTPS server in main thread (for P2P)
         app.run(
             host='0.0.0.0',
-            port=5443,
+            port=p2p_port,
             debug=True,
             threaded=True,
             ssl_context=(ssl_cert, ssl_key)
@@ -1383,9 +1389,10 @@ if __name__ == '__main__':
     else:
         # Fall back to HTTP only
         print("ℹ️  Running HTTP only (no SSL cert found)")
+        print(f"📊 Dashboard: http://localhost:{dashboard_port}")
         app.run(
             host='0.0.0.0',
-            port=5000,
+            port=dashboard_port,
             debug=True,
             threaded=True
         )

@@ -47,6 +47,43 @@ if [ ! -f "server/.env" ]; then
     cp server/.env.example server/.env
 fi
 
+# Configure ports
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  Port Configuration"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "Default ports (high ports to avoid conflicts):"
+echo "  Dashboard: 60000 (HTTP - local access)"
+echo "  P2P Sync:  60001 (HTTPS - worldwide connections)"
+echo ""
+read -p "Use default ports? (y/n): " use_default_ports
+
+if [[ "$use_default_ports" != "y" ]]; then
+    read -p "Enter Dashboard port (default 60000): " dashboard_port
+    dashboard_port=${dashboard_port:-60000}
+    
+    read -p "Enter P2P port (default 60001): " p2p_port
+    p2p_port=${p2p_port:-60001}
+    
+    # Update .env with custom ports
+    if grep -q "DASHBOARD_PORT=" server/.env; then
+        sed -i "s/DASHBOARD_PORT=.*/DASHBOARD_PORT=$dashboard_port/" server/.env
+    else
+        echo "DASHBOARD_PORT=$dashboard_port" >> server/.env
+    fi
+    
+    if grep -q "P2P_PORT=" server/.env; then
+        sed -i "s/P2P_PORT=.*/P2P_PORT=$p2p_port/" server/.env
+    else
+        echo "P2P_PORT=$p2p_port" >> server/.env
+    fi
+    
+    echo "✅ Ports configured: Dashboard=$dashboard_port, P2P=$p2p_port"
+else
+    echo "✅ Using default ports: Dashboard=60000, P2P=60001"
+fi
+
 # Configure VirusTotal API
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
@@ -76,7 +113,7 @@ if [[ "$connect_peers" == "y" ]]; then
     echo ""
     echo "Enter peer container IPs or domains (comma-separated)"
     echo "Example: 192.168.1.100,192.168.1.101,office.example.com"
-    echo "Note: Connections will be automatically encrypted with HTTPS"
+    echo "Note: Use the P2P port each peer is using (ask them or default is 60001)"
     echo ""
     read -p "Peer IPs/Domains: " peer_hosts
     
@@ -125,12 +162,19 @@ cd server
 docker compose build
 docker compose up -d
 
+# Get configured ports from .env
+dashboard_port=$(grep "^DASHBOARD_PORT=" ../.env 2>/dev/null | cut -d'=' -f2)
+dashboard_port=${dashboard_port:-60000}
+p2p_port=$(grep "^P2P_PORT=" ../.env 2>/dev/null | cut -d'=' -f2)
+p2p_port=${p2p_port:-60001}
+
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  ✅ Container Started Successfully!"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "📊 Dashboard: http://localhost:5000"
+echo "📊 Dashboard: http://localhost:$dashboard_port"
+echo "🌐 P2P Port:  https://your-ip:$p2p_port (for peer connections)"
 echo ""
 echo "🔍 View logs:"
 echo "   docker compose logs -f"
@@ -146,13 +190,15 @@ if [[ "$connect_peers" == "y" ]]; then
     echo "   - When peers detect attacks, you learn automatically"
     echo "   - The network gets smarter every hour! 🚀"
     echo ""
+    echo "📌 Remember to open port $p2p_port on your firewall!"
+    echo ""
 fi
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Open browser
 if command -v xdg-open &> /dev/null; then
-    xdg-open http://localhost:5000
+    xdg-open http://localhost:$dashboard_port
 elif command -v open &> /dev/null; then
-    open http://localhost:5000
+    open http://localhost:$dashboard_port
 fi

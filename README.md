@@ -176,28 +176,46 @@ Done! All containers now share threats automatically via encrypted HTTPS.
 
 ## 🌐 P2P Mesh Network Configuration
 
-**File responsible for connecting all Docker ports worldwide:**
+**Files responsible for connecting all Docker ports worldwide:**
 - **`AI/p2p_sync.py`** - Core P2P synchronization engine
 - **`setup_peer.sh`** - Setup script that configures peer connections
 
-**Ports Used:**
-- **5000** (HTTP) - Dashboard access (local only)
-- **5443** (HTTPS) - Encrypted P2P threat synchronization (global)
+**Ports Used (Configurable):**
+- **60000** (HTTP) - Dashboard access (local only) - `DASHBOARD_PORT`
+- **60001** (HTTPS) - Encrypted P2P threat synchronization (global) - `P2P_PORT`
+
+**Why port 60000+?**
+- ✅ Avoids conflicts with common services (80, 443, 3000, 5000, 8080)
+- ✅ No root/admin privileges needed
+- ✅ Safe dynamic port range (49152-65535)
+
+**🔧 Need different ports?** See [PORT_CONFIGURATION.md](PORT_CONFIGURATION.md) for:
+- How to change ports if already in use
+- Running multiple containers on same machine
+- Firewall configuration for custom ports
+- Port conflict troubleshooting
 
 **Connection Architecture:**
 ```
 ┌─────────────────┐         ┌─────────────────┐
 │   Container A   │◄───────►│   Container B   │
 │ (Office - Mac)  │  HTTPS  │ (Home - Linux)  │
-│ port 5443       │  5443   │ port 5443       │
+│ port 60001      │  60001  │ port 60001      │
 └─────────────────┘         └─────────────────┘
        ▲                           ▲
        │                           │
        │      ┌─────────────────┐  │
        └─────►│   Container C   │◄─┘
         HTTPS │ (Cloud-Windows) │ HTTPS
-        5443  │ port 5443       │ 5443
+        60001 │ port 60001      │ 60001
               └─────────────────┘
+```
+
+**Customize ports in `.env`:**
+```bash
+DASHBOARD_PORT=60000  # Change if needed
+P2P_PORT=60001        # Change if needed
+PEER_URLS=https://peer1:60001,https://peer2:60001
 ```
 
 **Auto-refresh rate:** Dashboard updates every 5 minutes

@@ -8,11 +8,19 @@ services:
     container_name: enterprise-security-ai
     restart: unless-stopped
     
-    # Network mode - REQUIRED for monitoring your actual network
-    network_mode: "host"
+    # Port mapping - configurable via .env file
+    ports:
+      - "${DASHBOARD_PORT:-60000}:${DASHBOARD_PORT:-60000}"  # Dashboard HTTP
+      - "${P2P_PORT:-60001}:${P2P_PORT:-60001}"              # P2P HTTPS
     
-    # Privileged mode - REQUIRED for packet capture
-    privileged: true
+    # Network mode: bridge allows port mapping (better than host for flexibility)
+    # Note: For packet capture, we use cap_add instead of privileged
+    network_mode: bridge
+    
+    # Capabilities for packet capture (more secure than privileged: true)
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     
     # Alternative to privileged (more secure, but may not work on all systems)
     # cap_add:
@@ -34,10 +42,12 @@ services:
       - VIRUSTOTAL_API_KEY=${VIRUSTOTAL_API_KEY}
       - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY:-}
       - AI_LEARNING_ENABLED=${AI_LEARNING_ENABLED:-true}
+      - DASHBOARD_PORT=${DASHBOARD_PORT:-60000}
+      - P2P_PORT=${P2P_PORT:-60001}
     
-    # Health check
+    # Health check (uses configured dashboard port)
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      test: ["CMD", "curl", "-f", "http://localhost:${DASHBOARD_PORT:-60000}"]
       interval: 30s
       timeout: 10s
       retries: 3
