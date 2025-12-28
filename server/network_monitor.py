@@ -185,16 +185,18 @@ class NetworkMonitor:
         ports_accessed = len(self.port_scan_tracker[src_ip]['ports'])
         
         if ports_accessed > 10:  # Accessing 10+ different ports = likely port scan
-            pcs_ai._log_threat(
-                ip_address=src_ip,
-                threat_type="Port Scanning",
-                details=f"Port scan detected: {ports_accessed} different ports accessed in short time. Ports: {sorted(list(self.port_scan_tracker[src_ip]['ports']))[:20]}",
-                level=pcs_ai.ThreatLevel.DANGEROUS,
-                action="detected",
-                headers={}
-            )
-            # Block the scanner
-            pcs_ai._block_ip(src_ip)
+            # Allow internal network scans (device discovery), block external only
+            if not (src_ip.startswith('192.168.') or src_ip.startswith('10.') or src_ip.startswith('172.')):
+                pcs_ai._log_threat(
+                    ip_address=src_ip,
+                    threat_type="Port Scanning",
+                    details=f"Port scan detected: {ports_accessed} different ports accessed in short time. Ports: {sorted(list(self.port_scan_tracker[src_ip]['ports']))[:20]}",
+                    level=pcs_ai.ThreatLevel.DANGEROUS,
+                    action="detected",
+                    headers={}
+                )
+                # Block the scanner
+                pcs_ai._block_ip(src_ip)
             # Clear tracker to avoid duplicate alerts
             self.port_scan_tracker[src_ip]['ports'].clear()
         
@@ -204,15 +206,17 @@ class NetworkMonitor:
             
             # If more than 100 SYN packets in tracking period
             if self.connection_tracker[src_ip] > 100:
-                pcs_ai._log_threat(
-                    ip_address=src_ip,
-                    threat_type="SYN Flood Attack",
-                    details=f"SYN flood detected: {self.connection_tracker[src_ip]} SYN packets",
-                    level=pcs_ai.ThreatLevel.CRITICAL,
-                    action="detected",
-                    headers={}
-                )
-                pcs_ai._block_ip(src_ip)
+                # Allow internal network activity, block external only
+                if not (src_ip.startswith('192.168.') or src_ip.startswith('10.') or src_ip.startswith('172.')):
+                    pcs_ai._log_threat(
+                        ip_address=src_ip,
+                        threat_type="SYN Flood Attack",
+                        details=f"SYN flood detected: {self.connection_tracker[src_ip]} SYN packets",
+                        level=pcs_ai.ThreatLevel.CRITICAL,
+                        action="detected",
+                        headers={}
+                    )
+                    pcs_ai._block_ip(src_ip)
                 self.connection_tracker[src_ip] = 0
     
     def _analyze_udp_packet(self, packet, src_ip, dst_ip):
@@ -224,15 +228,17 @@ class NetworkMonitor:
         self.connection_tracker[f"udp_{src_ip}"] += 1
         
         if self.connection_tracker[f"udp_{src_ip}"] > 200:
-            pcs_ai._log_threat(
-                ip_address=src_ip,
-                threat_type="UDP Flood Attack",
-                details=f"UDP flood detected: {self.connection_tracker[f'udp_{src_ip}']} packets",
-                level=pcs_ai.ThreatLevel.CRITICAL,
-                action="detected",
-                headers={}
-            )
-            pcs_ai._block_ip(src_ip)
+            # Allow internal network activity, block external only
+            if not (src_ip.startswith('192.168.') or src_ip.startswith('10.') or src_ip.startswith('172.')):
+                pcs_ai._log_threat(
+                    ip_address=src_ip,
+                    threat_type="UDP Flood Attack",
+                    details=f"UDP flood detected: {self.connection_tracker[f'udp_{src_ip}']} packets",
+                    level=pcs_ai.ThreatLevel.CRITICAL,
+                    action="detected",
+                    headers={}
+                )
+                pcs_ai._block_ip(src_ip)
             self.connection_tracker[f"udp_{src_ip}"] = 0
     
     def _analyze_arp_packet(self, packet):
