@@ -1066,9 +1066,11 @@ def get_system_status():
         }
         
         # ML Models status
+        total_training_samples = len(pcs_ai._threat_log) + len(pcs_ai._peer_threats) if hasattr(pcs_ai, '_peer_threats') else len(pcs_ai._threat_log)
+        local_samples = len(pcs_ai._threat_log)
         ml_status = {
             'status': 'ok' if pcs_ai.ML_AVAILABLE and pcs_ai._ml_last_trained else 'warning',
-            'message': f'3 models trained ({pcs_ai._threat_log.qsize() if hasattr(pcs_ai._threat_log, "qsize") else len(pcs_ai._threat_log)} samples)' if pcs_ai.ML_AVAILABLE else 'Collecting training data',
+            'message': f'3 models trained ({total_training_samples} samples: {local_samples} local + {total_training_samples - local_samples} peer)' if pcs_ai.ML_AVAILABLE else 'Collecting training data',
             'last_trained': pcs_ai._ml_last_trained.isoformat() if pcs_ai._ml_last_trained else None
         }
         

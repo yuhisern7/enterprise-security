@@ -143,7 +143,8 @@ _GITHUB_IP_LAST_FETCH: Optional[datetime] = None
 _failed_login_tracker: Dict[str, List[datetime]] = defaultdict(list)
 _request_tracker: Dict[str, List[datetime]] = defaultdict(list)
 _blocked_ips: set[str] = set()
-_threat_log: List[Dict] = []  # Log of all security events
+_threat_log: List[Dict] = []  # Log of LOCAL security events (shown on dashboard)
+_peer_threats: List[Dict] = []  # Log of PEER threats (private, AI training only)
 
 # Advanced defensive tracking for VPN/Tor/Proxy detection
 _fingerprint_tracker: Dict[str, Dict] = {}  # Browser/client fingerprints
@@ -706,21 +707,26 @@ def _train_ml_models_from_history() -> None:
     
     if not ML_AVAILABLE:
         return
+    # Combine local and peer threats for AI training (privacy-preserving)
+    all_threats = _threat_log + _peer_threats  # AI learns from ALL attacks
+    local_count = len(_threat_log)
+    peer_count = len(_peer_threats)
     
     # Lowered threshold: Train with as few as 5 events (was 50)
-    if len(_threat_log) < 5:
-        print(f"[AI] Not enough data to train. Need at least 5 threat events, have {len(_threat_log)}")
+    if len(all_threats) < 5:
+        print(f"[AI] Not enough data to train. Need at least 5 threat events, have {len(all_threats)} (local: {local_count}, peer: {peer_count})")
         return
     
     try:
-        print(f"[AI] Training ML models with {len(_threat_log)} threat events...")
+        print(f"[AI] Training ML models with {len(all_threats)} threat events (local: {local_count}, peer: {peer_count})")
+        print(f"[AI] 🔒 Privacy: Dashboard shows only {local_count} local threats, but AI learns from all {len(all_threats)}")
         
         features_list = []
         labels_list = []
         anomaly_labels = []
         
-        # Extract features from threat log
-        for log in _threat_log:
+        # Extract features from ALL threats (local + peer)
+        for log in all_threats:
             # Reconstruct request features from log
             ip = log.get('ip_address', '127.0.0.1')
             endpoint = log.get('details', '')[:100]
@@ -1298,7 +1304,7 @@ def _get_geolocation(ip_address: str) -> dict:
     }
 
 
-def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLevel, action: str = "monitored", headers: dict = None) -> None:
+def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLevel, action: str = "monitored", headers: dict = None, is_local: bool = True) -> None:
     """Log a security threat event with geolocation and VPN/proxy detection for law enforcement."""
     # Get geolocation BEFORE blocking for tracking
     geo_data = _get_geolocation(ip_address)
@@ -1356,13 +1362,22 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
     
     print(f"[LAW ENFORCEMENT TRACKING] {threat_type} from {ip_address} | Location: {geo_data.get('city')}, {geo_data.get('regionName')}, {geo_data.get('country')} | ISP: {geo_data.get('isp')} | Coordinates: {geo_data.get('lat')}, {geo_data.get('lon')}{anonymization_info}")
     
-    _threat_log.append(event)
-    # Keep only last 1000 events to prevent memory overflow
-    if len(_threat_log) > 1000:
-        _threat_log.pop(0)
+    # Mark event source (local or peer)
+    event['source'] = 'local' if is_local else 'peer'
     
-    # Save to disk for persistence
-    _save_threat_log()
+    # Store in appropriate log
+    if is_local:
+        _threat_log.append(event)  # Local threats (shown on dashboard)
+        # Keep only last 1000 events to prevent memory overflow
+        if len(_threat_log) > 1000:
+            _threat_log.pop(0)
+        # Save to disk for persistence
+        _save_threat_log()
+    else:
+        _peer_threats.append(event)  # Peer threats (AI training only, not saved)
+        # Keep only last 500 peer events in memory
+        if len(_peer_threats) > 500:
+            _peer_threats.pop(0)
     
     # � THREAT INTELLIGENCE: Check IP reputation with VirusTotal & AbuseIPDB
     if ENTERPRISE_FEATURES_AVAILABLE:
@@ -3165,13 +3180,14 @@ def clear_blocked_ips_only() -> dict:
 
 
 def add_global_threat_to_learning(global_threat: Dict) -> None:
-    """Add a threat from central server to local learning database"""
-    # Add to local threat log for ML training
-    _threat_log.append(global_threat)
+    """Add a threat from peer to local learning database (for AI training only, not displayed)"""
+    # Add to PEER threat log for ML training (NOT shown on dashboard)
+    global_threat['source'] = 'peer'  # Mark as peer threat
+    _peer_threats.append(global_threat)
     
-    # Keep only last 1000 events
-    if len(_threat_log) > 1000:
-        _threat_log.pop(0)
+    # Keep only last 500 peer events in memory
+    if len(_peer_threats) > 500:
+        _peer_threats.pop(0)
     
     # Trigger retraining if needed
     if ML_AVAILABLE and len(_threat_log) % 10 == 0:  # Retrain every 10 global threats
