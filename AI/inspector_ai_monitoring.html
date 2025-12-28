@@ -372,6 +372,55 @@
         </div>
       </section>
 
+      <!-- Connected Devices Section -->
+      <section style="background: linear-gradient(135deg, #1a3d2a, #1a2e1e); border: 2px solid #5fff9f;">
+        <h2>🌐 Network Devices Protected by This System</h2>
+        <p class="muted" style="margin-bottom: 1rem;">
+          <strong>📱 All devices connected to your network are monitored and protected</strong> - iOS, Android, Windows, Mac, Linux, IoT devices
+        </p>
+        
+        <div class="stats-grid">
+          <div class="stat-card success">
+            <div class="stat-label">📊 TOTAL DEVICES</div>
+            <div class="stat-value" id="total-devices">--</div>
+            <div class="muted">Connected to network</div>
+          </div>
+          
+          <div class="stat-card" style="border-left-color: #5fff9f;">
+            <div class="stat-label">📱 iOS/macOS DEVICES</div>
+            <div class="stat-value" id="ios-count">--</div>
+            <div class="muted">iPhones, iPads, Macs</div>
+          </div>
+          
+          <div class="stat-card" style="border-left-color: #5fff9f;">
+            <div class="stat-label">🤖 ANDROID DEVICES</div>
+            <div class="stat-value" id="android-count">--</div>
+            <div class="muted">Android phones, tablets</div>
+          </div>
+          
+          <div class="stat-card" style="border-left-color: #5fff9f;">
+            <div class="stat-label">💻 COMPUTERS</div>
+            <div class="stat-value" id="computer-count">--</div>
+            <div class="muted">Windows, Mac, Linux PCs</div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(95, 255, 159, 0.1); border-radius: 6px; border: 1px solid #5fff9f;">
+          <p class="muted" style="margin: 0 0 0.75rem 0;"><strong>🛡️ Protected Devices List:</strong></p>
+          <div id="device-list" style="max-height: 400px; overflow-y: auto;">
+            <div class="loading-spinner">Scanning network for devices...</div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 1rem; padding: 1rem; background: rgba(95, 226, 255, 0.1); border-radius: 6px; border: 1px solid #5fe2ff;">
+          <p class="muted" style="margin: 0; line-height: 1.8;">
+            <strong>🔍 Device Discovery:</strong> Network scanned every 60 seconds - Last scan: <span id="last-device-scan" style="color: #5fe2ff;">Never</span><br>
+            <strong>🔒 Privacy:</strong> Device information stays local - never shared with P2P network<br>
+            <strong>⚡ Protection:</strong> All detected devices are automatically protected from network attacks
+          </p>
+        </div>
+      </section>
+
       <!-- VPN/Tor De-Anonymization Stats -->
       <section style="background: linear-gradient(135deg, #2a1a3d, #1a1a2e); border: 2px solid #ff5fff;">
         <h2>🔓 VPN/Tor De-Anonymization Statistics</h2>
@@ -2151,9 +2200,119 @@
         loadP2PStatus(); // Redirect to P2P status
       }
       
+      // Connected Devices Monitoring
+      async function loadConnectedDevices() {
+        try {
+          const response = await fetch('/api/connected-devices');
+          const result = await response.json();
+          
+          // Update device counts
+          document.getElementById('total-devices').textContent = result.total_count || 0;
+          
+          // Count by device type
+          const summary = result.device_summary || {};
+          const iosCount = (summary['iOS/macOS'] || 0);
+          const androidCount = (summary['Android'] || 0);
+          const windowsLinuxCount = (summary['Windows/Linux'] || 0) + (summary['Linux (Raspberry Pi)'] || 0);
+          
+          document.getElementById('ios-count').textContent = iosCount;
+          document.getElementById('android-count').textContent = androidCount;
+          document.getElementById('computer-count').textContent = windowsLinuxCount;
+          
+          // Update last scan time
+          if (result.last_scan) {
+            const scanTime = new Date(result.last_scan).toLocaleTimeString();
+            document.getElementById('last-device-scan').textContent = scanTime;
+          }
+          
+          // Build device list
+          const deviceList = document.getElementById('device-list');
+          if (result.devices && result.devices.length > 0) {
+            let devicesHtml = '<div style="display: grid; gap: 0.75rem;">';
+            
+            result.devices.forEach(device => {
+              const deviceIcon = getDeviceIcon(device.type);
+              const deviceColor = getDeviceColor(device.type);
+              
+              devicesHtml += `
+                <div style="background: #0b1020; padding: 0.75rem 1rem; border-radius: 6px; border-left: 4px solid ${deviceColor}; display: flex; justify-content: space-between; align-items: center;">
+                  <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;">
+                      <span style="font-size: 1.2rem;">${deviceIcon}</span>
+                      <span style="color: #5fe2ff; font-weight: 600; font-family: monospace;">${device.ip}</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #8a92b6;">
+                      <span style="color: ${deviceColor}; font-weight: 600;">${device.type}</span> • 
+                      MAC: ${device.mac} • 
+                      ${device.hostname !== 'Unknown' ? 'Hostname: ' + device.hostname : 'Name: Unknown'}
+                    </div>
+                  </div>
+                  <div style="text-align: right; font-size: 0.75rem; color: #8a92b6;">
+                    <div>🛡️ Protected</div>
+                    <div>Last seen: ${new Date(device.last_seen).toLocaleTimeString()}</div>
+                  </div>
+                </div>
+              `;
+            });
+            
+            devicesHtml += '</div>';
+            deviceList.innerHTML = devicesHtml;
+          } else {
+            if (result.error) {
+              deviceList.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #8a92b6;">
+                  <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚠️</div>
+                  <div>${result.error}</div>
+                  <div style="font-size: 0.85rem; margin-top: 0.5rem;">Install scapy: pip install scapy</div>
+                </div>
+              `;
+            } else {
+              deviceList.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #8a92b6;">
+                  <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</div>
+                  <div>No devices detected on network</div>
+                  <div style="font-size: 0.85rem; margin-top: 0.5rem;">Network scanning in progress...</div>
+                </div>
+              `;
+            }
+          }
+          
+        } catch (error) {
+          console.error('Error loading connected devices:', error);
+          document.getElementById('device-list').innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #ff5f5f;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">❌</div>
+              <div>Failed to load device list</div>
+              <div style="font-size: 0.85rem; margin-top: 0.5rem;">${error.message}</div>
+            </div>
+          `;
+        }
+        
+        // Refresh every 60 seconds (matches scan interval)
+        setTimeout(loadConnectedDevices, 60000);
+      }
+      
+      function getDeviceIcon(type) {
+        if (type.includes('iOS') || type.includes('macOS')) return '📱';
+        if (type.includes('Android')) return '🤖';
+        if (type.includes('Windows')) return '💻';
+        if (type.includes('Linux')) return '🐧';
+        if (type.includes('Raspberry')) return '🥧';
+        return '🖥️';
+      }
+      
+      function getDeviceColor(type) {
+        if (type.includes('iOS') || type.includes('macOS')) return '#5fff9f';
+        if (type.includes('Android')) return '#5fe2ff';
+        if (type.includes('Windows')) return '#9f5fff';
+        if (type.includes('Linux')) return '#ffb85f';
+        return '#8a92b6';
+      }
+      
       // Load sync status on page load
       document.addEventListener('DOMContentLoaded', function() {
         loadCentralSyncStatus();
+        loadConnectedDevices();
       });
     </script>
   </body>

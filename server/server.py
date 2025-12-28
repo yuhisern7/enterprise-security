@@ -1042,6 +1042,16 @@ def start_network_monitoring():
     except ImportError:
         print("[WARNING] network_monitor.py not found - network monitoring disabled")
         print("[INFO] Install required packages: pip install scapy")
+    
+    # Start device scanner
+    try:
+        from device_scanner import scanner
+        scanner.start()
+        print("[DEVICE SCANNER] Device discovery started")
+    except ImportError:
+        print("[WARNING] device_scanner.py not found - device discovery disabled")
+    except Exception as e:
+        print(f"[WARNING] Could not start device scanner: {e}")
 
 
 # API endpoint for system status
@@ -1444,6 +1454,32 @@ def generate_env_file():
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# API endpoint to get connected devices
+@app.route('/api/connected-devices', methods=['GET'])
+def get_connected_devices_api():
+    """Get all devices connected to the network"""
+    try:
+        from device_scanner import get_connected_devices
+        devices_data = get_connected_devices()
+        return jsonify(devices_data)
+    except ImportError:
+        return jsonify({
+            'devices': [],
+            'total_count': 0,
+            'last_scan': None,
+            'device_summary': {},
+            'error': 'Device scanner not available - scapy not installed'
+        })
+    except Exception as e:
+        return jsonify({
+            'devices': [],
+            'total_count': 0,
+            'last_scan': None,
+            'device_summary': {},
+            'error': str(e)
+        }), 500
 
 
 # API endpoint to toggle honeypots
