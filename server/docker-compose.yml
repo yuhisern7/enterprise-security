@@ -29,9 +29,9 @@ services:
       - ../AI:/app/AI
       - ../AI/exploitdb:/app/AI/exploitdb:ro  # Optional: read-only, can be removed for client mode
     
-    # Environment variables (load from .env file in parent directory)
+    # Environment variables (load from .env file in server directory)
     env_file:
-      - ../.env
+      - .env
     environment:
       - FLASK_ENV=${FLASK_ENV:-production}
       - TZ=${TZ:-Asia/Kuala_Lumpur}
