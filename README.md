@@ -42,31 +42,60 @@ Hackers cannot scan or attack without detection.
 ## 🌐 How It Works
 
 ```
-┌─────────────┐         ┌─────────────┐
-│  Container  │◄───────►│  Container  │
-│  A (Office) │         │  B (Home)   │
-└─────────────┘         └─────────────┘
-       ▲                       ▲
-       │                       │
-       │    ┌─────────────┐    │
-       └───►│  Container  │◄───┘
-            │  C (Remote) │
-            └─────────────┘
+🌍 New York      🌏 Tokyo       🌎 London       🌐 Sydney
+   Container  ◄──────► Container  ◄──────► Container  ◄──────► Container
+      │                   │                   │                   │
+      └───────────────────┼───────────────────┼───────────────────┘
+                          │                   │
+                    🏢 Mumbai            🏠 Berlin
+                    Container            Container
 ```
 
-**Peer-to-Peer Mesh Network**
-- Each container shares threats with all others
-- No single point of failure
-- Distributed learning across all nodes
-- Automatic threat synchronization every 3 minutes
+**🌐 Worldwide P2P Mesh Network - How Containers Connect & Share AI Training**
 
-**🔒 Privacy-Preserving Intelligence**
-- **Your Dashboard**: Shows ONLY your own attacks (local threats)
-- **AI Learning**: Learns from ALL attacks across network (local + peer)
-- **Privacy Guarantee**: Other containers' attacks never shown on your dashboard
-- **Result**: Collective intelligence WITHOUT data leakage
+When you deploy a container anywhere in the world, it automatically:
 
-**How It Works:**
+1. **Connects to Peers** → Uses HTTPS encrypted connections to other containers via `PEER_URLS`
+2. **Detects Local Attacks** → Monitors your network traffic in real-time (scans, exploits, suspicious IPs)
+3. **Learns Attack Patterns** → AI analyzes attack signatures using 46,948 ExploitDB exploits + behavioral patterns
+4. **Syncs Training Data** → Every 3 minutes, shares new attack intelligence with ALL peers automatically
+5. **Receives Global Intel** → Gets training data from ALL other containers worldwide (Tokyo attack → Your AI learns instantly)
+6. **Updates AI Models** → Retrains neural networks with combined global + local threat data
+7. **Blocks Smarter** → Detects attacks faster because AI learned from millions of global threats
+
+**🔄 Automatic Synchronization Process:**
+```
+Tokyo Container detects new attack at 09:00 JST
+    ↓ (180 seconds)
+Syncs to: New York, London, Sydney, Mumbai, Berlin
+    ↓ (AI retraining - 30 seconds)
+ALL containers now recognize this attack pattern
+    ↓ (Result)
+London gets same attack at 14:00 GMT → BLOCKED INSTANTLY
+```
+
+**🔒 Privacy-Preserving Intelligence:**
+- **Your Dashboard**: Shows ONLY YOUR attacks (local threats you detected)
+- **AI Training**: Learns from ALL attacks worldwide (your network + all peer networks)
+- **Privacy Guarantee**: You NEVER see other containers' attack details on your dashboard
+- **Shared Intelligence**: Attack patterns, signatures, behavioral models (NOT raw attack data)
+- **Result**: Collective global intelligence WITHOUT privacy violations
+
+**📊 What Gets Shared (Synced Every 3 Minutes):**
+- ✅ Attack signatures (exploit patterns, shellcode signatures)
+- ✅ Threat intelligence (malicious IPs, attack types, severity scores)
+- ✅ Behavioral models (AI-learned attack patterns)
+- ✅ ExploitDB signatures (if container is MASTER mode)
+- ❌ NOT shared: Your raw traffic, packet contents, personal data, specific attack details
+
+**🚀 Benefits of Worldwide Mesh:**
+- **Network Effect**: 1 container = protects 1 network | 1,000 containers = protect ALL networks
+- **Zero Lag**: Attack in Tokyo → All containers learn in 3 minutes (vs days/weeks with traditional vendors)
+- **No Single Point of Failure**: Every container is equal, mesh survives even if 99% go offline
+- **Infinite Scale**: Add unlimited containers, performance stays constant
+- **Free Forever**: No vendor lock-in, no licensing, no subscriptions
+
+**How This Architecture Works:**
 ```
 YOUR Attack → _threat_log → Dashboard ✅ + Disk ✅ + AI ✅
 PEER Attack → _peer_threats → Dashboard ❌ + Disk ❌ + AI ✅
