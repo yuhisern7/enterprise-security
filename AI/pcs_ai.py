@@ -59,6 +59,7 @@ import hashlib
 import secrets
 import pickle
 import warnings
+import ipaddress
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
@@ -133,6 +134,10 @@ else:  # Running natively from server/ directory
 
 # Whitelist for localhost/development (never block these IPs)
 _WHITELISTED_IPS = {"127.0.0.1", "localhost", "::1"}
+
+# GitHub IP ranges (cached, refreshed periodically)
+_GITHUB_IP_RANGES: List[ipaddress.IPv4Network | ipaddress.IPv6Network] = []
+_GITHUB_IP_LAST_FETCH: Optional[datetime] = None
 
 # In-memory threat tracking (in production, use Redis or database)
 _failed_login_tracker: Dict[str, List[datetime]] = defaultdict(list)
@@ -234,6 +239,69 @@ def _save_blocked_ips() -> None:
         print(f"[WARNING] Failed to save blocked IPs: {e}")
 
 
+def _fetch_github_ip_ranges() -> None:
+    """Fetch GitHub's IP ranges from their API and cache them."""
+    global _GITHUB_IP_RANGES, _GITHUB_IP_LAST_FETCH
+    
+    try:
+        # Fetch from GitHub's official meta API
+        url = "https://api.github.com/meta"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Enterprise-Security-System'})
+        
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read().decode('utf-8'))
+            
+            # Combine all GitHub IP ranges
+            ip_ranges = []
+            for key in ['hooks', 'web', 'api', 'git', 'packages', 'pages', 'importer', 'actions']:
+                if key in data:
+                    ip_ranges.extend(data[key])
+            
+            # Parse into IP network objects
+            _GITHUB_IP_RANGES = []
+            for ip_range in set(ip_ranges):  # Remove duplicates
+                try:
+                    _GITHUB_IP_RANGES.append(ipaddress.ip_network(ip_range, strict=False))
+                except ValueError:
+                    pass
+            
+            _GITHUB_IP_LAST_FETCH = datetime.utcnow()
+            print(f"[WHITELIST] ✅ Loaded {len(_GITHUB_IP_RANGES)} GitHub IP ranges")
+            
+    except Exception as e:
+        print(f"[WARNING] Failed to fetch GitHub IP ranges: {e}")
+        # Fallback to common GitHub ranges if API fails
+        fallback_ranges = [
+            "140.82.112.0/20",  # GitHub main
+            "143.55.64.0/20",
+            "185.199.108.0/22",
+            "192.30.252.0/22",
+            "20.0.0.0/8",  # Azure (GitHub uses Azure)
+        ]
+        _GITHUB_IP_RANGES = [ipaddress.ip_network(r, strict=False) for r in fallback_ranges]
+        print(f"[WHITELIST] Using fallback GitHub IP ranges ({len(_GITHUB_IP_RANGES)} ranges)")
+
+
+def _is_github_ip(ip_address: str) -> bool:
+    """Check if an IP address belongs to GitHub."""
+    global _GITHUB_IP_RANGES, _GITHUB_IP_LAST_FETCH
+    
+    # Refresh GitHub IP ranges every 24 hours
+    if not _GITHUB_IP_RANGES or not _GITHUB_IP_LAST_FETCH or \
+       (datetime.utcnow() - _GITHUB_IP_LAST_FETCH) > timedelta(hours=24):
+        _fetch_github_ip_ranges()
+    
+    try:
+        ip = ipaddress.ip_address(ip_address)
+        for network in _GITHUB_IP_RANGES:
+            if ip in network:
+                return True
+    except ValueError:
+        pass
+    
+    return False
+
+
 def _save_whitelist() -> None:
     """Save whitelisted IPs to persistent storage."""
     try:
@@ -278,8 +346,36 @@ def _load_threat_data() -> None:
     except Exception as e:
         print(f"[WARNING] Failed to load whitelist: {e}")
     
+    # Fetch GitHub IP ranges and unblock any GitHub IPs
+    _fetch_github_ip_ranges()
+    _unblock_github_ips()
+    
     # Load ML models
     _load_ml_models()
+
+
+def _unblock_github_ips() -> None:
+    """Unblock all IPs that belong to GitHub."""
+    global _blocked_ips
+    
+    if not _GITHUB_IP_RANGES:
+        print("[WHITELIST] GitHub IP ranges not loaded, skipping unblock")
+        return
+    
+    github_ips_to_unblock = set()
+    
+    # Check each blocked IP against GitHub ranges
+    for blocked_ip in list(_blocked_ips):
+        if _is_github_ip(blocked_ip):
+            github_ips_to_unblock.add(blocked_ip)
+    
+    # Remove GitHub IPs from blocked list
+    if github_ips_to_unblock:
+        _blocked_ips -= github_ips_to_unblock
+        _save_blocked_ips()
+        print(f"[WHITELIST] ✅ Unblocked {len(github_ips_to_unblock)} GitHub IPs: {list(github_ips_to_unblock)}")
+    else:
+        print("[WHITELIST] No GitHub IPs found in blocked list")
 
 
 # ============================================================================
@@ -1304,6 +1400,11 @@ def _block_ip(ip_address: str) -> None:
     # Don't block whitelisted IPs
     if ip_address in _WHITELISTED_IPS:
         print(f"[SECURITY] IP {ip_address} is whitelisted, not blocking")
+        return
+    
+    # Don't block GitHub IPs
+    if _is_github_ip(ip_address):
+        print(f"[SECURITY] ✅ IP {ip_address} is from GitHub, not blocking")
         return
     
     _blocked_ips.add(ip_address)
