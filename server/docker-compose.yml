@@ -6,23 +6,8 @@ services:
       context: ..
       dockerfile: server/Dockerfile
     container_name: enterprise-security-ai
-    restart: unless-stopped
-    
-    # Port mapping (works on Windows, Mac, and Linux)
-    # Note: On Linux, use 'network_mode: host' for full network scanning if needed
-    ports:
-      - "${DASHBOARD_PORT:-60000}:60000"  # Dashboard
-      - "${P2P_PORT:-60001}:60001"        # P2P mesh
-    
-    # Capabilities for packet capture (more secure than privileged: true)
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-    
-    # Alternative to privileged (more secure, but may not work on all systems)
-    # cap_add:
-    #   - NET_ADMIN
-    #   - NET_RAW
+    network_mode: host
+    privileged: true
     
     # Volumes - persist data between restarts
     volumes:
