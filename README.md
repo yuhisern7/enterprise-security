@@ -30,11 +30,30 @@ Hackers cannot scan or attack without detection.
 - Distributed learning across all nodes
 - Automatic threat synchronization every 3 minutes
 
-**🔒 Privacy-Preserving Intelligence** ([Learn More](PRIVACY.md))
-- **Your Dashboard**: Shows ONLY your own attacks
-- **AI Learning**: Learns from ALL attacks across the network
+**🔒 Privacy-Preserving Intelligence**
+- **Your Dashboard**: Shows ONLY your own attacks (local threats)
+- **AI Learning**: Learns from ALL attacks across network (local + peer)
+- **Privacy Guarantee**: Other containers' attacks never shown on your dashboard
 - **Result**: Collective intelligence WITHOUT data leakage
-- **Example**: Container A's attack → Container B's AI learns → Container B's dashboard stays private
+
+**How It Works:**
+```
+YOUR Attack → _threat_log → Dashboard ✅ + Disk ✅ + AI ✅
+PEER Attack → _peer_threats → Dashboard ❌ + Disk ❌ + AI ✅
+```
+
+**Verify Privacy:**
+```bash
+# Check ML training shows local + peer split
+docker logs enterprise-security-ai | grep Privacy
+# Output: "Dashboard shows only 90 local, but AI learns from all 91"
+
+# Check system status
+curl -s http://localhost:60000/api/system-status | grep ml_models
+# Output: "3 models trained (90 samples: 90 local + 0 peer)"
+```
+
+📖 **Full Privacy Guide**: [PRIVACY.md](PRIVACY.md)
 
 ---
 
@@ -183,199 +202,70 @@ Done! All containers now share threats automatically via encrypted HTTPS.
 
 ## 🌐 P2P Mesh Network Configuration
 
-**Files responsible for connecting all Docker ports worldwide:**
+**Files responsible for P2P connections:**
 - **`AI/p2p_sync.py`** - Core P2P synchronization engine
-- **`setup_peer.sh`** - Setup script that configures peer connections
+- **`setup_peer.sh`** - Interactive setup script
 
-**Ports Used (Configurable):**
-- **60000** (HTTP) - Dashboard access (local only) - `DASHBOARD_PORT`
-- **60001** (HTTPS) - Encrypted P2P threat synchronization (global) - `P2P_PORT`
+**Default Ports:**
+- **60000** (HTTP) - Dashboard (local only)
+- **60001** (HTTPS) - P2P sync (worldwide)
 
-**Why port 60000+?**
-- ✅ Avoids conflicts with common services (80, 443, 3000, 5000, 8080)
-- ✅ No root/admin privileges needed
-- ✅ Safe dynamic port range (49152-65535)
-
-**Connection Architecture:**
-```
-┌─────────────────┐         ┌─────────────────┐
-│   Container A   │◄───────►│   Container B   │
-│ (Office - Mac)  │  HTTPS  │ (Home - Linux)  │
-│ port 60001      │  60001  │ port 60001      │
-└─────────────────┘         └─────────────────┘
-       ▲                           ▲
-       │                           │
-       │      ┌─────────────────┐  │
-       └─────►│   Container C   │◄─┘
-        HTTPS │ (Cloud-Windows) │ HTTPS
-        60001 │ port 60001      │ 60001
-              └─────────────────┘
-```
-
-**Customize ports in `.env`:**
-```bash
-DASHBOARD_PORT=60000  # Change if needed
-P2P_PORT=60001        # Change if needed
-PEER_URLS=https://peer1:60001,https://peer2:60001
-```
-
-**Auto-refresh rate:** Dashboard updates every 5 minutes
-
-**📖 See Port Configuration section below for:**
-- Checking port availability
-- Changing ports if already in use
-- Running multiple containers on same machine
-- Firewall configuration
-- Port conflict troubleshooting
+📖 **See Port Configuration section below** for changing ports, firewall setup, and troubleshooting.
 
 ---
 
 ## 🔌 Port Configuration
 
-### Default Ports
+**Default Ports** (configurable in `.env`):
 
-| Port | Protocol | Purpose | Access |
-|------|----------|---------|--------|
-| **60000** | HTTP | Dashboard | Local only |
-| **60001** | HTTPS | P2P Sync | Worldwide |
+| Port | Protocol | Purpose | Firewall |
+|------|----------|---------|----------|
+| **60000** | HTTP | Dashboard | ❌ Block external |
+| **60001** | HTTPS | P2P Sync | ✅ Open worldwide |
 
-**Why high ports (60000+)?**
-- ✅ Avoids conflicts with common services (80, 443, 3000, 5000, 8080)
-- ✅ No root/admin privileges needed
-- ✅ Safe dynamic port range (49152-65535)
-- ✅ Less likely to be blocked by firewalls
+**Why 60000+?** Avoids conflicts, no root needed, safe dynamic range (49152-65535)
 
-### Check Port Availability
+### Quick Setup
 
-**Before installation, verify ports are free:**
-
-**Linux/Mac:**
+**Check if ports are available:**
 ```bash
-sudo lsof -i :60000  # Empty output = port is FREE ✅
-sudo lsof -i :60001
+sudo lsof -i :60000  # Linux/Mac (empty = free ✅)
+netstat -ano | findstr :60000  # Windows (no output = free ✅)
 ```
 
-**Windows (PowerShell):**
-```powershell
-netstat -ano | findstr :60000  # No output = port is FREE ✅
-netstat -ano | findstr :60001
-```
-
-### Change Ports (If Needed)
-
-**Method 1: Interactive Setup**
+**Change ports if needed:**
 ```bash
-./setup_peer.sh
-# Answer "n" when asked "Use default ports?"
-# Enter your custom ports
+# Interactive
+./setup_peer.sh  # Answer "n" to use custom ports
+
+# OR edit server/.env directly
+DASHBOARD_PORT=60000  # Change to any free port
+P2P_PORT=60001        # Change to any free port
 ```
 
-**Method 2: Edit `.env` File**
+**Multiple containers on same machine:**
 ```bash
-# Create/edit server/.env
-nano server/.env
-
-# Add or modify these lines:
-DASHBOARD_PORT=60000  # Change to your desired port
-P2P_PORT=60001        # Change to your desired port
-
-# Save and restart
-cd server
-docker compose down
-docker compose up -d
+# Container 1: Ports 60000-60001
+# Container 2: Ports 60100-60101 + PEER_URLS=https://localhost:60001
+# Container 3: Ports 60200-60201 + PEER_URLS=https://localhost:60001,https://localhost:60101
 ```
 
-**Recommended Alternative Ports:**
-- `50000-50001` (if 60000 conflicts)
-- `55000-55001` (alternative)
-- `65000-65001` (highest safe range)
-
-### Multiple Containers on Same Machine
-
-Each container needs **unique ports**:
-
+**Firewall setup (P2P_PORT only):**
 ```bash
-# Container 1
-DASHBOARD_PORT=60000
-P2P_PORT=60001
+# Linux
+sudo ufw allow 60001/tcp && sudo ufw reload
 
-# Container 2 (same machine)
-DASHBOARD_PORT=60100
-P2P_PORT=60101
-
-# Container 3 (same machine)
-DASHBOARD_PORT=60200
-P2P_PORT=60201
+# Mac: System Preferences → Firewall → Allow port 60001
+# Windows: Defender Firewall → Inbound Rules → New Rule → Port 60001
+# Router: Forward external 60001 → internal 60001 → your PC IP
 ```
 
-Then connect them via `PEER_URLS`:
+**Troubleshooting port conflicts:**
 ```bash
-# Container 1's .env
-PEER_URLS=https://localhost:60101,https://localhost:60201
-
-# Container 2's .env
-PEER_URLS=https://localhost:60001,https://localhost:60201
-
-# Container 3's .env
-PEER_URLS=https://localhost:60001,https://localhost:60101
+# Find process using port
+sudo lsof -i :60000  # Kill it OR change DASHBOARD_PORT in .env
+docker compose down && docker compose up -d  # Restart with new ports
 ```
-
-### Firewall Configuration
-
-**⚠️ Important:** Only open `P2P_PORT` on firewall (not `DASHBOARD_PORT`)
-
-**Linux (UFW):**
-```bash
-sudo ufw allow 60001/tcp  # Replace with your P2P_PORT
-sudo ufw reload
-```
-
-**Linux (firewalld):**
-```bash
-sudo firewall-cmd --permanent --add-port=60001/tcp
-sudo firewall-cmd --reload
-```
-
-**Mac:**
-```
-System Preferences → Security & Privacy → Firewall
-→ Firewall Options → Add rule for port 60001
-```
-
-**Windows:**
-```
-Windows Defender Firewall → Advanced Settings
-→ Inbound Rules → New Rule → Port → TCP → 60001
-```
-
-**Router (Port Forwarding):**
-```
-External Port: 60001 → Internal Port: 60001 → Your PC's IP
-```
-
-### Port Troubleshooting
-
-**Error: Port already in use**
-```
-Error: Bind for 0.0.0.0:60000 failed: port is already allocated
-```
-
-**Solution:**
-1. Find what's using the port:
-   ```bash
-   sudo lsof -i :60000          # Linux/Mac
-   netstat -ano | findstr :60000  # Windows
-   ```
-
-2. Either:
-   - Stop the conflicting service, OR
-   - Change `DASHBOARD_PORT`/`P2P_PORT` in `.env`
-
-3. Rebuild:
-   ```bash
-   docker compose down
-   docker compose up -d
-   ```
 
 **Peers not connecting?**
 - Verify firewall allows P2P_PORT
@@ -397,7 +287,10 @@ Error: Bind for 0.0.0.0:60000 failed: port is already allocated
 ### P2P Mesh Network
 - **Distributed Learning**: Each container learns from all attacks globally
 - **Automatic Sync**: Broadcasts threats every 3 minutes
-- **Privacy-Preserving**: Dashboard shows ONLY your attacks, AI learns from everyone (see [PRIVACY.md](PRIVACY.md))
+- **Privacy-Preserving**: Dashboard shows ONLY your attacks, AI learns from everyone
+  - **Storage**: `_threat_log` (yours: dashboard+disk+AI) | `_peer_threats` (theirs: AI only)
+  - **Verify**: `docker logs enterprise-security-ai | grep Privacy`
+  - **Details**: See [PRIVACY.md](PRIVACY.md) and [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
 - **Dynamic Peers**: Add/remove peers without restart
 - **Resilient**: No single point of failure
 - **Collective Intelligence**: Network gets smarter with each container
@@ -419,14 +312,6 @@ Shows real-time:
 ---
 
 ## ⚙️ Configuration
-
-**Port Configuration**
-
-Default ports (configurable in `.env`):
-```bash
-DASHBOARD_PORT=60000  # Dashboard web interface
-P2P_PORT=60001        # P2P mesh synchronization
-```
 
 **Connect to Peers**
 
@@ -550,35 +435,19 @@ Each container:
 - ✅ Automatic failover (peer down = others continue)
 - ✅ Free deployment (no server costs)
 
-**How Learning Works**
+**How P2P Learning Works**
 1. Container A detects attack from IP 1.2.3.4
-2. A broadcasts threat to B and C within 3 minutes
-3. B and C add threat to their ML training data
-4. Next time 1.2.3.4 attacks B or C, instant block
-5. Network immunity grows with every attack
+2. A broadcasts threat to B and C (within 3 minutes)
+3. B and C's **AI learns** (threat added to `_peer_threats` - private, not shown on dashboard)
+4. Next attack from similar pattern → B and C block instantly with high confidence
+5. **Privacy**: B's dashboard shows ONLY B's attacks, but AI learned from A's attack ✅
 
----
-
-## 🔒 Security
-
-**What's Shared**
-- Attack type (port scan, brute force, etc.)
-- Source IP address
-- Geolocation
-- Timestamp
-- ML confidence score
-
-**What's NOT Shared**
-- Internal network data
-- Application logs
-- Victim details
-- Passwords or credentials
-
-**Communication**
-- HTTP by default (local networks)
-- Upgradable to HTTPS for internet
-- No authentication needed between peers (trusted network)
-- Add firewall rules to restrict peer access
+**Security & Privacy**
+- **Shared**: Attack type, source IP, timestamp, ML confidence
+- **Never Shared**: Internal network data, logs, credentials, victim details
+- **Dashboard Privacy**: Each container shows ONLY its own attacks
+- **AI Intelligence**: ML trains on local + peer threats (collective learning)
+- **Communication**: HTTPS/TLS 1.3 (P2P port 60001)
 
 ---
 
@@ -654,14 +523,17 @@ This project is for security research and educational purposes.
 
 **Sync Speed**
 - Threat broadcast: <3 minutes to all peers
+- Dashboard refresh: 5 minutes (configurable)
 - Network convergence: <10 minutes (100 peers)
-- Dashboard refresh: 30 seconds
 
-**Resource Usage**
-- CPU: 5-10% idle, 20-30% under attack
-- RAM: ~500MB steady state
-- Disk I/O: Minimal (append-only logs)
-- Network: <1MB/day (P2P sync)
+---
+
+## 📚 Documentation
+
+- **[PRIVACY.md](PRIVACY.md)** - Complete privacy-preserving P2P guide (355 lines)
+- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Privacy verification & quick commands
+- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Technical implementation report
+- **[PORT_CONFIGURATION.md](PORT_CONFIGURATION.md)** - Advanced port configuration guide
 
 ---
 
