@@ -634,11 +634,7 @@ Each container:
 - Check container is running: `docker compose ps`
 - Verify correct port: `docker compose logs | grep "Dashboard:"`
 - Try: http://localhost:60000 (or your configured DASHBOARD_PORT)
-
-**Dashboard not loading?**
-- Check container is running: `docker compose ps`
 - View logs: `docker compose logs`
-- Verify port 5000 is not in use: `netstat -an | grep 5000`
 
 **VirusTotal errors?**
 - Free tier: 4 requests/minute limit
@@ -1171,16 +1167,6 @@ curl http://localhost:60000
 curl -k https://your-ip:60001/api/p2p/status
 # Should return: {"status": "ok", ...}
 ```
-
----
-
-## �📚 Documentation
-
-- **[PRIVACY.md](PRIVACY.md)** - Complete privacy-preserving P2P guide (355 lines)
-- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Privacy verification & quick commands
-- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Technical implementation report
-- **[PORT_CONFIGURATION.md](PORT_CONFIGURATION.md)** - Advanced port configuration guide
-
 ---
 
 **Built with brilliance. Small, effective, unstoppable.**
