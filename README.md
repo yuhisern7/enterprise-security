@@ -291,35 +291,195 @@ git --version            # Should show: git version 2.x or newer
 
 ## ⚡ Quick Start
 
-### Installation Steps (All Platforms)
+Choose your operating system:
 
-**1. Clone Repository**
+### 🪟 Windows Installation
+
+**Prerequisites:** Ensure Docker Desktop and Git are installed (see Pre-Requisites section above)
+
+**Step 1: Clone Repository**
+1. Open **PowerShell** or **Command Prompt**
+2. Navigate to your desired location:
+   ```powershell
+   cd C:\Users\YourName\Documents
+   ```
+3. Clone the repository:
+   ```powershell
+   git clone https://github.com/yuhisern7/enterprise-security.git
+   cd enterprise-security
+   ```
+
+**Step 2: Download ExploitDB Database**
+1. Download ExploitDB from: https://github.com/offensive-security/exploitdb
+2. Extract to: `enterprise-security\AI\exploitdb\`
+   
+   OR use Git in PowerShell:
+   ```powershell
+   cd AI
+   git clone https://github.com/offensive-security/exploitdb.git exploitdb
+   cd ..
+   ```
+
+**Step 3: Configure Environment**
+---
+
+### 🌐 Connecting Multiple Containers (P2P Mesh Network)
+
+After installing on each machine, connect them together:
+
+**Step 1: Find Your IP Address**
+
+**Windows:**
+```powershell
+# Get local network IP
+ipconfig
+# Look for "IPv4 Address" under your active network adapter
+# Example: 192.168.1.100
+
+# Get public IP (for internet connections)
+curl ifconfig.me
+```
+
+**macOS:**
+```bash
+# Get local network IP
+ifconfig | grep "inet " | grep -v 127.0.0.1
+
+# Get public IP (for internet connections)
+curl ifconfig.me
+```
+
+**Linux:**
+```bash
+# Get local network IP
+ip addr show | grep "inet " | grep -v 127.0.0.1
+
+# Get public IP (for internet connections)
+curl ifconfig.me
+```
+
+**Step 2: Configure Peer URLs**
+
+Edit `server/.env` on each container:
+
+**Windows (PowerShell):**
+```powershell
+notepad server\.env
+```
+
+**macOS/Linux:**
+```bash
+nano server/.env
+```
+
+Add peer URLs (comma-separated):
+```bash
+PEER_URLS=https://192.168.1.100:60001,https://192.168.1.101:60001,https://office.example.com:60001
+PEER_NAME=home-main
+P2P_SYNC_ENABLED=true
+```
+
+**Step 3: Restart Containers**
+
+**All Platforms:**
+```bash
+cd server
+docker compose restart
+```
+
+**Step 4: Verify Connection**
+
+Check logs to confirm P2P sync:
+```bash
+docker compose logs -f
+# Look for: "✅ Connected to 2 peers"
+Allow the connection
+5. Name: "Enterprise Security P2P"
+
+---
+
+### 🍎 macOS Installation
+
+**Prerequisites:** Ensure Docker Desktop and Git are installed (see Pre-Requisites section above)
+
+**Step 1: Clone Repository**
+1. Open **Terminal** (Applications → Utilities → Terminal)
+2. Navigate to your desired location:
+   ```bash
+   cd ~/Documents
+   ```
+3. Clone the repository:
+   ```bash
+   git clone https://github.com/yuhisern7/enterprise-security.git
+   cd enterprise-security
+   ```
+
+**Step 2: Download ExploitDB Database**
+```bash
+cd AI
+git clone https://github.com/offensive-security/exploitdb.git exploitdb
+cd ..
+```
+
+**Step 3: Configure Environment**
+1. Copy the example configuration:
+   ```bash
+   cp .env.example server/.env
+   ```
+2. Edit `server/.env` (use TextEdit, nano, or vim):
+   ```bash
+   nano server/.env
+   ```
+   - Set ports (default 60000, 60001 are fine)
+   - Add VirusTotal API key (optional, get free at https://virustotal.com)
+   - Add peer URLs if connecting to other containers (optional)
+   - Save: `Ctrl+O`, Exit: `Ctrl+X`
+
+**Step 4: Build and Start**
+1. Navigate to server directory:
+   ```bash
+   cd server
+   ```
+2. Build and start the container:
+   ```bash
+   docker compose up -d --build
+   ```
+3. Wait 2-3 minutes for initial setup
+
+**Step 5: Access Dashboard**
+- Open browser: http://localhost:60000
+- Dashboard should load automatically
+
+**Optional: Configure Firewall for P2P**
+1. System Preferences → Security & Privacy → Firewall
+2. Firewall Options → Add application or port
+3. Allow port **60001** for incoming connections
+
+---
+
+### 🐧 Linux Installation (Automated Script)
+
+**Prerequisites:** Ensure Docker and Git are installed (see Pre-Requisites section above)
+
+**One-Command Setup:**
 ```bash
 git clone https://github.com/yuhisern7/enterprise-security.git
 cd enterprise-security
-```
-
-**2. Run Setup (One Command)**
-
-**For Mac/Linux:**
-```bash
 chmod +x setup_peer.sh
 ./setup_peer.sh
 ```
 
-**For Windows (Git Bash):**
-```bash
-bash setup_peer.sh
-```
-
-The script will:
-- ✅ Install Docker (if needed on Linux)
+The script will automatically:
 - ✅ Download ExploitDB database (46,948 exploits)
 - ✅ Configure ports (default: 60000 dashboard, 60001 P2P)
 - ✅ Configure VirusTotal API (optional)
 - ✅ Set up P2P mesh connections (optional)
 - ✅ Build and start container
 - ✅ Open dashboard: http://localhost:60000
+
+**Manual Linux Installation (if script fails):**
+
+Follow the same steps as macOS above. All commands are identical.
 
 **3. Connect More Containers (Optional - For P2P Mesh)**
 
