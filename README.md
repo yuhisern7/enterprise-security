@@ -84,10 +84,11 @@ Your neighbor gets port-scanned by hacker 1.2.3.4
 ### 🏢 For Small & Medium Businesses
 
 **The Problem with Enterprise Security:**
+
 | Traditional Solutions | This System |
 |----------------------|-------------|
 | **Cost**: $5,000-50,000/year | **$0/year** |
-| **Setup**: Days/weeks | **5 minutes** |
+| **Setup**: Days/weeks | **10-15 minutes** |
 | **Maintenance**: Dedicated IT staff | **Zero maintenance** |
 | **Coverage**: Single location | **All branches protected** |
 | **Intelligence**: Vendor-only data | **Collective global intelligence** |
@@ -180,7 +181,7 @@ China-backed APT attacks DOE (Department of Energy)
 | **P2P Mesh** | ✅ True P2P | ❌ Centralized | ❌ Centralized | ❌ Cloud-only | ❌ Client-server |
 | **Privacy-Preserving** | ✅ Yes | ❌ All data to vendor | ❌ All data to vendor | ❌ DNS queries tracked | ❌ Activity monitored |
 | **Cost (10 devices)** | **$0** | $1,500/year | $5,000/year | $2,000/year | $500/year |
-| **Setup Time** | **5 min** | 2-3 days | 1-2 weeks | 1 day | 30 min |
+| **Setup Time** | **10-15 min** | 2-3 days | 1-2 weeks | 1 day | 30 min |
 | **Vendor Lock-In** | ❌ None | ✅ High | ✅ Very High | ✅ High | ✅ Medium |
 | **Works Offline** | ✅ Yes | ❌ No | ❌ No | ❌ Requires internet | ⚠️ Limited |
 | **Collective Learning** | ✅ Global P2P | ⚠️ Vendor-only | ⚠️ Vendor-only | ⚠️ Vendor-only | ❌ None |
@@ -204,7 +205,7 @@ We analyzed every major security platform:
 1. **True P2P Mesh** - No master, no server, all nodes equal
 2. **Privacy-Preserving** - Dashboard shows ONLY your attacks, AI learns from all
 3. **Zero Cost** - No licensing, no subscriptions, no hidden fees
-4. **5-Minute Setup** - One command, instant protection
+4. **Simple Setup** - 10-15 minutes, works on Windows/Mac/Linux
 5. **Infinite Scale** - 1 to 1,000,000 nodes with linear scaling
 6. **Collective Intelligence** - Every node makes every other node smarter
 
@@ -214,88 +215,131 @@ We analyzed every major security platform:
 
 ## 📋 Pre-Requisites
 
-Before installation, ensure you have:
-
 ### System Requirements
-- **Operating System**: macOS 10.15+, Windows 10/11, or Linux (Ubuntu 20.04+, Debian 11+, RHEL/CentOS 8+)
+- **Operating System**: 
+  - Windows 10 64-bit Pro/Enterprise/Education or Windows 11
+  - macOS 10.15 (Catalina) or newer
+  - Linux: Ubuntu 20.04+, Debian 11+, RHEL/CentOS 8+
 - **RAM**: Minimum 2GB, Recommended 4GB
-- **Storage**: 2GB free disk space
+- **Storage**: 5GB free disk space (2GB for ExploitDB database)
 - **Network**: Internet connection for initial setup
 
 ### Required Software
 
-#### For Mac (macOS)
-1. **Docker Desktop for Mac**
-   - Download: https://www.docker.com/products/docker-desktop
-   - Requires macOS 10.15 (Catalina) or newer
-   - Includes Docker Engine, Docker CLI, and Docker Compose
-   
-2. **Git** (usually pre-installed)
-   - Check: `git --version`
-   - Install via Homebrew: `brew install git`
-   - Or download from: https://git-scm.com/download/mac
+#### 🪟 For Windows
 
-#### For Windows
-1. **Docker Desktop for Windows**
-   - Download: https://www.docker.com/products/docker-desktop
-   - Requires Windows 10 64-bit Pro/Enterprise/Education or Windows 11
-   - Enable WSL 2 (Windows Subsystem for Linux)
-   - Includes Docker Engine, Docker CLI, and Docker Compose
-   
-2. **Git for Windows**
-   - Download: https://git-scm.com/download/win
-   - During installation, select "Git Bash" option
-   
-3. **WSL 2** (recommended for Docker Desktop)
-   - Open PowerShell as Administrator:
-   ```powershell
-   wsl --install
-   ```
+**1. Docker Desktop for Windows** (REQUIRED)
+- Download: https://www.docker.com/products/docker-desktop
+- Requires Windows 10 64-bit Pro/Enterprise/Education or Windows 11
+- Includes Docker Engine, Docker CLI, and Docker Compose
+- Enable WSL 2 (Windows Subsystem for Linux):
+  - Open PowerShell as Administrator:
+    ```powershell
+    wsl --install
+    ```
+  - Restart your computer
+  - Open Docker Desktop and enable WSL 2 backend
 
-#### For Linux
-1. **Docker Engine**
-   ```bash
-   # Ubuntu/Debian
-   curl -fsSL https://get.docker.com -o get-docker.sh
-   sudo sh get-docker.sh
-   sudo usermod -aG docker $USER
-   
-   # OR manually: https://docs.docker.com/engine/install/
-   ```
+**2. Git for Windows** (REQUIRED)
+- Download: https://git-scm.com/download/win
+- During installation, select "Git Bash" option
+- Verify installation:
+  ```powershell
+  git --version
+  # Should show: git version 2.x or newer
+  ```
 
-2. **Docker Compose** (if not included)
-   ```bash
-   sudo apt-get install docker-compose-plugin
-   ```
+**Verify Docker Installation:**
+```powershell
+docker --version
+# Should show: Docker version 20.x or newer
 
-3. **Git**
-   ```bash
-   # Ubuntu/Debian
-   sudo apt-get update && sudo apt-get install git
-   
-   # RHEL/CentOS/Fedora
-   sudo yum install git
-   ```
+docker compose version
+# Should show: Docker Compose version 2.x or newer
+```
 
-### Verify Installation
+---
+
+#### 🍎 For macOS
+
+**1. Docker Desktop for Mac** (REQUIRED)
+- Download: https://www.docker.com/products/docker-desktop
+- Requires macOS 10.15 (Catalina) or newer
+- Includes Docker Engine, Docker CLI, and Docker Compose
+- Install by dragging Docker.app to Applications folder
+- Start Docker Desktop from Applications
+
+**2. Git** (usually pre-installed)
+- Check if installed:
+  ```bash
+  git --version
+  # Should show: git version 2.x or newer
+  ```
+- If not installed, install via Homebrew:
+  ```bash
+  brew install git
+  ```
+- Or download from: https://git-scm.com/download/mac
+
+**Verify Docker Installation:**
 ```bash
-# Check Docker
-docker --version          # Should show: Docker version 20.x or newer
-docker compose version    # Should show: Docker Compose version 2.x or newer
+docker --version
+# Should show: Docker version 20.x or newer
 
-# Check Git
-git --version            # Should show: git version 2.x or newer
+docker compose version
+# Should show: Docker Compose version 2.x or newer
+```
+
+---
+
+#### 🐧 For Linux
+
+**1. Docker Engine** (REQUIRED)
+```bash
+# Automated installation (Ubuntu/Debian)
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Verify installation
+docker --version
+# Should show: Docker version 20.x or newer
+```
+
+**2. Docker Compose** (REQUIRED, if not included)
+```bash
+# Ubuntu/Debian
+sudo apt-get install docker-compose-plugin
+
+# RHEL/CentOS/Fedora
+sudo yum install docker-compose-plugin
+
+# Verify installation
+docker compose version
+# Should show: Docker Compose version 2.x or newer
+```
+
+**3. Git** (REQUIRED)
+```bash
+# Ubuntu/Debian
+sudo apt-get update && sudo apt-get install git
+
+# RHEL/CentOS/Fedora
+sudo yum install git
+
+# Verify installation
+git --version
+# Should show: git version 2.x or newer
 ```
 
 ---
 
 ## ⚡ Quick Start
 
-Choose your operating system:
+### 🪟 Windows Installation (10-15 minutes)
 
-### 🪟 Windows Installation
-
-**Prerequisites:** Ensure Docker Desktop and Git are installed (see Pre-Requisites section above)
+**Prerequisites:** Docker Desktop and Git must be installed (see above)
 
 **Step 1: Clone Repository**
 1. Open **PowerShell** or **Command Prompt**
@@ -310,97 +354,52 @@ Choose your operating system:
    ```
 
 **Step 2: Download ExploitDB Database**
-1. Download ExploitDB from: https://github.com/offensive-security/exploitdb
-2. Extract to: `enterprise-security\AI\exploitdb\`
-   
-   OR use Git in PowerShell:
-   ```powershell
-   cd AI
-   git clone https://github.com/offensive-security/exploitdb.git exploitdb
-   cd ..
-   ```
+```powershell
+cd AI
+git clone https://github.com/offensive-security/exploitdb.git exploitdb
+cd ..
+```
 
 **Step 3: Configure Environment**
----
+1. Copy the example configuration:
+   ```powershell
+   copy .env.example server\.env
+   ```
+2. Edit `server\.env` in Notepad:
+   ```powershell
+   notepad server\.env
+   ```
+   - Set `VIRUSTOTAL_API_KEY` (optional, get free at https://virustotal.com)
+   - Add `PEER_URLS` if connecting to other containers (optional)
+   - Save and close
 
-### 🌐 Connecting Multiple Containers (P2P Mesh Network)
+**Step 4: Build and Start**
+1. Navigate to server directory:
+   ```powershell
+   cd server
+   ```
+2. Build and start the container:
+   ```powershell
+   docker compose up -d --build
+   ```
+3. Wait 2-3 minutes for initial setup
 
-After installing on each machine, connect them together:
+**Step 5: Access Dashboard**
+- Open browser: http://localhost:60000
+- Dashboard should load automatically
 
-**Step 1: Find Your IP Address**
-
-**Windows:**
-```powershell
-# Get local network IP
-ipconfig
-# Look for "IPv4 Address" under your active network adapter
-# Example: 192.168.1.100
-
-# Get public IP (for internet connections)
-curl ifconfig.me
-```
-
-**macOS:**
-```bash
-# Get local network IP
-ifconfig | grep "inet " | grep -v 127.0.0.1
-
-# Get public IP (for internet connections)
-curl ifconfig.me
-```
-
-**Linux:**
-```bash
-# Get local network IP
-ip addr show | grep "inet " | grep -v 127.0.0.1
-
-# Get public IP (for internet connections)
-curl ifconfig.me
-```
-
-**Step 2: Configure Peer URLs**
-
-Edit `server/.env` on each container:
-
-**Windows (PowerShell):**
-```powershell
-notepad server\.env
-```
-
-**macOS/Linux:**
-```bash
-nano server/.env
-```
-
-Add peer URLs (comma-separated):
-```bash
-PEER_URLS=https://192.168.1.100:60001,https://192.168.1.101:60001,https://office.example.com:60001
-PEER_NAME=home-main
-P2P_SYNC_ENABLED=true
-```
-
-**Step 3: Restart Containers**
-
-**All Platforms:**
-```bash
-cd server
-docker compose restart
-```
-
-**Step 4: Verify Connection**
-
-Check logs to confirm P2P sync:
-```bash
-docker compose logs -f
-# Look for: "✅ Connected to 2 peers"
-Allow the connection
+**Step 6: Configure Firewall (Optional - for P2P mesh)**
+1. Open **Windows Defender Firewall** → Advanced Settings
+2. Inbound Rules → New Rule
+3. Port → TCP → Specific Port: **60001**
+4. Allow the connection
 5. Name: "Enterprise Security P2P"
 
 ---
 
-### 🍎 macOS Installation
+### 🍎 macOS Installation (10-15 minutes)
 
-**Prerequisites:** Ensure Docker Desktop and Git are installed (see Pre-Requisites section above)
+**Prerequisites:** Docker Desktop and Git must be installed (see above)
 
 **Step 1: Clone Repository**
 1. Open **Terminal** (Applications → Utilities → Terminal)
@@ -426,13 +425,12 @@ cd ..
    ```bash
    cp .env.example server/.env
    ```
-2. Edit `server/.env` (use TextEdit, nano, or vim):
+2. Edit `server/.env`:
    ```bash
    nano server/.env
    ```
-   - Set ports (default 60000, 60001 are fine)
-   - Add VirusTotal API key (optional, get free at https://virustotal.com)
-   - Add peer URLs if connecting to other containers (optional)
+   - Set `VIRUSTOTAL_API_KEY` (optional, get free at https://virustotal.com)
+   - Add `PEER_URLS` if connecting to other containers (optional)
    - Save: `Ctrl+O`, Exit: `Ctrl+X`
 
 **Step 4: Build and Start**
@@ -450,18 +448,19 @@ cd ..
 - Open browser: http://localhost:60000
 - Dashboard should load automatically
 
-**Optional: Configure Firewall for P2P**
+**Step 6: Configure Firewall (Optional - for P2P mesh)**
 1. System Preferences → Security & Privacy → Firewall
 2. Firewall Options → Add application or port
 3. Allow port **60001** for incoming connections
 
 ---
 
-### 🐧 Linux Installation (Automated Script)
+### 🐧 Linux Installation (5-10 minutes)
 
-**Prerequisites:** Ensure Docker and Git are installed (see Pre-Requisites section above)
+**Prerequisites:** Docker Engine, Docker Compose, and Git must be installed (see above)
 
-**One-Command Setup:**
+**Option 1: Automated Script (5 minutes)**
+
 ```bash
 git clone https://github.com/yuhisern7/enterprise-security.git
 cd enterprise-security
@@ -469,156 +468,126 @@ chmod +x setup_peer.sh
 ./setup_peer.sh
 ```
 
-The script will automatically:
-- ✅ Download ExploitDB database (46,948 exploits)
-- ✅ Configure ports (default: 60000 dashboard, 60001 P2P)
-- ✅ Configure VirusTotal API (optional)
-- ✅ Set up P2P mesh connections (optional)
-- ✅ Build and start container
-- ✅ Open dashboard: http://localhost:60000
+The script automatically:
+- Downloads ExploitDB database (46,948 exploits)
+- Configures environment variables
+- Builds and starts container
+- Opens firewall (if ufw/firewalld detected)
+- Shows dashboard URL
 
-**Manual Linux Installation (if script fails):**
+**Option 2: Manual Installation (10 minutes)**
 
 Follow the same steps as macOS above. All commands are identical.
 
-**3. Connect More Containers (Optional - For P2P Mesh)**
+---
 
-To connect multiple Docker containers worldwide:
+### ☁️ Cloud/VPS Deployment (Linux Only - 5 minutes)
 
-1. **Find your container's IP address:**
-   - **Mac/Windows**: Use your computer's public IP or local network IP
-   - **Linux**: `ip addr show` or `hostname -I`
-
-2. **Run setup on each machine** and enter peer IPs/domains:
-   ```
-   Example input: 192.168.1.100,office.example.com,home.example.com
-   
-   The system will auto-convert to HTTPS URLs with P2P_PORT:
-   → https://192.168.1.100:60001
-   → https://office.example.com:60001
-   → https://home.example.com:60001
-   ```
-
-3. **Open firewall ports** (if connecting across networks):
-   ```bash
-   # Allow P2P_PORT (default 60001) for HTTPS P2P sync
-   # Mac: System Preferences → Security & Privacy → Firewall
-   # Windows: Windows Defender Firewall → Advanced Settings
-   # Linux:
-   sudo ufw allow 60001/tcp
-   # OR
-   sudo firewall-cmd --permanent --add-port=60001/tcp
-   sudo firewall-cmd --reload
-   ```
-
-Done! All containers now share threats automatically via encrypted HTTPS.
-
-**🌐 Cloud/VPS Deployment (DigitalOcean, AWS, GCP, Azure, Linode, etc.)**
-
-Deploy on any cloud provider with one command:
+Deploy on any Linux cloud provider with one command:
 
 ```bash
 # SSH into your cloud instance, then run:
 curl -fsSL https://raw.githubusercontent.com/yuhisern7/enterprise-security/main/cloud-deploy.sh | bash
 ```
 
-This works on:
-- ✅ **DigitalOcean** ($6/month Droplet)
-- ✅ **Linode** ($5/month VPS)
-- ✅ **Vultr** ($6/month VPS)
-- ✅ **AWS EC2** (t3.micro)
-- ✅ **Google Cloud** (e2-micro)
-- ✅ **Azure** (B1s VM)
-- ✅ **Hetzner** (€5/month)
-
-The script automatically:
-- Installs Docker & Docker Compose
-- Configures firewall (opens P2P port 60001)
-- Clones repository
-- Runs setup
-- Shows your public IP and URLs
+**Supported Cloud Platforms:**
+- ✅ DigitalOcean ($6/month Droplet)
+- ✅ Linode ($5/month VPS)
+- ✅ Vultr ($6/month VPS)
+- ✅ AWS EC2 (t3.micro)
+- ✅ Google Cloud (e2-micro)
+- ✅ Azure (B1s VM)
+- ✅ Hetzner (€5/month)
 
 **Minimum VPS Requirements:**
-- **RAM**: 1GB (2GB recommended)
-- **CPU**: 1 core
-- **Storage**: 5GB
-- **OS**: Ubuntu 20.04+, Debian 11+, RHEL 8+
+- RAM: 1GB (2GB recommended)
+- CPU: 1 core
+- Storage: 5GB
+- OS: Ubuntu 20.04+, Debian 11+, RHEL 8+
 
-📖 **See [DEPLOYMENT_PLATFORMS.md](DEPLOYMENT_PLATFORMS.md)** for Raspberry Pi, Kubernetes, and other platforms.
-
----
-
-## 🌐 P2P Mesh Network Configuration
-
-**Files responsible for P2P connections:**
-- **`AI/p2p_sync.py`** - Core P2P synchronization engine
-- **`setup_peer.sh`** - Interactive setup script
-
-**Default Ports:**
-- **60000** (HTTP) - Dashboard (local only)
-- **60001** (HTTPS) - P2P sync (worldwide)
-
-📖 **See Port Configuration section below** for changing ports, firewall setup, and troubleshooting.
+**The script automatically:**
+- Installs Docker & Docker Compose
+- Clones repository
+- Downloads ExploitDB database
+- Configures firewall (opens P2P port 60001)
+- Detects public IP
+- Builds and starts container
+- Shows dashboard and P2P URLs
 
 ---
 
-## 🔌 Port Configuration
+## 🌐 Connecting Multiple Containers (P2P Mesh Network)
 
-**Default Ports** (configurable in `.env`):
+After installing on each machine, connect them together:
 
-| Port | Protocol | Purpose | Firewall |
-|------|----------|---------|----------|
-| **60000** | HTTP | Dashboard | ❌ Block external |
-| **60001** | HTTPS | P2P Sync | ✅ Open worldwide |
+### Step 1: Find Your IP Address
 
-**Why 60000+?** Avoids conflicts, no root needed, safe dynamic range (49152-65535)
+**Windows:**
+```powershell
+# Get local network IP
+ipconfig
+# Look for "IPv4 Address" under your active network adapter
 
-### Quick Setup
-
-**Check if ports are available:**
-```bash
-sudo lsof -i :60000  # Linux/Mac (empty = free ✅)
-netstat -ano | findstr :60000  # Windows (no output = free ✅)
+# Get public IP (for internet connections)
+curl ifconfig.me
 ```
 
-**Change ports if needed:**
+**macOS:**
 ```bash
-# Interactive
-./setup_peer.sh  # Answer "n" to use custom ports
+# Get local network IP
+ifconfig | grep "inet " | grep -v 127.0.0.1
 
-# OR edit server/.env directly
-DASHBOARD_PORT=60000  # Change to any free port
-P2P_PORT=60001        # Change to any free port
+# Get public IP (for internet connections)
+curl ifconfig.me
 ```
 
-**Multiple containers on same machine:**
+**Linux:**
 ```bash
-# Container 1: Ports 60000-60001
-# Container 2: Ports 60100-60101 + PEER_URLS=https://localhost:60001
-# Container 3: Ports 60200-60201 + PEER_URLS=https://localhost:60001,https://localhost:60101
+# Get local network IP
+ip addr show | grep "inet " | grep -v 127.0.0.1
+
+# Get public IP (for internet connections)
+curl ifconfig.me
 ```
 
-**Firewall setup (P2P_PORT only):**
-```bash
-# Linux
-sudo ufw allow 60001/tcp && sudo ufw reload
+### Step 2: Configure Peer URLs
 
-# Mac: System Preferences → Firewall → Allow port 60001
-# Windows: Defender Firewall → Inbound Rules → New Rule → Port 60001
-# Router: Forward external 60001 → internal 60001 → your PC IP
+Edit `server/.env` on each container:
+
+**Windows:**
+```powershell
+notepad server\.env
 ```
 
-**Troubleshooting port conflicts:**
+**macOS/Linux:**
 ```bash
-# Find process using port
-sudo lsof -i :60000  # Kill it OR change DASHBOARD_PORT in .env
-docker compose down && docker compose up -d  # Restart with new ports
+nano server/.env
 ```
 
-**Peers not connecting?**
-- Verify firewall allows P2P_PORT
-- Check peer URLs use correct ports
-- Test: `curl -k https://peer-ip:60001/api/p2p/status`
+Add peer URLs (comma-separated):
+```bash
+PEER_URLS=https://192.168.1.100:60001,https://192.168.1.101:60001,https://office.example.com:60001
+PEER_NAME=home-main
+P2P_SYNC_ENABLED=true
+```
+
+### Step 3: Restart Containers
+
+**All Platforms:**
+```bash
+cd server
+docker compose restart
+```
+
+### Step 4: Verify Connection
+
+Check logs to confirm P2P sync:
+```bash
+docker compose logs -f
+# Look for: "✅ Connected to 2 peers"
+```
+
+Done! All containers now share threats automatically via encrypted HTTPS.
 
 ---
 
@@ -627,7 +596,7 @@ docker compose down && docker compose up -d  # Restart with new ports
 ### Core Security
 - **ML-Powered Threat Detection**: 3 models (Isolation Forest, Random Forest, Gradient Boosting)
 - **ExploitDB Integration**: 46,948 exploits + 1,066 shellcodes
-- **VirusTotal Scanning**: 70+ security vendors
+- **VirusTotal Scanning**: 70+ security vendors (optional API key)
 - **12 Threat Intelligence Feeds**: CVE, NVD, MalwareBazaar, AlienVault OTX, URLhaus, etc.
 - **Automatic IP Blocking**: Instant response to threats
 - **VPN/Tor Detection**: De-anonymization techniques
@@ -636,8 +605,6 @@ docker compose down && docker compose up -d  # Restart with new ports
 - **Distributed Learning**: Each container learns from all attacks globally
 - **Automatic Sync**: Broadcasts threats every 3 minutes
 - **Privacy-Preserving**: Dashboard shows ONLY your attacks, AI learns from everyone
-  - **Storage**: `_threat_log` (yours: dashboard+disk+AI) | `_peer_threats` (theirs: AI only)
-  - **Verify**: `docker logs enterprise-security-ai | grep Privacy`
 - **Dynamic Peers**: Add/remove peers without restart
 - **Resilient**: No single point of failure
 - **Collective Intelligence**: Network gets smarter with each container
@@ -646,7 +613,7 @@ docker compose down && docker compose up -d  # Restart with new ports
 
 ## 📊 Dashboard
 
-Access: **http://localhost:60000** (configurable via `DASHBOARD_PORT`)
+Access: **http://localhost:60000**
 
 Shows real-time:
 - 🔗 Connected peers (e.g., "3 / 5 peers online")
@@ -655,27 +622,29 @@ Shows real-time:
 - ⏰ Last synchronization time
 - 🚨 Live threat feed
 - 📈 ML model performance
+- 🔒 Privacy: Shows ONLY your local threats
 
 ---
 
 ## ⚙️ Configuration
 
-**Connect to Peers**
+**Environment Variables (`server/.env`):**
 
-Edit `.env` file:
 ```bash
-# P2P Mesh Network (use each peer's P2P_PORT)
+# Port Configuration
+DASHBOARD_PORT=60000  # Dashboard web interface (HTTP)
+P2P_PORT=60001        # P2P mesh synchronization (HTTPS)
+
+# P2P Mesh Network
 PEER_URLS=https://office.example.com:60001,https://192.168.1.100:60001
 PEER_NAME=home-main
 P2P_SYNC_ENABLED=true
-P2P_SYNC_INTERVAL=180
-```
+P2P_SYNC_INTERVAL=180  # Sync every 3 minutes
 
-**VirusTotal API** (Recommended)
-```bash
-VIRUSTOTAL_API_KEY=your_api_key_here
+# Optional API Keys
+VIRUSTOTAL_API_KEY=your_api_key_here  # Free: https://virustotal.com
+ABUSEIPDB_API_KEY=your_api_key_here   # Free: https://abuseipdb.com
 ```
-Get free key: https://www.virustotal.com/gui/join-us
 
 ---
 
@@ -684,6 +653,7 @@ Get free key: https://www.virustotal.com/gui/join-us
 ### P2P Mesh Network Model
 
 **No Central Server - True Peer-to-Peer**
+
 ```
 Every container is EQUAL - no master/slave hierarchy
 
@@ -708,42 +678,10 @@ Container A          Container B          Container C
 └──────────┘        └──────────┘        └──────────┘
 ```
 
-### Container Components
-
-**Each Container Runs:**
-```
-┌─────────────────────────────────────────────┐
-│         Enterprise Security Container       │
-├─────────────────────────────────────────────┤
-│                                             │
-│  📊 Dashboard (Port 60000 - HTTP)          │
-│     └─ Shows only LOCAL threats            │
-│                                             │
-│  🌐 P2P Server (Port 60001 - HTTPS)        │
-│     ├─ Receives threats from peers         │
-│     └─ Shares local threats with peers     │
-│                                             │
-│  🧠 AI Engine (scikit-learn)               │
-│     ├─ _threat_log (local threats)         │
-│     ├─ _peer_threats (from network)        │
-│     └─ Trains on: local + peer (combined)  │
-│                                             │
-│  🔍 Network Monitor (Scapy)                │
-│     └─ Packet capture & analysis           │
-│                                             │
-│  📚 ExploitDB (46,948 exploits)            │
-│     └─ Local signature database            │
-│                                             │
-│  🔗 P2P Sync (background thread)           │
-│     ├─ Broadcasts every 3 minutes          │
-│     └─ Receives from all configured peers  │
-│                                             │
-└─────────────────────────────────────────────┘
-```
-
 ### Data Flow Architecture
 
 **Attack Detection & P2P Propagation:**
+
 ```
 1. ATTACK DETECTED
    ┌─────────────┐
@@ -798,6 +736,7 @@ Container A          Container B          Container C
 ### Privacy-Preserving Architecture
 
 **Storage Separation:**
+
 ```
 Container A                    Container B
 ┌────────────────┐            ┌────────────────┐
@@ -833,42 +772,6 @@ Container A                    Container B
         └─────────────────────┘
 ```
 
-### Communication Protocol
-
-**P2P Sync Endpoints:**
-```
-GET  /api/p2p/threats       → Returns local threats for peers
-POST /api/p2p/threats       → Receives threats from peers
-GET  /api/p2p/status        → Health check
-
-Authentication: HTTPS/TLS 1.3 (self-signed certs)
-Frequency: Every 3 minutes (configurable)
-Format: JSON payloads
-```
-
-**Example P2P Exchange:**
-```json
-// Container A sends to Container B
-POST https://containerB:60001/api/p2p/threats
-{
-  "threats": [
-    {
-      "ip": "1.2.3.4",
-      "type": "PORT_SCAN",
-      "severity": "HIGH",
-      "timestamp": "2025-12-28T10:00:00",
-      "source": "local"
-    }
-  ]
-}
-
-// Container B processes
-→ Adds to _peer_threats (not _threat_log)
-→ Dashboard: Hidden ❌
-→ AI Training: Used ✅
-→ Source marked as 'peer'
-```
-
 ### Scalability Model
 
 **Linear Scaling:**
@@ -893,57 +796,27 @@ Containers    Sync Traffic/Day    Convergence Time
 10,000        <1 GB               <30 minutes
 ```
 
-### Why This Architecture?
-
-**✅ Advantages:**
-- **No Single Point of Failure**: Any peer can go down, others continue
-- **No Central Server Costs**: Each organization hosts their own
-- **Privacy-Preserving**: Collective learning without data exposure
-- **Infinite Scalability**: Add containers = add intelligence
-- **Simple Deployment**: One command per container
-- **Resilient**: Automatic failover, no orchestration needed
-
-**vs. Traditional Client-Server:**
-| Feature | P2P Mesh | Client-Server |
-|---------|----------|---------------|
-| **Central Server** | ❌ None needed | ✅ Required (SPOF) |
-| **Server Costs** | $0 | $50-500/month |
-| **Failure Impact** | 1 peer down = 99% uptime | Server down = 100% down |
-| **Privacy** | ✅ Local+Peer separation | ⚠️ All data to server |
-| **Scalability** | ∞ Linear | Limited by server |
-| **Setup Complexity** | Low (1 command) | High (2 systems) |
-
-**Technical Stack:**
-- **Language**: Python 3.11
-- **Web Framework**: Flask
-- **ML Engine**: scikit-learn (IsolationForest, RandomForest, GradientBoosting)
-- **Network Capture**: Scapy (requires NET_ADMIN capability)
-- **Containerization**: Docker Compose
-- **Network Mode**: Bridge (port mapping)
-- **Encryption**: HTTPS/TLS 1.3 (self-signed RSA 4096-bit certs)
-- **Storage**: JSON files (local threats), Memory (peer threats)
-
 ---
 
 ## 🔧 Management
 
-**View Logs**
+**View Logs:**
 ```bash
 cd server
 docker compose logs -f
 ```
 
-**Stop Container**
+**Stop Container:**
 ```bash
 docker compose down
 ```
 
-**Restart Container**
+**Restart Container:**
 ```bash
 docker compose restart
 ```
 
-**Update Code**
+**Update Code:**
 ```bash
 git pull
 docker compose build
@@ -959,99 +832,145 @@ docker compose up -d
 - **100 containers**: Global network, near-instant threat propagation
 - **1000+ containers**: Enterprise-scale distributed security intelligence
 
-Each container:
-- **CPU**: 2-4 cores recommended
-- **RAM**: ~500MB
-- **Storage**: ~2GB (ExploitDB + logs)
-- **Network**: Minimal bandwidth (<1MB/day sync traffic)
+**Each container requires:**
+- CPU: 2-4 cores recommended
+- RAM: ~500MB
+- Storage: ~2GB (ExploitDB + logs)
+- Network: Minimal bandwidth (<1MB/day sync traffic)
 
 ---
 
 ## 🛠️ Troubleshooting
 
-**Port conflicts?**
-- Check if ports are in use: `sudo lsof -i :60000` (Linux/Mac)
-- Change ports in `.env` file (see Port Configuration section above)
-- Restart: `docker compose down && docker compose up -d`
+### Port Conflicts
 
-**Peers not connecting?**
-- Verify firewall allows P2P_PORT (default 60001)
-- Check peer URLs use correct P2P_PORT for each peer
-- Test connectivity: `curl -k https://peer-ip:60001/api/p2p/status`
-- Ensure P2P_SYNC_ENABLED=true in .env
+**Error: Port already in use**
+```bash
+# Find what's using the port
+sudo lsof -i :60000          # Linux/Mac
+netstat -ano | findstr :60000  # Windows
 
-**Dashboard not loading?**
-- Check container is running: `docker compose ps`
-- Verify correct port: `docker compose logs | grep "Dashboard:"`
-- Try: http://localhost:60000 (or your configured DASHBOARD_PORT)
-- View logs: `docker compose logs`
+# Kill the process OR change port in server/.env
+# Then restart:
+docker compose down
+docker compose up -d
+```
 
-**VirusTotal errors?**
+### Dashboard Not Loading
+
+```bash
+# Check container is running
+docker compose ps
+
+# View logs for errors
+docker compose logs
+
+# Verify port
+docker compose logs | grep "Dashboard:"
+```
+
+### Peers Not Connecting
+
+```bash
+# Check firewall allows P2P_PORT (60001)
+# Test connectivity:
+curl -k https://peer-ip:60001/api/p2p/status
+
+# Verify peer URLs in server/.env
+cat server/.env | grep PEER_URLS
+
+# Check logs for P2P errors
+docker compose logs | grep -i "p2p\|peer\|sync"
+```
+
+### VirusTotal Errors
+
 - Free tier: 4 requests/minute limit
-- Check API key is valid
-- Leave blank to disable VirusTotal (system works without it)
+- Check API key is valid in `server/.env`
+- Leave blank to disable (system works without it)
 
 ---
 
-## 🚀 Why P2P?
-
-**Advantages**
-- ✅ No central server to maintain
-- ✅ No single point of failure
-- ✅ Scales infinitely (add containers = add power)
-- ✅ Simple setup (one command)
-- ✅ Automatic failover (peer down = others continue)
-- ✅ Free deployment (no server costs)
-
-**How P2P Learning Works**
-1. Container A detects attack from IP 1.2.3.4
-2. A broadcasts threat to B and C (within 3 minutes)
-3. B and C's **AI learns** (threat added to `_peer_threats` - private, not shown on dashboard)
-4. Next attack from similar pattern → B and C block instantly with high confidence
-5. **Privacy**: B's dashboard shows ONLY B's attacks, but AI learned from A's attack ✅
-
-**Security & Privacy**
-- **Shared**: Attack type, source IP, timestamp, ML confidence
-- **Never Shared**: Internal network data, logs, credentials, victim details
-- **Dashboard Privacy**: Each container shows ONLY its own attacks
-- **AI Intelligence**: ML trains on local + peer threats (collective learning)
-- **Communication**: HTTPS/TLS 1.3 (P2P port 60001)
-
----
-
-## �� Project Structure
+## 🗂️ Project Structure
 
 ```
 enterprise-security/
-├── setup_peer.sh         # One-command deployment
-├── AI/
-│   ├── p2p_sync.py      # P2P mesh synchronization
-│   ├── pcs_ai.py        # Core AI security engine
-│   ├── threat_intelligence.py  # 12 threat feeds
-│   └── exploitdb/       # 46,948 exploits database
-├── server/
-│   ├── server.py        # Flask web server + API
-│   ├── docker-compose.yml
-│   └── Dockerfile
-└── .env.example         # Configuration template
+├── server/                      # Main application server
+│   ├── server.py               # Flask web server & P2P mesh
+│   ├── network_monitor.py      # Real-time packet monitoring
+│   ├── report_generator.py     # Security reports
+│   ├── docker-compose.yml      # Container orchestration
+│   ├── Dockerfile              # Container definition
+│   ├── requirements.txt        # Python dependencies
+│   └── .env                    # Configuration (create from .env.example)
+├── AI/                         # Machine Learning & Threat Intel
+│   ├── pcs_ai.py              # ML models (Isolation Forest, Random Forest, Gradient Boosting)
+│   ├── threat_intelligence.py  # 12 threat feeds integration
+│   ├── enterprise_integration.py # VirusTotal, IP reputation
+│   └── exploitdb/             # 46,948 exploits + 1,066 shellcodes
+├── .env.example                # Example configuration
+├── setup_peer.sh              # Linux automated setup script
+├── cloud-deploy.sh            # Cloud VPS one-command deployment
+├── README.md                   # This file
+└── DEPLOYMENT_PLATFORMS.md     # Platform-specific deployment guide
 ```
 
 ---
 
-## 🎓 How AI Learns
+## 🤖 AI & Machine Learning
 
-**Initial Training**
-- ExploitDB: 46,948 attack patterns
-- Threat Intelligence: CVE, NVD, malware signatures
-- ML Models: Pre-trained on common attacks
+**3 ML Models Working Together:**
 
-**Continuous Learning**
-1. **Local Learning**: Retrains after every 5 local threats
-2. **P2P Learning**: Receives threats from peers every 3 minutes
-3. **Automatic Updates**: ML models improve hourly
-4. **Pattern Recognition**: Identifies new attack variants
+1. **Isolation Forest** - Anomaly detection for unknown attacks
+2. **Random Forest** - Pattern matching based on known attacks
+3. **Gradient Boosting** - High-confidence predictions
 
-**Result**: Every attack makes the entire network smarter
+**Training Data:**
+- Local threats: Your own attacks (dashboard visible)
+- Peer threats: Network-wide attacks (dashboard hidden, AI learns)
+- ExploitDB: 46,948 historical exploits
+- Threat Intel Feeds: Real-time global threats
+
+**Privacy Guarantee:**
+```python
+# Code from AI/pcs_ai.py
+_threat_log = []      # Your attacks (dashboard shows these)
+_peer_threats = []    # Peer attacks (AI learns, dashboard hides)
+
+# Dashboard only shows _threat_log
+# ML trains on _threat_log + _peer_threats
+```
+
+**Automatic Retraining:**
+- Every 100 new threats detected
+- Adapts to evolving attack patterns
+- No manual intervention required
+
+---
+
+## 💡 Use Cases
+
+- **Home Networks**: Protect WiFi from intruders, share threats with family locations
+- **Small Business**: Deploy on each office, collective defense across branches
+- **MSP/Security Providers**: Offer to clients, all clients benefit from shared intelligence
+- **Research Networks**: Collaborative threat detection across institutions
+- **Edge Computing**: Distributed security without cloud dependency
+- **Government**: Inter-agency defense without central database (FISMA/NIST compliant)
+
+---
+
+## 📊 Performance
+
+**Detection Speed:**
+- Port scan: <1 second
+- Brute force: 3-5 failed attempts
+- Exploit attempt: Instant (ExploitDB match)
+- ML prediction: <100ms per IP
+
+**Sync Speed:**
+- Threat broadcast: <3 minutes to all peers
+- Dashboard refresh: 5 minutes (configurable)
+- Network convergence: <10 minutes (100 peers)
 
 ---
 
@@ -1069,454 +988,6 @@ This project is for security research and educational purposes.
 4. Push to branch
 5. Open Pull Request
 
----
-
-## 💡 Use Cases
-
-- **Home Networks**: Protect WiFi from intruders, share threats with family locations
-- **Small Business**: Deploy on each office, collective defense across branches
-- **MSP/Security Providers**: Offer to clients, all clients benefit from shared intelligence
-- **Research Networks**: Collaborative threat detection across institutions
-- **Edge Computing**: Distributed security without cloud dependency
-
----
-
-## 📊 Performance
-
-**Detection Speed**
-- Port scan: <1 second
-- Brute force: 3-5 failed attempts
-- Exploit attempt: Instant (ExploitDB match)
-- ML prediction: <100ms per IP
-
-**Sync Speed**
-- Threat broadcast: <3 minutes to all peers
-- Dashboard refresh: 5 minutes (configurable)
-- Network convergence: <10 minutes (100 peers)
-
----
-
-## � Privacy-Preserving P2P Learning (Deep Dive)
-
-### How Privacy Works
-
-**The Problem We Solved:**
-- ❌ **Before**: Container B's dashboard would show Container A's attacks (privacy violation)
-- ✅ **After**: Container B's AI learns from A's attacks, but dashboard shows ONLY B's own attacks
-
-### Architecture
-
-```
-CONTAINER A                          CONTAINER B
-┌────────────────┐                  ┌────────────────┐
-│ Dashboard      │                  │ Dashboard      │
-│ Shows: 10 local│                  │ Shows: 25 local│
-│ Hides: 25 peer │                  │ Hides: 10 peer │
-└────────┬───────┘                  └────────┬───────┘
-         │                                   │
-         │  P2P Sync (HTTPS)                 │
-         │◄──────────────────────────────────┤
-         │                                   │
-┌────────▼───────┐                  ┌────────▼───────┐
-│ AI Training    │                  │ AI Training    │
-│ Uses: 35 total │                  │ Uses: 35 total │
-│ (10+25)        │                  │ (25+10)        │
-└────────────────┘                  └────────────────┘
-```
-
-### Technical Implementation
-
-**Separated Threat Storage:**
-```python
-_threat_log: List[Dict] = []     # YOUR attacks (dashboard + disk + AI)
-_peer_threats: List[Dict] = []   # THEIR attacks (AI only, memory-only)
-```
-
-**Threat Logging:**
-```python
-def _log_threat(..., is_local: bool = True):
-    event['source'] = 'local' if is_local else 'peer'
-    
-    if is_local:
-        _threat_log.append(event)  # Dashboard ✅ + Disk ✅ + AI ✅
-        _save_threat_log()
-    else:
-        _peer_threats.append(event)  # Dashboard ❌ + Disk ❌ + AI ✅
-```
-
-**ML Training (Collective Intelligence):**
-```python
-def train_ml_models():
-    all_threats = _threat_log + _peer_threats  # Combine for training
-    print(f"[AI] Training with {len(all_threats)} threats")
-    print(f"     (local: {len(_threat_log)}, peer: {len(_peer_threats)})")
-    print(f"[AI] 🔒 Privacy: Dashboard shows only {len(_threat_log)} local")
-    model.fit(all_threats)  # Train on ALL data
-```
-
-### Privacy Guarantees
-
-| Feature | Local Threats | Peer Threats |
-|---------|--------------|--------------|
-| **Dashboard** | ✅ Visible | ❌ Hidden |
-| **Disk Storage** | ✅ Saved | ❌ Memory only |
-| **ML Training** | ✅ Used | ✅ Used |
-| **API Endpoints** | ✅ Returned | ❌ Not returned |
-| **Persistence** | ✅ Survives restart | ❌ Deleted on restart |
-| **Max Storage** | 1000 events | 500 events |
-
-### Example Scenario
-
-**Setup:**
-- Container A: Home WiFi (192.168.1.100)
-- Container B: Office Network (10.0.0.50)
-
-**Attack Flow:**
-1. Container A detects SQL injection from 203.0.113.25
-   - A's dashboard: ✅ Shows attack
-   - B's dashboard: ❌ No visibility (privacy)
-
-2. P2P Sync (background)
-   - A shares threat with B via HTTPS
-   - B receives threat → calls `add_global_threat_to_learning(threat)`
-   - Threat added to B's `_peer_threats` (not `_threat_log`)
-
-3. Container B's AI
-   ```
-   [AI] Training with 1 threat (local: 0, peer: 1)
-   [AI] 🔒 Privacy: Dashboard shows only 0 local, but AI learns from all 1
-   ```
-   - AI now recognizes SQL injection pattern ✅
-   - Dashboard still shows 0 threats ✅ (privacy preserved)
-
-4. Similar attack on Container B
-   - Attacker 203.0.113.30 tries SQL injection on B
-   - B's AI: ✅ Recognizes pattern (learned from A's attack)
-   - B: ✅ Blocks instantly with 98% confidence
-   - B's dashboard: ✅ Shows this attack (source: local)
-
-**Result:** Network learns collectively, dashboards stay private!
-
-### Verification Commands
-
-**Check ML Training Logs:**
-```bash
-docker logs enterprise-security-ai | grep Privacy
-# Output: "[AI] 🔒 Privacy: Dashboard shows only 90 local, but AI learns from all 91"
-```
-
-**Check System Status:**
-```bash
-curl -s http://localhost:60000/api/system-status | grep ml_models
-# Output: "3 models trained (90 samples: 90 local + 0 peer)"
-```
-
-**Test Privacy Isolation:**
-```bash
-docker exec enterprise-security-ai python -c "
-from AI import pcs_ai
-print(f'Before: Local={len(pcs_ai._threat_log)}, Peer={len(pcs_ai._peer_threats)}')
-pcs_ai.add_global_threat_to_learning({'ip': '1.2.3.4', 'type': 'TEST'})
-print(f'After: Local={len(pcs_ai._threat_log)}, Peer={len(pcs_ai._peer_threats)}')
-"
-# Expected: Local unchanged, Peer +1 ✅
-```
-
-### What's Shared vs Not Shared
-
-**✅ Shared via P2P:**
-- Threat type (SQL_INJECTION, PORT_SCAN, etc.)
-- Attacking IP address
-- Timestamp
-- Severity level
-- Detection patterns
-
-**❌ Never Shared:**
-- Dashboard visibility (peer threats hidden)
-- Disk persistence (peer threats not saved)
-- API exposure (no endpoints return peer threats)
-- Internal network data
-- Application logs
-- Victim details
-
-### Benefits
-
-**🔒 Privacy:**
-- No data leakage between containers
-- Compliance-friendly (sensitive data stays private)
-- Organizations trust to join P2P mesh
-
-**🧠 Intelligence:**
-- AI learns from ALL attacks globally
-- Better detection through collective learning
-- Network gets smarter with each container
-
-**📊 Transparency:**
-- ML status shows: "90 samples: 90 local + 0 peer"
-- Clear source tracking ('local' vs 'peer')
-- Audit trail preserved
-
----
-
-## 🔌 Port Configuration (Advanced)
-
-### Port Overview
-
-| Port | Default | Protocol | Purpose | Firewall |
-|------|---------|----------|---------|----------|
-| DASHBOARD_PORT | 60000 | HTTP | Web interface | ❌ Block external |
-| P2P_PORT | 60001 | HTTPS | P2P mesh sync | ✅ Open worldwide |
-
-**Why 60000+?**
-- ✅ Avoids conflicts with common services (80, 443, 3000, 5000, 8080)
-- ✅ No root/admin privileges needed
-- ✅ Safe IANA dynamic/private port range (49152-65535)
-- ✅ Less likely blocked by corporate firewalls
-
-### Check Port Availability
-
-**Before installation:**
-
-**Linux/Mac:**
-```bash
-sudo lsof -i :60000  # Empty output = port is FREE ✅
-sudo lsof -i :60001
-```
-
-**Windows (PowerShell):**
-```powershell
-netstat -ano | findstr :60000  # No output = port is FREE ✅
-netstat -ano | findstr :60001
-```
-
-### Custom Port Configuration
-
-**Method 1: Interactive Setup**
-```bash
-./setup_peer.sh
-# Answer "n" when asked "Use default ports?"
-# Enter your custom ports (e.g., 55000, 55001)
-```
-
-**Method 2: Edit `.env` File**
-```bash
-# Create from example if needed
-cp .env.example .env
-
-# Edit server/.env
-nano server/.env
-
-# Add/modify:
-DASHBOARD_PORT=60000  # Change to your port
-P2P_PORT=60001        # Change to your port
-
-# Save and restart
-cd server
-docker compose down
-docker compose up -d
-```
-
-**Recommended Alternative Ports:**
-- `50000-50001` (if 60000 conflicts)
-- `55000-55001` (alternative)
-- `60100-60101` (for 2nd container on same machine)
-- `65000-65001` (highest safe range)
-
-### Multiple Containers on Same Machine
-
-**Scenario:** Running 3 containers on one machine
-
-**Container 1:**
-```bash
-DASHBOARD_PORT=60000
-P2P_PORT=60001
-PEER_URLS=https://localhost:60101,https://localhost:60201
-```
-
-**Container 2:**
-```bash
-DASHBOARD_PORT=60100
-P2P_PORT=60101
-PEER_URLS=https://localhost:60001,https://localhost:60201
-```
-
-**Container 3:**
-```bash
-DASHBOARD_PORT=60200
-P2P_PORT=60201
-PEER_URLS=https://localhost:60001,https://localhost:60101
-```
-
-### Firewall Configuration
-
-**⚠️ Important:** Only open `P2P_PORT` (not `DASHBOARD_PORT`)
-
-**Linux (UFW):**
-```bash
-sudo ufw allow 60001/tcp  # Replace with your P2P_PORT
-sudo ufw reload
-sudo ufw status  # Verify rule added
-```
-
-**Linux (firewalld - RHEL/CentOS):**
-```bash
-sudo firewall-cmd --permanent --add-port=60001/tcp
-sudo firewall-cmd --reload
-sudo firewall-cmd --list-ports  # Verify
-```
-
-**Mac:**
-```
-System Preferences → Security & Privacy → Firewall
-→ Firewall Options → Add rule for port 60001 (or your P2P_PORT)
-→ Allow incoming connections
-```
-
-**Windows:**
-```
-Windows Defender Firewall → Advanced Settings → Inbound Rules
-→ New Rule → Port → TCP → Specific Port: 60001
-→ Allow the connection → Domain, Private, Public
-→ Name: "Enterprise Security P2P"
-```
-
-**Router (Port Forwarding):**
-```
-1. Log into router admin panel
-2. Find "Port Forwarding" or "Virtual Server"
-3. Add rule:
-   - External Port: 60001
-   - Internal Port: 60001
-   - Internal IP: 192.168.1.100 (your PC's local IP)
-   - Protocol: TCP
-4. Save and test: curl -k https://your-public-ip:60001/api/p2p/status
-```
-
-### Troubleshooting
-
-**Error: Port already in use**
-```
-Error: Bind for 0.0.0.0:60000 failed: port is already allocated
-```
-
-**Solution:**
-1. Find what's using the port:
-   ```bash
-   sudo lsof -i :60000          # Linux/Mac
-   netstat -ano | findstr :60000  # Windows
-   ```
-
-2. Kill the process OR change port:
-   - Kill: `sudo kill -9 <PID>` (Linux/Mac) or Task Manager (Windows)
-   - Change: Edit `DASHBOARD_PORT` in `.env`
-
-3. Restart container:
-   ```bash
-   docker compose down
-   docker compose up -d
-   ```
-
-**Peers not connecting?**
-
-**Check firewall:**
-```bash
-# Test from peer machine
-curl -k https://your-ip:60001/api/p2p/status
-# Should return JSON, not timeout
-```
-
-**Verify peer URLs:**
-```bash
-cat server/.env | grep PEER_URLS
-# Ensure each peer uses correct P2P_PORT
-# Example: https://peer1:60001,https://peer2:60101
-```
-
-**Check container logs:**
-```bash
-docker compose logs | grep -i "p2p\|peer\|sync"
-# Look for connection errors
-```
-
-**Corporate network blocking high ports?**
-
-Use lower ports (requires root/admin):
-```bash
-DASHBOARD_PORT=8080  # Standard alternative HTTP
-P2P_PORT=8443        # Standard alternative HTTPS
-```
-
-**Note:** Ports <1024 require root privileges.
-
-### Docker Network Modes
-
-**Current: Bridge Mode (Recommended)**
-```yaml
-network_mode: bridge
-ports:
-  - "${DASHBOARD_PORT:-60000}:${DASHBOARD_PORT:-60000}"
-  - "${P2P_PORT:-60001}:${P2P_PORT:-60001}"
-```
-
-**Advantages:**
-- ✅ Port mapping flexibility
-- ✅ Change ports without rebuilding
-- ✅ Multiple containers on same host
-- ✅ Better security isolation
-
-**Alternative: Host Mode** (not recommended)
-```yaml
-network_mode: host
-```
-
-**Advantages:**
-- ✅ Direct network access
-- ✅ Better performance
-
-**Disadvantages:**
-- ❌ Ports hardcoded (can't remap)
-- ❌ Can't run multiple containers
-- ❌ Less security isolation
-
-### Environment Variables Reference
-
-```bash
-# Port Configuration
-DASHBOARD_PORT=60000  # Dashboard web interface
-P2P_PORT=60001        # P2P mesh synchronization
-
-# P2P Mesh
-PEER_URLS=https://peer1:60001,https://peer2:60101
-PEER_NAME=home-main
-P2P_SYNC_ENABLED=true
-P2P_SYNC_INTERVAL=180  # Seconds between syncs
-
-# Optional APIs
-VIRUSTOTAL_API_KEY=your_key_here
-ABUSEIPDB_API_KEY=your_key_here
-```
-
-### Verification
-
-**Check container logs for ports:**
-```bash
-docker compose logs | grep "Dashboard:\|P2P Sync:"
-# Should show your configured ports:
-# 📊 Dashboard: http://localhost:60000
-# 🌐 P2P Sync: https://localhost:60001
-```
-
-**Test dashboard access:**
-```bash
-curl http://localhost:60000
-# Should return HTML (dashboard page)
-```
-
-**Test P2P port (from another machine):**
-```bash
-curl -k https://your-ip:60001/api/p2p/status
-# Should return: {"status": "ok", ...}
-```
 ---
 
 **Built with brilliance. Small, effective, unstoppable.**
