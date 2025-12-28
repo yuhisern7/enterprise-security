@@ -30,6 +30,12 @@ Hackers cannot scan or attack without detection.
 - Distributed learning across all nodes
 - Automatic threat synchronization every 3 minutes
 
+**🔒 Privacy-Preserving Intelligence** ([Learn More](PRIVACY.md))
+- **Your Dashboard**: Shows ONLY your own attacks
+- **AI Learning**: Learns from ALL attacks across the network
+- **Result**: Collective intelligence WITHOUT data leakage
+- **Example**: Container A's attack → Container B's AI learns → Container B's dashboard stays private
+
 ---
 
 ## 📋 Pre-Requisites
@@ -391,9 +397,10 @@ Error: Bind for 0.0.0.0:60000 failed: port is already allocated
 ### P2P Mesh Network
 - **Distributed Learning**: Each container learns from all attacks globally
 - **Automatic Sync**: Broadcasts threats every 3 minutes
-- **Privacy-Preserving**: Only threat metadata shared (no internal data)
+- **Privacy-Preserving**: Dashboard shows ONLY your attacks, AI learns from everyone (see [PRIVACY.md](PRIVACY.md))
 - **Dynamic Peers**: Add/remove peers without restart
 - **Resilient**: No single point of failure
+- **Collective Intelligence**: Network gets smarter with each container
 
 ---
 
