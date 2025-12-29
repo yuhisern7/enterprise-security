@@ -1752,10 +1752,79 @@ def unblock_device_api():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-# API endpoint to toggle honeypots
+# API endpoints for Adaptive Honeypot
+@app.route('/api/adaptive_honeypot/status', methods=['GET'])
+def adaptive_honeypot_status():
+    """Get adaptive honeypot status"""
+    try:
+        from AI.adaptive_honeypot import get_honeypot_status
+        status = get_honeypot_status()
+        return jsonify(status)
+    except Exception as e:
+        return jsonify({'running': False, 'error': str(e)}), 500
+
+@app.route('/api/adaptive_honeypot/personas', methods=['GET'])
+def adaptive_honeypot_personas():
+    """Get available service personas"""
+    try:
+        from AI.adaptive_honeypot import get_available_personas
+        personas = get_available_personas()
+        return jsonify(personas)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/adaptive_honeypot/configure', methods=['POST'])
+def configure_adaptive_honeypot():
+    """Configure and start honeypot"""
+    try:
+        from AI.adaptive_honeypot import start_honeypot
+        
+        data = request.json
+        persona = data.get('persona', 'http_admin')
+        port = data.get('port', 8080)
+        custom_banner = data.get('custom_banner')
+        
+        success = start_honeypot(persona, port, custom_banner)
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': f'Honeypot started as {persona} on port {port}'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Failed to start honeypot'
+            }), 500
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/adaptive_honeypot/stop', methods=['POST'])
+def stop_adaptive_honeypot_api():
+    """Stop the honeypot"""
+    try:
+        from AI.adaptive_honeypot import stop_honeypot
+        stop_honeypot()
+        return jsonify({'success': True, 'message': 'Honeypot stopped'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/adaptive_honeypot/attacks', methods=['GET'])
+def adaptive_honeypot_attacks():
+    """Get honeypot attack log"""
+    try:
+        from AI.adaptive_honeypot import get_honeypot
+        hp = get_honeypot()
+        attacks = hp.get_attack_log(limit=100)
+        return jsonify(attacks)
+    except Exception as e:
+        return jsonify([], 500)
+
+
+# API endpoint to toggle honeypots (DEPRECATED - kept for backward compatibility)
 @app.route('/api/honeypot/toggle', methods=['POST'])
 def toggle_honeypot():
-    """Enable or disable a specific honeypot service"""
+    """Enable or disable a specific honeypot service (DEPRECATED)"""
     try:
         from AI.threat_intelligence import honeypot
         

@@ -308,17 +308,6 @@
           </div>
         </div>
         
-        <!-- Honeypot Services Status -->
-        <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-          <h3 style="margin-top: 0; color: #ffb85f;">🍯 Honeypot Services</h3>
-          <p style="font-size: 0.85rem; color: #8a92b6; margin-bottom: 1rem;">
-            Enable fake services to attract attackers. Each service runs on a different port. Configure your firewall to allow these ports.
-          </p>
-          <div id="honeypotServices" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
-            <div class="loading-spinner">Loading honeypot services...</div>
-          </div>
-        </div>
-        
         <button onclick="closeStatusModal()" style="background: linear-gradient(135deg, #4a5568, #3a4558); width: 100%; padding: 0.75rem;">
           ✖️ Close
         </button>
@@ -931,6 +920,103 @@
         {% else %}
           <p class="muted">No whitelisted IPs (only default localhost).</p>
         {% endif %}
+      </section>
+
+      <!-- Adaptive Honeypot -->
+      <section style="background: linear-gradient(135deg, #3d2a1a, #2e1e1a); border: 2px solid #ffb85f;">
+        <h2>🍯 Adaptive Honeypot - AI Training Sandbox</h2>
+        <p class="muted" style="margin-bottom: 1rem;">
+          <strong>One honeypot, many disguises.</strong> Morphs into different services (FTP, SSH, HTTP, etc.) to attract attackers. All attacks are logged and <strong>fed into AI training</strong> to learn threat patterns. Safe, isolated sandbox environment.
+        </p>
+        
+        <!-- Honeypot Status Display -->
+        <div id="honeypot-status-display" style="padding: 1rem; background: rgba(255, 184, 95, 0.1); border-radius: 6px; border: 1px solid #ffb85f; margin-bottom: 1.5rem;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div>
+              <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Status</div>
+              <div id="honeypot-running-status" style="color: #ff6b6b; font-weight: bold; font-size: 1.1rem;">⏸️ Stopped</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Current Persona</div>
+              <div id="honeypot-current-persona" style="color: #ffb85f; font-weight: bold; font-family: monospace;">None</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Listening Port</div>
+              <div id="honeypot-current-port" style="color: #ffb85f; font-weight: bold; font-family: monospace;">N/A</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Total Attacks Logged</div>
+              <div id="honeypot-attack-count" style="color: #ff6b6b; font-weight: bold; font-size: 1.1rem;">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Honeypot Configuration -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; color: #a9b3d4; font-weight: bold;">Service Persona</label>
+            <select id="honeypot-persona" style="width: 100%; padding: 0.75rem; background: #0a0e27; color: #fff; border: 2px solid #ffb85f; border-radius: 6px; font-size: 1rem;">
+              <option value="">Loading personas...</option>
+            </select>
+            <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.5rem;">Choose which service to impersonate (FTP, SSH, HTTP, etc.)</div>
+          </div>
+
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; color: #a9b3d4; font-weight: bold;">Listening Port</label>
+            <input type="number" id="honeypot-port" min="1" max="65535" placeholder="e.g., 2222" style="width: 100%; padding: 0.75rem; background: #0a0e27; color: #fff; border: 2px solid #ffb85f; border-radius: 6px; font-size: 1rem;">
+            <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.5rem;">
+              <div style="margin-bottom: 0.3rem;">Quick presets:</div>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" onclick="document.getElementById('honeypot-port').value=21" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">21 (FTP)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=22" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">22 (SSH)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=23" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">23 (Telnet)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=80" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">80 (HTTP)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=445" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">445 (SMB)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=3306" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">3306 (MySQL)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=3389" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">3389 (RDP)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=5900" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">5900 (VNC)</button>
+              </div>
+              <div style="color: #ff9f5f; margin-top: 0.3rem; font-size: 0.7rem;">⚠️ Ports below 1024 require root/admin privileges</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: #a9b3d4; font-weight: bold;">Custom Banner (Optional)</label>
+          <textarea id="honeypot-banner" rows="3" placeholder="Leave empty to use default banner for selected persona..." style="width: 100%; padding: 0.75rem; background: #0a0e27; color: #fff; border: 2px solid #ffb85f; border-radius: 6px; font-size: 0.9rem; font-family: monospace;"></textarea>
+          <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.5rem;">Override the default service banner/signature (advanced users only)</div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+          <button onclick="startHoneypot()" style="flex: 1; padding: 1rem; background: linear-gradient(135deg, #5fff9f, #00cc66); color: #0a0e27; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            ▶️ Start Honeypot
+          </button>
+          <button onclick="stopHoneypot()" style="flex: 1; padding: 1rem; background: linear-gradient(135deg, #ff6b6b, #cc0000); color: #fff; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            ⏹️ Stop Honeypot
+          </button>
+        </div>
+
+        <!-- Recent Attacks -->
+        <div>
+          <h3 style="color: #ffb85f; margin-bottom: 1rem;">🎯 Recent Attacks (Last 10)</h3>
+          <div id="honeypot-attacks-container" style="max-height: 400px; overflow-y: auto;">
+            <table style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Time</th>
+                  <th style="text-align: left;">Attacker IP</th>
+                  <th style="text-align: left;">Persona</th>
+                  <th style="text-align: left;">Input Preview</th>
+                </tr>
+              </thead>
+              <tbody id="honeypot-attacks-table">
+                <tr>
+                  <td colspan="4" style="text-align: center; color: #a9b3d4; padding: 2rem;">No attacks logged yet</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </section>
 
       <!-- Failed Login Attempts -->
@@ -2047,85 +2133,6 @@
           console.error('Error loading system status:', error);
           document.getElementById('systemHealth').innerHTML = '<div style="color: #ff5f5f;">❌ Error loading status: ' + error.message + '</div>';
         }
-        
-        // Load honeypot services status
-        try {
-          const honeypotResponse = await fetch('/api/honeypot/status');
-          const honeypotData = await honeypotResponse.json();
-          
-          if (honeypotData.error) {
-            document.getElementById('honeypotServices').innerHTML = `<div style="color: #ff6b6b;">Error: ${honeypotData.error}</div>`;
-          } else {
-            const services = honeypotData.services || {};
-            const totalAttacks = honeypotData.total_attacks || 0;
-            
-            let html = `
-              <div style="grid-column: 1/-1; padding: 1rem; background: rgba(255, 184, 95, 0.1); border-radius: 6px; margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                  <div style="text-align: center;">
-                    <div style="font-size: 0.75rem; color: #8a92b6;">Total Services</div>
-                    <strong style="color: #ffb85f; font-size: 1.3rem;">${honeypotData.total_services || 0}</strong>
-                  </div>
-                  <div style="text-align: center;">
-                    <div style="font-size: 0.75rem; color: #8a92b6;">Enabled</div>
-                    <strong style="color: #5fff9f; font-size: 1.3rem;">${honeypotData.enabled_services || 0}</strong>
-                  </div>
-                  <div style="text-align: center;">
-                    <div style="font-size: 0.75rem; color: #8a92b6;">Total Attacks</div>
-                    <strong style="color: #ff6b6b; font-size: 1.3rem;">${totalAttacks}</strong>
-                  </div>
-                  <div style="text-align: center;">
-                    <div style="font-size: 0.75rem; color: #8a92b6;">Patterns Learned</div>
-                    <strong style="color: #5fe2ff; font-size: 1.3rem;">${honeypotData.learned_patterns || 0}</strong>
-                  </div>
-                </div>
-              </div>
-            `;
-            
-            // Display each service
-            Object.keys(services).sort().forEach(serviceId => {
-              const service = services[serviceId];
-              const enabled = service.enabled;
-              const bgColor = enabled ? 'rgba(95, 255, 159, 0.08)' : 'rgba(74, 85, 104, 0.05)';
-              const borderColor = enabled ? '#5fff9f' : '#4a5568';
-              const attacks = service.attacks || 0;
-              
-              html += `
-                <div style="background: ${bgColor}; border: 1px solid ${borderColor}; padding: 1rem; border-radius: 8px; transition: all 0.3s;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                    <div style="flex: 1;">
-                      <strong style="color: ${enabled ? '#5fff9f' : '#8a92b6'}; font-size: 1rem;">
-                        ${service.name}
-                      </strong>
-                      <div style="font-size: 0.7rem; color: #8a92b6; margin-top: 0.25rem;">
-                        Port ${service.port} • ${service.protocol}
-                      </div>
-                    </div>
-                    <label class="switch">
-                      <input type="checkbox" 
-                             id="honeypot_${serviceId}" 
-                             ${enabled ? 'checked' : ''} 
-                             onchange="toggleHoneypot('${serviceId}', this.checked)">
-                      <span class="slider"></span>
-                    </label>
-                  </div>
-                  <p style="font-size: 0.75rem; color: #8a92b6; margin: 0.5rem 0; line-height: 1.4;">
-                    ${service.description}
-                  </p>
-                  <div style="display: flex; justify-content: space-between; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(138, 146, 182, 0.15);">
-                    <span style="font-size: 0.7rem; color: #8a92b6;">Attacks Received:</span>
-                    <strong style="color: ${attacks > 0 ? '#ff6b6b' : '#8a92b6'}; font-size: 0.9rem;">${attacks}</strong>
-                  </div>
-                </div>
-              `;
-            });
-            
-            document.getElementById('honeypotServices').innerHTML = html;
-          }
-        } catch (error) {
-          console.error('Error loading honeypot status:', error);
-          document.getElementById('honeypotServices').innerHTML = `<div style="color: #ff6b6b;">Failed to load honeypot services</div>`;
-        }
       }
       
       // Save API keys
@@ -2339,35 +2346,7 @@
         }
       }
       
-      async function toggleHoneypot(serviceId, enabled) {
-        try {
-          const response = await fetch('/api/honeypot/toggle', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              service_id: serviceId,
-              enabled: enabled
-            })
-          });
-          
-          const data = await response.json();
-          
-          if (data.error) {
-            alert('❌ Error toggling honeypot: ' + data.error);
-            loadSystemStatus();
-          } else {
-            const statusText = enabled ? 'enabled' : 'disabled';
-            showNotification(`🍯 ${data.service} ${statusText} on port ${data.port}`);
-            setTimeout(loadSystemStatus, 1000);
-          }
-        } catch (error) {
-          console.error('Error toggling honeypot:', error);
-          alert('❌ Failed to toggle honeypot');
-          loadSystemStatus();
-        }
-      }
+      // Old honeypot system removed - now using adaptive honeypot
       
       function showNotification(message) {
         const notification = document.createElement('div');
@@ -2870,10 +2849,202 @@
         }
       }
       
+      // ========================================
+      // ADAPTIVE HONEYPOT FUNCTIONS
+      // ========================================
+      
+      // Load available honeypot personas
+      async function loadHoneypotPersonas() {
+        try {
+          const response = await fetch('/api/adaptive_honeypot/personas');
+          const personas = await response.json();
+          
+          const select = document.getElementById('honeypot-persona');
+          select.innerHTML = '<option value="">-- Select Service Persona --</option>';
+          
+          Object.entries(personas).forEach(([key, persona]) => {
+            const option = document.createElement('option');
+            option.value = key;
+            option.textContent = `${persona.name} (${persona.protocol.toUpperCase()} - Port ${persona.default_port})`;
+            option.dataset.defaultPort = persona.default_port;
+            select.appendChild(option);
+          });
+          
+          // Auto-fill port when persona is selected
+          select.addEventListener('change', function() {
+            if (this.selectedOptions[0]) {
+              const defaultPort = this.selectedOptions[0].dataset.defaultPort;
+              if (defaultPort) {
+                document.getElementById('honeypot-port').value = defaultPort;
+              }
+            }
+          });
+          
+        } catch (error) {
+          console.error('Error loading honeypot personas:', error);
+        }
+      }
+      
+      // Load honeypot status
+      async function loadHoneypotStatus() {
+        try {
+          const response = await fetch('/api/adaptive_honeypot/status');
+          const status = await response.json();
+          
+          // Update status display
+          const runningStatus = document.getElementById('honeypot-running-status');
+          const currentPersona = document.getElementById('honeypot-current-persona');
+          const currentPort = document.getElementById('honeypot-current-port');
+          const attackCount = document.getElementById('honeypot-attack-count');
+          
+          if (status.running) {
+            runningStatus.innerHTML = '▶️ Running';
+            runningStatus.style.color = '#5fff9f';
+            currentPersona.textContent = status.persona || 'Unknown';
+            currentPort.textContent = status.port || 'N/A';
+            attackCount.textContent = status.attack_count || 0;
+          } else {
+            runningStatus.innerHTML = '⏸️ Stopped';
+            runningStatus.style.color = '#ff6b6b';
+            currentPersona.textContent = 'None';
+            currentPort.textContent = 'N/A';
+            attackCount.textContent = '0';
+          }
+          
+          // Load recent attacks
+          loadHoneypotAttacks();
+          
+        } catch (error) {
+          console.error('Error loading honeypot status:', error);
+        }
+      }
+      
+      // Start honeypot
+      async function startHoneypot() {
+        const persona = document.getElementById('honeypot-persona').value;
+        const port = document.getElementById('honeypot-port').value;
+        const customBanner = document.getElementById('honeypot-banner').value;
+        
+        if (!persona) {
+          alert('⚠️ Please select a service persona');
+          return;
+        }
+        
+        if (!port || port < 1 || port > 65535) {
+          alert('⚠️ Please enter a valid port (1-65535)');
+          return;
+        }
+        
+        // Warn about privileged ports
+        if (port < 1024) {
+          const confirmed = confirm(`⚠️ WARNING: Port ${port} requires root/admin privileges!\n\nYour honeypot may fail to start if the Docker container doesn\'t have sufficient permissions.\n\nRecommended alternatives:\n• FTP: Use 2121 instead of 21\n• SSH: Use 2222 instead of 22\n• Telnet: Use 2323 instead of 23\n\nContinue anyway?`);
+          if (!confirmed) return;
+        }
+        
+        try {
+          const payload = {
+            persona: persona,
+            port: parseInt(port)
+          };
+          
+          if (customBanner.trim()) {
+            payload.custom_banner = customBanner.trim();
+          }
+          
+          const response = await fetch('/api/adaptive_honeypot/configure', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            alert(`🍯 Honeypot Started!\n\n✅ Persona: ${persona}\n✅ Port: ${port}\n✅ Listening for attackers...\n\nAll connection attempts will be logged.`);
+            loadHoneypotStatus();
+          } else {
+            alert('❌ Failed to start honeypot: ' + (result.error || 'Unknown error'));
+          }
+          
+        } catch (error) {
+          console.error('Error starting honeypot:', error);
+          alert('❌ Failed to start honeypot: ' + error.message);
+        }
+      }
+      
+      // Stop honeypot
+      async function stopHoneypot() {
+        try {
+          const response = await fetch('/api/adaptive_honeypot/stop', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            alert('⏹️ Honeypot Stopped\n\nNo longer listening for connections.');
+            loadHoneypotStatus();
+          } else {
+            alert('❌ Failed to stop honeypot: ' + (result.error || 'Unknown error'));
+          }
+          
+        } catch (error) {
+          console.error('Error stopping honeypot:', error);
+          alert('❌ Failed to stop honeypot: ' + error.message);
+        }
+      }
+      
+      // Load recent honeypot attacks
+      async function loadHoneypotAttacks() {
+        try {
+          const response = await fetch('/api/adaptive_honeypot/attacks');
+          const attacks = await response.json();
+          
+          const tableBody = document.getElementById('honeypot-attacks-table');
+          
+          if (attacks && attacks.length > 0) {
+            // Show last 10 attacks
+            const recentAttacks = attacks.slice(-10).reverse();
+            
+            tableBody.innerHTML = recentAttacks.map(attack => {
+              const timestamp = new Date(attack.timestamp).toLocaleString();
+              const inputPreview = attack.attacker_input ? 
+                (attack.attacker_input.substring(0, 50) + (attack.attacker_input.length > 50 ? '...' : '')) :
+                '(no input)';
+              
+              return `
+                <tr style="background: rgba(255, 184, 95, 0.05); border-bottom: 1px solid rgba(255, 184, 95, 0.2);">
+                  <td style="padding: 0.75rem; font-family: monospace; font-size: 0.85rem;">${timestamp}</td>
+                  <td style="padding: 0.75rem; font-family: monospace; color: #ff6b6b; font-weight: bold;">${attack.source_ip}:${attack.source_port}</td>
+                  <td style="padding: 0.75rem; color: #ffb85f; font-weight: bold;">${attack.honeypot_persona}</td>
+                  <td style="padding: 0.75rem; font-family: monospace; font-size: 0.8rem; color: #a9b3d4;">${inputPreview}</td>
+                </tr>
+              `;
+            }).join('');
+            
+          } else {
+            tableBody.innerHTML = `
+              <tr>
+                <td colspan="4" style="text-align: center; color: #a9b3d4; padding: 2rem;">No attacks logged yet</td>
+              </tr>
+            `;
+          }
+          
+        } catch (error) {
+          console.error('Error loading honeypot attacks:', error);
+        }
+      }
+      
       // Load sync status on page load
       document.addEventListener('DOMContentLoaded', function() {
         loadCentralSyncStatus();
         loadConnectedDevices();
+        loadHoneypotPersonas();
+        loadHoneypotStatus();
+        
+        // Refresh honeypot status every 30 seconds
+        setInterval(loadHoneypotStatus, 30000);
       });
     </script>
   </body>

@@ -8,7 +8,7 @@
 
 🌍 **Zero-Trust Mesh:** Deploy on your laptop, Windows, Mac OS or Linux computer, Raspberry Pi, VPS, or enterprise server. Each node is both student and teacher—learning from 50,000+ exploit signatures and live global threats.
 
-🎯 **Invisible Until You Strike:** Hackers see nothing. No open ports, no attack surface. But every scan, every probe, every payload—detected, analyzed, blocked. Then shared with the world.
+🎯 **Silent Guardian:** Passive network monitoring via packet capture means attackers can't detect the AI system watching them. Every scan, probe, payload—captured and analyzed without interaction. Detection happens at the network layer, not by exposing vulnerable services. Then intelligence is shared with the global mesh.
 
 
 ## 💎 Join the Global Relay Network

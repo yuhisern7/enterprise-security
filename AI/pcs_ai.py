@@ -1544,13 +1544,55 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
         except Exception as e:
             print(f"[ThreatIntel] Warning: {e}")
     
-    # �🎓 AUTO-TRAINING: Train models automatically when criteria met (SELF-LEARNING)
+    # 🎓 AUTO-TRAINING: Train models automatically when criteria met (SELF-LEARNING)
     if ML_AVAILABLE and _should_retrain_ml_models():
         print(f"[AI] 🎓 AUTO-TRAINING triggered after logging threat (total: {len(_threat_log)} events)...")
         _train_ml_models_from_history()
 
 
-    # � P2P SYNC: Broadcast threat to all peers
+def log_honeypot_attack(threat_data: dict) -> None:
+    """
+    Log honeypot attack to AI training system (sandbox)
+    All honeypot attacks are fed into ML training to learn threat patterns
+    
+    Args:
+        threat_data: Dictionary containing:
+            - ip_address: Attacker IP
+            - threat_type: Type of honeypot attack (e.g., 'honeypot_ssh')
+            - level: Threat level (usually 'DANGEROUS')
+            - details: Attack details
+            - timestamp: When attack occurred
+            - honeypot_persona: Which honeypot was attacked
+            - honeypot_port: Port that was attacked
+    """
+    ip_address = threat_data.get('ip_address', '0.0.0.0')
+    threat_type = threat_data.get('threat_type', 'honeypot_unknown')
+    level_str = threat_data.get('level', 'DANGEROUS')
+    details = threat_data.get('details', 'Honeypot interaction')
+    
+    # Convert string level to ThreatLevel enum
+    level = ThreatLevel[level_str] if level_str in ThreatLevel.__members__ else ThreatLevel.DANGEROUS
+    
+    # Log the threat (this feeds into AI training)
+    _log_threat(
+        ip_address=ip_address,
+        threat_type=threat_type,
+        details=f"🍯 HONEYPOT: {details}",
+        level=level,
+        action="sandboxed",  # Sandboxed = isolated, no real system access
+        headers=None,
+        is_local=True
+    )
+    
+    print(f"[HONEYPOT→AI] 🍯 Attack from {ip_address} added to AI training sandbox")
+    
+    # Auto-block IPs that hit honeypots (they're obviously attackers)
+    if ip_address not in _WHITELISTED_IPS and ip_address != '127.0.0.1':
+        _block_ip(ip_address)
+        print(f"[HONEYPOT→AI] 🛡️ AUTO-BLOCKED {ip_address} for honeypot interaction")
+
+
+    # 🌐 P2P SYNC: Broadcast threat to all peers
     if P2P_SYNC_AVAILABLE:
         try:
             sync_threat(event)
