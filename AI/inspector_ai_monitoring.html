@@ -643,12 +643,38 @@
         <!-- Manual Training Button - Always Visible -->
         <div style="margin-top: 1rem; padding: 1rem; background: rgba(95, 226, 255, 0.1); border-radius: 6px; border: 1px solid #5fe2ff;">
           <p style="margin: 0 0 0.75rem; color: #5fe2ff;">
-            ⚡ <strong>AUTO-TRAINING ACTIVE:</strong> Models automatically retrain every <strong>6 hours</strong> or every <strong>5 new threats</strong>.<br>
+            ⚡ <strong>AUTO-TRAINING ACTIVE:</strong> Models automatically retrain every <strong>1 minute</strong> or every <strong>5 new threats</strong>.<br>
             {% if ml_stats.training_data_size >= 5 %}You have {{ ml_stats.training_data_size }} threat events. Manual training is <em>optional</em> - system trains automatically.{% else %}Collecting data... {{ ml_stats.training_data_size }}/5 events for first auto-training.{% endif %}
           </p>
           <button onclick="forceRetrain()" style="margin: 0; background: linear-gradient(135deg, #5fe2ff, #4fc2df);" {% if ml_stats.training_data_size < 5 %}disabled{% endif %}>
             🔄 Force Retrain (Optional)
           </button>
+        </div>
+        
+        <!-- GPU Training Section -->
+        <div style="margin-top: 1.5rem; background: linear-gradient(135deg, #1a1a2e, #2a1a3d); padding: 1.5rem; border-radius: 8px; border: 2px solid #ff5fff;">
+          <h3 style="margin: 0 0 1rem; color: #ff5fff; font-size: 1.2rem;">🚀 GPU-Accelerated Training</h3>
+          
+          <!-- GPU Info Display -->
+          <div id="gpu-info-card" style="padding: 1rem; background: rgba(95, 226, 255, 0.05); border-radius: 6px; border: 1px solid #5fe2ff; margin-bottom: 1rem;">
+            <p style="margin: 0; color: #5fe2ff;">⏳ Detecting GPU...</p>
+          </div>
+          
+          <!-- Training Materials Folder Info -->
+          <p style="margin: 0 0 0.75rem; color: #aaa; font-size: 0.9rem;">
+            📁 <strong>Training Materials:</strong> AI/exploitdb/ai_training_materials/<br>
+            Supported formats: CSV, JSON, NPY (NumPy arrays)
+          </p>
+          
+          <!-- GPU Training Button -->
+          <button id="gpu-train-btn" onclick="trainWithGPU()" style="margin: 0; background: linear-gradient(135deg, #ff5fff, #df4fdf); font-weight: bold;">
+            🚀 Train Using GPU
+          </button>
+          
+          <!-- Training Results -->
+          <div id="gpu-training-results" style="margin-top: 1rem; display: none; padding: 1rem; background: rgba(95, 255, 159, 0.1); border-radius: 6px; border: 1px solid #5fff9f;">
+            <p id="gpu-results-text" style="margin: 0; color: #5fff9f;"></p>
+          </div>
         </div>
         
         {% if ml_stats.needs_retraining %}
@@ -1603,6 +1629,9 @@
         }
       }, 1000);
       
+      // Load GPU info on page load
+      loadGPUInfo();
+      
       // Export monitoring data
       function exportData() {
         window.location.href = '/inspector/ai-monitoring/export';
@@ -1771,6 +1800,99 @@
           alert('❌ Network error: ' + error.message);
           btn.disabled = false;
           btn.textContent = '🔄 Force Retrain ML Models Now';
+        }
+      }
+      
+      // GPU Training Functions
+      async function loadGPUInfo() {
+        try {
+          const response = await fetch('/api/gpu/info');
+          const data = await response.json();
+          
+          const infoCard = document.getElementById('gpu-info-card');
+          const trainBtn = document.getElementById('gpu-train-btn');
+          
+          if (data.success && data.gpu_info.available) {
+            const gpu = data.gpu_info;
+            infoCard.innerHTML = `
+              <p style="margin: 0; color: #5fff9f;">
+                ✅ <strong>GPU DETECTED:</strong> ${gpu.name || 'Unknown GPU'}<br>
+                🔧 <strong>Type:</strong> ${gpu.type || 'Unknown'}<br>
+                🧠 <strong>Framework:</strong> ${gpu.framework || 'None'}
+              </p>
+            `;
+            trainBtn.disabled = false;
+          } else {
+            infoCard.innerHTML = `
+              <p style="margin: 0; color: #ffb85f;">
+                ⚠️ <strong>NO GPU DETECTED</strong><br>
+                Training will use CPU (slower). Install CUDA for GPU acceleration.
+              </p>
+            `;
+            trainBtn.disabled = true;
+          }
+        } catch (error) {
+          document.getElementById('gpu-info-card').innerHTML = `
+            <p style="margin: 0; color: #ff5f5f;">❌ Failed to detect GPU: ${error.message}</p>
+          `;
+        }
+      }
+      
+      async function trainWithGPU() {
+        if (!confirm('Train ML models using GPU?\n\nThis will:\n- Load training materials from ai_training_materials/\n- Train TensorFlow/PyTorch neural networks\n- Use GPU acceleration (CUDA)\n\nTraining may take 1-5 minutes depending on dataset size.')) {
+          return;
+        }
+        
+        const btn = document.getElementById('gpu-train-btn');
+        const resultsDiv = document.getElementById('gpu-training-results');
+        const resultsText = document.getElementById('gpu-results-text');
+        
+        btn.disabled = true;
+        btn.textContent = '⏳ Training on GPU...';
+        resultsDiv.style.display = 'none';
+        
+        try {
+          const response = await fetch('/api/gpu/train', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            resultsDiv.style.display = 'block';
+            resultsText.innerHTML = `
+              ✅ <strong>GPU Training Complete!</strong><br>
+              📊 <strong>Accuracy:</strong> ${(result.accuracy * 100).toFixed(1)}%<br>
+              📁 <strong>Samples:</strong> ${result.samples}<br>
+              ⏱️ <strong>Time:</strong> ${result.training_time.toFixed(2)}s<br>
+              🧠 <strong>Framework:</strong> ${result.framework}<br>
+              📂 <strong>Files Loaded:</strong> ${result.files_loaded.join(', ')}
+            `;
+            btn.textContent = '✅ Training Complete';
+            setTimeout(() => {
+              btn.textContent = '🚀 Train Using GPU';
+              btn.disabled = false;
+            }, 3000);
+          } else {
+            resultsDiv.style.display = 'block';
+            resultsDiv.style.background = 'rgba(255, 95, 95, 0.1)';
+            resultsDiv.style.borderColor = '#ff5f5f';
+            resultsText.style.color = '#ff5f5f';
+            resultsText.textContent = '❌ Training failed: ' + (result.error || result.message);
+            btn.textContent = '🚀 Train Using GPU';
+            btn.disabled = false;
+          }
+        } catch (error) {
+          resultsDiv.style.display = 'block';
+          resultsDiv.style.background = 'rgba(255, 95, 95, 0.1)';
+          resultsDiv.style.borderColor = '#ff5f5f';
+          resultsText.style.color = '#ff5f5f';
+          resultsText.textContent = '❌ Network error: ' + error.message;
+          btn.textContent = '🚀 Train Using GPU';
+          btn.disabled = false;
         }
       }
       
@@ -2370,11 +2492,12 @@
           
           // Update connected peers display
           if (connectedPeers.length > 0) {
-            const peerListHtml = connectedPeers.map(peer => `
-              <div style=\"padding: 0.5rem; background: rgba(95, 255, 159, 0.15); border-radius: 4px; border: 1px solid #5fff9f; text-align: center;\">
+            const peerListHtml = connectedPeers.map((peer, index) => `
+              <div style=\"padding: 0.5rem; background: rgba(95, 255, 159, 0.15); border-radius: 4px; border: 1px solid #5fff9f; text-align: center; position: relative;\">
                 <div style=\"font-size: 1.2rem;\">${peer.type === 'local' ? '🏠' : '🌐'}</div>
                 <div style=\"font-size: 0.9rem; color: #5fff9f; font-weight: bold;\">${peer.name}</div>
                 <div style=\"font-size: 0.75rem; color: #ccc;\">${peer.status}</div>
+                ${peer.type !== 'local' ? `<button onclick=\"blockPeer('${peer.name}')\" style=\"margin-top: 0.5rem; font-size: 0.7rem; padding: 0.25rem 0.5rem; background: linear-gradient(135deg, #ff5f5f, #df4f4f); border: none; border-radius: 3px; color: white; cursor: pointer;\">🚫 Block</button>` : ''}
               </div>
             `).join('');
             document.getElementById('peer-list').innerHTML = peerListHtml;
@@ -2388,6 +2511,32 @@
         
         // Refresh every 5 minutes
         setTimeout(loadP2PStatus, 300000);
+      }
+      
+      async function blockPeer(peerName) {
+        if (!confirm(`Block peer: ${peerName}?\n\nThis will:\n- Disconnect this peer from the relay\n- Add to blocked peers list\n- Prevent future connections\n\nAre you sure?`)) {
+          return;
+        }
+        
+        try {
+          const response = await fetch('/api/relay/block-peer', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ peer_name: peerName })
+          });
+          
+          const result = await response.json();
+          if (result.success) {
+            alert('✅ ' + result.message);
+            loadP2PStatus(); // Refresh status
+          } else {
+            alert('❌ ' + result.message);
+          }
+        } catch (error) {
+          alert('❌ Failed to block peer: ' + error.message);
+        }
       }
       
       async function showAddPeerModal() {

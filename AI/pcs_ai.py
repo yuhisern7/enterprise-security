@@ -946,7 +946,7 @@ def _should_retrain_ml_models() -> bool:
     
     Retrain if:
     - Never trained before
-    - More than 6 hours since last training (VERY FREQUENT)
+    - More than 1 minute since last training (ULTRA AGGRESSIVE - rapid learning)
     - Accumulated 5+ new threat events since last training (VERY AGGRESSIVE)
     - Have at least 5 events total
     
@@ -962,10 +962,10 @@ def _should_retrain_ml_models() -> bool:
     if _ml_last_trained is None:
         return True
     
-    hours_since_training = (datetime.utcnow() - _ml_last_trained).total_seconds() / 3600
+    minutes_since_training = (datetime.utcnow() - _ml_last_trained).total_seconds() / 60
     
-    # Retrain every 6 hours (4x per day) - AGGRESSIVE
-    if hours_since_training > 6:
+    # Retrain every 1 minute - ULTRA AGGRESSIVE for rapid learning
+    if minutes_since_training > 1:
         return True
     
     # Retrain every 5 new events - VERY AGGRESSIVE

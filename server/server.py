@@ -745,6 +745,55 @@ def retrain_ml_models():
         }), 500
 
 
+@app.route('/api/gpu/info', methods=['GET'])
+def get_gpu_info_api():
+    """Get GPU information"""
+    try:
+        from AI.gpu_trainer import get_gpu_info
+        gpu_info = get_gpu_info()
+        return jsonify({
+            'success': True,
+            'gpu_info': gpu_info
+        })
+    except ImportError:
+        return jsonify({
+            'success': True,
+            'gpu_info': {
+                'available': False,
+                'type': None,
+                'name': 'CPU Only (GPU trainer not available)',
+                'framework': None
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/gpu/train', methods=['POST'])
+def train_with_gpu_api():
+    """Train models using GPU with materials from ai_training_materials folder"""
+    try:
+        from AI.gpu_trainer import train_with_gpu
+        result = train_with_gpu()
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+    except ImportError:
+        return jsonify({
+            'success': False,
+            'message': 'GPU trainer not available. Install TensorFlow or PyTorch.'
+        }), 400
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @app.route('/inspector/users')
 def user_management():
     """User management page (placeholder)"""
@@ -768,6 +817,48 @@ def user_management():
     </html>
     """
 
+@app.route('/api/relay/block-peer', methods=['POST'])
+def block_peer_api():
+    """Block a peer from connecting to the relay"""
+    try:
+        data = request.get_json()
+        peer_name = data.get('peer_name')
+        
+        if not peer_name:
+            return jsonify({'success': False, 'message': 'Peer name is required'})
+        
+        # Add to blocked peers list (you can store this in a file or database)
+        blocked_peers_file = 'json/blocked_peers.json'
+        
+        # Load existing blocked peers
+        blocked_peers = []
+        if os.path.exists(blocked_peers_file):
+            try:
+                with open(blocked_peers_file, 'r') as f:
+                    blocked_peers = json.load(f)
+            except:
+                blocked_peers = []
+        
+        # Add new blocked peer
+        if peer_name not in blocked_peers:
+            blocked_peers.append(peer_name)
+            
+            # Save to file
+            with open(blocked_peers_file, 'w') as f:
+                json.dump(blocked_peers, f, indent=2)
+            
+            return jsonify({
+                'success': True,
+                'message': f'Peer {peer_name} has been blocked'
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': f'Peer {peer_name} is already blocked'
+            })
+            
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
 
 @app.route('/profile')
 def profile():
