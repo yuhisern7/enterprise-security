@@ -7,6 +7,22 @@ The network gets smarter every hour.
 Deploy anywhere: home, office, cloud, worldwide.  
 Hackers cannot scan or attack without detection.
 
+
+## 💎 Join the Global Relay Network
+
+**Pay Yuhisern's Company - $25 USD monthly** to join the secret relay and get access to **world-class training materials** for the AI.
+
+**Benefits:**
+- 🌐 Connect to the global relay server (unlimited worldwide peers)
+- 🧠 Access to curated AI training datasets from real-world attacks
+- 🚀 Your AI learns from thousands of global containers instantly
+- 🔒 Priority support and enterprise features
+
+**Without relay access:** Your system works standalone with local protection only.  
+**With relay access:** Your system learns from every attack globally in real-time.
+
+**Contact:** yuhisern7@protonmail.com
+
 ---
 
 ## � Quick Configuration Guide
