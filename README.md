@@ -6,7 +6,7 @@
 
 ⚡ **Neural Network Evolution:** AI models retrain every 60 seconds with real-world attack data. The system doesn't wait for you—it adapts while you sleep.
 
-🌍 **Zero-Trust Mesh:** Deploy on your laptop, Raspberry Pi, VPS, or enterprise server. Each node is both student and teacher—learning from 50,000+ exploit signatures and live global threats.
+🌍 **Zero-Trust Mesh:** Deploy on your laptop, Windows, Mac OS or Linux computer, Raspberry Pi, VPS, or enterprise server. Each node is both student and teacher—learning from 50,000+ exploit signatures and live global threats.
 
 🎯 **Invisible Until You Strike:** Hackers see nothing. No open ports, no attack surface. But every scan, every probe, every payload—detected, analyzed, blocked. Then shared with the world.
 
@@ -14,6 +14,13 @@
 ## 💎 Join the Global Relay Network
 
 **Pay Yuhisern's Company - $25 USD monthly** to join the secret relay and get access to **world-class training materials** for the AI.
+
+**ELITE CYBERSECURITY SPECIALIST**  
+202403184091 (MA0319303)
+
+**Contact Yuhisern:**  
+WhatsApp: +60172791717  
+Email: yuhisern@protonmail.com
 
 **Benefits:**
 - 🌐 Connect to the global relay server (unlimited worldwide peers)
@@ -23,8 +30,6 @@
 
 **Without relay access:** Your system works standalone with local protection only.  
 **With relay access:** Your system learns from every attack globally in real-time.
-
-**Contact:** yuhisern7@protonmail.com
 
 ---
 
