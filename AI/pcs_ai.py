@@ -115,6 +115,20 @@ except ImportError as e:
     print(f"[INFO] Relay client not available: {e}")
     print("[INFO] P2P mesh limited to direct connections")
 
+# False Positive Filter (5-Gate Pipeline)
+try:
+    from AI.false_positive_filter import (
+        get_filter, create_signal, assess_threat,
+        SignalType, ThreatSignal, ConfidenceScore
+    )
+    FP_FILTER_AVAILABLE = True
+    print("[FP-FILTER] 5-Gate False Positive Elimination Pipeline loaded")
+    print("[FP-FILTER] No single signal confirms attack - requires multi-gate validation")
+except ImportError as e:
+    FP_FILTER_AVAILABLE = False
+    print(f"[INFO] False positive filter not available: {e}")
+    print("[INFO] Using legacy single-signal detection")
+
 
 class ThreatLevel(str, Enum):
     SAFE = "SAFE"
@@ -2463,6 +2477,101 @@ def assess_header_anomalies(headers: dict, ip_address: str) -> SecurityAssessmen
     proxy_count = sum(1 for h in proxy_headers if h in {k.lower() for k in headers.keys()})
     if proxy_count >= 2:
         threats.append(f"Multiple proxy headers detected ({proxy_count})")
+    
+    # ==========================================================================
+    # FALSE POSITIVE FILTER - 5-GATE PIPELINE
+    # Collect all detection signals and validate through multi-gate system
+    # No single signal confirms attack - requires cross-signal agreement
+    # ==========================================================================
+    
+    if FP_FILTER_AVAILABLE and len(threats) > 0:
+        signals = []
+        
+        # Collect AI/ML signals
+        if ml_threats:
+            ml_confidence = ai_confidence if ai_confidence > 0 else 0.5
+            signals.append(create_signal(
+                signal_type=SignalType.AI_PREDICTION,
+                ip_address=ip_address,
+                confidence=ml_confidence,
+                details=f"AI detected: {', '.join(ml_threats)}",
+                raw_data={'ml_threats': ml_threats}
+            ))
+        
+        # Collect rule-based signals
+        if threats:
+            # Calculate confidence based on threat severity
+            threat_keywords = {'sql injection': 0.95, 'xss': 0.90, 'command injection': 0.98,
+                             'ldap': 0.92, 'xxe': 0.95, 'path traversal': 0.85, 
+                             'ddos': 0.88, 'brute force': 0.80}
+            
+            max_confidence = 0.6
+            for threat_text in threats:
+                for keyword, conf in threat_keywords.items():
+                    if keyword in threat_text.lower():
+                        max_confidence = max(max_confidence, conf)
+            
+            signals.append(create_signal(
+                signal_type=SignalType.RULE_BASED,
+                ip_address=ip_address,
+                confidence=max_confidence,
+                details=f"Rule-based detection: {', '.join(threats[:2])}",
+                raw_data={'threats': threats}
+            ))
+        
+        # Add network behavior signal (request rate, patterns)
+        if request_count > 200:
+            signals.append(create_signal(
+                signal_type=SignalType.NETWORK_BEHAVIOR,
+                ip_address=ip_address,
+                confidence=min(request_count / 500, 1.0),
+                details=f"High request rate: {request_count} requests/5min",
+                raw_data={'request_count': request_count}
+            ))
+        
+        # Run through 5-gate false positive filter
+        try:
+            fp_assessment = assess_threat(signals)
+            
+            # Log the false positive filter decision
+            print(f"[FP-FILTER] {ip_address} - Confidence: {fp_assessment.total_confidence:.2%} | "
+                  f"Gates Passed: {len(fp_assessment.gates_passed)}/5 | "
+                  f"Decision: {'CONFIRM' if fp_assessment.should_confirm else 'REJECT'}")
+            print(f"[FP-FILTER] Behavior: {fp_assessment.behavior_strength:.2%} | "
+                  f"Temporal: {fp_assessment.temporal_strength:.2%} | "
+                  f"Cross-Signal: {fp_assessment.cross_signal_agreement:.2%}")
+            
+            # If false positive filter rejects, downgrade threat level
+            if not fp_assessment.should_confirm:
+                print(f"[FP-FILTER] ⛔ BLOCKED ATTACK - Rejected by false positive filter: {fp_assessment.reason}")
+                print(f"[FP-FILTER] Gates failed: {fp_assessment.gates_failed}")
+                
+                # Downgrade to SAFE or SUSPICIOUS based on confidence
+                if fp_assessment.total_confidence < 0.5:
+                    threat_level = ThreatLevel.SAFE
+                    threats = [f"⚠️ Potential false positive (confidence: {fp_assessment.total_confidence:.2%})"]
+                else:
+                    threat_level = ThreatLevel.SUSPICIOUS
+                    threats = [f"Suspicious activity (awaiting confirmation - {fp_assessment.reason})"]
+                
+                # Do NOT block if filter rejects
+                return SecurityAssessment(
+                    level=threat_level,
+                    threats=threats,
+                    should_block=False,
+                    ip_address=ip_address,
+                )
+            else:
+                print(f"[FP-FILTER] ✅ CONFIRMED ATTACK - Passed all gates: {fp_assessment.reason}")
+                print(f"[FP-FILTER] Contributing signals: {[s.value for s in fp_assessment.contributing_signals]}")
+                
+                # Attack confirmed - proceed with original threat level
+                # Add confidence score to threats
+                threats.append(f"✅ Confirmed by FP-filter (confidence: {fp_assessment.total_confidence:.2%})")
+        
+        except Exception as e:
+            print(f"[FP-FILTER] Error in false positive filter: {e}")
+            # Fall back to original assessment if filter fails
     
     threat_level = ThreatLevel.SUSPICIOUS if threats else ThreatLevel.SAFE
     return SecurityAssessment(
