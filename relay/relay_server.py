@@ -40,6 +40,30 @@ async def register_client(websocket: WebSocketServerProtocol):
     
     client_info = f"{websocket.remote_address[0]}:{websocket.remote_address[1]}"
     logger.info(f"✅ New container connected: {client_info} (Total: {len(connected_clients)})")
+    
+    # Notify ALL other existing clients that a new peer joined
+    if len(connected_clients) > 1:  # Only if there are other clients
+        peer_count = len(connected_clients) - 1  # Other peers
+        notification = {
+            "type": "peer_joined",
+            "active_peers": peer_count,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+        # Broadcast to all OTHER clients (not the one that just joined)
+        disconnected = set()
+        for client in connected_clients:
+            if client != websocket:  # Don't send to the new client
+                try:
+                    await client.send(json.dumps(notification))
+                except Exception as e:
+                    logger.debug(f"Failed to notify client of peer join: {e}")
+                    disconnected.add(client)
+        
+        # Clean up any disconnected clients
+        for client in disconnected:
+            connected_clients.discard(client)
+            stats["active_connections"] = len(connected_clients)
 
 
 async def unregister_client(websocket: WebSocketServerProtocol):
@@ -49,6 +73,29 @@ async def unregister_client(websocket: WebSocketServerProtocol):
     
     client_info = f"{websocket.remote_address[0]}:{websocket.remote_address[1]}"
     logger.info(f"❌ Container disconnected: {client_info} (Total: {len(connected_clients)})")
+    
+    # Notify ALL remaining clients that a peer left
+    if connected_clients:  # Only if there are remaining clients
+        peer_count = len(connected_clients) - 1  # Other peers
+        notification = {
+            "type": "peer_left",
+            "active_peers": peer_count,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+        # Broadcast to all remaining clients
+        disconnected = set()
+        for client in connected_clients:
+            try:
+                await client.send(json.dumps(notification))
+            except Exception as e:
+                logger.debug(f"Failed to notify client of peer leaving: {e}")
+                disconnected.add(client)
+        
+        # Clean up any disconnected clients
+        for client in disconnected:
+            connected_clients.discard(client)
+            stats["active_connections"] = len(connected_clients)
 
 
 async def broadcast_message(message: dict, sender: WebSocketServerProtocol):
