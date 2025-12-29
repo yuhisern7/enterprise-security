@@ -5,7 +5,8 @@ echo Starting Enterprise Security on Windows...
 echo Using bridge networking mode (Windows compatible)
 echo.
 
-cd server
+REM Change to server directory
+cd /d "%~dp0.."
 
 REM Copy .env.windows to .env if .env doesn't exist
 if not exist .env (
@@ -13,8 +14,8 @@ if not exist .env (
     copy .env.windows .env
 )
 
-docker compose -f docker-compose.windows.yml down 2>nul
-docker compose -f docker-compose.windows.yml up -d --build
+docker compose down 2>nul
+docker compose up -d --build
 
 echo.
 echo Container starting...
@@ -24,7 +25,7 @@ echo.
 echo Waiting for container to be healthy...
 timeout /t 30 /nobreak >nul
 
-docker compose -f docker-compose.windows.yml ps
+docker compose ps
 
 echo.
 echo Note: Windows bridge mode has limited network scanning

@@ -35,7 +35,7 @@ setup.bat
 ssh root@YOUR-VPS-IP
 
 # Clone repository
-git clone YOUR-REPO
+git clone https://github.com/yuhisern7/enterprise-security.git
 cd enterprise-security/relay
 
 # Run automated setup
@@ -378,7 +378,7 @@ curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" http://localhost:600
 
 ## 🆘 Support
 
-- **Linux:** See [RELAY_SETUP.md](../RELAY_SETUP.md)
+- **Linux:** See main README.md for full deployment guide
 - **macOS:** Docker Desktop docs: https://docs.docker.com/desktop/mac/
 - **Windows:** Docker Desktop docs: https://docs.docker.com/desktop/windows/
 

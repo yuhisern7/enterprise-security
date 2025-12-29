@@ -6,12 +6,15 @@ echo "==========================================="
 echo ""
 
 # Check if we're in the right directory
-if [ ! -f "docker-compose.yml" ]; then
-    echo "❌ Error: Please run this script from the server/ directory"
-    echo "   cd home-security/server"
-    echo "   ./quickstart.sh"
+if [ ! -f "../docker-compose.yml" ]; then
+    echo "❌ Error: docker-compose.yml not found"
+    echo "   Run this script from: server/installation/"
+    echo "   Or run: bash installation/quickstart.sh"
     exit 1
 fi
+
+# Change to server directory
+cd "$(dirname "$0")/.." || exit 1
 
 # Check if Docker is installed
 if ! command -v docker &> /dev/null; then
@@ -79,7 +82,7 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "✅ SUCCESS! System is running"
     echo ""
-    echo "📊 Dashboard: http://localhost:5000"
+    echo "📊 Dashboard: http://localhost:60000"
     echo ""
     echo "🌐 Access from other devices:"
     echo "   1. Find your IP address:"
@@ -89,7 +92,7 @@ if [ $? -eq 0 ]; then
         IP=$(hostname -I | awk '{print $1}')
     fi
     echo "      Your IP: $IP"
-    echo "   2. Open: http://$IP:5000"
+    echo "   2. Open: http://$IP:60000"
     echo ""
     echo "📋 Useful commands:"
     echo "   View logs:    docker compose logs -f"

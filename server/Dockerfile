@@ -44,8 +44,8 @@ RUN mkdir -p /app/ssl && \
     -days 3650 \
     -subj "/C=US/ST=State/L=City/O=Security/CN=enterprise-security"
 
-# Expose ports (HTTP and HTTPS)
-EXPOSE 5000 5443
+# Expose ports (Dashboard HTTP and P2P HTTPS)
+EXPOSE 60000 60001
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
@@ -53,9 +53,9 @@ ENV PYTHONUNBUFFERED=1
 # Run as root (required for network monitoring)
 USER root
 
-# Health check
+# Health check (uses DASHBOARD_PORT environment variable, defaults to 60000)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:5000', verify=False)" || exit 1
+    CMD python -c "import requests, os; requests.get(f'http://localhost:{os.getenv(\"DASHBOARD_PORT\", \"60000\")}', timeout=5)" || exit 1
 
 # Start the server
 CMD ["python", "server.py"]

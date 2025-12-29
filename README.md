@@ -1,10 +1,10 @@
-# 🛡️ Battle-Hardened AI – P2P Mesh Network
+# 🛡️ Battle-Hardened AI – Global Security Mesh
 
-**Every container is equal. No central server needed.**
+**Collective intelligence. Distributed protection.**
 
 When A gets attacked, B and C learn automatically.  
 The network gets smarter every hour.  
-Small file, extremely effective.  
+Deploy anywhere: home, office, cloud, worldwide.  
 Hackers cannot scan or attack without detection.
 
 ---
@@ -22,7 +22,9 @@ Hackers cannot scan or attack without detection.
   - [Windows Installation](#-windows-installation-10-15-minutes)
   - [macOS Installation](#-macos-installation-10-15-minutes)
   - [Linux Installation](#-linux-installation-5-10-minutes)
-- [P2P Mesh Network](#-connecting-multiple-containers-p2p-mesh-network)
+- [Connection Modes](#-connection-modes---choose-your-architecture)
+  - [Direct P2P](#mode-1-direct-p2p-same-network-only)
+  - [Relay Server](#mode-2-relay-server-global-mesh---recommended)
 - [Cloud & Advanced Deployments](#%EF%B8%8F-cloud--advanced-deployments)
 - [Features](#-features)
 - [Dashboard](#-dashboard)
@@ -273,6 +275,47 @@ We analyzed every major security platform:
 ---
 
 ## 📋 Pre-Requisites
+
+### ⚠️ CRITICAL: Antivirus Exclusions (Do This FIRST!)
+
+**Add these folders to your antivirus exclusions to prevent false positives:**
+
+Machine learning models and exploit signatures will trigger antivirus warnings. These are **NOT malware** - they are security research data used for threat detection.
+
+**Windows Defender Exclusions:**
+
+Add in **Windows Security → Virus & threat protection → Manage settings → Exclusions**:
+
+```
+C:\Users\<YourUsername>\enterprise-security\AI\ml_models\
+C:\Users\<YourUsername>\enterprise-security\AI\exploitdb\
+C:\Users\<YourUsername>\enterprise-security\server\json\
+```
+
+**PowerShell (Run as Administrator):**
+```powershell
+Add-MpPreference -ExclusionPath "C:\Users\$env:USERNAME\enterprise-security\AI\ml_models"
+Add-MpPreference -ExclusionPath "C:\Users\$env:USERNAME\enterprise-security\AI\exploitdb"
+Add-MpPreference -ExclusionPath "C:\Users\$env:USERNAME\enterprise-security\server\json"
+```
+
+**Linux (ClamAV):**
+```bash
+# Add to /etc/clamav/clamd.conf
+ExcludePath /home/<username>/Downloads/workspace/enterprise-security/AI/ml_models
+ExcludePath /home/<username>/Downloads/workspace/enterprise-security/AI/exploitdb
+ExcludePath /home/<username>/Downloads/workspace/enterprise-security/server/json
+```
+
+**macOS (if using antivirus):**
+Add exclusions in your antivirus software settings for the same folders.
+
+**What's being excluded:**
+- **AI/ml_models/** - ML models for threat detection
+- **AI/exploitdb/** - 46,475 exploit signatures (for DETECTION, not execution)
+- **server/json/** - Runtime threat logs and training data
+
+---
 
 ### System Requirements
 - **Operating System**: 
@@ -632,7 +675,7 @@ cd ..
 **Step 3: Configure Environment**
 1. Copy the example configuration:
    ```powershell
-   copy .env.example server\.env
+   copy server\.env.windows server\.env
    ```
 2. Edit `server\.env` in Notepad:
    ```powershell
@@ -727,7 +770,8 @@ cd ..
 **Step 3: Configure Environment**
 1. Copy the example configuration:
    ```bash
-   cp .env.example server/.env
+   cp server/.env.windows server/.env
+   # Or use .env.example as template
    ```
 2. Edit `server/.env`:
    ```bash
@@ -797,13 +841,12 @@ sudo /usr/libexec/ApplicationFirewall/socketfilterfw --listapps | grep -i docker
 
 > 💡 **Linux Tip:** Linux containers are **ideal as MASTER nodes** in the signature distribution architecture. They serve ExploitDB signatures to Windows/Mac clients via P2P, eliminating the need for multiple 500MB downloads!
 
-**Option 1: Automated Script (5 minutes) - Recommended**
+**Option 1: Automated Quick Start (5 minutes) - Recommended**
 
 ```bash
 git clone https://github.com/yuhisern7/enterprise-security.git
-cd enterprise-security
-chmod +x setup_peer.sh
-./setup_peer.sh
+cd enterprise-security/server
+bash installation/QUICKSTART_LINUX.sh
 ```
 
 The script automatically:
@@ -832,11 +875,14 @@ cd ..
 
 **Step 3: Configure Environment**
 ```bash
-cp .env.example server/.env
+cp server/.env.example server/.env
+# Or copy Windows template if using relay mode
+cp server/.env.windows server/.env
+
 nano server/.env  # or use vim, vi, etc.
 # Set VIRUSTOTAL_API_KEY (optional)
 # SIGNATURE_MODE=auto (default - auto-detects master mode since ExploitDB present)
-# Add PEER_URLS if connecting to other Linux containers (optional)
+# RELAY_URL=ws://YOUR-VPS-IP:60001 (if using relay server)
 # Save: Ctrl+O, Exit: Ctrl+X
 ```
 
@@ -1463,28 +1509,44 @@ docker compose logs | grep -i "p2p\|peer\|sync"
 
 ```
 enterprise-security/
-├── server/                      # Main application server
-│   ├── server.py               # Flask web server & P2P mesh
+├── README.md                   # Complete documentation (SINGLE SOURCE OF TRUTH)
+├── QUICKSTART.md               # Fast setup guide
+├── START_HERE.md               # Entry point for new users
+├── STRUCTURE.txt               # Project organization
+├── server/                      # Security Container
+│   ├── installation/            # Setup scripts (organized)
+│   │   ├── QUICKSTART_LINUX.sh   # Linux deployment
+│   │   ├── QUICKSTART_WINDOWS.bat # Windows deployment
+│   │   ├── INSTALL.sh            # Full installation
+│   │   ├── setup.sh              # Dependency setup
+│   │   └── start.sh              # Manual server start
+│   ├── server.py               # Flask web server + relay integration
 │   ├── network_monitor.py      # Real-time packet monitoring
-│   ├── device_scanner.py       # Network device discovery (8 categories, 7-day history)
-│   ├── device_blocker.py       # ARP spoofing device blocker (Man-in-the-Middle attack)
+│   ├── device_scanner.py       # Network device discovery (8 categories)
+│   ├── device_blocker.py       # ARP spoofing device blocker
 │   ├── report_generator.py     # Security reports
-│   ├── docker-compose.yml      # Container orchestration
-│   ├── Dockerfile              # Container definition
+│   ├── docker-compose.yml      # Container deployment (ALL platforms)
+│   ├── Dockerfile              # Container build
 │   ├── requirements.txt        # Python dependencies
-│   └── .env                    # Configuration (create from .env.example)
+│   ├── .env.example            # Configuration template
+│   ├── .env.windows            # Windows configuration
+│   └── json/                   # Runtime data
 ├── AI/                         # Machine Learning & Threat Intel
-│   ├── pcs_ai.py              # ML models (Isolation Forest, Random Forest, Gradient Boosting)
-│   ├── threat_intelligence.py  # 5 threat crawler sources (204 items from CVE, MalwareBazaar, URLhaus, OTX, AttackerKB)
+│   ├── pcs_ai.py              # ML models (3 algorithms)
+│   ├── relay_client.py        # WebSocket relay client (global mesh)
+│   ├── threat_intelligence.py  # 5 threat crawlers (204 indicators)
 │   ├── enterprise_integration.py # VirusTotal, IP reputation
-│   ├── inspector_ai_monitoring.html # Main dashboard interface
+│   ├── exploitdb_scraper.py   # ExploitDB downloader
+│   ├── inspector_ai_monitoring.html # Main dashboard
+│   ├── ml_models/             # AI models storage
 │   └── exploitdb/             # 46,948 exploits + 1,066 shellcodes
-├── .env.example                # Example configuration
-├── setup_peer.sh              # Linux automated setup script
-├── cloud-deploy.sh            # Cloud VPS one-command deployment
-├── README.md                   # This file
-├── DEPLOYMENT_PLATFORMS.md     # Platform-specific deployment guide
-└── DEVICE_BLOCKING_EXPLAINED.md # ARP spoofing technical documentation
+└── relay/                      # Global Relay Server (VPS)
+    ├── relay_server.py        # WebSocket relay hub
+    ├── Dockerfile             # Relay container
+    ├── docker-compose.yml     # Relay deployment
+    ├── setup.sh               # Linux VPS setup
+    ├── setup-macos.sh         # macOS relay setup
+    └── README.md              # Relay deployment guide
 ```
 
 ---
@@ -1555,6 +1617,158 @@ _peer_threats = []    # Peer attacks (AI learns, dashboard hides)
 ## 📜 License
 
 This project is for security research and educational purposes.
+
+---
+
+## 🌐 Connection Modes - Choose Your Architecture
+
+### 🎯 Quick Decision Guide
+
+**Are all your containers on the SAME WiFi network?**
+- ✅ YES → Use **Direct P2P** (Mode 1) - Free, zero setup
+- ❌ NO → Use **Relay Server** (Mode 2) - $6/month VPS, works everywhere
+
+---
+
+### Mode 1: Direct P2P (Same Network Only)
+
+**Configuration:**
+```bash
+# server/.env
+P2P_SYNC_ENABLED=true
+PEER_URLS=https://192.168.0.119:60001,https://192.168.0.101:60001
+RELAY_ENABLED=false
+```
+
+**Architecture:**
+```
+Container A (192.168.0.119) ←──────────→ Container B (192.168.0.101)
+                           Direct HTTPS
+```
+
+**✅ Pros:**
+- FREE - No VPS required
+- Low latency - Direct connection (~5-10ms)
+- Simple - Just set peer IPs
+- Private - No third-party relay
+
+**❌ Cons:**
+- Same network ONLY - Must be on same WiFi/LAN
+- Port forwarding required if on different networks
+- Limited peers - Managing many direct connections gets complex
+- Firewall issues - Corporate firewalls block incoming connections
+
+**💡 Best For:** Home/Office with 2-5 containers on same network
+
+---
+
+### Mode 2: Relay Server (Global Mesh) - RECOMMENDED
+
+**Configuration:**
+```bash
+# server/.env (on all containers)
+RELAY_ENABLED=true
+RELAY_URL=ws://YOUR-VPS-IP:60001
+P2P_SYNC_ENABLED=false
+PEER_NAME=tokyo-office-1
+
+# VPS Setup (5 minutes)
+ssh root@YOUR-VPS-IP
+git clone https://github.com/yuhisern7/enterprise-security.git
+cd enterprise-security/relay
+bash setup.sh
+```
+
+**Architecture:**
+```
+Container 1 (Tokyo)     ──┐
+Container 2 (London)    ──┤
+Container 3 (NYC)       ──┼──→  Relay Server (VPS)
+Container 4 (Sydney)    ──┤      ws://relay:60001
+Container 1000 (Mumbai) ──┘
+
+✅ ONE threat detected → INSTANTLY shared with all 1000 nodes
+✅ Works behind corporate firewalls (outbound only)
+✅ No port forwarding needed on any container
+```
+
+**✅ Pros:**
+- **Unlimited containers** worldwide
+- **No port forwarding** - Outbound connections only
+- **Firewall-friendly** - Works behind corporate firewalls
+- **Scalable** - 1000+ containers on $6 VPS
+- **Enterprise-ready** - Centralized management
+
+**❌ Cons:**
+- **Cost** - $6/month VPS (DigitalOcean, Linode, Vultr)
+- **Single point** - Relay down = no sync
+- **Latency** - +50-150ms vs direct P2P
+
+**💡 Best For:**
+- Multiple offices/locations
+- Remote workers
+- Corporate environments (firewall-friendly)
+- 10+ containers
+- Different networks (home + office + cloud)
+
+**VPS Providers:**
+- **DigitalOcean** - $6/month Droplet (1 vCPU, 1GB RAM)
+- **Linode** - $5/month Nanode
+- **Vultr** - $5/month Cloud Compute
+- **Hetzner** - €4.5/month CX11
+
+**Quick VPS Deployment:**
+```bash
+# On your VPS (Ubuntu 22.04)
+cd /opt
+git clone https://github.com/yuhisern7/enterprise-security.git
+cd enterprise-security/relay
+bash setup.sh
+
+# Get your VPS public IP
+curl ifconfig.me
+# Example: 206.189.88.127
+
+# On ALL client containers - Edit server/.env
+RELAY_ENABLED=true
+RELAY_URL=ws://206.189.88.127:60001
+P2P_SYNC_ENABLED=false
+PEER_NAME=your-unique-name
+
+# Restart containers
+docker compose down && docker compose up -d
+
+# Verify connection
+docker logs enterprise-security-ai | grep RELAY
+# Expected: [RELAY] Connected to: ws://206.189.88.127:60001
+```
+
+**For SSL/TLS (Production):**
+```bash
+# On VPS - Get Let's Encrypt certificate
+apt install -y certbot
+certbot certonly --standalone -d relay.yourdomain.com
+
+# Update relay docker-compose.yml with certificate paths
+# Change RELAY_URL to: wss://relay.yourdomain.com:60001
+```
+
+---
+
+### 📊 Feature Comparison
+
+| Feature | Direct P2P | Relay Server |
+|---------|-----------|--------------|
+| **Cost** | $0 | $6/month |
+| **Setup Time** | 2 minutes | 5 minutes |
+| **Max Containers** | 2-10 | 1000+ |
+| **Latency** | 5-10ms | 50-150ms |
+| **Same Network** | ✅ Yes | ✅ Yes |
+| **Different Networks** | ⚠️ Port forwarding | ✅ Yes |
+| **Behind Firewall** | ❌ No | ✅ Yes |
+| **Behind CGNAT** | ❌ No | ✅ Yes |
+| **Port Forwarding** | ⚠️ Required | ✅ Not needed |
+| **Bandwidth** | Low | Medium |
 
 ---
 

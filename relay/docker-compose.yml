@@ -10,7 +10,7 @@ services:
     network_mode: host
     environment:
       - RELAY_HOST=0.0.0.0
-      - RELAY_PORT=60002
+      - RELAY_PORT=60001
       - RELAY_NAME=central-relay
     healthcheck:
       test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.connect(('localhost', 60001)); s.close()"]

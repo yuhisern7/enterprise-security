@@ -19,6 +19,11 @@ AI/ml_models/*.pkl
 # Threat logs (user data)
 server/json/threat_log.json
 server/json/blocked_ips.json
+server/json/blocked_devices.json
+server/json/peer_threats.json
+server/json/network_monitor_state.json
+server/json/device_history.json
+server/json/connected_devices.json
 
 # Docker volumes
 docker-volumes/

@@ -1,146 +1,229 @@
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
-║      🛡️  HOME WIFI SECURITY - NEW STRUCTURE COMPLETE 🛡️       ║
+║      🛡️  ENTERPRISE SECURITY - PROJECT STRUCTURE 🛡️          ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
 
-📁 NEW ORGANIZED STRUCTURE:
+📁 ORGANIZED STRUCTURE:
 
 enterprise-security/
 │
-├── 📚 DOCUMENTATION (Root Level)
-│   ├── START_HERE.md          ← Quick entry point
+├── 📚 DOCUMENTATION
+│   ├── README.md              ← Complete documentation (SINGLE SOURCE OF TRUTH)
 │   ├── QUICKSTART.md          ← Fast setup guide
-│   └── README.md              ← Complete documentation
+│   ├── START_HERE.md          ← Entry point for new users
+│   └── STRUCTURE.txt          ← This file
 │
-├── 🤖 AI/                      ← AI Security Engine (NEW!)
+├── 🤖 AI/                      ← AI Security Engine
 │   ├── ml_models/             ← Machine learning models
 │   │   ├── anomaly_detector.pkl
 │   │   ├── threat_classifier.pkl
 │   │   ├── ip_reputation.pkl
 │   │   └── feature_scaler.pkl
 │   │
+│   ├── exploitdb/             ← Exploit database (46,475 signatures)
+│   │   ├── exploits/          ← Exploits by platform
+│   │   ├── shellcodes/        ← Shellcode database
+│   │   └── searchsploit       ← Search tool
+│   │
 │   ├── pcs_ai.py              ← AI threat detection engine
+│   ├── relay_client.py        ← WebSocket relay client (global mesh)
+│   ├── threat_intelligence.py ← Threat intel gathering
+│   ├── enterprise_integration.py ← Enterprise API integrations
+│   ├── exploitdb_scraper.py   ← ExploitDB downloader
 │   └── inspector_ai_monitoring.html ← Security dashboard
 │
-└── 🖥️  server/                 ← Web Server & Network Monitoring
-    ├── json/                  ← Data storage
-    │   ├── threat_log.json
-    │   └── blocked_ips.json
+├── 🌐 relay/                   ← Global Relay Server (VPS deployment)
+│   ├── relay_server.py        ← WebSocket relay server
+│   ├── Dockerfile             ← Relay container
+│   ├── docker-compose.yml     ← Relay deployment
+│   ├── setup.sh               ← Linux VPS setup
+│   ├── setup-macos.sh         ← macOS relay setup
+│   └── README.md              ← Relay deployment guide
+│
+└── 🖥️  server/                 ← Security Container (Client)
+    ├── installation/          ← Setup scripts
+    │   ├── INSTALL.sh         ← Full installation
+    │   ├── setup.sh           ← Dependency setup
+    │   ├── start.sh           ← Manual server start
+    │   ├── quickstart.sh      ← Docker quick start (Linux)
+    │   ├── QUICKSTART_LINUX.sh   ← Linux deployment
+    │   └── QUICKSTART_WINDOWS.bat ← Windows deployment
     │
-    ├── 🐳 Docker
-    │   ├── Dockerfile
-    │   ├── docker-compose.yml
-    │   └── .dockerignore
+    ├── json/                  ← Runtime data storage
+    │   ├── threat_log.json    ← Detected threats
+    │   ├── blocked_ips.json   ← Blocked IP list
+    │   ├── ml_training_data.json ← AI training buffer
+    │   ├── peer_threats.json  ← P2P shared threats
+    │   └── device_history.json ← Network device tracking
     │
-    ├── 🚀 Scripts
-    │   ├── quickstart.sh      ← ONE COMMAND START
-    │   ├── INSTALL.sh
-    │   ├── setup.sh
-    │   └── start.sh
+    ├── 🐳 Docker Configuration
+    │   ├── Dockerfile         ← Container build
+    │   ├── docker-compose.yml ← Deployment config (SINGLE FILE FOR ALL PLATFORMS)
+    │   ├── .dockerignore      ← Build exclusions
+    │   ├── .env               ← Linux configuration
+    │   ├── .env.windows       ← Windows configuration
+    │   └── .env.example       ← Configuration template
     │
     ├── 🌐 Application
-    │   ├── server.py          ← Flask web server
-    │   └── network_monitor.py ← Network packet capture
+    │   ├── server.py          ← Flask web server + relay integration
+    │   ├── network_monitor.py ← Network packet capture
+    │   ├── report_generator.py ← Threat reports
+    │   ├── device_scanner.py  ← Network device discovery
+    │   ├── device_blocker.py  ← ARP spoofing device blocker
+    │   └── test_system.py     ← System tests
     │
-    └── 📦 Config
-        ├── requirements.txt
-        └── test_system.py
+    └── 📦 Configuration
+        └── requirements.txt   ← Python dependencies
 
 ═══════════════════════════════════════════════════════════════
 
-✅ ALL PATHS FIXED:
+✅ KEY PATHS & INTEGRATIONS:
 
 ┌─────────────────────────────────────────────────────────────┐
-│ File: AI/pcs_ai.py                                          │
+│ AI Engine (AI/pcs_ai.py)                                    │
 ├─────────────────────────────────────────────────────────────┤
-│ ✓ _THREAT_LOG_FILE = "../server/json/threat_log.json"      │
-│ ✓ _BLOCKED_IPS_FILE = "../server/json/blocked_ips.json"    │
-│ ✓ _ML_MODELS_DIR = "ml_models"                              │
+│ ✓ Threat log: ../server/json/threat_log.json               │
+│ ✓ Blocked IPs: ../server/json/blocked_ips.json             │
+│ ✓ ML models: ml_models/                                     │
+│ ✓ ExploitDB: exploitdb/exploits/                            │
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
-│ File: server/server.py                                      │
+│ Relay Client (AI/relay_client.py)                           │
 ├─────────────────────────────────────────────────────────────┤
-│ ✓ sys.path.insert(0, os.path.join(..., '..'))              │
-│ ✓ import AI.pcs_ai                                          │
-│ ✓ template_folder='../AI'                                   │
+│ ✓ Connects to: ws://YOUR-VPS-IP:60001                      │
+│ ✓ Broadcasts threats to all containers worldwide            │
+│ ✓ Auto-reconnect with 5s delay                              │
+│ ✓ Heartbeat every 30s                                       │
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
-│ File: server/network_monitor.py                             │
+│ Flask Server (server/server.py)                             │
 ├─────────────────────────────────────────────────────────────┤
-│ ✓ sys.path.insert(0, os.path.join(..., '..'))              │
-│ ✓ import AI.pcs_ai                                          │
+│ ✓ Import: import AI.pcs_ai                                  │
+│ ✓ Import: from AI import relay_client                       │
+│ ✓ Templates: ../AI/                                         │
+│ ✓ Dashboard: http://localhost:60000                         │
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
-│ File: server/Dockerfile                                     │
+│ Docker Container (server/Dockerfile)                        │
 ├─────────────────────────────────────────────────────────────┤
 │ ✓ COPY ../AI /app/AI                                        │
-│ ✓ COPY server.py .                                          │
-│ ✓ COPY network_monitor.py .                                 │
-│ ✓ COPY json/ json/                                          │
+│ ✓ COPY server.py network_monitor.py .                       │
+│ ✓ WORKDIR /app/server                                       │
+│ ✓ Volumes: ./json → /app/server/json                        │
+│ ✓ Volumes: ../AI → /app/AI (read/write)                     │
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
-│ File: server/docker-compose.yml                             │
+│ Relay Server (relay/relay_server.py)                        │
 ├─────────────────────────────────────────────────────────────┤
-│ ✓ volumes:                                                  │
-│   - ./json:/app/json                                        │
-│   - ../AI:/app/AI                                           │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│ File: server/quickstart.sh                                  │
-├─────────────────────────────────────────────────────────────┤
-│ ✓ Checks for ../AI folder                                  │
-│ ✓ Checks for ../AI/ml_models                               │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│ File: server/setup.sh                                       │
-├─────────────────────────────────────────────────────────────┤
-│ ✓ Checks for ../AI folder                                  │
-│ ✓ Creates ../AI/ml_models if missing                       │
+│ ✓ Listens: 0.0.0.0:60001                                    │
+│ ✓ Broadcasts threats to all connected containers            │
+│ ✓ Handles 1000+ simultaneous connections                    │
+│ ✓ VPS Cost: $6/month (DigitalOcean/Linode/Vultr)           │
 └─────────────────────────────────────────────────────────────┘
 
 ═══════════════════════════════════════════════════════════════
 
-🚀 HOW TO RUN (WORKS ON ALL PLATFORMS):
+🚀 DEPLOYMENT METHODS:
 
+1. LINUX (Docker - Recommended):
    cd server
-   ./quickstart.sh
+   bash installation/QUICKSTART_LINUX.sh
+   Dashboard: http://localhost:60000
 
-   Dashboard: http://localhost:5000
+2. WINDOWS (Docker - Recommended):
+   cd server
+   installation\QUICKSTART_WINDOWS.bat
+   Dashboard: http://localhost:60000
+
+3. RELAY SERVER (VPS - Global Mesh):
+   ssh root@YOUR-VPS-IP
+   cd /opt
+   git clone https://github.com/yourusername/enterprise-security.git
+   cd enterprise-security/relay
+   bash setup.sh
+   # Update all clients: RELAY_URL=ws://YOUR-VPS-IP:60001
+
+4. MANUAL (Development Only):
+   cd server
+   bash installation/INSTALL.sh
+   Dashboard: http://localhost:60000
 
 ═══════════════════════════════════════════════════════════════
 
-🧪 TESTED & VERIFIED:
+🔄 CONNECTION MODES:
 
-   ✅ Python import paths work (AI.pcs_ai imports successfully)
-   ✅ File paths resolve correctly from server/ directory
-   ✅ ML models load from AI/ml_models/
-   ✅ JSON data stored in server/json/
-   ✅ Dashboard template loads from AI/
-   ✅ Docker volumes mount correctly
-   ✅ Setup scripts check for AI/ folder
+MODE 1: Direct P2P (Same Network Only)
+   ┌───────┐ HTTPS ┌───────┐
+   │ Box A │◄─────►│ Box B │
+   └───────┘       └───────┘
+   • FREE (no VPS)
+   • Low latency (5-10ms)
+   • Same WiFi/LAN only
+   • Config: PEER_URLS=https://192.168.1.100:60001
+
+MODE 2: Relay Server (Global Mesh) - RECOMMENDED
+   ┌───────┐
+   │ Tokyo │──┐
+   └───────┘  │
+   ┌───────┐  │    ┌──────────┐
+   │London │──┼───►│  Relay   │
+   └───────┘  │    │ VPS:60001│
+   ┌───────┐  │    └──────────┘
+   │  NYC  │──┘
+   └───────┘
+   • $6/month VPS
+   • Unlimited containers worldwide
+   • Firewall-friendly (outbound only)
+   • Config: RELAY_URL=ws://206.189.88.127:60001
 
 ═══════════════════════════════════════════════════════════════
 
-📂 WHY THIS STRUCTURE?
+📊 FILE ORGANIZATION LOGIC:
 
-   AI/                 = All AI/ML logic in one place
-   ├── pcs_ai.py       = Brain of the system
-   ├── ml_models/      = AI models stay with AI code
-   └── *.html          = Dashboard UI with AI
+AI/                     = Intelligence & Detection
+├── pcs_ai.py           = Core AI engine
+├── relay_client.py     = Global communication
+├── ml_models/          = AI models
+└── exploitdb/          = Signature database
 
-   server/             = All server/deployment in one place
-   ├── server.py       = Web server
-   ├── network_*.py    = Network monitoring
-   ├── json/           = Runtime data
-   └── docker/scripts  = Deployment tools
+relay/                  = Global relay infrastructure
+├── relay_server.py     = Central hub (VPS)
+└── setup.sh            = VPS deployment
 
-   Clean separation of concerns!
+server/                 = Security container
+├── installation/       = Setup scripts (organized)
+├── json/               = Runtime data
+├── server.py           = Web application
+└── .env                = Configuration
+
+README.md               = SINGLE SOURCE OF TRUTH
+                          (all docs merged here)
+
+═══════════════════════════════════════════════════════════════
+
+🎯 CLEAN ARCHITECTURE PRINCIPLES:
+
+✅ Separation of Concerns
+   AI logic ≠ Server logic ≠ Relay logic
+
+✅ Single Responsibility
+   Each file has ONE job
+
+✅ DRY (Don't Repeat Yourself)
+   Single README.md (deleted 5 redundant docs)
+
+✅ Platform Agnostic
+   One docker-compose.yml works on Linux, Windows, macOS
+
+✅ Organized Scripts
+   All installation scripts in server/installation/
+
+✅ Clear Dependencies
+   server/ depends on AI/ (not vice versa)
 
 ═══════════════════════════════════════════════════════════════

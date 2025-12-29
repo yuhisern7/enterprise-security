@@ -66,8 +66,8 @@ echo "✅ macOS detected - Docker Desktop handles networking automatically"
 # Build and start relay server
 echo ""
 echo "🚀 Starting relay server..."
-docker-compose build
-docker-compose up -d
+docker compose build
+docker compose up -d
 
 echo ""
 echo "✅ Relay server started!"
@@ -82,9 +82,9 @@ echo ""
 echo "2. On each security container, edit server/.env:"
 echo "   RELAY_ENABLED=true"
 if [ "$PUBLIC_IP" != "Unable to detect" ]; then
-    echo "   RELAY_URL=wss://$PUBLIC_IP:60001"
+    echo "   RELAY_URL=ws://$PUBLIC_IP:60001"
 else
-    echo "   RELAY_URL=wss://YOUR-PUBLIC-IP:60001"
+    echo "   RELAY_URL=ws://YOUR-PUBLIC-IP:60001"
 fi
 echo "   P2P_SYNC_ENABLED=false"
 echo ""

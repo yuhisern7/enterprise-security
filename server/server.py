@@ -1690,8 +1690,13 @@ if __name__ == '__main__':
     print("🛡️  HOME WIFI SECURITY SYSTEM - STARTING")
     print("=" * 70)
     print(f"[INFO] Server starting at: {_get_current_time()}")
-    print(f"[INFO] Dashboard: http://localhost:5000")
-    print(f"[INFO] Encrypted P2P: https://localhost:5443 (HTTPS)")
+    
+    # Get actual ports from environment
+    dashboard_port = int(os.getenv('DASHBOARD_PORT', '60000'))
+    p2p_port = int(os.getenv('P2P_PORT', '60001'))
+    
+    print(f"[INFO] Dashboard: http://localhost:{dashboard_port}")
+    print(f"[INFO] Encrypted P2P: https://localhost:{p2p_port} (HTTPS)")
     print(f"[INFO] AI/ML Security Engine: {'ACTIVE' if pcs_ai.ML_AVAILABLE else 'DISABLED (install scikit-learn)'}")
     print("=" * 70)
     
@@ -1702,9 +1707,8 @@ if __name__ == '__main__':
         def on_threat_received(threat):
             """Process threats received from relay"""
             try:
-                # Add to AI learning
-                pcs_ai._receive_peer_threat(threat)
-                print(f"[RELAY] Received threat from {threat.get('source_peer')}: {threat.get('attack_type')}")
+                # Just log the threat for now (AI learning integration pending)
+                print(f"[RELAY] 📥 Received threat from {threat.get('source_peer')}: {threat.get('attack_type')} - IP: {threat.get('src_ip')}")
             except Exception as e:
                 print(f"[RELAY ERROR] Failed to process threat: {e}")
         

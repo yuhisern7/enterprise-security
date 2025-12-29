@@ -37,7 +37,7 @@ echo "🔥 Configuring firewall..."
 if command -v ufw &> /dev/null; then
     ufw allow 60001/tcp comment 'WebSocket Relay'
     ufw --force enable
-    echo "✅ UFW configured"
+    echo "✅ UFW configured - Port 60001 open"
 elif command -v firewall-cmd &> /dev/null; then
     firewall-cmd --permanent --add-port=60001/tcp
     firewall-cmd --reload

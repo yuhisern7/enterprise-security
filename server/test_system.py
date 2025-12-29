@@ -6,8 +6,9 @@ Test script to verify Home WiFi Security System is working
 import requests
 import time
 import sys
+import os
 
-BASE_URL = "http://localhost:5000"
+BASE_URL = f"http://localhost:{os.getenv('DASHBOARD_PORT', '60000')}"
 
 def test_connection():
     """Test if server is running"""

@@ -43,7 +43,7 @@ echo    Allow TCP port 60001 inbound
 echo.
 echo 3. On each security container, edit server\.env:
 echo    RELAY_ENABLED=true
-echo    RELAY_URL=wss://YOUR-PUBLIC-IP:60001
+echo    RELAY_URL=ws://YOUR-PUBLIC-IP:60001
 echo    P2P_SYNC_ENABLED=false
 echo.
 echo 4. Restart containers:
