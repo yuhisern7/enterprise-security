@@ -9,8 +9,8 @@ services:
     
     # Volumes - persist data between restarts
     volumes:
-      - ./json:/app/json
-      - ../AI:/app/AI
+      - ./json:/app/json                      # Threat logs (persistent)
+      - ../AI:/app/AI                          # ML models + code (persistent - survives rebuilds!)
       - ../AI/exploitdb:/app/AI/exploitdb:ro  # Optional: read-only, can be removed for client mode
     
     # Environment variables (load from .env file in server directory)

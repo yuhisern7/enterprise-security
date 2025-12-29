@@ -617,240 +617,168 @@ We appreciate responsible disclosure and will credit researchers.
 
 ---
 
-## �📋 Pre-Requisites
+## 🧠 AI Model Persistence
 
-### ⚠️ CRITICAL: Antivirus Exclusions (Do This FIRST!)
+### How AI Training Survives Restarts
 
-**Add these folders to your antivirus exclusions to prevent false positives:**
+**Your AI models are PERSISTENT** - they survive:
+- ✅ Docker container rebuilds
+- ✅ System shutdowns/reboots
+- ✅ Power outages
+- ✅ Docker Compose down/up cycles
 
-Machine learning models and exploit signatures will trigger antivirus warnings. These are **NOT malware** - they are security research data used for threat detection.
+**Persistence Mechanism:**
 
-**Windows Defender Exclusions:**
+1. **Volume Mounts** (docker-compose.yml):
+   ```yaml
+   volumes:
+     - ./json:/app/json              # Threat logs persist here
+     - ../AI:/app/AI                  # ML models persist here
+   ```
 
-Add in **Windows Security → Virus & threat protection → Manage settings → Exclusions**:
+2. **ML Model Files** (saved to disk):
+   - `AI/ml_models/anomaly_detector.pkl` - IsolationForest model
+   - `AI/ml_models/threat_classifier.pkl` - RandomForest classifier
+   - `AI/ml_models/ip_reputation.pkl` - GradientBoosting model
+   - `AI/ml_models/feature_scaler.pkl` - StandardScaler
+
+3. **Auto-Load on Startup**:
+   ```python
+   # pcs_ai.py automatically loads models on startup
+   if os.path.exists(_ANOMALY_MODEL_FILE):
+       _anomaly_detector = joblib.load(_ANOMALY_MODEL_FILE)
+       print("[AI] ✅ Loaded anomaly detector from disk")
+   ```
+
+4. **Threat Logs** (JSON files):
+   - `server/json/threat_log.json` - Local attack history
+   - `server/json/blocked_ips.json` - Blocked IP database
+
+**What Happens on Restart:**
 
 ```
-C:\Users\<YourUsername>\enterprise-security\AI\ml_models\
-C:\Users\<YourUsername>\enterprise-security\AI\exploitdb\
-C:\Users\<YourUsername>\enterprise-security\server\json\
+Docker Container Starts
+   ↓
+Load ML models from AI/ml_models/ (if exist)
+   ↓
+Load threat logs from server/json/
+   ↓
+AI continues where it left off ✅
 ```
 
-**PowerShell (Run as Administrator):**
-```powershell
-Add-MpPreference -ExclusionPath "C:\Users\$env:USERNAME\enterprise-security\AI\ml_models"
-Add-MpPreference -ExclusionPath "C:\Users\$env:USERNAME\enterprise-security\AI\exploitdb"
-Add-MpPreference -ExclusionPath "C:\Users\$env:USERNAME\enterprise-security\server\json"
-```
-
-**Linux (ClamAV):**
+**Manual Backup (Optional):**
 ```bash
-# Add to /etc/clamav/clamd.conf
-ExcludePath /home/<username>/Downloads/workspace/enterprise-security/AI/ml_models
-ExcludePath /home/<username>/Downloads/workspace/enterprise-security/AI/exploitdb
-ExcludePath /home/<username>/Downloads/workspace/enterprise-security/server/json
+# Backup all AI data
+tar -czf ai-backup-$(date +%Y%m%d).tar.gz AI/ml_models/ server/json/
+
+# Restore from backup
+tar -xzf ai-backup-20251230.tar.gz
 ```
 
-**macOS (if using antivirus):**
-Add exclusions in your antivirus software settings for the same folders.
+**Data Location:**
+- Models: `enterprise-security/AI/ml_models/`
+- Logs: `enterprise-security/server/json/`
 
-**What's being excluded:**
-- **AI/ml_models/** - ML models for threat detection
-- **AI/exploitdb/** - 46,475 exploit signatures (for DETECTION, not execution)
-- **server/json/** - Runtime threat logs and training data
+**IMPORTANT:** Do NOT delete these directories unless you want to reset AI training from scratch.
 
 ---
 
-### System Requirements
-- **Operating System**: 
-  - Windows 10 64-bit Pro/Enterprise/Education or Windows 11
-  - macOS 10.15 (Catalina) or newer
-  - Linux: Ubuntu 20.04+, Debian 11+, RHEL/CentOS 8+
-- **RAM**: Minimum 2GB, Recommended 4GB
-- **Storage**: 5GB free disk space (2GB for ExploitDB database)
-- **Network**: Internet connection for initial setup
+## 📋 Pre-Requisites
 
-### Required Software
+### Required Software (All Platforms)
 
-#### 🪟 For Windows
+- **Git** - Version control
+- **Docker CLI** - Container runtime (NOT Docker CLI)
+- **Docker Compose** - Multi-container orchestration
 
-**1. WSL 2 (Windows Subsystem for Linux)** (REQUIRED - Install FIRST)
+### 🪟 Windows Installation
 
-WSL 2 is **REQUIRED** for Docker Desktop to run Linux containers on Windows.
-
-**Install WSL 2:**
-1. Open **PowerShell** as Administrator (Right-click → Run as Administrator)
-2. Run the installation command:
-   ```powershell
-   wsl --install
-   ```
-3. **Restart your computer** (required for WSL to activate)
-4. After restart, verify WSL is installed:
-   ```powershell
-   wsl --version
-   # Should show WSL version info
-   ```
-
-**If you see "WSL needs updating" error:**
+**Step 1: Install WSL 2**
 ```powershell
-# Update WSL to latest version
-wsl --update
-
-# Set WSL 2 as default version
-wsl --set-default-version 2
-
-# Verify the update
-wsl --version
-# Should show: WSL version: 2.x.x or newer
+# Open PowerShell as Administrator
+wsl --install
+# Restart computer
+wsl --version  # Verify installation
 ```
 
-**Alternative: Manual WSL Update (if automatic update fails)**
-1. Download WSL Update Package: https://aka.ms/wsl2kernel
-2. Run the downloaded `wsl_update_x64.msi` installer
-3. Restart PowerShell and verify:
-   ```powershell
-   wsl --version
-   ```
-
-**Troubleshooting WSL Issues:**
-```powershell
-# Check if WSL 2 is enabled
-wsl --status
-
-# List installed Linux distributions
-wsl --list --verbose
-# Should show at least one distro with VERSION 2
-
-# If no distributions installed, install Ubuntu (recommended)
-wsl --install -d Ubuntu
-```
-
-**2. Docker Desktop for Windows** (REQUIRED - Install AFTER WSL 2)
-- Download: https://www.docker.com/products/docker-desktop
-- Requires Windows 10 64-bit Pro/Enterprise/Education or Windows 11
-- **WSL 2 must be installed BEFORE Docker Desktop**
-- Includes Docker Engine, Docker CLI, and Docker Compose
-
-**Installation Steps:**
-1. Download and run Docker Desktop installer
-2. During installation, ensure "Use WSL 2 instead of Hyper-V" is checked
-3. Complete installation and restart if prompted
-4. Launch Docker Desktop
-5. Go to Settings → General → Ensure "Use the WSL 2 based engine" is enabled
-6. Go to Settings → Resources → WSL Integration → Enable for your Linux distro
-
-**3. Git for Windows** (REQUIRED)
-- Download: https://git-scm.com/download/win
-- During installation, select "Git Bash" option
-- Verify installation:
-  ```powershell
-  git --version
-  # Should show: git version 2.x or newer
-  ```
-
-**Verify Complete Installation:**
-```powershell
-# Check WSL
-wsl --version
-# Should show: WSL version: 2.x.x or newer
-
-# Check Docker
-docker --version
-# Should show: Docker version 20.x or newer
-
-docker compose version
-# Should show: Docker Compose version 2.x or newer
-
-# Test Docker with WSL 2
-docker run hello-world
-# Should download and run test container successfully
-```
-
-**Common Windows Issues:**
-
-| Error | Solution |
-|-------|----------|
-| "WSL 2 installation is incomplete" | Run `wsl --update` then restart computer |
-| "Docker daemon is not running" | Enable WSL 2 in Docker Desktop Settings → General |
-| "Hardware virtualization is not enabled" | Enable VT-x/AMD-V in BIOS settings |
-| "WSL kernel update required" | Download from https://aka.ms/wsl2kernel |
-
----
-
-#### 🍎 For macOS
-
-**1. Docker Desktop for Mac** (REQUIRED)
-- Download: https://www.docker.com/products/docker-desktop
-- Requires macOS 10.15 (Catalina) or newer
-- Includes Docker Engine, Docker CLI, and Docker Compose
-- Install by dragging Docker.app to Applications folder
-- Start Docker Desktop from Applications
-
-**2. Git** (usually pre-installed)
-- Check if installed:
-  ```bash
-  git --version
-  # Should show: git version 2.x or newer
-  ```
-- If not installed, install via Homebrew:
-  ```bash
-  brew install git
-  ```
-- Or download from: https://git-scm.com/download/mac
-
-**Verify Docker Installation:**
+**Step 2: Install Docker CLI in WSL 2**
 ```bash
-docker --version
-# Should show: Docker version 20.x or newer
-
-docker compose version
-# Should show: Docker Compose version 2.x or newer
-```
-
----
-
-#### 🐧 For Linux
-
-**1. Docker Engine** (REQUIRED)
-```bash
-# Automated installation (Ubuntu/Debian)
+# Open WSL terminal (Ubuntu)
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 sudo usermod -aG docker $USER
-newgrp docker
+exit  # Restart WSL
+```
 
-# Verify installation
+**Step 3: Verify**
+```bash
 docker --version
-# Should show: Docker version 20.x or newer
-```
-
-**2. Docker Compose** (REQUIRED, if not included)
-```bash
-# Ubuntu/Debian
-sudo apt-get install docker-compose-plugin
-
-# RHEL/CentOS/Fedora
-sudo yum install docker-compose-plugin
-
-# Verify installation
-docker compose version
-# Should show: Docker Compose version 2.x or newer
-```
-
-**3. Git** (REQUIRED)
-```bash
-# Ubuntu/Debian
-sudo apt-get update && sudo apt-get install git
-
-# RHEL/CentOS/Fedora
-sudo yum install git
-
-# Verify installation
+docker-compose --version
 git --version
-# Should show: git version 2.x or newer
 ```
 
 ---
 
+### 🍎 macOS Installation
+
+**Step 1: Install Homebrew** (if not installed)
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+**Step 2: Install Docker CLI**
+```bash
+brew install docker docker-compose colima
+colima start  # Lightweight Docker runtime
+```
+
+**Step 3: Verify**
+```bash
+docker --version
+docker-compose --version
+git --version
+```
+
+---
+
+### 🐧 Linux Installation
+
+**Ubuntu/Debian:**
+```bash
+# Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+
+# Docker Compose
+sudo apt-get install docker-compose-plugin
+
+# Git
+sudo apt-get install git
+```
+
+**Fedora/RHEL:**
+```bash
+sudo dnf install docker docker-compose git
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+```
+
+**Arch Linux:**
+```bash
+sudo pacman -S docker docker-compose git
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+```
+
+**Verify:**
+```bash
+docker --version
+docker-compose --version
+git --version
+```
+
+---
 ## 📚 ExploitDB Signature Distribution (NEW!)
 
 ### 🎯 Problem Solved: No More 500MB Downloads!
@@ -981,7 +909,7 @@ Result: Device has NO internet access! ❌
 
 ### 🪟 Windows Installation (10-15 minutes)
 
-**Prerequisites:** Docker Desktop and Git must be installed (see above)
+**Prerequisites:** Docker CLI and Git must be installed (see above)
 
 **Step 1: Clone Repository**
 1. Open **PowerShell** or **Command Prompt**
@@ -1101,7 +1029,7 @@ Get-NetFirewallRule -DisplayName "Enterprise Security*" | Format-Table DisplayNa
 
 ### 🍎 macOS Installation (10-15 minutes)
 
-**Prerequisites:** Docker Desktop and Git must be installed (see above)
+**Prerequisites:** Docker CLI and Git must be installed (see above)
 
 **Step 1: Clone Repository**
 1. Open **Terminal** (Applications → Utilities → Terminal)
