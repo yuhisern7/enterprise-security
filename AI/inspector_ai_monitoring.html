@@ -2395,9 +2395,9 @@
             const relay = relayResult.relay_status;
             
             if (relay.connected) {
-              // Use relay's active_peers directly - it ALREADY includes this container!
-              // Don't add +1 or you'll overcount
-              totalServers = relay.active_peers || 1;
+              // Relay's active_peers = OTHER peers (excludes this container)
+              // So total = active_peers + 1 (this container)
+              totalServers = (relay.active_peers || 0) + 1;
               
               // Minimum 1 (this container)
               if (totalServers < 1) {
