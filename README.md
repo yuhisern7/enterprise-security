@@ -108,20 +108,23 @@ Email: yuhisern@protonmail.com
 
 When you deploy a container anywhere in the world, it automatically:
 
-1. **Connects to Relay Server** → Uses WebSocket connection to central relay (or direct HTTPS to peers via `PEER_URLS` in same network)
-2. **Detects Local Attacks** → Monitors your network traffic in real-time (scans, exploits, suspicious IPs)
-3. **Learns Attack Patterns** → AI analyzes attack signatures using 46,948 ExploitDB exploits + behavioral patterns
-4. **Syncs Training Data** → Every 3 minutes, shares new attack intelligence with ALL peers automatically
-5. **Receives Global Intel** → Gets training data from ALL other containers worldwide (Tokyo attack → Your AI learns instantly)
-6. **Updates AI Models** → Retrains neural networks with combined global + local threat data
-7. **Blocks Smarter** → Detects attacks faster because AI learned from millions of global threats
+1. **Connects to Relay Server** → Uses WebSocket connection to central relay (ws://206.189.88.127:60001)
+2. **Discovers Peers** → Tracks unique peer names from threat message exchange (not just relay's static count)
+3. **Detects Local Attacks** → Monitors your network traffic in real-time (scans, exploits, suspicious IPs)
+4. **Learns Attack Patterns** → AI analyzes attack signatures using 46,948 ExploitDB exploits + behavioral patterns
+5. **Syncs Training Data** → Broadcasts threats to ALL peers via relay, receives threats from other containers
+6. **Self-Correcting Peer Count** → System tracks actual peers communicated with, not relay's potentially stale count
+7. **Updates AI Models** → Retrains neural networks **every 1 MINUTE** with combined global + local threat data
+8. **Blocks Smarter** → Detects attacks faster because AI learned from millions of global threats
 
 **🔄 Automatic Synchronization Process:**
 ```
 Tokyo Container detects new attack at 09:00 JST
-    ↓ (180 seconds)
-Syncs to: New York, London, Sydney, Mumbai, Berlin
-    ↓ (AI retraining - 30 seconds)
+    ↓ (INSTANT via WebSocket relay)
+Broadcasts to: New York, London, Sydney, Mumbai, Berlin
+    ↓ (Peer tracking - containers learn about each other)
+All containers update their seen_peers list
+    ↓ (AI retraining - 60 seconds)
 ALL containers now recognize this attack pattern
     ↓ (Result)
 London gets same attack at 14:00 GMT → BLOCKED INSTANTLY
@@ -134,17 +137,20 @@ London gets same attack at 14:00 GMT → BLOCKED INSTANTLY
 - **Shared Intelligence**: Attack patterns, signatures, behavioral models (NOT raw attack data)
 - **Result**: Collective global intelligence WITHOUT privacy violations
 
-**📊 What Gets Shared (Synced Every 3 Minutes):**
+**📊 What Gets Shared (Real-Time via Relay):**
+- ✅ Threat broadcasts (attack type, severity, source IP, timestamp)
+- ✅ Peer identification (container names for accurate peer counting)
 - ✅ Attack signatures (exploit patterns, shellcode signatures)
-- ✅ Threat intelligence (malicious IPs, attack types, severity scores)
 - ✅ Behavioral models (AI-learned attack patterns)
-- ✅ ExploitDB signatures (if container is MASTER mode)
-- ❌ NOT shared: Your raw traffic, packet contents, personal data, specific attack details
+- ❌ NOT shared: Your raw traffic, packet contents, personal data, network topology
 
 **🚀 Benefits of Worldwide Mesh:**
 - **Network Effect**: 1 container = protects 1 network | 1,000 containers = protect ALL networks
-- **Zero Lag**: Attack in Tokyo → All containers learn in 3 minutes (vs days/weeks with traditional vendors)
-- **No Single Point of Failure**: Every container is equal, mesh survives even if 99% go offline
+- **Instant Broadcast**: Attack in Tokyo → All containers notified in <1 second via relay
+- **Smart Peer Tracking**: System tracks peers via actual communication, self-corrects stale relay counts
+- **Ultra-Fast Learning**: AI retrains every 60 seconds (most aggressive in the industry)
+- **GPU Acceleration**: Optional NVIDIA/AMD/Apple GPU support for faster training
+- **No Single Point of Failure**: Relay is stateless, containers work standalone if relay goes down
 - **Infinite Scale**: Add unlimited containers, performance stays constant
 - **Free Forever**: No vendor lock-in, no licensing, no subscriptions
 
@@ -1323,21 +1329,26 @@ For production environments with high availability:
 ## 🎯 Features
 
 ### Core Security
-- **ML-Powered Threat Detection**: 3 models (Isolation Forest, Random Forest, Gradient Boosting)
+- **ML-Powered Threat Detection**: 4 models (Isolation Forest, Random Forest, Gradient Boosting, TensorFlow/PyTorch)
+- **GPU Acceleration**: Optional NVIDIA CUDA, AMD ROCm, Apple Metal support
 - **ExploitDB Integration**: 46,948 exploits + 1,066 shellcodes
 - **VirusTotal Scanning**: 70+ security vendors (optional API key)
 - **5 Threat Intelligence Crawlers**: 204 items from CVE-MITRE, MalwareBazaar, AlienVault OTX, URLhaus, AttackerKB (auto-synced every 6 hours)
 - **Automatic IP Blocking**: Instant iptables firewall blacklisting
 - **ARP Spoofing Device Blocker**: Block devices from network access without router admin (Man-in-the-Middle attack)
 - **VPN/Tor Detection**: De-anonymization techniques
+- **Ultra-Fast Retraining**: AI retrains every **60 seconds** or 5 new threats
 
-### P2P Mesh Network
-- **Distributed Learning**: Each container learns from all attacks globally
-- **Automatic Sync**: Broadcasts threats every 3 minutes
+### Global Relay Mesh Network
+- **Star Topology**: All containers connect to central relay (ws://206.189.88.127:60001)
+- **Instant Broadcast**: Threats shared via WebSocket in real-time
+- **Smart Peer Tracking**: System tracks unique peers via threat message exchange
+- **Self-Correcting Counts**: Containers discover peers through actual communication, not stale relay data
 - **Privacy-Preserving**: Dashboard shows ONLY your attacks, AI learns from everyone
-- **Dynamic Peers**: Add/remove peers without restart
-- **Resilient**: No single point of failure
+- **Peer Blocking**: Block malicious containers from mesh network
+- **Resilient**: Containers work standalone if relay goes down
 - **Collective Intelligence**: Network gets smarter with each container
+- **Scalable**: 1000+ containers on single relay server
 
 ---
 
@@ -1689,11 +1700,18 @@ enterprise-security/
 
 ## 🤖 AI & Machine Learning
 
-**3 ML Models Working Together:**
+**4 ML Models Working Together:**
 
-1. **Isolation Forest** - Anomaly detection for unknown attacks
-2. **Random Forest** - Pattern matching based on known attacks
-3. **Gradient Boosting** - High-confidence predictions
+1. **Isolation Forest** (CPU) - Anomaly detection for unknown attacks
+2. **Random Forest** (CPU) - Pattern matching based on known attacks  
+3. **Gradient Boosting** (CPU) - High-confidence predictions
+4. **TensorFlow/PyTorch** (GPU) - Optional neural network training with GPU acceleration
+
+**GPU Support:**
+- **NVIDIA GPUs**: via CUDA (PyTorch/TensorFlow)
+- **AMD GPUs**: via ROCm (TensorFlow)
+- **Apple Silicon**: via Metal (TensorFlow on M1/M2/M3)
+- **Fallback**: CPU training if no GPU detected
 
 **Training Data:**
 - Local threats: Your own attacks (dashboard visible)
@@ -1701,6 +1719,7 @@ enterprise-security/
 - ExploitDB: 46,948 historical exploits
 - Threat Intelligence Crawlers: 204 items from 5 global sources (CVE-MITRE, MalwareBazaar, URLhaus, AlienVault OTX, AttackerKB)
 - Device Behavior: Connection patterns from 8 device categories over 7-day history
+- Custom Datasets: Load your own CSV/JSON/NPY files from `AI/exploitdb/ai_training_materials/`
 
 **Privacy Guarantee:**
 ```python
@@ -1713,9 +1732,11 @@ _peer_threats = []    # Peer attacks (AI learns, dashboard hides)
 ```
 
 **Automatic Retraining:**
-- Every 100 new threats detected
-- Adapts to evolving attack patterns
+- **Every 1 MINUTE** (ultra-aggressive, most frequent in the industry)
+- **OR** every 5 new threats detected
+- Adapts to evolving attack patterns in real-time
 - No manual intervention required
+- Optional GPU training for faster model updates
 
 ---
 
@@ -1741,12 +1762,15 @@ _peer_threats = []    # Peer attacks (AI learns, dashboard hides)
 - ML prediction: <100ms per IP
 
 **Sync Speed:**
-- Threat broadcast: <3 minutes to all peers
+- Threat broadcast: **INSTANT** via WebSocket relay
 - Dashboard refresh: 5 minutes (configurable)
 - Device scanning: Every 5 minutes
 - Threat crawler sync: Every 6 hours
-- Network convergence: <10 minutes (100 peers)
+- Peer discovery: Real-time via threat message exchange
+- Network convergence: <1 minute (via seen_peers tracking)
 - ARP spoofing: Fake packets every 2 seconds per blocked device
+- AI retraining: **Every 60 seconds** or 5 new threats (whichever comes first)
+- GPU training: 1-5 minutes depending on dataset size (vs 10-30 minutes on CPU)
 
 ---
 
@@ -1823,7 +1847,9 @@ Container 3 (NYC)       ──┼──→  Relay Server (VPS)
 Container 4 (Sydney)    ──┤      ws://relay:60001
 Container 1000 (Mumbai) ──┘
 
-✅ ONE threat detected → INSTANTLY shared with all 1000 nodes
+✅ ONE threat detected → INSTANTLY broadcast via WebSocket
+✅ Smart peer tracking → Containers discover each other via threats
+✅ Self-correcting counts → System tracks seen_peers, not relay's stale data
 ✅ Works behind corporate firewalls (outbound only)
 ✅ No port forwarding needed on any container
 ```
@@ -1834,11 +1860,14 @@ Container 1000 (Mumbai) ──┘
 - **Firewall-friendly** - Works behind corporate firewalls
 - **Scalable** - 1000+ containers on $6 VPS
 - **Enterprise-ready** - Centralized management
+- **Smart peer tracking** - Self-corrects even if relay's peer count is wrong
+- **Peer blocking** - Block malicious containers from mesh network
+- **Stateless relay** - Containers work standalone if relay goes down
 
 **❌ Cons:**
-- **Cost** - $6/month VPS (DigitalOcean, Linode, Vultr)
-- **Single point** - Relay down = no sync
-- **Latency** - +50-150ms vs direct P2P
+- **Cost** - $6/month VPS (DigitalOcean, Linode, Vultr) OR $25/month for managed relay
+- **Single point** - Relay down = no sync (containers still work standalone)
+- **Latency** - +50-150ms vs direct P2P (negligible for most use cases)
 
 **💡 Best For:**
 - Multiple offices/locations
