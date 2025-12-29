@@ -6,7 +6,7 @@
 
 ⚡ **Neural Network Evolution:** AI models retrain every 60 seconds with real-world attack data. The system doesn't wait for you—it adapts while you sleep.
 
-🌍 **Zero-Trust Mesh:** Deploy on your laptop, Windows, Mac OS or Linux computer, Raspberry Pi, VPS, or enterprise server. Each node is both student and teacher—learning from 50,000+ exploit signatures and live global threats.
+🌍 **Distributed Learning Mesh:** Deploy on your laptop, Windows, Mac OS or Linux computer, Raspberry Pi, VPS, or enterprise server. Each node is both student and teacher—learning from 50,000+ exploit signatures and live global threats.
 
 🎯 **Silent Guardian:** Passive network monitoring via packet capture means attackers can't detect the AI system watching them. Every scan, probe, payload—captured and analyzed without interaction. Detection happens at the network layer, not by exposing vulnerable services. Then intelligence is shared with the global mesh.
 
@@ -307,11 +307,11 @@ China-backed APT attacks DOE (Department of Energy)
 
 ---
 
-## 🚀 This System Is Unique On The Planet
+## 🚀 What Makes This System Unique
 
-**No Comparable System Exists:**
+**Among the first open-source, container-based, AI-augmented distributed network protection systems with privacy-oriented threat sharing.**
 
-We analyzed every major security platform:
+We analyzed major security platforms and found gaps:
 - ❌ **MISP**: Requires central server, no privacy-preserving ML
 - ❌ **AlienVault OTX**: Centralized cloud, all threats visible to all
 - ❌ **CIF (Collective Intelligence Framework)**: Complex, requires database server
@@ -322,16 +322,302 @@ We analyzed every major security platform:
 **What Makes This Different:**
 1. **Global Relay Mesh** - Lightweight relay server enables worldwide connectivity without NAT/firewall issues
 2. **Privacy-Preserving** - Dashboard shows ONLY your attacks, AI learns from all
-3. **Zero Cost** - No licensing, no subscriptions, no hidden fees
+3. **Open Source** - No licensing, no subscriptions, fully transparent code
 4. **Simple Setup** - 10-15 minutes, works on Windows/Mac/Linux
-5. **Infinite Scale** - 1 to 1,000,000 nodes with linear scaling
-6. **Collective Intelligence** - Every node makes every other node smarter
+5. **Scalable Architecture** - From single node to global mesh
+6. **Collective Intelligence** - Every node contributes to shared learning
+7. **5-Gate False Positive Filter** - Multi-layered validation prevents false alarms
 
-**This is cutting-edge cybersecurity architecture** - solving problems billion-dollar companies couldn't solve.
+**This is an evolving open-source security platform** - combining distributed learning with practical threat protection.
 
 ---
 
-## 📋 Pre-Requisites
+## 🧠 Machine Learning Limitations & Known Issues
+
+### ⚠️ Critical ML Engineering Problems (Acknowledged)
+
+The current ML implementation has **serious flaws** that impact reliability. We document these openly:
+
+#### 🔴 Problem 1: Retraining Every Minute is Counterproductive
+
+**Current Implementation:**
+```python
+# pcs_ai.py line 981
+if minutes_since_training > 1:  # Retrain every 1 minute
+    return True
+```
+
+**Why This is Wrong:**
+- **Small sample sizes** → Unstable models (retraining with 5-10 samples)
+- **Noise dominates signal** → Random fluctuations treated as patterns
+- **Overfitting risk** → Models memorize individual attacks instead of learning patterns
+- **Peer data quality unknown** → Malicious nodes can inject bad samples every minute
+- **Computational waste** → Models don't improve, just thrash
+
+**ML Truth:**  
+> More training ≠ Better learning  
+> You need **stable, representative samples** over time, not frequent updates.
+
+**Impact:**
+- Models never converge to stable representations
+- Attackers can exploit rapid retraining to poison models
+- False positive rate fluctuates wildly
+- No consistent baseline for comparison
+
+**Planned Fix (Q1 2026):**
+- ✅ Require minimum 100 samples before retraining
+- ✅ Implement exponential backoff (1 hour → 6 hours → 24 hours)
+- ✅ Use rolling validation set to verify model improvement
+- ✅ Add statistical significance testing before accepting new models
+
+---
+
+#### �� Problem 2: Feature Consistency Across Nodes Not Guaranteed
+
+**The Problem:**  
+If nodes run on:
+- Different operating systems (Linux vs Windows)
+- Different network layouts (NAT vs public IP)
+- Different traffic profiles (web server vs desktop)
+
+Then:
+- **Feature distributions differ** (Windows paths vs Unix paths)
+- **Models learn incompatible representations**
+- **Shared training data loses meaning**
+
+This is called **feature skew**, and it **breaks distributed ML silently**.
+
+**Example:**
+```python
+# Node A (Linux server): Heavy SSH traffic, no GUI
+features = [22, 80, 443, 0, 0, ...]  # Port distribution
+
+# Node B (Windows desktop): Heavy RDP, browsing
+features = [0, 80, 443, 3389, 5900, ...]  # Different distribution
+
+# Shared model: Confused by incompatible patterns
+```
+
+**Current State:**  
+❌ No feature normalization across peers  
+❌ No validation of feature compatibility  
+❌ No detection of distribution shift  
+❌ Models trained on mixed, incompatible data
+
+**Impact:**
+- Peer learning **degrades accuracy** instead of improving it
+- Models from Linux nodes fail on Windows nodes
+- Attack patterns misclassified due to baseline differences
+- Silent failure (no error messages, just poor performance)
+
+**Planned Fix (Q1 2026):**
+- ✅ Feature distribution fingerprinting for each node
+- ✅ Peer compatibility scoring (only share with similar nodes)
+- ✅ Federated normalization (align feature scales across peers)
+- ✅ Distribution drift detection (alert when features diverge)
+- ✅ Separate models per node type (server/desktop/embedded)
+
+---
+
+#### 🔴 Problem 3: No Confidence Decay or Forgetting Logic
+
+**The Problem:**  
+Attack patterns **expire**. A 2020 SQL injection pattern may be irrelevant in 2025.
+
+If your system:
+- Keeps learning indefinitely ✅ (we do)
+- Never down-weights old patterns ❌ (we don't)
+
+Then:
+- **Old threats bias future decisions**
+- **Attackers exploit stale assumptions**
+- **Models become outdated relics**
+
+**Current State:**
+```python
+# Threat log grows forever, no expiration
+_threat_log.append(threat_entry)  # Never removed, never down-weighted
+
+# All historical data treated equally
+X = np.array([extract_features(t) for t in _threat_log])  # 2020 data = 2025 data
+```
+
+**Why This is Dangerous:**
+1. **Stale patterns dominate** - Old attacks outnumber new ones
+2. **Adversarial drift** - Attackers evolve, models don't
+3. **Memory bloat** - Threat log grows unbounded
+4. **Concept drift ignored** - Network behavior changes over time
+
+**Example Attack:**
+```
+2020: Attacker uses User-Agent: "OldBot/1.0" → Blocked
+2025: Attacker uses User-Agent: "Chrome/120.0" → Still blocked (model remembers old pattern)
+```
+
+**Impact:**
+- Models become **less accurate over time** (counterintuitive!)
+- Legitimate traffic blocked due to expired rules
+- New attack patterns ignored (dominated by historical noise)
+- No adaptation to changing threat landscape
+
+**Planned Fix (Q1 2026):**
+- ✅ **Time-weighted training** - Recent threats weighted 10x higher
+- ✅ **Exponential decay** - Threats lose influence after 30 days
+- ✅ **Sliding window** - Keep only last 90 days of data
+- ✅ **Concept drift detection** - Alert when patterns shift significantly
+- ✅ **Active forgetting** - Deliberately remove outdated patterns
+- ✅ **Model versioning** - Compare current model vs. historical benchmarks
+
+---
+
+### 🎯 Current ML Recommendations
+
+**Until these issues are fixed (Q1 2026):**
+
+⚠️ **DO NOT rely solely on ML predictions**  
+✅ Use ML as **advisory signals** only  
+✅ Combine with rule-based detection (5-gate filter)  
+✅ Manually review threat logs weekly  
+✅ Disable peer learning if accuracy degrades  
+✅ Retrain manually with curated datasets  
+
+**ML is a SUPPLEMENT, not a replacement** for traditional security.
+
+---
+
+## � Security Considerations & Current Limitations
+
+### ⚠️ Known Risks & Mitigations
+
+This system is under active development. Below are acknowledged security challenges and our roadmap for addressing them:
+
+#### 🔸 Relay Trust Problem (ACKNOWLEDGED)
+
+**Current Risk:**  
+If the relay server is compromised, fake threat data can be injected into the mesh, potentially causing:
+- False threat intelligence
+- Incorrect AI model training
+- Network-wide false positives
+
+**Current Mitigation:**
+- Relay operates as transparent message broker (no data modification)
+- Peer-to-peer verification via IP reputation checks
+- Local false positive filter (5-gate validation) rejects suspicious data
+
+**Roadmap (Not Yet Implemented):**
+- ✅ Cryptographic signing of all threat messages (planned Q1 2026)
+- ✅ Peer identity verification using public key infrastructure (planned Q1 2026)
+- ✅ Replay attack protection with timestamps and nonces (planned Q1 2026)
+- ✅ Message integrity validation (HMAC-SHA256) (planned Q2 2026)
+
+**Current Recommendation:**  
+Only connect to relay servers you trust. Run your own relay server for maximum security.
+
+---
+
+#### 🔸 Model Poisoning Risk (ACKNOWLEDGED)
+
+**Current Risk:**  
+In distributed learning, malicious nodes can intentionally send bad training samples to corrupt AI models:
+- Injection of false attack patterns
+- Training models to ignore real threats
+- Degrading detection accuracy across the mesh
+
+**Current Mitigation:**
+- Local false positive filter validates all incoming signals (5-gate pipeline)
+- Cross-signal agreement required (minimum 2 signal types)
+- Behavior consistency checks (temporal correlation)
+- Anomaly detection on training data
+- Local threat log isolation (dashboard shows only local threats)
+
+**Roadmap (Not Yet Implemented):**
+- ✅ Weighted trust system based on peer reputation (planned Q1 2026)
+- ✅ Byzantine fault tolerance for model updates (planned Q2 2026)
+- ✅ Anomaly detection on peer-submitted threats (planned Q1 2026)
+- ✅ Peer scoring based on accuracy/false positive rate (planned Q2 2026)
+- ✅ Gradient clipping and differential privacy for model updates (planned Q2 2026)
+
+**Current Recommendation:**  
+Review threat logs regularly. Use local AI training as primary, peer learning as supplementary.
+
+---
+
+#### 🔸 Peer Identity & Authentication (NOT YET IMPLEMENTED)
+
+**Current State:**  
+Peer connections rely on IP addresses and basic WebSocket authentication. No cryptographic peer verification is currently implemented.
+
+**Planned Roadmap:**
+- ✅ Public key infrastructure (PKI) for peer authentication (Q1 2026)
+- ✅ Certificate-based mutual TLS (mTLS) for all connections (Q1 2026)
+- ✅ Peer reputation system with trust scores (Q2 2026)
+- ✅ Automatic peer blacklisting for malicious behavior (Q2 2026)
+
+---
+
+#### 🔸 Privacy & Data Protection
+
+**Current Implementation:**  
+✅ **Privacy-Preserving by Design**
+- Dashboard shows ONLY local threats (never peer data)
+- AI models train on aggregated patterns (not raw data)
+- No personal information shared across mesh
+- Threat intelligence contains: IP, threat type, timestamp (no payloads)
+
+**Future Enhancements:**
+- ✅ Differential privacy for AI model updates (Q2 2026)
+- ✅ Homomorphic encryption for sensitive threat data (Q3 2026)
+- ✅ Zero-knowledge proofs for peer validation (Q3 2026)
+
+---
+
+### 🛡️ Current Security Features (Implemented)
+
+✅ **5-Gate False Positive Filter** - Multi-layered validation prevents false alarms  
+✅ **Local Threat Isolation** - Your dashboard shows only your threats  
+✅ **Behavior Analysis** - Temporal and pattern correlation  
+✅ **Cross-Signal Validation** - Requires multiple independent signals  
+✅ **IP Reputation Tracking** - VPN/Tor/Proxy detection  
+✅ **Adaptive Honeypot** - AI-powered threat sandbox  
+✅ **Anomaly Detection** - ML-based behavioral analysis  
+
+---
+
+### 📊 Security Research & Validation
+
+This project draws inspiration from academic research in:
+- Distributed machine learning (federated learning)
+- Byzantine fault-tolerant systems
+- Privacy-preserving threat intelligence sharing
+- Intrusion detection systems (IDS/IPS)
+
+**Not Yet Peer-Reviewed:**  
+This system has not undergone formal academic peer review. Use in production environments at your own risk.
+
+**Recommended Use Cases:**
+- ✅ Home networks and SMB security
+- ✅ Security research and threat intelligence gathering
+- ✅ Educational purposes and ML experimentation
+- ⚠️ Enterprise production (with additional hardening)
+- ⚠️ Critical infrastructure (not recommended without audit)
+
+---
+
+### 🎯 Our Commitment to Transparency
+
+We acknowledge these limitations openly because:
+1. **Honesty builds trust** - Users deserve to know real capabilities
+2. **Security through transparency** - Open discussion improves security
+3. **Community-driven development** - We welcome contributions to address these challenges
+4. **Continuous improvement** - This is an evolving platform, not a finished product
+
+**Found a security issue?**  
+Please report responsibly to: yuhisern@protonmail.com  
+We appreciate responsible disclosure and will credit researchers.
+
+---
+
+## �📋 Pre-Requisites
 
 ### ⚠️ CRITICAL: Antivirus Exclusions (Do This FIRST!)
 

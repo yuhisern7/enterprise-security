@@ -871,8 +871,8 @@ def _train_ml_models_from_history() -> None:
     peer_count = len(_peer_threats)
     
     # Lowered threshold: Train with as few as 5 events (was 50)
-    if len(all_threats) < 100:  # Minimum samples to prevent overfitting
-        print(f"[AI] Not enough data to train. Need at least 100 threat events (prevents overfitting), have {len(all_threats)} (local: {local_count}, peer: {peer_count})")
+    if len(all_threats) < 5:
+        print(f"[AI] Not enough data to train. Need at least 5 threat events, have {len(all_threats)} (local: {local_count}, peer: {peer_count})")
         return
     
     try:
@@ -906,8 +906,8 @@ def _train_ml_models_from_history() -> None:
                 # Anomaly label: 1 if CRITICAL/DANGEROUS, 0 if SAFE/SUSPICIOUS
                 anomaly_labels.append(1 if level in ['CRITICAL', 'DANGEROUS'] else 0)
         
-        if len(features_list) < 100:
-            print(f"[AI] Not enough training data, need at least 100 samples (prevents noise-based training), have {len(features_list)}")
+        if len(features_list) < 5:
+            print(f"[AI] Not enough training data, need at least 5 samples, have {len(features_list)}")
             return
         
         X = np.array(features_list)
