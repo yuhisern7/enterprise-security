@@ -44,6 +44,7 @@ def dashboard():
     return render_template('inspector_ai_monitoring.html',
                          stats=pcs_ai.get_threat_statistics(),
                          blocked_ips=pcs_ai.get_blocked_ips(),
+                         whitelisted_ips=pcs_ai.get_whitelisted_ips(),
                          threat_logs=pcs_ai._threat_log[-100:][::-1],  # Latest 100, reversed
                          ml_stats=pcs_ai.get_ml_model_stats(),
                          vpn_stats=pcs_ai.get_vpn_tor_statistics())

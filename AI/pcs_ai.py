@@ -2331,6 +2331,11 @@ def get_blocked_ips() -> list[str]:
     return list(_blocked_ips)
 
 
+def get_whitelisted_ips() -> list[str]:
+    """Get list of whitelisted IP addresses."""
+    return sorted(list(_WHITELISTED_IPS))
+
+
 def get_threat_statistics() -> dict:
     """Get comprehensive statistics about detected threats and attacks."""
     # Count threats by type

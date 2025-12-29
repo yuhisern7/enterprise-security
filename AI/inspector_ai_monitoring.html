@@ -875,6 +875,32 @@
         {% endif %}
       </section>
 
+      <!-- Whitelisted IP Addresses -->
+      <section style="background: linear-gradient(135deg, #1a3d2a, #1a2e1e); border: 2px solid #5fff9f;">
+        <h2>✅ Whitelisted IP Addresses ({{ whitelisted_ips|length }})</h2>
+        <p class="muted" style="margin-bottom: 1rem;">
+          These IPs are <strong>permanently allowed</strong> and will never be blocked. Includes relay server, GitHub, and other trusted sources.
+        </p>
+        {% if whitelisted_ips %}
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem;">
+            {% for ip in whitelisted_ips %}
+              <div style="padding: 0.75rem; background: rgba(95, 255, 159, 0.1); border-radius: 6px; border: 1px solid #5fff9f; font-family: monospace; text-align: center;">
+                <div style="color: #5fff9f; font-weight: bold;">{{ ip }}</div>
+                {% if ip == '206.189.88.127' %}
+                  <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">🌐 Relay Server</div>
+                {% elif '127.0.0.1' in ip or 'localhost' in ip %}
+                  <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">🏠 Localhost</div>
+                {% elif '140.82' in ip %}
+                  <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">🐙 GitHub</div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="muted">No whitelisted IPs (only default localhost).</p>
+        {% endif %}
+      </section>
+
       <!-- Failed Login Attempts -->
       {% if stats.failed_login_attempts %}
         <section>
