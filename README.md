@@ -9,7 +9,34 @@ Hackers cannot scan or attack without detection.
 
 ---
 
-## 📑 Table of Contents
+## � Quick Configuration Guide
+
+**After installation, you MUST manually edit these in `server/.env`:**
+
+1. **NETWORK_RANGE** - Your WiFi network (find with `ipconfig` or `ip addr`)
+   ```bash
+   # Examples:
+   NETWORK_RANGE=192.168.0.0/24  # If your IP is 192.168.0.x
+   NETWORK_RANGE=192.168.1.0/24  # If your IP is 192.168.1.x
+   NETWORK_RANGE=10.0.0.0/24     # If your IP is 10.0.0.x
+   ```
+
+2. **RELAY_URL** - Your relay server IP (for global mesh)
+   ```bash
+   RELAY_URL=ws://YOUR-VPS-IP:60001
+   # Example: ws://206.189.88.127:60001
+   ```
+
+3. **PEER_NAME** (Optional) - Give your container a unique name
+   ```bash
+   PEER_NAME=home-office  # Change from default
+   ```
+
+**Without these changes, device scanning won't work!**
+
+---
+
+## �📑 Table of Contents
 
 - [How It Works](#-how-it-works)
 - [Why Choose This System](#-why-choose-this-system)
@@ -672,7 +699,7 @@ cd ..
 # Note: Windows Defender may flag some files - add exclusion if needed
 ```
 
-**Step 3: Configure Environment**
+**Step 3: Configure Environment (IMPORTANT - Manual Edits Required)**
 1. Copy the example configuration:
    ```powershell
    copy server\.env.windows server\.env
@@ -681,12 +708,36 @@ cd ..
    ```powershell
    notepad server\.env
    ```
-   - Set `VIRUSTOTAL_API_KEY` (optional, get free at https://virustotal.com)
-   - Add `PEER_URLS` if using signature distribution or P2P mesh
-   - Set `SIGNATURE_MODE=client` if skipping ExploitDB (receives from peers)
-   - Set `SIGNATURE_MODE=master` if downloaded ExploitDB
-   - Set `SIGNATURE_MODE=auto` to auto-detect (default)
-   - Save and close
+   
+   **🔴 REQUIRED Manual Changes:**
+   
+   **1. Network Range** (Find your actual network):
+   ```powershell
+   # Find your network IP
+   ipconfig
+   # Look for "IPv4 Address" like 192.168.1.105
+   # If you see 192.168.1.x → Use 192.168.1.0/24
+   # If you see 192.168.0.x → Use 192.168.0.0/24
+   # If you see 10.0.0.x → Use 10.0.0.0/24
+   ```
+   
+   Then update in `.env`:
+   ```bash
+   NETWORK_RANGE=192.168.1.0/24  # Change to YOUR network!
+   ```
+   
+   **2. Relay Server IP** (To connect globally):
+   ```bash
+   RELAY_URL=ws://YOUR-RELAY-SERVER-IP:60001
+   # Example: ws://206.189.88.127:60001
+   ```
+   
+   **⚠️ Optional Changes:**
+   - `VIRUSTOTAL_API_KEY` - Get free at https://virustotal.com (optional)
+   - `PEER_NAME` - Change from "windows-node" to your own name
+   - `SIGNATURE_MODE` - Leave as `disabled` (default)
+   
+   Save and close
 
 **Step 4: Build and Start**
 1. Navigate to server directory:
@@ -767,22 +818,46 @@ git clone https://github.com/offensive-security/exploitdb.git exploitdb
 cd ..
 ```
 
-**Step 3: Configure Environment**
+**Step 3: Configure Environment (IMPORTANT - Manual Edits Required)**
 1. Copy the example configuration:
    ```bash
    cp server/.env.windows server/.env
-   # Or use .env.example as template
+   # Or use .env.linux as template
    ```
 2. Edit `server/.env`:
    ```bash
    nano server/.env
    ```
-   - Set `VIRUSTOTAL_API_KEY` (optional, get free at https://virustotal.com)
-   - Add `PEER_URLS` if using signature distribution or P2P mesh
-   - Set `SIGNATURE_MODE=client` if skipping ExploitDB (receives from peers)
-   - Set `SIGNATURE_MODE=master` if downloaded ExploitDB
-   - Set `SIGNATURE_MODE=auto` to auto-detect (default)
-   - Save: `Ctrl+O`, Exit: `Ctrl+X`
+   
+   **🔴 REQUIRED Manual Changes:**
+   
+   **1. Network Range** (Find your actual network):
+   ```bash
+   # Find your network IP
+   ifconfig | grep "inet " | grep -v 127.0.0.1
+   # Look for something like: inet 192.168.1.105
+   # If you see 192.168.1.x → Use 192.168.1.0/24
+   # If you see 192.168.0.x → Use 192.168.0.0/24
+   # If you see 10.0.0.x → Use 10.0.0.0/24
+   ```
+   
+   Then update in `.env`:
+   ```bash
+   NETWORK_RANGE=192.168.1.0/24  # Change to YOUR network!
+   ```
+   
+   **2. Relay Server IP** (To connect globally):
+   ```bash
+   RELAY_URL=ws://YOUR-RELAY-SERVER-IP:60001
+   # Example: ws://206.189.88.127:60001
+   ```
+   
+   **⚠️ Optional Changes:**
+   - `VIRUSTOTAL_API_KEY` - Get free at https://virustotal.com (optional)
+   - `PEER_NAME` - Change to your own name (e.g., "home-mac")
+   - `SIGNATURE_MODE` - Leave as `disabled` (default)
+   
+   Save: `Ctrl+O`, Exit: `Ctrl+X`
 
 **Step 4: Build and Start**
 1. Navigate to server directory:
@@ -873,18 +948,43 @@ cd ..
 
 > 💡 **Why download on Linux?** Linux containers with ExploitDB automatically become **MASTER** nodes that serve signatures to Windows/Mac clients. This eliminates 500MB downloads on other platforms!
 
-**Step 3: Configure Environment**
+**Step 3: Configure Environment (IMPORTANT - Manual Edits Required)**
 ```bash
-cp server/.env.example server/.env
-# Or copy Windows template if using relay mode
-cp server/.env.windows server/.env
+cp server/.env.linux server/.env
 
 nano server/.env  # or use vim, vi, etc.
-# Set VIRUSTOTAL_API_KEY (optional)
-# SIGNATURE_MODE=auto (default - auto-detects master mode since ExploitDB present)
-# RELAY_URL=ws://YOUR-VPS-IP:60001 (if using relay server)
-# Save: Ctrl+O, Exit: Ctrl+X
 ```
+
+**🔴 REQUIRED Manual Changes:**
+
+**1. Network Range** (Find your actual network):
+```bash
+# Find your network IP
+ip addr show | grep "inet " | grep -v 127.0.0.1
+# Or use: hostname -I
+# Look for something like: 192.168.0.105
+# If you see 192.168.0.x → Use 192.168.0.0/24
+# If you see 192.168.1.x → Use 192.168.1.0/24
+# If you see 10.0.0.x → Use 10.0.0.0/24
+```
+
+Then update in `.env`:
+```bash
+NETWORK_RANGE=192.168.0.0/24  # Change to YOUR network!
+```
+
+**2. Relay Server IP** (To connect globally):
+```bash
+RELAY_URL=ws://YOUR-RELAY-SERVER-IP:60001
+# Example: ws://206.189.88.127:60001
+```
+
+**⚠️ Optional Changes:**
+- `VIRUSTOTAL_API_KEY` - Get free at https://virustotal.com (optional)
+- `PEER_NAME` - Change to your own name (e.g., "linux-office")
+- `SIGNATURE_MODE` - Leave as `disabled` (default)
+
+Save: `Ctrl+O`, Exit: `Ctrl+X`
 
 **Step 4: Configure Firewall (REQUIRED)**
 
