@@ -28,7 +28,7 @@
     "mac": "28:f7:d6:af:62:01",
     "type": "Unknown",
     "hostname": "_gateway",
-    "last_seen": "2025-12-29T20:26:36.025270",
+    "last_seen": "2025-12-29T20:48:09.699182",
     "first_seen": "2025-12-29T19:59:39.075591"
   },
   "e8:48:b8:2e:80:85": {
@@ -36,7 +36,7 @@
     "mac": "e8:48:b8:2e:80:85",
     "type": "Router/Network",
     "hostname": "TP-Link-Router-101",
-    "last_seen": "2025-12-29T20:26:38.051920",
+    "last_seen": "2025-12-29T20:48:11.717523",
     "first_seen": "2025-12-29T19:59:41.105531"
   },
   "24:0f:9b:24:a0:4a": {
@@ -44,7 +44,7 @@
     "mac": "24:0f:9b:24:a0:4a",
     "type": "Security Camera",
     "hostname": "Hikvision-Camera-103",
-    "last_seen": "2025-12-29T20:26:40.068970",
+    "last_seen": "2025-12-29T20:48:13.761247",
     "first_seen": "2025-12-29T19:59:43.143139"
   },
   "1c:86:9a:3f:61:3c": {
@@ -52,7 +52,7 @@
     "mac": "1c:86:9a:3f:61:3c",
     "type": "Android",
     "hostname": "Samsung-Phone-105",
-    "last_seen": "2025-12-29T20:26:42.083128",
+    "last_seen": "2025-12-29T20:48:15.852188",
     "first_seen": "2025-12-29T19:59:45.175081"
   },
   "36:ce:45:73:56:3d": {
@@ -60,8 +60,8 @@
     "mac": "36:ce:45:73:56:3d",
     "type": "Unknown",
     "hostname": "Device-107",
-    "last_seen": "2025-12-29T20:10:40.618288",
-    "first_seen": "2025-12-29T20:10:40.618300"
+    "last_seen": "2025-12-29T20:32:11.282412",
+    "first_seen": "2025-12-29T20:32:11.282425"
   },
   "22:9c:c8:47:7d:23": {
     "ip": "192.168.0.111",
@@ -76,7 +76,7 @@
     "mac": "40:ac:bf:3e:53:af",
     "type": "Security Camera",
     "hostname": "Hikvision-Camera-104",
-    "last_seen": "2025-12-29T20:26:44.110303",
+    "last_seen": "2025-12-29T20:48:17.927383",
     "first_seen": "2025-12-29T19:59:49.254364"
   },
   "48:35:2b:cb:48:0a": {
@@ -92,7 +92,7 @@
     "mac": "40:ac:bf:37:d6:39",
     "type": "Security Camera",
     "hostname": "Hikvision-Camera-102",
-    "last_seen": "2025-12-29T20:26:46.152575",
+    "last_seen": "2025-12-29T20:48:21.956501",
     "first_seen": "2025-12-29T19:59:47.196752"
   },
   "84:46:93:6d:3c:3f": {
@@ -100,7 +100,7 @@
     "mac": "84:46:93:6d:3c:3f",
     "type": "Android",
     "hostname": "Xiaomi-Phone-100",
-    "last_seen": "2025-12-29T20:26:48.207000",
+    "last_seen": "2025-12-29T20:48:19.943442",
     "first_seen": "2025-12-29T19:59:53.298971"
   },
   "92:dc:0b:ea:17:30": {

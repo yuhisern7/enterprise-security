@@ -14,8 +14,8 @@ if not exist .env (
     copy /Y .env.windows .env
 )
 
-docker compose down 2>nul
-docker compose up -d --build
+docker compose -f docker-compose.windows.yml down 2>nul
+docker compose -f docker-compose.windows.yml up -d --build
 
 echo.
 echo Container starting...
@@ -25,7 +25,7 @@ echo.
 echo Waiting for container to be healthy...
 timeout /t 30 /nobreak >nul
 
-docker compose ps
+docker compose -f docker-compose.windows.yml ps
 
 echo.
 echo Note: Windows bridge mode has limited network scanning
