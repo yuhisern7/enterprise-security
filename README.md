@@ -1,11 +1,14 @@
 # 🛡️ Battle-Hardened AI – Global Security Mesh
 
-**Collective intelligence. Distributed protection.**
+**One attack anywhere. Everyone protected everywhere.**
 
-When A gets attacked, B and C learn automatically.  
-The network gets smarter every hour.  
-Deploy anywhere: home, office, cloud, worldwide.  
-Hackers cannot scan or attack without detection.
+🧠 **Hive Mind Security:** When one container detects an attack, every container in the mesh learns instantly—from Tokyo to New York, your home network to Fortune 500 data centers.
+
+⚡ **Neural Network Evolution:** AI models retrain every 60 seconds with real-world attack data. The system doesn't wait for you—it adapts while you sleep.
+
+🌍 **Zero-Trust Mesh:** Deploy on your laptop, Raspberry Pi, VPS, or enterprise server. Each node is both student and teacher—learning from 50,000+ exploit signatures and live global threats.
+
+🎯 **Invisible Until You Strike:** Hackers see nothing. No open ports, no attack surface. But every scan, every probe, every payload—detected, analyzed, blocked. Then shared with the world.
 
 
 ## 💎 Join the Global Relay Network
