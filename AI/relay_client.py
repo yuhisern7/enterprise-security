@@ -112,15 +112,14 @@ class RelayClient:
     def get_status(self) -> Dict[str, Any]:
         """Get relay client status"""
         with self.lock:
-            # Calculate peer count: max of relay's count or peers we've actually seen
-            calculated_peers = max(self.active_peers, len(self.seen_peers))
-            
+            # ALWAYS use the relay server's active_peers count - it's authoritative!
+            # Don't calculate or second-guess it
             return {
                 'enabled': self.enabled,
                 'connected': self.connected,
                 'relay_url': self.relay_url,
                 'peer_name': self.peer_name,
-                'active_peers': calculated_peers,  # Use calculated count
+                'active_peers': self.active_peers,  # Trust the relay server
                 'seen_peers': len(self.seen_peers),  # How many unique peers sent us threats
                 'threats_queued': len(self.threat_queue),
                 'threats_sent': self.threats_sent,
