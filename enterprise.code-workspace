@@ -1,7 +1,14 @@
 {
     "folders": [
 		{
-			"path": "../enterprise-security"
+			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"files.watcherExclude": {
+			"**/AI/exploitdb/**": true,
+			"**/AI/ml_models/**": true,
+			"**/server/json/**": true
+		}
+	}
 }
