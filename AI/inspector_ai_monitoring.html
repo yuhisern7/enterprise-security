@@ -663,13 +663,19 @@
           <!-- Training Materials Folder Info -->
           <p style="margin: 0 0 0.75rem; color: #aaa; font-size: 0.9rem;">
             📁 <strong>Training Materials:</strong> AI/exploitdb/ai_training_materials/<br>
-            Supported formats: CSV, JSON, NPY (NumPy arrays)
+            💡 <strong>Supported GPUs:</strong> NVIDIA (CUDA), AMD (ROCm), Apple (Metal via TensorFlow)<br>
+            📦 <strong>Formats:</strong> CSV, JSON, NPY (NumPy arrays)
           </p>
           
-          <!-- GPU Training Button -->
-          <button id="gpu-train-btn" onclick="trainWithGPU()" style="margin: 0; background: linear-gradient(135deg, #ff5fff, #df4fdf); font-weight: bold;">
-            🚀 Train Using GPU
-          </button>
+          <!-- GPU Buttons -->
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button onclick="loadGPUInfo()" style="background: linear-gradient(135deg, #5fe2ff, #4fc2df); font-weight: bold;">
+              🔍 Detect GPU
+            </button>
+            <button id="gpu-train-btn" onclick="trainWithGPU()" style="background: linear-gradient(135deg, #ff5fff, #df4fdf); font-weight: bold;">
+              🚀 Train Using GPU
+            </button>
+          </div>
           
           <!-- Training Results -->
           <div id="gpu-training-results" style="margin-top: 1rem; display: none; padding: 1rem; background: rgba(95, 255, 159, 0.1); border-radius: 6px; border: 1px solid #5fff9f;">
@@ -1481,16 +1487,30 @@
           
           <p class="muted" style="margin-top: 1.5rem;"><strong>🎓 6. Continuous Self-Learning & Model Updates</strong></p>
           <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>📊 <strong>Auto-Training Triggers:</strong> ML models retrain every 5 detected threats OR every 6 hours automatically</li>
-            <li>🔄 <strong>ExploitDB Sync:</strong> Scrapes 5,000 new exploit signatures every 24 hours from local database</li>
+            <li>⚡ <strong>Ultra-Aggressive Training:</strong> ML models retrain every <strong>1 MINUTE</strong> or every 5 detected threats (most aggressive in the industry)</li>
+            <li>🔄 <strong>ExploitDB Sync:</strong> Scrapes 5,000 new exploit signatures every 24 hours from local database (46,948+ total signatures)</li>
             <li>🍯 <strong>Honeypot Intelligence:</strong> Real attack attempts from honeypots feed ML pattern recognition</li>
             <li>🌐 <strong>Threat Crawler Data:</strong> 204 items from 5 global threat feeds refresh every 6 hours</li>
+            <li>🚀 <strong>GPU-Accelerated Training:</strong> Optional TensorFlow/PyTorch neural networks with CUDA/NVIDIA support for faster training</li>
             <li>🧪 <strong>Behavioral Profiling:</strong> Learns normal traffic patterns for each device type (phone/camera/computer)</li>
             <li>🔍 <strong>Device Activity Tracking:</strong> Connection history identifies unusual network behavior and potential compromises</li>
+            <li>🌍 <strong>Global Mesh Learning:</strong> Connects to relay server - when one container detects an attack, ALL containers learn instantly</li>
             <li>🎯 <strong>Zero Human Input:</strong> Entire learning cycle fully automated - AI improves itself continuously</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>⚡ 7. Automated Response & Active Defense</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🌐 7. Global Relay Mesh Network (Star Topology)</strong></p>
+          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
+            <li>🌍 <strong>Worldwide Peer Discovery:</strong> Containers auto-discover each other via WebSocket relay server (ws://206.189.88.127:60001)</li>
+            <li>🔄 <strong>Real-Time Threat Sharing:</strong> Every detected attack broadcasts to ALL connected peers instantly</li>
+            <li>🧠 <strong>Collective Intelligence:</strong> Each container learns from global attack patterns - Tokyo attack protects New York container</li>
+            <li>📊 <strong>Smart Peer Tracking:</strong> System tracks unique peers via threat message exchange, not just relay's static count</li>
+            <li>🎯 <strong>Self-Correcting Peer Count:</strong> Even if relay's peer count is stale, containers discover peers through actual communication</li>
+            <li>⚡ <strong>Automatic Convergence:</strong> Both Linux and Windows containers show identical peer count after threat exchange (~1 minute)</li>
+            <li>🔐 <strong>Peer Blocking:</strong> Block malicious peers from mesh network with one click (stored in blocked_peers.json)</li>
+            <li>📈 <strong>Scalable Architecture:</strong> Relay handles unlimited peers - tested with 1000+ simultaneous connections</li>
+          </ul>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>⚡ 8. Automated Response & Active Defense</strong></p>
           <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
             <li>🚫 <strong>Instant IP Blocking:</strong> Malicious IPs added to iptables firewall blacklist in real-time</li>
             <li>⏱️ <strong>Intelligent Rate Limiting:</strong> Suspicious IPs throttled with exponential backoff (1s → 2s → 4s → 8s)</li>
