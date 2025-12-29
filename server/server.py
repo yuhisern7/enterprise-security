@@ -982,6 +982,28 @@ def p2p_threats():
         }), 500
 
 
+@app.route('/api/relay/status', methods=['GET'])
+def get_relay_status_api():
+    """Get relay client status and connected peers"""
+    try:
+        from AI.relay_client import get_relay_status
+        status = get_relay_status()
+        return jsonify({
+            'success': True,
+            'relay_status': status
+        })
+    except ImportError:
+        return jsonify({
+            'success': True,
+            'relay_status': {'enabled': False, 'message': 'Relay client not available'}
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @app.route('/api/p2p/add-peer', methods=['POST'])
 def add_peer():
     """Add a new peer URL dynamically"""

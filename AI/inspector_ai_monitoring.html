@@ -362,6 +362,14 @@
           </p>
         </div>
         
+        <!-- Connected Peers Section -->
+        <div id="connected-peers-section" style="margin-top: 1.5rem; padding: 1rem; background: rgba(95, 255, 159, 0.1); border-radius: 6px; border: 1px solid #5fff9f; display: none;">
+          <h3 style="margin-bottom: 0.5rem; color: #5fff9f;">🌐 Connected Peers</h3>
+          <div id="peer-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.5rem; margin-top: 1rem;">
+            <!-- Peer badges will be inserted here dynamically -->
+          </div>
+        </div>
+        
         <!-- Standalone Mode Notice -->
         <div id="standalone-notice" style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 184, 95, 0.1); border-radius: 6px; border: 1px solid #ffb85f; display: none;">
           <p class="muted" style="margin: 0; line-height: 1.8;">
@@ -2214,44 +2222,120 @@
       // P2P Mesh Network Status
       async function loadP2PStatus() {
         try {
-          const response = await fetch('/api/p2p/status');
-          const result = await response.json();
+          // Fetch both P2P and Relay status
+          const [p2pResponse, relayResponse] = await Promise.all([
+            fetch('/api/p2p/status'),
+            fetch('/api/relay/status')
+          ]);
           
-          if (result.success && result.p2p_status) {
-            const status = result.p2p_status;
+          const p2pResult = await p2pResponse.json();
+          const relayResult = await relayResponse.json();
+          
+          let totalServers = 1; // This server
+          let threatsReceived = 0;
+          let threatsSent = 0;
+          let lastSync = 'Never';
+          let connectedPeers = [];
+          
+          // Check relay status (preferred)
+          if (relayResult.success && relayResult.relay_status && relayResult.relay_status.enabled) {
+            const relay = relayResult.relay_status;
             
-            if (status.enabled && status.peers_configured > 0) {
-              // Connected - calculate total servers (this one + peers)
-              const totalServers = status.peers_configured + 1; // +1 for this server
-              document.getElementById('total-servers').innerHTML = `${totalServers}`;
-              document.getElementById('server-details').textContent = `${status.peers_online} online for ML sharing`;
-              document.getElementById('network-status-text').innerHTML = '<strong style="color: #5fff9f;">🤖 AI Training Network Active - All servers learn from each attack!</strong>';
+            if (relay.connected) {
+              // Use relay active_peers count
+              totalServers = relay.active_peers || 1;
+              threatsReceived = relay.threats_received || 0;
+              threatsSent = relay.threats_sent || 0;
               
-              const lastSync = status.last_sync && Object.keys(status.last_sync).length > 0 
-                ? new Date(Math.max(...Object.values(status.last_sync).map(t => new Date(t)))).toLocaleTimeString()
-                : 'Never';
-              document.getElementById('last-sync').textContent = lastSync;
-              document.getElementById('threats-sent').textContent = status.threats_sent || 0;
-              document.getElementById('threats-received').textContent = status.threats_received || 0;
+              if (relay.last_heartbeat) {
+                lastSync = new Date(relay.last_heartbeat).toLocaleTimeString();
+              }
+              
+              // Create peer list including this container
+              connectedPeers.push({
+                name: relay.peer_name || 'this-container',
+                type: 'local',
+                status: 'connected'
+              });
+              
+              // Add placeholder for other peers (relay doesn't send individual peer names yet)
+              for (let i = 1; i < totalServers; i++) {
+                connectedPeers.push({
+                  name: `peer-${i}`,
+                  type: 'remote',
+                  status: 'connected'
+                });
+              }
+              
+              document.getElementById('total-servers').innerHTML = `${totalServers}`;
+              document.getElementById('server-details').textContent = `${totalServers} connected via relay`;
+              document.getElementById('network-status-text').innerHTML = '<strong style=\"color: #5fff9f;\">🤖 Relay Mesh Network Active - All servers learn from each attack!</strong>';
               
               document.getElementById('p2p-info').style.display = 'block';
               document.getElementById('standalone-notice').style.display = 'none';
-              document.getElementById('server-count-display').textContent = totalServers;
+              document.getElementById('connected-peers-section').style.display = 'block';
+              
+            } else {
+              document.getElementById('total-servers').innerHTML = '1';
+              document.getElementById('server-details').textContent = 'Relay disconnected';
+              document.getElementById('network-status-text').innerHTML = '<strong style=\"color: #ffb85f;\">⚠️ Connecting to relay server...</strong>';
+              document.getElementById('p2p-info').style.display = 'none';
+              document.getElementById('standalone-notice').style.display = 'block';
+              document.getElementById('connected-peers-section').style.display = 'none';
+            }
+          }
+          // Fallback to P2P status
+          else if (p2pResult.success && p2pResult.p2p_status) {
+            const status = p2pResult.p2p_status;
+            
+            if (status.enabled && status.peers_configured > 0) {
+              totalServers = status.peers_configured + 1;
+              threatsReceived = status.threats_received || 0;
+              threatsSent = status.threats_sent || 0;
+              
+              const lastSyncTimes = status.last_sync && Object.keys(status.last_sync).length > 0 
+                ? new Date(Math.max(...Object.values(status.last_sync).map(t => new Date(t)))).toLocaleTimeString()
+                : 'Never';
+              lastSync = lastSyncTimes;
+              
+              document.getElementById('total-servers').innerHTML = `${totalServers}`;
+              document.getElementById('server-details').textContent = `${status.peers_online} online for ML sharing`;
+              document.getElementById('network-status-text').innerHTML = '<strong style=\"color: #5fff9f;\">🤖 AI Training Network Active - All servers learn from each attack!</strong>';
+              
+              document.getElementById('p2p-info').style.display = 'block';
+              document.getElementById('standalone-notice').style.display = 'none';
+              document.getElementById('connected-peers-section').style.display = 'none';
               
             } else {
               // Standalone mode
               document.getElementById('total-servers').innerHTML = '1';
               document.getElementById('server-details').textContent = 'Only this server (standalone)';
-              document.getElementById('network-status-text').innerHTML = '<strong style="color: #ffb85f;">⚠️ Standalone - Add more servers to share ML training</strong>';
-              
-              document.getElementById('last-sync').textContent = 'N/A';
-              document.getElementById('threats-sent').textContent = '0';
-              document.getElementById('threats-received').textContent = '0';
+              document.getElementById('network-status-text').innerHTML = '<strong style=\"color: #ffb85f;\">⚠️ Standalone - Add relay or P2P servers to share ML training</strong>';
               
               document.getElementById('p2p-info').style.display = 'none';
               document.getElementById('standalone-notice').style.display = 'block';
+              document.getElementById('connected-peers-section').style.display = 'none';
             }
           }
+          
+          // Update stats
+          document.getElementById('last-sync').textContent = lastSync;
+          document.getElementById('threats-sent').textContent = threatsSent;
+          document.getElementById('threats-received').textContent = threatsReceived;
+          document.getElementById('server-count-display').textContent = totalServers;
+          
+          // Update connected peers display
+          if (connectedPeers.length > 0) {
+            const peerListHtml = connectedPeers.map(peer => `
+              <div style=\"padding: 0.5rem; background: rgba(95, 255, 159, 0.15); border-radius: 4px; border: 1px solid #5fff9f; text-align: center;\">
+                <div style=\"font-size: 1.2rem;\">${peer.type === 'local' ? '🏠' : '🌐'}</div>
+                <div style=\"font-size: 0.9rem; color: #5fff9f; font-weight: bold;\">${peer.name}</div>
+                <div style=\"font-size: 0.75rem; color: #ccc;\">${peer.status}</div>
+              </div>
+            `).join('');
+            document.getElementById('peer-list').innerHTML = peerListHtml;
+          }
+          
         } catch (error) {
           console.error('Error loading P2P status:', error);
           document.getElementById('total-servers').innerHTML = '❌';
