@@ -2248,8 +2248,16 @@
             const relay = relayResult.relay_status;
             
             if (relay.connected) {
-              // Use relay active_peers count
-              totalServers = relay.active_peers || 1;
+              // Smart peer count calculation
+              // If relay reports active_peers, use it. Otherwise infer from threats_received
+              let peerCount = relay.active_peers || 0;
+              
+              // If we're receiving threats but peer count is 0, infer at least 1 peer exists
+              if (peerCount === 0 && relay.threats_received > 0) {
+                peerCount = 1; // At least one other peer is sending threats
+              }
+              
+              totalServers = peerCount + 1; // +1 for this container
               threatsReceived = relay.threats_received || 0;
               threatsSent = relay.threats_sent || 0;
               
