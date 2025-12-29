@@ -105,6 +105,16 @@ except ImportError as e:
     print(f"[INFO] P2P sync not available: {e}")
     print("[INFO] Running standalone (no peer threat sharing)")
 
+# Relay Client (WebSocket-based global mesh)
+try:
+    from AI.relay_client import relay_threat, get_relay_status
+    RELAY_AVAILABLE = True
+    print("[RELAY] WebSocket relay client loaded - unlimited global peers")
+except ImportError as e:
+    RELAY_AVAILABLE = False
+    print(f"[INFO] Relay client not available: {e}")
+    print("[INFO] P2P mesh limited to direct connections")
+
 
 class ThreatLevel(str, Enum):
     SAFE = "SAFE"
@@ -1546,6 +1556,13 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
             sync_threat(event)
         except Exception as e:
             print(f"[P2P] Warning: Failed to broadcast threat: {e}")
+    
+    # Relay: Broadcast to global mesh via relay server
+    if RELAY_AVAILABLE:
+        try:
+            relay_threat(event)
+        except Exception as e:
+            print(f"[RELAY] Warning: Failed to relay threat: {e}")
 
 def _block_ip(ip_address: str) -> None:
     """Block an IP address and save to persistent storage."""

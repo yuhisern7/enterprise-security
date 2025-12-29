@@ -1695,6 +1695,29 @@ if __name__ == '__main__':
     print(f"[INFO] AI/ML Security Engine: {'ACTIVE' if pcs_ai.ML_AVAILABLE else 'DISABLED (install scikit-learn)'}")
     print("=" * 70)
     
+    # Initialize Relay Client (if enabled)
+    try:
+        from AI.relay_client import start_relay_client, get_relay_status
+        
+        def on_threat_received(threat):
+            """Process threats received from relay"""
+            try:
+                # Add to AI learning
+                pcs_ai._receive_peer_threat(threat)
+                print(f"[RELAY] Received threat from {threat.get('source_peer')}: {threat.get('attack_type')}")
+            except Exception as e:
+                print(f"[RELAY ERROR] Failed to process threat: {e}")
+        
+        start_relay_client(on_threat_received)
+        relay_status = get_relay_status()
+        
+        if relay_status.get('enabled'):
+            print(f"[RELAY] Connected to: {relay_status.get('relay_url')}")
+            print(f"[RELAY] Peer name: {relay_status.get('peer_name')}")
+        
+    except Exception as e:
+        print(f"[WARNING] Relay client not available: {e}")
+    
     # Initialize Signature Distribution System
     try:
         from AI.signature_distribution import start_signature_distribution

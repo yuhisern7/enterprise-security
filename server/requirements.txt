@@ -20,5 +20,8 @@ requests==2.31.0
 urllib3==2.1.0
 beautifulsoup4==4.12.3
 
+# WebSocket Relay Client (for global mesh)
+websockets==12.0
+
 # Enterprise Integration (SIEM/SOC)
 pysyslog==0.1.0

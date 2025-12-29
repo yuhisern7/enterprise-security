@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  relay-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: security-relay-server
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - RELAY_HOST=0.0.0.0
+      - RELAY_PORT=60002
+      - RELAY_NAME=central-relay
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.connect(('localhost', 60001)); s.close()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
