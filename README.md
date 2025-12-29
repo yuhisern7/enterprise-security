@@ -53,11 +53,11 @@ Hackers cannot scan or attack without detection.
                     Container            Container
 ```
 
-**🌐 Worldwide P2P Mesh Network - How Containers Connect & Share AI Training**
+**🌐 Worldwide Relay Mesh Network - How Containers Connect & Share AI Training**
 
 When you deploy a container anywhere in the world, it automatically:
 
-1. **Connects to Peers** → Uses HTTPS encrypted connections to other containers via `PEER_URLS`
+1. **Connects to Relay Server** → Uses WebSocket connection to central relay (or direct HTTPS to peers via `PEER_URLS` in same network)
 2. **Detects Local Attacks** → Monitors your network traffic in real-time (scans, exploits, suspicious IPs)
 3. **Learns Attack Patterns** → AI analyzes attack signatures using 46,948 ExploitDB exploits + behavioral patterns
 4. **Syncs Training Data** → Every 3 minutes, shares new attack intelligence with ALL peers automatically
@@ -239,13 +239,13 @@ China-backed APT attacks DOE (Department of Energy)
 
 | Feature | This System | CrowdStrike | Palo Alto | Cisco Umbrella | Norton/McAfee |
 |---------|-------------|-------------|-----------|----------------|---------------|
-| **P2P Mesh** | ✅ True P2P | ❌ Centralized | ❌ Centralized | ❌ Cloud-only | ❌ Client-server |
+| **Global Mesh** | ✅ Relay-based | ❌ Centralized | ❌ Centralized | ❌ Cloud-only | ❌ Client-server |
 | **Privacy-Preserving** | ✅ Yes | ❌ All data to vendor | ❌ All data to vendor | ❌ DNS queries tracked | ❌ Activity monitored |
 | **Cost (10 devices)** | **$0** | $1,500/year | $5,000/year | $2,000/year | $500/year |
 | **Setup Time** | **10-15 min** | 2-3 days | 1-2 weeks | 1 day | 30 min |
 | **Vendor Lock-In** | ❌ None | ✅ High | ✅ Very High | ✅ High | ✅ Medium |
 | **Works Offline** | ✅ Yes | ❌ No | ❌ No | ❌ Requires internet | ⚠️ Limited |
-| **Collective Learning** | ✅ Global P2P | ⚠️ Vendor-only | ⚠️ Vendor-only | ⚠️ Vendor-only | ❌ None |
+| **Collective Learning** | ✅ Global Relay | ⚠️ Vendor-only | ⚠️ Vendor-only | ⚠️ Vendor-only | ❌ None |
 | **SMB-Friendly** | ✅ Yes | ❌ Enterprise-only | ❌ Enterprise-only | ⚠️ Complex | ⚠️ Limited |
 
 ---
@@ -263,7 +263,7 @@ We analyzed every major security platform:
 - ❌ **Federated Learning** (Google/Apple): Not for cybersecurity, requires orchestrator
 
 **What Makes This Different:**
-1. **True P2P Mesh** - No master, no server, all nodes equal
+1. **Global Relay Mesh** - Lightweight relay server enables worldwide connectivity without NAT/firewall issues
 2. **Privacy-Preserving** - Dashboard shows ONLY your attacks, AI learns from all
 3. **Zero Cost** - No licensing, no subscriptions, no hidden fees
 4. **Simple Setup** - 10-15 minutes, works on Windows/Mac/Linux
@@ -846,7 +846,7 @@ sudo /usr/libexec/ApplicationFirewall/socketfilterfw --listapps | grep -i docker
 ```bash
 git clone https://github.com/yuhisern7/enterprise-security.git
 cd enterprise-security/server
-bash installation/QUICKSTART_LINUX.sh
+bash installation/install.sh
 ```
 
 The script automatically:
@@ -969,11 +969,16 @@ docker compose up -d --build
 
 ### ☁️ Cloud/VPS Deployment (Linux Only - 5 minutes)
 
-Deploy on any Linux cloud provider with one command:
+Deploy on any Linux cloud provider:
 
 ```bash
-# SSH into your cloud instance, then run:
-curl -fsSL https://raw.githubusercontent.com/yuhisern7/enterprise-security/main/cloud-deploy.sh | bash
+# SSH into your cloud instance
+ssh root@YOUR-VPS-IP
+
+# Clone and run installation
+git clone https://github.com/yuhisern7/enterprise-security.git
+cd enterprise-security/server
+bash installation/install.sh
 ```
 
 **Supported Cloud Platforms:**
@@ -1081,11 +1086,13 @@ Done! All containers now share threats automatically via encrypted HTTPS.
 
 ### 🌥️ One-Command Cloud Deployment
 
-Deploy to any cloud provider (AWS, GCP, Azure, DigitalOcean, Linode, Vultr, Hetzner) with one command:
+Deploy to any cloud provider:
 
 ```bash
 # On your Linux VPS (Ubuntu 20.04+, Debian 10+, CentOS 7+, RHEL 8+, or Fedora 30+)
-curl -fsSL https://raw.githubusercontent.com/yuhisern7/enterprise-security/main/cloud-deploy.sh | sudo bash
+git clone https://github.com/yuhisern7/enterprise-security.git
+cd enterprise-security/server
+bash installation/install.sh
 ```
 
 **The script automatically:**
@@ -1124,9 +1131,8 @@ Battle-Hardened AI works on ARM devices! Perfect for edge deployments:
 ```bash
 # Use standard Linux installation
 git clone https://github.com/yuhisern7/enterprise-security.git
-cd enterprise-security
-chmod +x setup_peer.sh
-./setup_peer.sh
+cd enterprise-security/server
+bash installation/install.sh
 ```
 
 ### ☸️ Kubernetes Deployment
@@ -1264,12 +1270,12 @@ ABUSEIPDB_API_KEY=your_api_key_here   # Free: https://abuseipdb.com
 
 ## 🏗️ Architecture
 
-### P2P Mesh Network Model
+### Global Relay Mesh Network Model
 
-**No Central Server - True Peer-to-Peer**
+**Relay Server Enables Worldwide Connectivity**
 
 ```
-Every container is EQUAL - no master/slave hierarchy
+Containers connect through central relay server (bypasses NAT/firewall)
 
 Container A          Container B          Container C
 (Home WiFi)         (Office)             (Cloud)
@@ -1280,21 +1286,30 @@ Container A          Container B          Container C
 └────┬─────┘        └────┬─────┘        └────┬─────┘
      │                   │                   │
 ┌────▼─────┐        ┌────▼─────┐        ┌────▼─────┐
-│P2P Server│◄──────►│P2P Server│◄──────►│P2P Server│
-│Port 60001│  HTTPS │Port 60001│  HTTPS │Port 60001│
-└────┬─────┘        └────┬─────┘        └────┬─────┘
-     │                   │                   │
-┌────▼─────┐        ┌────▼─────┐        ┌────▼─────┐
+│  Relay   │        │  Relay   │        │  Relay   │
+│ Client   │───┐    │ Client   │───┐    │ Client   │───┐
+│WS Connect│   │    │WS Connect│   │    │WS Connect│   │
+└──────────┘   │    └──────────┘   │    └──────────┘   │
+               │                   │                   │
+               └──────────┬────────┴──────────┬────────┘
+                          │                   │
+                    ┌─────▼───────────────────▼─────┐
+                    │   RELAY SERVER (VPS)          │
+                    │   ws://relay-server:60001     │
+                    │   Broadcasts to all clients   │
+                    └───────────────────────────────┘
+                          
+┌──────────┐        ┌──────────┐        ┌──────────┐
 │AI Engine │        │AI Engine │        │AI Engine │
 │Local: 10 │        │Local: 25 │        │Local: 15 │
-│Peer:  40 │        │Peer:  25 │        │Peer:  35 │
+│Relay: 40 │        │Relay: 25 │        │Relay: 35 │
 │Total: 50 │        │Total: 50 │        │Total: 50 │
 └──────────┘        └──────────┘        └──────────┘
 ```
 
 ### Data Flow Architecture
 
-**Attack Detection & P2P Propagation:**
+**Attack Detection & Relay Propagation:**
 
 ```
 1. ATTACK DETECTED
@@ -1515,11 +1530,8 @@ enterprise-security/
 ├── STRUCTURE.txt               # Project organization
 ├── server/                      # Security Container
 │   ├── installation/            # Setup scripts (organized)
-│   │   ├── QUICKSTART_LINUX.sh   # Linux deployment
-│   │   ├── QUICKSTART_WINDOWS.bat # Windows deployment
-│   │   ├── INSTALL.sh            # Full installation
-│   │   ├── setup.sh              # Dependency setup
-│   │   └── start.sh              # Manual server start
+│   │   ├── install.sh            # Linux/macOS deployment (ONE SCRIPT)
+│   │   └── QUICKSTART_WINDOWS.bat # Windows deployment
 │   ├── server.py               # Flask web server + relay integration
 │   ├── network_monitor.py      # Real-time packet monitoring
 │   ├── device_scanner.py       # Network device discovery (8 categories)

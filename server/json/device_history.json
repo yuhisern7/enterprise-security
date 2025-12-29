@@ -28,7 +28,7 @@
     "mac": "28:f7:d6:af:62:01",
     "type": "Unknown",
     "hostname": "_gateway",
-    "last_seen": "2025-12-29T19:42:25.878103",
+    "last_seen": "2025-12-29T19:47:50.523656",
     "first_seen": "2025-12-29T07:33:17.528350"
   },
   "e8:48:b8:2e:80:85": {
@@ -36,7 +36,7 @@
     "mac": "e8:48:b8:2e:80:85",
     "type": "Router/Network",
     "hostname": "TP-Link-Router-101",
-    "last_seen": "2025-12-29T19:42:27.895481",
+    "last_seen": "2025-12-29T19:47:52.570980",
     "first_seen": "2025-12-29T07:33:19.564447"
   },
   "24:0f:9b:24:a0:4a": {
@@ -44,7 +44,7 @@
     "mac": "24:0f:9b:24:a0:4a",
     "type": "Security Camera",
     "hostname": "Hikvision-Camera-103",
-    "last_seen": "2025-12-29T19:42:29.916219",
+    "last_seen": "2025-12-29T19:47:54.589099",
     "first_seen": "2025-12-29T07:33:21.594115"
   },
   "1c:86:9a:3f:61:3c": {
@@ -52,7 +52,7 @@
     "mac": "1c:86:9a:3f:61:3c",
     "type": "Android",
     "hostname": "Samsung-Phone-105",
-    "last_seen": "2025-12-29T19:42:31.948658",
+    "last_seen": "2025-12-29T19:47:56.626956",
     "first_seen": "2025-12-29T07:33:23.615686"
   },
   "36:ce:45:73:56:3d": {
@@ -76,7 +76,7 @@
     "mac": "40:ac:bf:3e:53:af",
     "type": "Security Camera",
     "hostname": "Hikvision-Camera-104",
-    "last_seen": "2025-12-29T19:42:40.146102",
+    "last_seen": "2025-12-29T19:47:58.658999",
     "first_seen": "2025-12-29T07:33:29.699487"
   },
   "48:35:2b:cb:48:0a": {
@@ -92,7 +92,7 @@
     "mac": "40:ac:bf:37:d6:39",
     "type": "Security Camera",
     "hostname": "Hikvision-Camera-102",
-    "last_seen": "2025-12-29T19:42:36.045145",
+    "last_seen": "2025-12-29T19:48:00.704954",
     "first_seen": "2025-12-29T19:42:36.045156"
   },
   "84:46:93:6d:3c:3f": {
@@ -100,7 +100,7 @@
     "mac": "84:46:93:6d:3c:3f",
     "type": "Android",
     "hostname": "Xiaomi-Phone-100",
-    "last_seen": "2025-12-29T19:42:38.061355",
+    "last_seen": "2025-12-29T19:48:02.736534",
     "first_seen": "2025-12-29T07:33:35.740233"
   },
   "92:dc:0b:ea:17:30": {
