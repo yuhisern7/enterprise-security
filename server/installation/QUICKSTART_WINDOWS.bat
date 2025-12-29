@@ -6,12 +6,12 @@ echo Using bridge networking mode (Windows compatible)
 echo.
 
 REM Change to server directory
-cd /d "%~dp0.."
+cd /d "%~dp0\.."
 
 REM Copy .env.windows to .env if .env doesn't exist
 if not exist .env (
     echo Creating .env from .env.windows template...
-    copy .env.windows .env
+    copy /Y .env.windows .env
 )
 
 docker compose down 2>nul
