@@ -2396,17 +2396,12 @@
             const relay = relayResult.relay_status;
             
             if (relay.connected) {
-              // Smart peer count calculation
-              // Relay's active_peers INCLUDES this container, so use it directly
-              totalServers = relay.active_peers || 1;
-              
-              // If relay reports 0 but we're receiving threats, infer at least 2 peers
-              if (totalServers === 0 && relay.threats_received > 0) {
-                totalServers = 2; // At least this container + one sending threats
-              }
+              // Relay's active_peers = OTHER connected peers (doesn't include this container)
+              // So total = active_peers + 1 (this container)
+              totalServers = (relay.active_peers || 0) + 1;
               
               // Ensure minimum of 1 server (this one)
-              if (totalServers === 0) {
+              if (totalServers < 1) {
                 totalServers = 1;
               }
               
