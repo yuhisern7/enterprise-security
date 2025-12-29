@@ -45,6 +45,7 @@ class RelayClient:
         self.connection_errors = 0
         self.last_heartbeat = None
         self.active_peers = 0
+        self.seen_peers = set()  # Track unique peer names we've seen
         
         # Background thread
         self.relay_thread = None
@@ -111,12 +112,16 @@ class RelayClient:
     def get_status(self) -> Dict[str, Any]:
         """Get relay client status"""
         with self.lock:
+            # Calculate peer count: max of relay's count or peers we've actually seen
+            calculated_peers = max(self.active_peers, len(self.seen_peers))
+            
             return {
                 'enabled': self.enabled,
                 'connected': self.connected,
                 'relay_url': self.relay_url,
                 'peer_name': self.peer_name,
-                'active_peers': self.active_peers,
+                'active_peers': calculated_peers,  # Use calculated count
+                'seen_peers': len(self.seen_peers),  # How many unique peers sent us threats
                 'threats_queued': len(self.threat_queue),
                 'threats_sent': self.threats_sent,
                 'threats_received': self.threats_received,
@@ -228,15 +233,36 @@ class RelayClient:
                     logger.info(f"🎉 Welcome! Active peers: {self.active_peers}")
                 
                 elif msg_type == 'heartbeat_ack':
-                    # Heartbeat acknowledgment
+                    # Heartbeat acknowledgment - relay may include updated peer count
                     with self.lock:
                         self.last_heartbeat = datetime.utcnow().isoformat()
+                        # Update active_peers if relay sends it
+                        if 'active_peers' in data:
+                            self.active_peers = data.get('active_peers', 0)
+                            logger.debug(f"Heartbeat: {self.active_peers} active peers")
+                
+                elif msg_type == 'peer_joined':
+                    # Notification that a new peer joined
+                    with self.lock:
+                        self.active_peers = data.get('active_peers', self.active_peers)
+                    logger.info(f"👋 Peer joined! Now {self.active_peers} active peers")
+                
+                elif msg_type == 'peer_left':
+                    # Notification that a peer left
+                    with self.lock:
+                        self.active_peers = data.get('active_peers', self.active_peers)
+                    logger.info(f"👋 Peer left. Now {self.active_peers} active peers")
                 
                 elif msg_type == 'threat':
                     # Threat from another peer
                     threat_id = data.get('threat_id')
+                    source_peer = data.get('source_peer')
                     
                     with self.lock:
+                        # Track unique peers we've seen
+                        if source_peer and source_peer != self.peer_name:
+                            self.seen_peers.add(source_peer)
+                        
                         # Avoid duplicates
                         if threat_id and threat_id not in self.received_threats:
                             self.received_threats[threat_id] = data

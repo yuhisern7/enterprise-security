@@ -2396,11 +2396,12 @@
             const relay = relayResult.relay_status;
             
             if (relay.connected) {
-              // Relay's active_peers = OTHER connected peers (doesn't include this container)
-              // So total = active_peers + 1 (this container)
+              // Use calculated peer count from relay_client.py
+              // It's the max of: relay's active_peers OR unique peers we've seen via threats
+              // Total = other peers + this container
               totalServers = (relay.active_peers || 0) + 1;
               
-              // Ensure minimum of 1 server (this one)
+              // Minimum 1 (this container)
               if (totalServers < 1) {
                 totalServers = 1;
               }
