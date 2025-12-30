@@ -60,20 +60,27 @@ Registration: 202403184091 (MA0319303)
 **🤖 100% Automated AI Learning:**
 1. Subscribe ($25/month) → Receive relay server URL
 2. Set `RELAY_URL` in your `.env` file → Done
-3. Start container → Automatically downloads 825 MB+ training data
-4. When attack occurs ANYWHERE → Relay logs + broadcasts to ALL subscribers globally
-5. Every 6 hours → AI retrains with 50,000+ worldwide attacks
-6. **Zero manual work. AI becomes smarter while you sleep.**
+3. Start container → Downloads ONLY pre-trained ML models (280 KB, not raw exploit data)
+4. When attack occurs ANYWHERE → Relay logs + broadcasts to ALL subscribers
+5. Relay server retrains AI every 6 hours with 50,000+ worldwide attacks
+6. Subscribers receive updated ML models automatically
+7. **Zero manual work. No exploit databases on your system. Military-grade AI inference only.**
 
 **🌐 What's Included:**
 - **Global Mesh Access:** Connect to security containers in 100+ countries
-- **46,948 ExploitDB Signatures:** Auto-downloaded from relay server
-- **100,000+ Malware Hashes:** MalwareBazaar database (updated daily)
-- **10,000+ Malicious URLs:** URLhaus phishing/malware blacklist
-- **Global Attack Database:** Every subscriber's detected threats (logged centrally)
-- **Pre-Trained ML Models:** threat_classifier.pkl, anomaly_detector.pkl (millions of samples)
+- **Pre-Trained ML Models:** anomaly_detector.pkl, threat_classifier.pkl (280 KB download)
+- **AI Trained On:** 46,948 ExploitDB signatures + 100,000+ malware hashes + 50,000+ worldwide attacks
+- **Real-Time Threat Intelligence:** Every subscriber's detected attacks shared instantly
 - **Cryptographic Security:** RSA-2048 + HMAC-SHA256 + replay protection
 - **Priority Support:** Email support + knowledge base access
+- **No Exploit Databases:** Raw training data stays on relay server (secure)
+
+**How It Works:**
+- Relay server hosts 825 MB training data (ExploitDB, global attacks, malware hashes)
+- Relay server trains ML models centrally (heavy compute done server-side)
+- Subscribers download ONLY trained models (280 KB - safe, no exploits)
+- Subscribers use models for inference (detect attacks locally)
+- When attack detected → Send to relay → Relay retrains → Broadcasts updated models
 
 **🚀 Enterprise Add-Ons:**
 - Private relay instance (99.9% uptime SLA)
