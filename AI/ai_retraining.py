@@ -1,0 +1,285 @@
+#!/usr/bin/env python3
+"""
+AI Auto-Retraining Module
+Automatically retrains ML models when new global attack data is downloaded
+
+Features:
+- Detects new attacks in global_attacks.json
+- Retrains models with combined (local + global) threat data
+- Runs periodically (every 6 hours)
+- Triggered manually when new training materials downloaded
+"""
+
+import os
+import json
+import logging
+import time
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
+import threading
+
+# Import training sync client
+from AI.training_sync_client import TrainingSyncClient
+
+# Import main AI module for retraining
+try:
+    import AI.pcs_ai as pcs_ai
+    from AI.pcs_ai import _train_ml_models_from_history, _save_ml_models
+    AI_AVAILABLE = True
+except ImportError:
+    AI_AVAILABLE = False
+    logging.warning("pcs_ai module not available - retraining disabled")
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+
+class AIRetrainingManager:
+    """Manages automatic AI retraining with global attack data"""
+    
+    def __init__(self, relay_url: str = None):
+        self.sync_client = TrainingSyncClient(relay_url=relay_url)
+        self.last_retrain_time = None
+        self.retrain_interval = timedelta(hours=6)  # Retrain every 6 hours
+        self.training_data_dir = "AI/training_data"
+        self.last_attack_count = 0
+        self.running = False
+        self.retrain_thread = None
+    
+    
+    def start_auto_retrain(self):
+        """Start background thread for automatic retraining"""
+        if self.running:
+            logger.warning("Auto-retrain already running")
+            return
+        
+        self.running = True
+        self.retrain_thread = threading.Thread(target=self._retrain_loop, daemon=True)
+        self.retrain_thread.start()
+        logger.info("🤖 AI auto-retrain started (runs every 6 hours)")
+    
+    
+    def stop_auto_retrain(self):
+        """Stop automatic retraining"""
+        self.running = False
+        if self.retrain_thread:
+            self.retrain_thread.join(timeout=5)
+        logger.info("🛑 AI auto-retrain stopped")
+    
+    
+    def _retrain_loop(self):
+        """Background loop for automatic retraining"""
+        while self.running:
+            try:
+                # Check if it's time to retrain
+                if self._should_retrain():
+                    logger.info("⏰ Scheduled retrain time reached")
+                    self.retrain_with_global_attacks()
+                
+                # Sleep for 30 minutes, wake up to check again
+                time.sleep(1800)
+            except Exception as e:
+                logger.error(f"❌ Error in retrain loop: {e}")
+                time.sleep(300)  # Sleep 5 minutes on error
+    
+    
+    def _should_retrain(self) -> bool:
+        """Check if model should be retrained"""
+        if not self.last_retrain_time:
+            return True
+        
+        time_since_last = datetime.utcnow() - self.last_retrain_time
+        return time_since_last >= self.retrain_interval
+    
+    
+    def retrain_with_global_attacks(self, force: bool = False) -> bool:
+        """
+        Retrain AI models with global attack data from relay server
+        
+        Args:
+            force: Force retraining even if not scheduled
+        
+        Returns:
+            True if retraining was successful
+        """
+        if not AI_AVAILABLE:
+            logger.error("❌ AI module not available - cannot retrain")
+            return False
+        
+        if not force and not self._should_retrain():
+            logger.info("⏭️ Skipping retrain (not scheduled yet)")
+            return False
+        
+        try:
+            logger.info("🔄 Starting AI retrain with global attack data...")
+            
+            # Step 1: Download latest training materials from relay
+            logger.info("📥 Downloading latest training materials from relay server...")
+            self.sync_client.sync_all_materials()
+            
+            # Step 2: Load global attacks
+            training_data = self.sync_client.load_local_training_data()
+            global_attacks = training_data.get("global_attacks", [])
+            learned_signatures = training_data.get("learned_signatures", [])
+            
+            if not global_attacks and not learned_signatures:
+                logger.warning("⚠️ No training data available from relay server")
+                return False
+            
+            logger.info(f"📚 Loaded training data:")
+            logger.info(f"   • {len(global_attacks):,} global attacks from worldwide subscribers")
+            logger.info(f"   • {len(learned_signatures):,} learned exploit signatures")
+            
+            # Step 3: Merge global attacks into local threat log
+            new_attacks_added = self._merge_global_attacks_into_threat_log(global_attacks)
+            
+            if new_attacks_added == 0 and not force:
+                logger.info("✅ No new attacks to train on (already trained)")
+                return False
+            
+            logger.info(f"➕ Added {new_attacks_added} new attacks to training dataset")
+            
+            # Step 4: Retrain ML models with combined data
+            logger.info("🧠 Retraining ML models with combined (local + global) threat data...")
+            
+            # Call pcs_ai's training function
+            _train_ml_models_from_history()
+            _save_ml_models()
+            
+            # Update tracking
+            self.last_retrain_time = datetime.utcnow()
+            self.last_attack_count = len(pcs_ai._threat_log)
+            
+            logger.info(f"✅ AI retrain complete! Models trained on {self.last_attack_count:,} attacks")
+            logger.info(f"⏰ Next scheduled retrain: {(self.last_retrain_time + self.retrain_interval).strftime('%Y-%m-%d %H:%M')} UTC")
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ AI retrain failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+    
+    
+    def _merge_global_attacks_into_threat_log(self, global_attacks: List[Dict]) -> int:
+        """
+        Merge global attacks into pcs_ai threat log (avoiding duplicates)
+        
+        Returns:
+            Number of new attacks added
+        """
+        if not global_attacks:
+            return 0
+        
+        # Get existing threat log
+        existing_log = pcs_ai._threat_log
+        
+        # Create set of existing attack fingerprints to avoid duplicates
+        existing_fingerprints = set()
+        for threat in existing_log:
+            # Create unique fingerprint: IP + timestamp + attack_type
+            fingerprint = f"{threat.get('ip', '')}_{threat.get('timestamp', '')}_{threat.get('threat_type', '')}"
+            existing_fingerprints.add(fingerprint)
+        
+        # Add new attacks
+        new_attacks = 0
+        for attack in global_attacks:
+            # Create fingerprint for this global attack
+            fingerprint = f"{attack.get('ip', '')}_{attack.get('timestamp', '')}_{attack.get('attack_type', '')}"
+            
+            if fingerprint not in existing_fingerprints:
+                # Convert global attack format to threat log format
+                threat_entry = {
+                    "ip": attack.get("ip", "unknown"),
+                    "timestamp": attack.get("timestamp", datetime.utcnow().isoformat()),
+                    "threat_type": attack.get("attack_type", "unknown"),
+                    "level": attack.get("level", "medium"),
+                    "endpoint": attack.get("endpoint", "/"),
+                    "user_agent": attack.get("user_agent", "unknown"),
+                    "geolocation": attack.get("geolocation", {}),
+                    "source": "global_relay",  # Mark as global attack
+                    "relay_server": attack.get("relay_server", "central-relay")
+                }
+                
+                pcs_ai._threat_log.append(threat_entry)
+                existing_fingerprints.add(fingerprint)
+                new_attacks += 1
+        
+        # Save updated threat log
+        if new_attacks > 0:
+            pcs_ai._save_threat_log()
+            logger.info(f"💾 Saved {new_attacks} new global attacks to local threat log")
+        
+        return new_attacks
+    
+    
+    def get_retrain_status(self) -> Dict:
+        """Get current retraining status"""
+        return {
+            "auto_retrain_running": self.running,
+            "last_retrain_time": self.last_retrain_time.isoformat() if self.last_retrain_time else None,
+            "next_retrain_time": (self.last_retrain_time + self.retrain_interval).isoformat() 
+                if self.last_retrain_time else "Not scheduled yet",
+            "total_attacks_in_model": self.last_attack_count,
+            "retrain_interval_hours": self.retrain_interval.total_seconds() / 3600
+        }
+
+
+# Global instance
+_retrain_manager = None
+
+
+def get_retrain_manager(relay_url: str = None) -> AIRetrainingManager:
+    """Get singleton retrain manager instance"""
+    global _retrain_manager
+    if _retrain_manager is None:
+        _retrain_manager = AIRetrainingManager(relay_url=relay_url)
+    return _retrain_manager
+
+
+def start_auto_retrain(relay_url: str = None):
+    """Start automatic AI retraining"""
+    manager = get_retrain_manager(relay_url=relay_url)
+    manager.start_auto_retrain()
+
+
+def force_retrain_now(relay_url: str = None) -> bool:
+    """Force immediate retrain with global attacks"""
+    manager = get_retrain_manager(relay_url=relay_url)
+    return manager.retrain_with_global_attacks(force=True)
+
+
+if __name__ == '__main__':
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='AI Retraining Manager')
+    parser.add_argument('--relay-url', help='Relay server URL (e.g., http://vps-ip:60002)')
+    parser.add_argument('--once', action='store_true', help='Run retrain once and exit')
+    parser.add_argument('--daemon', action='store_true', help='Run as daemon (auto-retrain every 6 hours)')
+    
+    args = parser.parse_args()
+    
+    if args.once:
+        # One-time retrain
+        success = force_retrain_now(relay_url=args.relay_url)
+        exit(0 if success else 1)
+    elif args.daemon:
+        # Run as daemon
+        start_auto_retrain(relay_url=args.relay_url)
+        logger.info("🤖 AI retrain daemon started. Press Ctrl+C to stop.")
+        try:
+            while True:
+                time.sleep(60)
+        except KeyboardInterrupt:
+            logger.info("⏹️ Stopping...")
+    else:
+        # Show status
+        manager = get_retrain_manager(relay_url=args.relay_url)
+        status = manager.get_retrain_status()
+        print("\n📊 AI Retraining Status:")
+        print(f"   • Auto-retrain running: {status['auto_retrain_running']}")
+        print(f"   • Last retrain: {status['last_retrain_time'] or 'Never'}")
+        print(f"   • Next retrain: {status['next_retrain_time']}")
+        print(f"   • Total attacks in model: {status['total_attacks_in_model']:,}")
+        print(f"   • Retrain interval: Every {status['retrain_interval_hours']} hours")
