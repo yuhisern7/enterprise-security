@@ -5,7 +5,7 @@
       "mac": "28:f7:d6:af:62:01",
       "type": "Unknown",
       "hostname": "_gateway",
-      "last_seen": "2025-12-30T06:38:40.176318",
+      "last_seen": "2025-12-30T11:44:01.099532",
       "first_seen": "2025-12-29T19:59:39.075591"
     },
     "e8:48:b8:2e:80:85": {
@@ -13,7 +13,7 @@
       "mac": "e8:48:b8:2e:80:85",
       "type": "Router/Network",
       "hostname": "TP-Link-Router-101",
-      "last_seen": "2025-12-30T06:38:42.206767",
+      "last_seen": "2025-12-30T11:44:03.115677",
       "first_seen": "2025-12-29T19:59:41.105531"
     },
     "24:0f:9b:24:a0:4a": {
@@ -21,57 +21,57 @@
       "mac": "24:0f:9b:24:a0:4a",
       "type": "Security Camera",
       "hostname": "Hikvision-Camera-103",
-      "last_seen": "2025-12-30T06:38:44.223629",
+      "last_seen": "2025-12-30T11:44:05.180934",
       "first_seen": "2025-12-29T19:59:43.143139"
-    },
-    "1c:86:9a:3f:61:3c": {
-      "ip": "192.168.0.105",
-      "mac": "1c:86:9a:3f:61:3c",
-      "type": "Android",
-      "hostname": "Samsung-Phone-105",
-      "last_seen": "2025-12-30T06:38:46.236724",
-      "first_seen": "2025-12-29T19:59:45.175081"
     },
     "40:ac:bf:3e:53:af": {
       "ip": "192.168.0.104",
       "mac": "40:ac:bf:3e:53:af",
       "type": "Security Camera",
       "hostname": "Hikvision-Camera-104",
-      "last_seen": "2025-12-30T06:38:48.249305",
-      "first_seen": "2025-12-30T01:46:48.303335"
-    },
-    "40:ac:bf:37:d6:39": {
-      "ip": "192.168.0.102",
-      "mac": "40:ac:bf:37:d6:39",
-      "type": "Security Camera",
-      "hostname": "Hikvision-Camera-102",
-      "last_seen": "2025-12-30T06:38:50.266442",
-      "first_seen": "2025-12-30T00:16:20.108460"
+      "last_seen": "2025-12-30T11:44:07.233691",
+      "first_seen": "2025-12-30T11:33:47.561722"
     },
     "48:35:2b:cb:48:0a": {
       "ip": "192.168.0.108",
       "mac": "48:35:2b:cb:48:0a",
       "type": "Unknown",
       "hostname": "Device-108",
-      "last_seen": "2025-12-30T06:38:52.280402",
-      "first_seen": "2025-12-30T06:27:53.209148"
+      "last_seen": "2025-12-30T11:44:09.271396",
+      "first_seen": "2025-12-30T11:44:09.271409"
     },
     "84:46:93:6d:3c:3f": {
       "ip": "192.168.0.100",
       "mac": "84:46:93:6d:3c:3f",
       "type": "Android",
       "hostname": "Xiaomi-Phone-100",
-      "last_seen": "2025-12-30T06:38:54.293902",
+      "last_seen": "2025-12-30T11:44:11.308470",
       "first_seen": "2025-12-30T02:41:20.370728"
     },
-    "0a:12:a3:74:96:8c": {
-      "ip": "192.168.0.113",
-      "mac": "0a:12:a3:74:96:8c",
+    "40:ac:bf:37:d6:39": {
+      "ip": "192.168.0.102",
+      "mac": "40:ac:bf:37:d6:39",
+      "type": "Security Camera",
+      "hostname": "Hikvision-Camera-102",
+      "last_seen": "2025-12-30T11:44:13.339322",
+      "first_seen": "2025-12-30T11:06:12.688619"
+    },
+    "6e:03:e6:21:81:ac": {
+      "ip": "192.168.0.106",
+      "mac": "6e:03:e6:21:81:ac",
       "type": "Unknown",
-      "hostname": "Device-113",
-      "last_seen": "2025-12-30T06:38:56.315179",
-      "first_seen": "2025-12-30T06:38:56.315191"
+      "hostname": "Device-106",
+      "last_seen": "2025-12-30T11:44:15.372855",
+      "first_seen": "2025-12-30T11:33:37.490357"
+    },
+    "1c:86:9a:3f:61:3c": {
+      "ip": "192.168.0.105",
+      "mac": "1c:86:9a:3f:61:3c",
+      "type": "Android",
+      "hostname": "Samsung-Phone-105",
+      "last_seen": "2025-12-30T11:44:17.472793",
+      "first_seen": "2025-12-29T19:59:45.175081"
     }
   },
-  "last_scan_time": "2025-12-30T06:38:56.315199"
+  "last_scan_time": "2025-12-30T11:44:17.472826"
 }

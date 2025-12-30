@@ -17,6 +17,16 @@ from websockets.client import WebSocketClientProtocol
 
 logger = logging.getLogger(__name__)
 
+# Cryptographic security (optional, fallback gracefully)
+try:
+    from AI.crypto_security import get_message_security
+    CRYPTO_ENABLED = os.getenv('RELAY_CRYPTO_ENABLED', 'true').lower() == 'true'
+    if CRYPTO_ENABLED:
+        logger.info("[RELAY] Cryptographic message signing enabled")
+except ImportError:
+    CRYPTO_ENABLED = False
+    logger.warning("[RELAY] Cryptographic security not available (install cryptography package)")
+
 
 class RelayClient:
     """WebSocket client for relay-based P2P mesh"""
@@ -196,7 +206,7 @@ class RelayClient:
             task.cancel()
     
     async def _send_threats(self, websocket: WebSocketClientProtocol):
-        """Send queued threats to relay"""
+        """Send queued threats to relay with cryptographic signing"""
         while True:
             try:
                 # Get threats from queue
@@ -206,6 +216,15 @@ class RelayClient:
                 
                 # Send each threat
                 for threat in threats:
+                    # Sign message if crypto enabled
+                    if CRYPTO_ENABLED:
+                        try:
+                            security = get_message_security()
+                            threat = security.sign_message(threat)
+                            logger.debug(f"🔐 Signed threat message with HMAC+RSA")
+                        except Exception as e:
+                            logger.warning(f"Failed to sign message: {e}, sending unsigned")
+                    
                     await websocket.send(json.dumps(threat))
                     with self.lock:
                         self.threats_sent += 1
@@ -219,11 +238,26 @@ class RelayClient:
                 raise
     
     async def _receive_messages(self, websocket: WebSocketClientProtocol):
-        """Receive messages from relay"""
+        """Receive messages from relay with cryptographic verification"""
         async for message in websocket:
             try:
                 data = json.loads(message)
                 msg_type = data.get('type')
+                
+                # Verify signed messages (threats only, control messages are from trusted relay)
+                if msg_type == 'threat' and CRYPTO_ENABLED:
+                    try:
+                        security = get_message_security()
+                        is_valid, reason = security.verify_message(data)
+                        
+                        if not is_valid:
+                            logger.warning(f"🚫 Rejected threat message: {reason}")
+                            continue  # Drop invalid message
+                        
+                        logger.debug(f"✅ Verified threat message (HMAC+timestamp+nonce)")
+                    except Exception as e:
+                        logger.warning(f"Message verification failed: {e}, dropping message")
+                        continue
                 
                 if msg_type == 'welcome':
                     # Welcome message from relay

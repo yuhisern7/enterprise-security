@@ -220,6 +220,11 @@ _ml_prediction_cache = {}  # Cache for ML predictions
 _request_features: Dict[str, List[np.ndarray]] = defaultdict(list) if ML_AVAILABLE else defaultdict(list)
 _attack_labels: Dict[str, str] = {}  # Ground truth labels for supervised learning
 
+# Time-weighted training configuration
+_THREAT_LOG_MAX_AGE_DAYS = 90  # Keep only last 90 days
+_TIME_WEIGHT_DECAY_DAYS = 30  # Exponential decay period (threats lose 50% weight every 30 days)
+_RECENT_THREAT_MULTIPLIER = 10.0  # Recent threats (< 7 days) weighted 10x higher
+
 # Enterprise ML Features - Performance Tracking
 _ml_performance_metrics = {
     "predictions_made": 0,
@@ -828,6 +833,101 @@ def _ml_classify_threat(features: np.ndarray) -> Tuple[str, float]:
         return 'unknown', 0.0
 
 
+def _calculate_threat_weight(threat_timestamp: datetime) -> float:
+    """Calculate time-based weight for a threat (recent = higher weight).
+    
+    Weighting strategy:
+    - Threats < 7 days old: 10x weight (capture fresh attack patterns)
+    - Threats 7-30 days old: Exponential decay from 10x to 1x
+    - Threats 30-90 days old: Exponential decay from 1x to 0.1x
+    - Threats > 90 days old: Removed (sliding window)
+    
+    Returns:
+        Weight multiplier (float between 0.1 and 10.0)
+    """
+    now = datetime.utcnow()
+    
+    # Parse threat timestamp
+    if isinstance(threat_timestamp, str):
+        try:
+            threat_timestamp = datetime.fromisoformat(threat_timestamp.replace('Z', '+00:00'))
+            if threat_timestamp.tzinfo is not None:
+                threat_timestamp = threat_timestamp.replace(tzinfo=None)
+        except:
+            return 1.0  # Default weight if timestamp parsing fails
+    
+    age_days = (now - threat_timestamp).total_seconds() / 86400
+    
+    # Remove threats older than 90 days
+    if age_days > _THREAT_LOG_MAX_AGE_DAYS:
+        return 0.0  # Will be filtered out
+    
+    # Recent threats (< 7 days): Maximum weight
+    if age_days < 7:
+        return _RECENT_THREAT_MULTIPLIER
+    
+    # Exponential decay: weight = e^(-age / decay_period)
+    # After 30 days: weight ~= 1.0, After 60 days: weight ~= 0.37, After 90 days: weight ~= 0.14
+    import math
+    weight = math.exp(-age_days / _TIME_WEIGHT_DECAY_DAYS)
+    
+    # Clamp to reasonable range
+    return max(0.1, min(weight, _RECENT_THREAT_MULTIPLIER))
+
+
+def _expire_old_threats() -> int:
+    """Remove threats older than 90 days from threat log (sliding window).
+    
+    Returns:
+        Number of threats expired
+    """
+    global _threat_log, _peer_threats
+    
+    now = datetime.utcnow()
+    cutoff_date = now - timedelta(days=_THREAT_LOG_MAX_AGE_DAYS)
+    
+    # Filter local threats
+    original_count = len(_threat_log)
+    _threat_log = [
+        t for t in _threat_log
+        if _parse_threat_timestamp(t.get('timestamp')) > cutoff_date
+    ]
+    local_expired = original_count - len(_threat_log)
+    
+    # Filter peer threats
+    original_peer_count = len(_peer_threats)
+    _peer_threats = [
+        t for t in _peer_threats
+        if _parse_threat_timestamp(t.get('timestamp')) > cutoff_date
+    ]
+    peer_expired = original_peer_count - len(_peer_threats)
+    
+    total_expired = local_expired + peer_expired
+    
+    if total_expired > 0:
+        print(f"[AI] Expired {total_expired} old threats (local: {local_expired}, peer: {peer_expired}) - keeping last {_THREAT_LOG_MAX_AGE_DAYS} days")
+        # Save updated logs
+        _save_threat_log()
+        _save_peer_threats()
+    
+    return total_expired
+
+
+def _parse_threat_timestamp(timestamp_str) -> datetime:
+    """Parse threat timestamp with fallback for various formats."""
+    if isinstance(timestamp_str, datetime):
+        return timestamp_str
+    
+    try:
+        dt = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+        if dt.tzinfo is not None:
+            dt = dt.replace(tzinfo=None)
+        return dt
+    except:
+        # Fallback to very old date if parsing fails
+        return datetime(2000, 1, 1)
+
+
 def _ml_predict_ip_reputation(features: np.ndarray) -> Tuple[bool, float]:
     """Predict if IP is malicious based on behavioral features.
     
@@ -860,11 +960,21 @@ def _ml_predict_ip_reputation(features: np.ndarray) -> Tuple[bool, float]:
 
 
 def _train_ml_models_from_history() -> None:
-    """Train ML models using historical threat data."""
+    """Train ML models using historical threat data with time-weighted sampling.
+    
+    Recent threats are weighted 10x higher than old threats to:
+    - Capture evolving attack patterns
+    - Reduce impact of stale signatures
+    - Adapt to changing threat landscape
+    """
     global _ml_last_trained
     
     if not ML_AVAILABLE:
         return
+    
+    # Expire old threats (sliding window)
+    expired_count = _expire_old_threats()
+    
     # Combine local and peer threats for AI training (privacy-preserving)
     all_threats = _threat_log + _peer_threats  # AI learns from ALL attacks
     local_count = len(_threat_log)
@@ -883,8 +993,18 @@ def _train_ml_models_from_history() -> None:
         labels_list = []
         anomaly_labels = []
         
-        # Extract features from ALL threats (local + peer)
+        # Extract features from ALL threats (local + peer) with TIME WEIGHTING
+        sample_weights = []  # Weights for each sample (recent = higher)
+        
         for log in all_threats:
+            # Calculate time-based weight
+            timestamp = log.get('timestamp', datetime.utcnow().isoformat())
+            weight = _calculate_threat_weight(timestamp)
+            
+            # Skip expired threats (weight = 0)
+            if weight <= 0:
+                continue
+            
             # Reconstruct request features from log
             ip = log.get('ip_address', '127.0.0.1')
             endpoint = log.get('details', '')[:100]
@@ -905,6 +1025,7 @@ def _train_ml_models_from_history() -> None:
                 labels_list.append(threat_type)
                 # Anomaly label: 1 if CRITICAL/DANGEROUS, 0 if SAFE/SUSPICIOUS
                 anomaly_labels.append(1 if level in ['CRITICAL', 'DANGEROUS'] else 0)
+                sample_weights.append(weight)
         
         if len(features_list) < 100:
             print(f"[AI] Not enough training data, need at least 100 samples (prevents noise-based training), have {len(features_list)}")
@@ -913,13 +1034,20 @@ def _train_ml_models_from_history() -> None:
         X = np.array(features_list)
         y_threat = np.array(labels_list)
         y_anomaly = np.array(anomaly_labels)
+        weights = np.array(sample_weights)
+        
+        # Log time-weighting stats
+        recent_weight = np.sum(weights[weights >= _RECENT_THREAT_MULTIPLIER])
+        total_weight = np.sum(weights)
+        recent_percentage = (recent_weight / total_weight * 100) if total_weight > 0 else 0
+        print(f"[AI] Time weighting: Recent threats (<7 days) account for {recent_percentage:.1f}% of training influence")
         
         # Train feature scaler
         print("[AI] Training feature scaler...")
         _feature_scaler.fit(X)
         X_scaled = _feature_scaler.transform(X)
         
-        # Train anomaly detector (unsupervised - doesn't need labels)
+        # Train anomaly detector (IsolationForest doesn't support sample_weight, use contamination parameter)
         print("[AI] Training anomaly detector (IsolationForest)...")
         _anomaly_detector.fit(X_scaled)
         
@@ -928,15 +1056,15 @@ def _train_ml_models_from_history() -> None:
         unique_anomaly_classes = set(y_anomaly)
         
         if len(unique_labels) >= 2:
-            print(f"[AI] Training threat classifier with {len(unique_labels)} threat types...")
-            _threat_classifier.fit(X_scaled, y_threat)
+            print(f"[AI] Training threat classifier (RandomForest) with {len(unique_labels)} threat types (TIME-WEIGHTED)...")
+            _threat_classifier.fit(X_scaled, y_threat, sample_weight=weights)
         else:
             print(f"[AI] ⚠️  Threat classifier needs 2+ threat types (currently: {len(unique_labels)}). Skipping...")
         
         # Train IP reputation model only if we have diverse classes
         if len(unique_anomaly_classes) >= 2 and len(y_anomaly) >= 10:
-            print("[AI] Training IP reputation model...")
-            _ip_reputation_model.fit(X_scaled, y_anomaly)
+            print("[AI] Training IP reputation model (GradientBoosting, TIME-WEIGHTED)...")
+            _ip_reputation_model.fit(X_scaled, y_anomaly, sample_weight=weights)
         else:
             print(f"[AI] ⚠️  IP reputation model needs diverse data (classes: {len(unique_anomaly_classes)}). Skipping...")
         
@@ -945,8 +1073,10 @@ def _train_ml_models_from_history() -> None:
         # Save models
         _save_ml_models()
         
-        print(f"[AI] ✅ ML training complete! Models updated at {_ml_last_trained.isoformat()}")
-        print(f"[AI] Training set size: {len(X)} samples")
+        avg_weight = np.mean(weights)
+        max_weight = np.max(weights)
+        print(f"[AI] ✅ ML training complete! Time-weighted (avg: {avg_weight:.2f}, max: {max_weight:.2f})")
+        print(f"[AI] Training set size: {len(X)} samples (Recent threats prioritized {_RECENT_THREAT_MULTIPLIER}x higher)")
         print(f"[AI] Threat types: {list(unique_labels)}")
     
     except Exception as e:
