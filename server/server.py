@@ -729,64 +729,54 @@ def clear_blocked_ips():
         }), 500
 
 
-@app.route('/inspector/ai-monitoring/retrain-ml', methods=['POST'])
-def retrain_ml_models():
-    """Force retrain ML models"""
+# REMOVED: Training endpoints (subscribers download models from relay, not train locally)
+# Training happens ONLY on relay server (centralized)
+# Subscribers use /api/models/sync to download pre-trained models
+
+
+# REMOVED: GPU endpoints (relay server only)
+# Subscribers use CPU for inference (lightweight detection)
+# GPU training happens on relay server
+
+
+# REMOVED: GPU training (relay server only)
+# Subscribers download pre-trained models (280 KB) from relay
+# Training (heavy compute) happens centrally on relay server
+
+
+@app.route('/api/models/sync', methods=['POST'])
+def sync_models_from_relay():
+    """Download latest ML models from relay server (Premium mode)"""
     try:
-        result = pcs_ai.retrain_ml_models_now()
+        from AI.training_sync_client import TrainingSyncClient
+        
+        relay_url = os.getenv('MODEL_SYNC_URL', os.getenv('RELAY_URL', '').replace('ws://', 'http://').replace(':60001', ':60002'))
+        
+        if not relay_url:
+            return jsonify({
+                'success': False,
+                'message': 'MODEL_SYNC_URL not configured in .env'
+            }), 400
+        
+        sync_client = TrainingSyncClient(relay_url)
+        result = sync_client.sync_ml_models()
+        
         if result['success']:
-            return jsonify(result)
+            # Reload models in pcs_ai after sync
+            pcs_ai._load_ml_models()
+            return jsonify({
+                'success': True,
+                'message': f"Downloaded {result['synced']} models from relay server",
+                'models': result['models']
+            })
         else:
             return jsonify(result), 500
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-
-@app.route('/api/gpu/info', methods=['GET'])
-def get_gpu_info_api():
-    """Get GPU information"""
-    try:
-        from AI.gpu_trainer import get_gpu_info
-        gpu_info = get_gpu_info()
-        return jsonify({
-            'success': True,
-            'gpu_info': gpu_info
-        })
-    except ImportError:
-        return jsonify({
-            'success': True,
-            'gpu_info': {
-                'available': False,
-                'type': None,
-                'name': 'CPU Only (GPU trainer not available)',
-                'framework': None
-            }
-        })
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
-
-
-@app.route('/api/gpu/train', methods=['POST'])
-def train_with_gpu_api():
-    """Train models using GPU with materials from ai_training_materials folder"""
-    try:
-        from AI.gpu_trainer import train_with_gpu
-        result = train_with_gpu()
-        if result['success']:
-            return jsonify(result)
-        else:
-            return jsonify(result), 400
+            
     except ImportError:
         return jsonify({
             'success': False,
-            'message': 'GPU trainer not available. Install TensorFlow or PyTorch.'
-        }), 400
+            'message': 'TrainingSyncClient not available. Check AI folder.'
+        }), 500
     except Exception as e:
         return jsonify({
             'success': False,
