@@ -1,0 +1,213 @@
+================================================================================
+          AI SECURITY SYSTEM - HOW TO UPDATE (MANUAL METHOD)
+================================================================================
+
+IMPORTANT: You need Git installed to update the system.
+
+================================================================================
+STEP 1: INSTALL GIT (First Time Only)
+================================================================================
+
+--- WINDOWS ---
+1. Download Git from: https://git-scm.com/download/win
+2. Run the installer (use default settings)
+3. Verify: Open Command Prompt and type: git --version
+
+--- macOS ---
+Option 1: Install Xcode Command Line Tools
+   Open Terminal and type: xcode-select --install
+
+Option 2: Install via Homebrew
+   Open Terminal and type: brew install git
+
+Verify: git --version
+
+--- LINUX (Ubuntu/Debian) ---
+Open Terminal and type:
+   sudo apt update
+   sudo apt install git
+
+Verify: git --version
+
+================================================================================
+STEP 2: UPDATE THE SYSTEM (Do This Regularly)
+================================================================================
+
+--- WINDOWS ---
+1. Open Command Prompt or PowerShell
+2. Navigate to the enterprise-security folder:
+   cd C:\Users\YourUsername\enterprise-security
+
+3. Stop the running containers:
+   cd server
+   docker compose down
+
+4. Go back and pull latest updates:
+   cd ..
+   git pull origin main
+
+5. Rebuild and restart containers:
+   cd server
+   docker compose build
+   docker compose up -d
+
+6. Verify it's running:
+   docker ps
+   (You should see "enterprise-security-ai" in the list)
+
+7. View logs to confirm:
+   docker logs enterprise-security-ai
+
+
+--- macOS ---
+1. Open Terminal
+2. Navigate to the enterprise-security folder:
+   cd ~/enterprise-security
+
+3. Stop the running containers:
+   cd server
+   docker compose down
+
+4. Go back and pull latest updates:
+   cd ..
+   git pull origin main
+
+5. Rebuild and restart containers:
+   cd server
+   docker compose build
+   docker compose up -d
+
+6. Verify it's running:
+   docker ps
+   (You should see "enterprise-security-ai" in the list)
+
+7. View logs to confirm:
+   docker logs enterprise-security-ai
+
+
+--- LINUX ---
+1. Open Terminal
+2. Navigate to the enterprise-security folder:
+   cd ~/enterprise-security
+
+3. Stop the running containers:
+   cd server
+   docker compose down
+
+4. Go back and pull latest updates:
+   cd ..
+   git pull origin main
+
+5. Rebuild and restart containers:
+   cd server
+   docker compose build
+   docker compose up -d
+
+6. Verify it's running:
+   docker ps
+   (You should see "enterprise-security-ai" in the list)
+
+7. View logs to confirm:
+   docker logs enterprise-security-ai
+
+================================================================================
+STEP 3: WHAT IF I MODIFIED .ENV FILE?
+================================================================================
+
+If you get a message like "Your local changes would be overwritten":
+
+--- OPTION A: Keep your .env changes (Recommended) ---
+1. Save your changes temporarily:
+   git stash
+
+2. Pull updates:
+   git pull origin main
+
+3. Restore your .env settings:
+   git stash pop
+
+4. Continue with rebuild (step 5 above)
+
+
+--- OPTION B: Discard your .env changes ---
+1. Reset to latest version:
+   git reset --hard origin/main
+
+2. Re-edit server/.env with your settings
+3. Continue with rebuild (step 5 above)
+
+================================================================================
+QUICK REFERENCE - UPDATE COMMANDS
+================================================================================
+
+Windows (Command Prompt):
+   cd C:\Users\YourUsername\enterprise-security\server
+   docker compose down
+   cd ..
+   git pull origin main
+   cd server
+   docker compose build
+   docker compose up -d
+
+macOS/Linux (Terminal):
+   cd ~/enterprise-security/server
+   docker compose down
+   cd ..
+   git pull origin main
+   cd server
+   docker compose build
+   docker compose up -d
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Problem: "git: command not found"
+Solution: Install Git (see Step 1)
+
+Problem: "docker: command not found"
+Solution: Install Docker Desktop (see main README.md)
+
+Problem: "fatal: not a git repository"
+Solution: You need to clone the repository first:
+   git clone https://github.com/yuhisern7/enterprise-security.git
+
+Problem: Container won't start after update
+Solution: 
+   1. Check logs: docker logs enterprise-security-ai
+   2. Verify .env file: cat server/.env
+   3. Try clean rebuild:
+      docker compose down -v
+      docker compose build --no-cache
+      docker compose up -d
+
+Problem: "Permission denied" on Linux/macOS
+Solution: Add sudo before docker commands:
+   sudo docker compose down
+   sudo docker compose build
+   sudo docker compose up -d
+
+================================================================================
+HOW OFTEN SHOULD I UPDATE?
+================================================================================
+
+Recommended: Once per week (every Monday)
+Minimum: Once per month
+Critical security updates: Check GitHub for announcements
+
+To check if updates are available without pulling:
+   git fetch origin main
+   git status
+   (If it says "Your branch is behind", updates are available)
+
+================================================================================
+SUPPORT
+================================================================================
+
+Email: yuhisern@protonmail.com
+WhatsApp: +60172791717
+GitHub Issues: https://github.com/yuhisern7/enterprise-security/issues
+
+Premium Relay Users: Priority support via WhatsApp
+
+================================================================================

@@ -2,6 +2,8 @@
 
 **One attack anywhere. Everyone protected everywhere.**
 
+**💡 ONE INSTALLATION PER NETWORK** – Unlike traditional antivirus (install on every device), you only need **one container per office/home network**. It monitors ALL devices on that network passively via packet capture. Perfect for enterprises: one computer per branch running Docker.
+
 🧠 **Hive Mind Security:** When one container detects an attack, every container in the mesh learns instantly—from Tokyo to New York, your home network to Fortune 500 data centers.
 
 ⚡ **Intelligent ML Training:** AI models retrain with exponential backoff (6h/12h/24h intervals) using time-weighted samples that prioritize recent threats 10x higher. The system adapts to evolving attacks while maintaining stability.
@@ -760,13 +762,26 @@ tar -xzf ai-backup-20251230.tar.gz
 
 ## 📋 Pre-Requisites
 
+**💡 Important for Enterprises:** You only need **ONE computer per network** running this system. Docker Desktop's commercial licensing only applies if you install it on 250+ employees' machines. Since you're installing on just ONE machine per office/branch, Docker Desktop is FREE even for large companies.
+
 ### Required Software (All Platforms)
 
-- **Git** - Version control
-- **Docker CLI** - Container runtime (NOT Docker CLI)
-- **Docker Compose** - Multi-container orchestration
+- **Git** - Version control (for updates)
+- **Docker** - Container runtime (Docker Desktop GUI OR Docker CLI)
+- **Docker Compose** - Multi-container orchestration (included in Docker Desktop)
 
-### 🪟 Windows Installation
+---
+
+### 🪟 Windows - Choose Your Method
+
+**Method 1: Docker Desktop (Recommended for Enterprises)**
+- ✅ **FREE for commercial use** (you're only installing on 1 computer per network, not 250+)
+- ✅ GUI interface for easy management
+- ✅ Includes Docker Compose
+- ✅ Auto-starts on boot
+- Download: https://www.docker.com/products/docker-desktop/
+
+**Method 2: Docker CLI via WSL 2** (If you prefer command-line)
 
 **Step 1: Install WSL 2**
 ```powershell
@@ -785,38 +800,54 @@ sudo usermod -aG docker $USER
 exit  # Restart WSL
 ```
 
-**Step 3: Verify**
+**Step 3: Install Git**
+```bash
+sudo apt-get update
+sudo apt-get install git
+```
+
+**Step 4: Verify**
 ```bash
 docker --version
-docker-compose --version
+docker compose --version
 git --version
 ```
 
 ---
 
-### 🍎 macOS Installation
+### 🍎 macOS - Choose Your Method
+
+**Method 1: Docker Desktop (Recommended)**
+- ✅ **FREE for commercial use** (one installation per network)
+- ✅ GUI interface
+- ✅ Includes everything
+- Download: https://www.docker.com/products/docker-desktop/
+
+**Method 2: Docker CLI via Homebrew**
 
 **Step 1: Install Homebrew** (if not installed)
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-**Step 2: Install Docker CLI**
+**Step 2: Install Docker CLI + Git**
 ```bash
-brew install docker docker-compose colima
+brew install docker docker-compose colima git
 colima start  # Lightweight Docker runtime
 ```
 
 **Step 3: Verify**
 ```bash
 docker --version
-docker-compose --version
+docker compose --version
 git --version
 ```
 
 ---
 
-### 🐧 Linux Installation
+### 🐧 Linux
+
+**Install Docker + Docker Compose + Git:**
 
 **Ubuntu/Debian:**
 ```bash
@@ -830,6 +861,9 @@ sudo apt-get install docker-compose-plugin
 
 # Git
 sudo apt-get install git
+
+# Logout and login for group changes
+exit
 ```
 
 **Fedora/RHEL:**
@@ -837,6 +871,7 @@ sudo apt-get install git
 sudo dnf install docker docker-compose git
 sudo systemctl enable --now docker
 sudo usermod -aG docker $USER
+exit
 ```
 
 **Arch Linux:**
@@ -844,6 +879,14 @@ sudo usermod -aG docker $USER
 sudo pacman -S docker docker-compose git
 sudo systemctl enable --now docker
 sudo usermod -aG docker $USER
+exit
+```
+
+**Verify:**
+```bash
+docker --version
+docker compose --version
+git --version
 ```
 
 **Verify:**
