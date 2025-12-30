@@ -1,29 +1,31 @@
 #!/usr/bin/env python3
 """
-AI Auto-Retraining Module
-Automatically retrains ML models when new global attack data is downloaded
+Relay Server AI Retraining Module
+Trains ML models centrally on relay server using local training materials
 
 Features:
-- Detects new attacks in global_attacks.json
-- Retrains models with combined (local + global) threat data
+- Loads training data from LOCAL ai_training_materials/ folder (no downloading)
+- Retrains models with ExploitDB + global attacks + malware hashes
 - Runs periodically (every 6 hours)
-- Triggered manually when new training materials downloaded
+- Saves trained models to ai_training_materials/ml_models/
+- Subscribers download ONLY these trained models (280 KB)
 """
 
 import os
 import json
 import logging
 import time
+import shutil
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 import threading
 
-# Import training sync client
-from AI.training_sync_client import TrainingSyncClient
-
-# Import main AI module for retraining
+# Import main AI module for training
 try:
-    import AI.pcs_ai as pcs_ai
+    # In relay server context, we need to import pcs_ai from correct path
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from AI import pcs_ai
     from AI.pcs_ai import _train_ml_models_from_history, _save_ml_models
     AI_AVAILABLE = True
 except ImportError:
@@ -34,14 +36,13 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-class AIRetrainingManager:
-    """Manages automatic AI retraining with global attack data"""
+class RelayAITrainer:
+    """Manages AI training on relay server using LOCAL training materials"""
     
-    def __init__(self, relay_url: str = None):
-        self.sync_client = TrainingSyncClient(relay_url=relay_url)
+    def __init__(self):
         self.last_retrain_time = None
         self.retrain_interval = timedelta(hours=6)  # Retrain every 6 hours
-        self.training_data_dir = "AI/training_data"
+        self.training_materials_dir = "ai_training_materials"
         self.last_attack_count = 0
         self.running = False
         self.retrain_thread = None
@@ -92,9 +93,9 @@ class AIRetrainingManager:
         return time_since_last >= self.retrain_interval
     
     
-    def retrain_with_global_attacks(self, force: bool = False) -> bool:
+    def retrain_with_local_data(self, force: bool = False) -> bool:
         """
-        Retrain AI models with global attack data from relay server
+        Retrain AI models with LOCAL training materials on relay server
         
         Args:
             force: Force retraining even if not scheduled
@@ -111,27 +112,26 @@ class AIRetrainingManager:
             return False
         
         try:
-            logger.info("🔄 Starting AI retrain with global attack data...")
+            logger.info("🔄 Starting relay server AI retrain with local training materials...")
             
-            # Step 1: Download latest training materials from relay
-            logger.info("📥 Downloading latest training materials from relay server...")
-            self.sync_client.sync_all_materials()
+            # Step 1: Load training data from LOCAL ai_training_materials/ folder
+            logger.info("📥 Loading training materials from local storage...")
+            training_data = self._load_local_training_materials()
             
-            # Step 2: Load global attacks
-            training_data = self.sync_client.load_local_training_data()
             global_attacks = training_data.get("global_attacks", [])
             learned_signatures = training_data.get("learned_signatures", [])
+            exploitdb_count = training_data.get("exploitdb_count", 0)
             
-            if not global_attacks and not learned_signatures:
-                logger.warning("⚠️ No training data available from relay server")
-                return False
+            if not global_attacks:
+                logger.warning("⚠️ No global attacks logged yet")
             
             logger.info(f"📚 Loaded training data:")
+            logger.info(f"   • {exploitdb_count:,} ExploitDB exploit signatures")
             logger.info(f"   • {len(global_attacks):,} global attacks from worldwide subscribers")
-            logger.info(f"   • {len(learned_signatures):,} learned exploit signatures")
+            logger.info(f"   • {len(learned_signatures):,} learned attack patterns")
             
-            # Step 3: Merge global attacks into local threat log
-            new_attacks_added = self._merge_global_attacks_into_threat_log(global_attacks)
+            # Step 2: Merge global attacks into pcs_ai threat log
+            new_attacks_added = self._merge_attacks_into_threat_log(global_attacks)
             
             if new_attacks_added == 0 and not force:
                 logger.info("✅ No new attacks to train on (already trained)")
@@ -139,30 +139,87 @@ class AIRetrainingManager:
             
             logger.info(f"➕ Added {new_attacks_added} new attacks to training dataset")
             
-            # Step 4: Retrain ML models with combined data
-            logger.info("🧠 Retraining ML models with combined (local + global) threat data...")
+            # Step 3: Retrain ML models
+            logger.info("🧠 Retraining ML models with combined training data...")
             
             # Call pcs_ai's training function
             _train_ml_models_from_history()
             _save_ml_models()
             
+            # Step 4: Copy trained models to ai_training_materials/ml_models/ for distribution
+            self._copy_models_to_distribution()
+            
             # Update tracking
             self.last_retrain_time = datetime.utcnow()
             self.last_attack_count = len(pcs_ai._threat_log)
             
-            logger.info(f"✅ AI retrain complete! Models trained on {self.last_attack_count:,} attacks")
+            logger.info(f"✅ Relay AI retrain complete! Models trained on {self.last_attack_count:,} attacks")
             logger.info(f"⏰ Next scheduled retrain: {(self.last_retrain_time + self.retrain_interval).strftime('%Y-%m-%d %H:%M')} UTC")
             
             return True
             
         except Exception as e:
-            logger.error(f"❌ AI retrain failed: {e}")
+            logger.error(f"❌ Relay AI retrain failed: {e}")
             import traceback
             traceback.print_exc()
             return False
     
     
-    def _merge_global_attacks_into_threat_log(self, global_attacks: List[Dict]) -> int:
+    def _load_local_training_materials(self) -> Dict:
+        """Load training materials from LOCAL ai_training_materials/ folder (no downloading)"""
+        training_data = {
+            "global_attacks": [],
+            "learned_signatures": [],
+            "exploitdb_count": 0
+        }
+        
+        # Load global attacks
+        attacks_path = os.path.join(self.training_materials_dir, "global_attacks.json")
+        if os.path.exists(attacks_path):
+            with open(attacks_path, 'r') as f:
+                training_data["global_attacks"] = json.load(f)
+        
+        # Load learned signatures
+        sig_path = os.path.join(self.training_materials_dir, "learned_signatures.json")
+        if os.path.exists(sig_path):
+            with open(sig_path, 'r') as f:
+                training_data["learned_signatures"] = json.load(f)
+        
+        # Count ExploitDB exploits
+        exploitdb_csv = os.path.join(self.training_materials_dir, "exploitdb", "files_exploits.csv")
+        if os.path.exists(exploitdb_csv):
+            with open(exploitdb_csv, 'r') as f:
+                training_data["exploitdb_count"] = sum(1 for _ in f) - 1  # Subtract header
+        
+        return training_data
+    
+    
+    def _copy_models_to_distribution(self):
+        """Copy trained ML models to ai_training_materials/ml_models/ for distribution to subscribers"""
+        source_dir = "ml_models"  # Where pcs_ai saves models
+        dest_dir = os.path.join(self.training_materials_dir, "ml_models")
+        
+        os.makedirs(dest_dir, exist_ok=True)
+        
+        models = [
+            "anomaly_detector.pkl",
+            "threat_classifier.pkl", 
+            "ip_reputation.pkl",
+            "feature_scaler.pkl"
+        ]
+        
+        for model_file in models:
+            src_path = os.path.join(source_dir, model_file)
+            dest_path = os.path.join(dest_dir, model_file)
+            
+            if os.path.exists(src_path):
+                shutil.copy2(src_path, dest_path)
+                logger.info(f"📦 Copied {model_file} to distribution folder")
+            else:
+                logger.warning(f"⚠️ Model not found: {src_path}")
+    
+    
+    def _merge_attacks_into_threat_log(self, global_attacks: List[Dict]) -> int:
         """
         Merge global attacks into pcs_ai threat log (avoiding duplicates)
         
