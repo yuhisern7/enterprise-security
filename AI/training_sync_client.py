@@ -55,7 +55,7 @@ class TrainingSyncClient:
         for model_name in models:
             try:
                 response = requests.get(
-                    f"{self.relay_url}/training/ml_models/{model_name}",
+                    f"{self.relay_url}/models/{model_name}",
                     timeout=30
                 )
                 response.raise_for_status()
@@ -73,14 +73,15 @@ class TrainingSyncClient:
     def get_training_stats(self) -> Optional[Dict]:
         """Get statistics about training data on relay server (for info only)"""
         try:
-            response = requests.get(f"{self.relay_url}/training/stats", timeout=10)
+            response = requests.get(f"{self.relay_url}/stats", timeout=10)
             response.raise_for_status()
             
             stats = response.json()
+            training_data = stats.get('relay_training_data', {})
             logger.info(f"📊 Relay server training data:")
-            logger.info(f"   • {stats.get('exploitdb_signatures', 0):,} ExploitDB signatures (relay-side)")
-            logger.info(f"   • {stats.get('global_attacks_logged', 0):,} worldwide attacks (relay-side)")
-            logger.info(f"   • {stats.get('ml_models_available', 0)} ML models (downloading...)")
+            logger.info(f"   • {training_data.get('exploitdb_signatures', 0):,} ExploitDB signatures (relay-side)")
+            logger.info(f"   • {training_data.get('global_attacks_logged', 0):,} worldwide attacks (relay-side)")
+            logger.info(f"   • {stats.get('models_available', 0)} ML models (downloading...)")
             
             return stats
         except Exception as e:

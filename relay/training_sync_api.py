@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """
-Training Materials Sync API for Relay Server
-Allows subscribers to download AI training materials without local storage
+ML Model Distribution API for Relay Server
+Serves ONLY pre-trained ML models to subscribers (280 KB total)
+
+Subscribers receive:
+- Pre-trained models (anomaly_detector.pkl, threat_classifier.pkl, etc.)
+- Statistics about relay server training data (for info only)
+- NO raw training data (ExploitDB, global_attacks, malware hashes stay on server)
 
 Endpoints:
-- GET /training/exploitdb - Download ExploitDB signatures
-- GET /training/ml_models - Download pre-trained models
-- GET /training/learned_signatures - Download attack patterns
-- GET /training/global_attacks - Download worldwide attack database
-- GET /training/sync - Get list of all available materials
+- GET /models/<model_name> - Download specific pre-trained model
+- GET /models/list - List all available models
+- GET /stats - Server statistics (training data size, attack count, etc.)
 """
 
 import os
@@ -28,126 +31,78 @@ CORS(app)
 TRAINING_MATERIALS_DIR = "ai_training_materials"
 
 
-@app.route('/training/sync', methods=['GET'])
-def get_available_materials():
-    """Get list of all available training materials"""
+@app.route('/models/list', methods=['GET'])
+def get_available_models():
+    """Get list of available pre-trained ML models (subscribers download these only)"""
     try:
         materials = {
             "last_updated": datetime.utcnow().isoformat(),
-            "available": {
-                "exploitdb": {
-                    "exploits_count": 46948,
-                    "size_mb": 824,
-                    "endpoint": "/training/exploitdb"
+            "models_available": {
+                "anomaly_detector": {
+                    "description": "Unsupervised anomaly detection (zero-day attacks)",
+                    "size_kb": 141,
+                    "endpoint": "/models/anomaly_detector"
                 },
-                "learned_signatures": {
-                    "patterns_count": 3066,
-                    "size_kb": 910,
-                    "endpoint": "/training/learned_signatures"
+                "threat_classifier": {
+                    "description": "Multi-class threat classifier (SQL injection, XSS, etc.)",
+                    "size_kb": 127,
+                    "endpoint": "/models/threat_classifier"
                 },
-                "ml_models": {
-                    "models": ["anomaly_detector", "threat_classifier", "ip_reputation", "feature_scaler"],
-                    "size_kb": 280,
-                    "endpoint": "/training/ml_models"
+                "ip_reputation": {
+                    "description": "IP reputation scoring (malicious IP detection)",
+                    "size_kb": 1,
+                    "endpoint": "/models/ip_reputation"
                 },
-                "global_attacks": {
-                    "attacks_logged": get_attack_count(),
-                    "endpoint": "/training/global_attacks"
-                },
-                "malware_hashes": {
-                    "hashes_count": get_malware_hash_count(),
-                    "endpoint": "/training/malware_hashes"
+                "feature_scaler": {
+                    "description": "Feature normalization for ML models",
+                    "size_kb": 1.3,
+                    "endpoint": "/models/feature_scaler"
                 }
-            }
+            },
+            "total_size_kb": 280,
+            "note": "Models trained on 825 MB data (ExploitDB + global attacks + malware hashes)"
         }
         return jsonify(materials)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/training/learned_signatures', methods=['GET'])
-def get_learned_signatures():
-    """Download learned exploit signatures"""
-    try:
-        sig_path = os.path.join(TRAINING_MATERIALS_DIR, "learned_signatures.json")
-        if os.path.exists(sig_path):
-            return send_file(sig_path, mimetype='application/json')
-        return jsonify({"error": "Signatures not found"}), 404
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/training/global_attacks', methods=['GET'])
-def get_global_attacks():
-    """Download global attack database"""
-    try:
-        attacks_path = os.path.join(TRAINING_MATERIALS_DIR, "global_attacks.json")
-        if os.path.exists(attacks_path):
-            return send_file(attacks_path, mimetype='application/json')
-        return jsonify({"attacks": [], "total": 0})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/training/ml_models/<model_name>', methods=['GET'])
-def get_ml_model(model_name):
-    """Download specific ML model"""
-    try:
-        model_path = os.path.join(TRAINING_MATERIALS_DIR, "ml_models", f"{model_name}.pkl")
-        if os.path.exists(model_path):
-            return send_file(model_path, mimetype='application/octet-stream')
-        return jsonify({"error": f"Model {model_name} not found"}), 404
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/training/malware_hashes', methods=['GET'])
-def get_malware_hashes():
-    """Download malware hash database from crawlers"""
-    try:
-        hashes_path = os.path.join(TRAINING_MATERIALS_DIR, "crawlers", "threat_intelligence_crawled.json")
-        if os.path.exists(hashes_path):
-            return send_file(hashes_path, mimetype='application/json')
-        return jsonify({"error": "Malware hashes not found"}), 404
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/training/exploitdb/summary', methods=['GET'])
-def get_exploitdb_summary():
-    """Get ExploitDB statistics without downloading full database"""
-    try:
-        csv_path = os.path.join(TRAINING_MATERIALS_DIR, "exploitdb", "files_exploits.csv")
-        if not os.path.exists(csv_path):
-            return jsonify({"error": "ExploitDB not found"}), 404
-        
-        # Count lines in CSV
-        with open(csv_path, 'r') as f:
-            exploit_count = sum(1 for _ in f) - 1  # Subtract header
-        
-        return jsonify({
-            "exploits_available": exploit_count,
-            "source": "local_database",
-            "last_updated": datetime.fromtimestamp(os.path.getmtime(csv_path)).isoformat()
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route('/training/stats', methods=['GET'])
+@app.route('/stats', methods=['GET'])
 def get_training_stats():
-    """Get comprehensive training materials statistics"""
+    """Get relay server training statistics (info only - subscribers don't download raw data)"""
     try:
         stats = {
             "timestamp": datetime.utcnow().isoformat(),
-            "exploitdb_signatures": 46948,
-            "learned_patterns": 3066,
-            "global_attacks_logged": get_attack_count(),
-            "malware_hashes": get_malware_hash_count(),
-            "ml_models_available": 4,
-            "total_size_mb": 825
+            "relay_training_data": {
+                "exploitdb_signatures": 46948,
+                "global_attacks_logged": get_attack_count(),
+                "malware_hashes": get_malware_hash_count(),
+                "learned_patterns": 3066,
+                "total_size_mb": 825
+            },
+            "models_available": 4,
+            "models_total_size_kb": 280,
+            "note": "Subscribers download ONLY pre-trained models (280 KB), NOT raw training data"
         }
         return jsonify(stats)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/models/<model_name>', methods=['GET'])
+def get_ml_model(model_name):
+    """Download specific pre-trained ML model (subscribers download this)"""
+    try:
+        # Whitelist allowed models
+        allowed_models = ["anomaly_detector", "threat_classifier", "ip_reputation", "feature_scaler"]
+        if model_name not in allowed_models:
+            return jsonify({"error": f"Model {model_name} not found. Available: {allowed_models}"}), 404
+        
+        model_path = os.path.join(TRAINING_MATERIALS_DIR, "ml_models", f"{model_name}.pkl")
+        if os.path.exists(model_path):
+            logger.info(f"📤 Serving model: {model_name}.pkl")
+            return send_file(model_path, mimetype='application/octet-stream')
+        return jsonify({"error": f"Model {model_name} not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -180,4 +135,6 @@ def get_malware_hash_count():
 
 if __name__ == '__main__':
     # Run on port 60002 (relay WebSocket is on 60001)
+    logger.info("🚀 Starting ML Model Distribution API on port 60002")
+    logger.info("📦 Serving ONLY pre-trained models (280 KB) - NOT raw training data")
     app.run(host='0.0.0.0', port=60002, debug=False)
