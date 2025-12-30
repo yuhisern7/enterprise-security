@@ -1,13 +1,74 @@
-# AI Training Materials Folder
+# Relay Server AI Training Materials
 
-This folder contains curated datasets for training the AI/ML security models.
+**⚠️ RELAY SERVER ONLY - This folder contains centralized training data for Premium mode**
 
-## Supported Formats
+This folder contains curated datasets for training ML security models on the relay server.  
+**Subscribers do NOT download this (825 MB) - they download ONLY trained models (280 KB)**
 
-### 1. CSV Format (Recommended)
-**File naming:** `attack_dataset_*.csv`
+---
 
-**Required columns:**
+## 📂 Folder Structure
+
+```
+ai_training_materials/
+├── exploitdb/               # ExploitDB database (824 MB)
+│   ├── exploits/            # 50,000+ exploit scripts
+│   ├── shellcodes/          # Shellcode database
+│   ├── files_exploits.csv   # Exploit metadata
+│   └── files_shellcodes.csv
+├── global_attacks.json      # Real attacks from subscribers worldwide
+├── learned_signatures.json  # Learned attack patterns
+├── malware_hashes.json      # Known malware signatures
+├── ml_models/               # Trained models (distributed to subscribers)
+│   ├── anomaly_detector.pkl
+│   ├── threat_classifier.pkl
+│   ├── ip_reputation.pkl
+│   └── feature_scaler.pkl
+└── crawlers/                # Web scrapers for threat intelligence
+```
+
+---
+
+## 🔄 Training Workflow (Relay Server)
+
+### 1. Data Collection
+**Sources:**
+- **ExploitDB**: 50,000+ exploit signatures (static, updated quarterly)
+- **Global Attacks**: Real-time attacks from worldwide subscribers
+- **Learned Signatures**: Attack patterns learned from previous training
+- **Malware Hashes**: Known malware from threat intelligence feeds
+
+### 2. AI Training (Every 6 Hours)
+**Process:**
+1. Load all training materials from THIS folder (LOCAL loading, no downloads)
+2. Merge ExploitDB + global_attacks + learned_signatures into unified dataset
+3. Train 4 ML models:
+   - `anomaly_detector.pkl` - Detects unusual traffic patterns
+   - `threat_classifier.pkl` - Classifies attack types (SQL injection, XSS, etc.)
+   - `ip_reputation.pkl` - Scores IP addresses by history
+   - `feature_scaler.pkl` - Normalizes feature data
+4. Save trained models to `ml_models/` folder
+
+### 3. Model Distribution (HTTP API)
+**Endpoint:** `http://relay-server:60002/models/<model_name>`
+**Subscribers download ONLY:**
+- 4 `.pkl` files (280 KB total)
+- Updated every 6 hours
+- NO access to raw training data
+
+---
+
+## 📥 Setup Training Materials
+
+### Option A: ExploitDB (Automated)
+```bash
+cd AI/
+./setup_exploitdb.sh
+cp -r exploitdb ../relay/ai_training_materials/
+```
+
+### Option B: Custom Dataset (CSV)
+**Create:** `custom_attacks.csv`
 ```csv
 src_ip,attack_type,severity,threat_score,protocol,port,payload_size,country,is_malicious
 192.168.1.100,SQL Injection,high,0.95,TCP,80,1024,US,1
@@ -15,20 +76,7 @@ src_ip,attack_type,severity,threat_score,protocol,port,payload_size,country,is_m
 172.16.0.10,Normal Traffic,low,0.1,TCP,443,512,US,0
 ```
 
-**Column descriptions:**
-- `src_ip`: Source IP address
-- `attack_type`: Type of attack (SQL Injection, XSS, Port Scan, DDoS, etc.)
-- `severity`: low, medium, high, critical
-- `threat_score`: Float 0.0-1.0 (higher = more malicious)
-- `protocol`: TCP, UDP, ICMP
-- `port`: Port number
-- `payload_size`: Size in bytes
-- `country`: Country code (US, CN, RU, etc.)
-- `is_malicious`: 1 for attack, 0 for normal traffic
-
-### 2. JSON Format
-**File naming:** `attack_dataset_*.json`
-
+### Option C: JSON Format
 ```json
 [
   {
@@ -38,65 +86,111 @@ src_ip,attack_type,severity,threat_score,protocol,port,payload_size,country,is_m
     "threat_score": 0.95,
     "protocol": "TCP",
     "port": 80,
-    "payload_size": 1024,
-    "country": "US",
     "is_malicious": 1
-  },
-  {
-    "src_ip": "10.0.0.50",
-    "attack_type": "Normal Traffic",
-    "severity": "low",
-    "threat_score": 0.1,
-    "protocol": "TCP",
-    "port": 443,
-    "payload_size": 512,
-    "country": "US",
-    "is_malicious": 0
   }
 ]
 ```
 
-### 3. NPY Format (NumPy Arrays for GPU Training)
-**File naming:** `attack_features_*.npy` and `attack_labels_*.npy`
+---
 
-For TensorFlow/PyTorch GPU training, we use NumPy arrays:
-- `attack_features_*.npy`: Feature matrix (N samples × M features)
-- `attack_labels_*.npy`: Labels (N samples)
+## 🔐 Security Model
 
-**Example generation:**
-```python
-import numpy as np
+**Relay Server:**
+- Hosts 825 MB training data (ExploitDB + global attacks)
+- Trains ML models centrally (heavy compute)
+- Serves ONLY trained models (280 KB) via API
 
-# Features: [threat_score, port, payload_size, is_tcp, is_udp, ...]
-features = np.array([
-    [0.95, 80, 1024, 1, 0],
-    [0.75, 22, 64, 1, 0],
-    [0.1, 443, 512, 1, 0]
-])
+**Subscribers:**
+- Download ONLY pre-trained models (280 KB)
+- Use models for inference (fast detection)
+- Send detected attacks back to relay
+- NO access to raw exploit databases
 
-# Labels: 1=malicious, 0=benign
-labels = np.array([1, 1, 0])
+**Why this matters:**
+- Prevents 824 MB ExploitDB download to subscribers
+- No exploit databases on customer systems (security risk)
+- Minimal bandwidth (280 KB vs 825 MB)
+- Fast updates (models only, not entire dataset)
 
-np.save('attack_features_001.npy', features)
-np.save('attack_labels_001.npy', labels)
+---
+
+## 📊 Training Data Format
+
+### CSV (Recommended for Custom Datasets)
+**Required columns:**
+- `src_ip`: Source IP address
+- `attack_type`: SQL Injection, XSS, Port Scan, DDoS, etc.
+- `severity`: low, medium, high, critical
+- `threat_score`: Float 0.0-1.0 (higher = more malicious)
+- `protocol`: TCP, UDP, ICMP
+- `port`: Port number
+- `is_malicious`: 1 for attack, 0 for normal traffic
+
+### global_attacks.json (Auto-generated by relay_server.py)
+**Format:**
+```json
+[
+  {
+    "timestamp": "2024-12-15T10:30:00Z",
+    "ip": "192.168.1.100",
+    "attack_type": "SQL Injection",
+    "threat_score": 0.95,
+    "blocked": true,
+    "subscriber_id": "node-12345"
+  }
+]
 ```
 
-## Training Process
+---
 
-### scikit-learn (CPU/Small datasets)
-- Uses: CSV/JSON files
-- Model: RandomForest, SVM, LogisticRegression
-- Best for: Quick training, small datasets (<100K samples)
+## 🚀 Performance
 
-### TensorFlow/PyTorch (GPU/Large datasets)
-- Uses: NPY files (for speed) or CSV (for flexibility)
-- Model: Neural Networks, Deep Learning
-- Best for: Large datasets (>100K samples), complex patterns
-- Requires: GPU (CUDA/ROCm) for speed
+**Training Time:**
+- **CPU (scikit-learn):** ~2-5 minutes (50,000 exploits)
+- **GPU (TensorFlow/PyTorch):** ~30-60 seconds
 
-## Folder Location
+**Model Sizes:**
+- Total: 280 KB (4 models combined)
+- Per subscriber download: 280 KB
+- vs. Raw data: 825 MB (2,946x reduction!)
 
-**Path:** `AI/exploitdb/ai_training_materials/`
+**Update Frequency:**
+- Relay trains models every 6 hours
+- Subscribers download updated models automatically
+- Global attacks logged in real-time
+
+---
+
+## 📝 Logs
+
+**global_attacks.json** - Real attacks from worldwide subscribers
+**learned_signatures.json** - Patterns learned from previous training
+**malware_hashes.json** - Known malware signatures
+
+These files are automatically updated by:
+- `relay_server.py` - Logs attacks to global_attacks.json
+- `ai_retraining.py` - Extracts patterns to learned_signatures.json
+
+---
+
+## 🔍 Troubleshooting
+
+**"No training data found"**
+- Run `setup_exploitdb.sh` to download ExploitDB
+- Or create custom CSV dataset
+
+**"Models not updating"**
+- Check `docker logs security-relay-server`
+- Verify ai_retraining.py is running every 6 hours
+
+**"Subscribers can't download models"**
+- Verify training_sync_api.py is running on port 60002
+- Check firewall allows port 60002 TCP
+
+---
+
+**Path:** `/app/relay/ai_training_materials/` (Docker container)  
+**Host Path:** `./relay/ai_training_materials/` (Mounted volume)
 
 The system will automatically:
 1. Scan this folder for all supported files

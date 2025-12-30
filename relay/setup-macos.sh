@@ -64,6 +64,22 @@ fi
 echo ""
 echo "✅ macOS detected - Docker Desktop handles networking automatically"
 
+# Create required directories
+echo ""
+echo "📁 Creating relay server directories..."
+mkdir -p ai_training_materials/ml_models
+mkdir -p ai_training_materials/exploitdb
+mkdir -p json
+mkdir -p ml_models
+
+# Initialize training materials
+echo ""
+echo "📚 Training materials setup (for Premium mode):"
+echo "   To enable Premium mode, upload training data to ai_training_materials/"
+echo "   • Run: cd ../AI && ./setup_exploitdb.sh"
+echo "   • Copy: cp -r exploitdb ../relay/ai_training_materials/"
+echo ""
+
 # Build and start relay server
 echo ""
 echo "🚀 Starting relay server..."
@@ -77,27 +93,47 @@ echo "=================================="
 echo "📋 Next Steps:"
 echo "=================================="
 echo ""
-echo "1. Verify relay is running:"
+echo "1. Verify relay services are running:"
 echo "   docker logs -f security-relay-server"
+echo "   (Should see: WebSocket Relay + Model Distribution API)"
 echo ""
-echo "2. On each security container, edit server/.env:"
+echo "2. Test Model Distribution API:"
+echo "   curl http://localhost:60002/models/list"
+echo "   curl http://localhost:60002/stats"
+echo ""
+echo "3. On each subscriber container, edit server/.env:"
 echo "   RELAY_ENABLED=true"
 if [ "$PUBLIC_IP" != "Unable to detect" ]; then
     echo "   RELAY_URL=ws://$PUBLIC_IP:60001"
+    echo "   MODEL_SYNC_URL=http://$PUBLIC_IP:60002"
 else
     echo "   RELAY_URL=ws://YOUR-PUBLIC-IP:60001"
+    echo "   MODEL_SYNC_URL=http://YOUR-PUBLIC-IP:60002"
 fi
 echo "   RELAY_CRYPTO_ENABLED=true"
 echo ""
-echo "3. Rebuild containers (to install cryptography package):"
+echo "4. Rebuild subscriber containers:"
 echo "   cd ../server"
 echo "   docker compose down"
 echo "   docker compose build"
 echo "   docker compose up -d"
 echo ""
-echo "4. Test connection:"
+echo "5. Test connection:"
 echo "   curl http://localhost:60000/api/relay/status"
 echo "   (Should show: \"connected\": true)"
+echo ""
+echo "=================================="
+if [ "$PUBLIC_IP" != "Unable to detect" ]; then
+    echo "🌐 WebSocket Relay: ws://$PUBLIC_IP:60001"
+    echo "📦 Model Distribution API: http://$PUBLIC_IP:60002"
+else
+    echo "🌐 WebSocket Relay: ws://YOUR-IP:60001"
+    echo "📦 Model Distribution API: http://YOUR-IP:60002"
+fi
+echo "🔒 Crypto: RSA-2048 + HMAC-SHA256"
+echo "📚 Training Materials: ai_training_materials/ (825 MB)"
+echo "🤖 ML Models: Served via API (280 KB total)"
+echo "=================================="
 echo ""
 echo "=================================="
 if [ "$PUBLIC_IP" != "Unable to detect" ]; then
