@@ -27,6 +27,15 @@ except ImportError:
     CRYPTO_ENABLED = False
     logger.warning("[RELAY] Cryptographic security not available (install cryptography package)")
 
+# Node fingerprinting for peer compatibility
+try:
+    from AI.node_fingerprint import get_node_fingerprint
+    NODE_FP_ENABLED = True
+    logger.info("[RELAY] Node fingerprinting enabled - will filter incompatible peers")
+except ImportError:
+    NODE_FP_ENABLED = False
+    logger.info("[RELAY] Node fingerprinting not available")
+
 
 class RelayClient:
     """WebSocket client for relay-based P2P mesh"""
@@ -113,6 +122,16 @@ class RelayClient:
             'exploit_match': threat.get('exploit_match', ''),
             'cve_match': threat.get('cve_match', []),
         }
+        
+        # Add node fingerprint for peer compatibility filtering
+        if NODE_FP_ENABLED:
+            node_fp = get_node_fingerprint()
+            safe_threat['node_fingerprint'] = {
+                'node_type': node_fp.fingerprint['node_type'],
+                'os': node_fp.fingerprint['os_info']['system'],
+                'traffic_profile': node_fp.fingerprint['traffic_profile'],
+                'fingerprint_hash': node_fp.fingerprint['fingerprint_hash'][:32]
+            }
         
         with self.lock:
             self.threat_queue.append(safe_threat)
@@ -290,6 +309,22 @@ class RelayClient:
                     # Threat from another peer
                     threat_id = data.get('threat_id')
                     source_peer = data.get('source_peer')
+                    
+                    # Check peer compatibility (filter incompatible nodes)
+                    if NODE_FP_ENABLED and 'node_fingerprint' in data:
+                        node_fp = get_node_fingerprint()
+                        peer_fp = data['node_fingerprint']
+                        
+                        compatibility = node_fp.get_compatibility_score(peer_fp)
+                        
+                        # Only accept threats from compatible peers (score > 0.5)
+                        if compatibility < 0.5:
+                            logger.debug(f"🚫 Rejected threat from incompatible peer {source_peer} "
+                                       f"(compatibility: {compatibility:.2f}, node_type: {peer_fp.get('node_type')})")
+                            continue
+                        
+                        logger.debug(f"✅ Accepted threat from compatible peer {source_peer} "
+                                   f"(compatibility: {compatibility:.2f})")
                     
                     with self.lock:
                         # Track unique peers we've seen

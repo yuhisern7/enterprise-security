@@ -412,12 +412,20 @@ features = [0, 80, 443, 3389, 5900, ...]  # Different distribution
 - Attack patterns misclassified due to baseline differences
 - Silent failure (no error messages, just poor performance)
 
-**Roadmap (Q1 2026):**
-- Feature distribution fingerprinting for each node
-- Peer compatibility scoring (only share with similar nodes)
-- Federated normalization (align feature scales across peers)
-- Distribution drift detection (alert when features diverge)
-- Separate models per node type (server/desktop/embedded)
+**✅ FIXED (Implemented December 2025):**
+- ✅ **Node fingerprinting** - Automatic classification (server/desktop/embedded/Docker)
+- ✅ **Peer compatibility scoring** - Only share data with similar nodes (>0.5 score)
+- ✅ **Federated normalization** - Node-specific feature scaling (z-score normalization)
+- ✅ **Distribution drift detection** - Alert when features deviate >3σ from baseline
+- ✅ **Automatic filtering** - Reject threats from incompatible node types
+- ✅ **OS-aware** - Handles Windows/Linux/macOS differences transparently
+
+**How It Works:**
+- Each node generates a fingerprint (OS, node type, network, traffic profile)
+- Features are normalized using node-specific statistics (mean/std per node)
+- Incoming peer threats are scored for compatibility (0.0-1.0)
+- Incompatible threats (score <0.5) are rejected before ML training
+- Distribution drift triggers warnings if features shift significantly
 
 ---
 

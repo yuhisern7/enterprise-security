@@ -129,6 +129,18 @@ except ImportError as e:
     print(f"[INFO] False positive filter not available: {e}")
     print("[INFO] Using legacy single-signal detection")
 
+# Node Fingerprinting & Feature Normalization (solves Problem 2: Feature Consistency)
+try:
+    from AI.node_fingerprint import get_node_fingerprint
+    NODE_FP_AVAILABLE = True
+    node_fp = get_node_fingerprint()
+    print(f"[NODE-FP] {node_fp.get_summary()}")
+    print("[NODE-FP] Feature normalization enabled - compatible with similar nodes only")
+except ImportError as e:
+    NODE_FP_AVAILABLE = False
+    print(f"[INFO] Node fingerprinting not available: {e}")
+    print("[INFO] Feature consistency across nodes not guaranteed")
+
 
 class ThreatLevel(str, Enum):
     SAFE = "SAFE"
@@ -766,7 +778,18 @@ def _extract_features_from_request(ip_address: str, endpoint: str, user_agent: s
     fingerprint_ips = len(_fingerprint_tracker.get(ip_address, {}).get('ips_used', set()))
     features.append(float(fingerprint_ips))
     
-    return np.array(features)
+    features_array = np.array(features)
+    
+    # Update node fingerprint statistics (for federated normalization)
+    if NODE_FP_AVAILABLE:
+        node_fp.update_feature_statistics(features_array)
+        
+        # Detect distribution drift (features significantly different from this node's profile)
+        has_drift, drifted_features = node_fp.detect_distribution_drift(features_array)
+        if has_drift:
+            logger.warning(f"[NODE-FP] Distribution drift detected in features: {drifted_features}")
+    
+    return features_array
 
 
 def _ml_predict_anomaly(features: np.ndarray) -> Tuple[bool, float]:
@@ -1042,10 +1065,18 @@ def _train_ml_models_from_history() -> None:
         recent_percentage = (recent_weight / total_weight * 100) if total_weight > 0 else 0
         print(f"[AI] Time weighting: Recent threats (<7 days) account for {recent_percentage:.1f}% of training influence")
         
-        # Train feature scaler
+        # Apply node-specific feature normalization (federated normalization)
+        if NODE_FP_AVAILABLE:
+            print("[AI] Applying federated normalization (node-specific scaling)...")
+            X_normalized = np.array([node_fp.normalize_features(x) for x in X])
+            print(f"[AI] Features normalized for node type: {node_fp.fingerprint['node_type']}")
+        else:
+            X_normalized = X
+        
+        # Train feature scaler (on normalized features)
         print("[AI] Training feature scaler...")
-        _feature_scaler.fit(X)
-        X_scaled = _feature_scaler.transform(X)
+        _feature_scaler.fit(X_normalized)
+        X_scaled = _feature_scaler.transform(X_normalized)
         
         # Train anomaly detector (IsolationForest doesn't support sample_weight, use contamination parameter)
         print("[AI] Training anomaly detector (IsolationForest)...")
