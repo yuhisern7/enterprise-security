@@ -10,17 +10,18 @@ Unlike traditional antivirus (install on every device), you only need **ONE cont
 
 **When ANY subscriber worldwide detects an attack:**
 - Attack logged to central relay server instantly
-- Broadcast to ALL subscribers globally (Tokyo → London → New York)
+- Relay broadcasts to ALL subscribers globally (Tokyo → London → New York)
 - Every container blocks the attacker within seconds
-- AI retrains automatically every 6 hours with 50,000+ global attacks
-- **Zero manual intervention. Zero configuration. Pure automation.**
+- Relay AI retrains centrally every 6 hours with 50,000+ global attacks (server-side)
+- Subscribers receive updated ML models automatically (280 KB download)
+- **Zero manual intervention. Zero exploit databases on your system. Pure automation.**
 
-**🎯 Military-Level AI Training Data (Automated):**
-- 46,948 ExploitDB signatures (SQL injection, XSS, RCE, LFI, etc.)
-- 100,000+ malware hashes (MalwareBazaar updated daily)
-- 10,000+ malicious URLs (URLhaus phishing/malware sites)
-- Global attack database (every subscriber's threats logged centrally)
-- Pre-trained ML models (anomaly detection, threat classification, IP reputation)
+**🎯 Relay Server Trains AI On (Central Training - Not Downloaded by Subscribers):**
+- 46,948 ExploitDB signatures (SQL injection, XSS, RCE, LFI, etc.) - 824 MB stays on server
+- 100,000+ malware hashes (MalwareBazaar updated daily) - stays on server
+- 10,000+ malicious URLs (URLhaus phishing/malware sites) - stays on server
+- Global attack database (every subscriber's threats logged centrally) - stays on server
+- **Subscribers receive:** Pre-trained ML models only (280 KB - safe, no exploits)
 
 **💰 Cost vs Value:**
 - **Traditional Enterprise Security:** $10,000 - $500,000/year (Palo Alto, CrowdStrike, SentinelOne)
@@ -96,15 +97,17 @@ Registration: 202403184091 (MA0319303)
 |---------|-------------------|---------------------|
 | **Network Protection** | ✅ Full | ✅ Full |
 | **Local Threat Detection** | ✅ Yes | ✅ Yes |
-| **ExploitDB Training** | ⚠️ Manual download | ✅ Auto-synced (46,948 signatures) |
-| **Global Attack Database** | ❌ None | ✅ 50,000+ worldwide attacks |
+| **AI Model Downloads** | ⚠️ Manual setup | ✅ Pre-trained models (280 KB auto-sync) |
+| **AI Trained On** | ⚠️ Local threats only | ✅ 46,948 ExploitDB + 100K malware hashes + 50K global attacks |
+| **Global Attack Database** | ❌ None (isolated) | ✅ 50,000+ worldwide attacks (relay-trained) |
 | **Worldwide Mesh** | ❌ Same network only | ✅ 100+ countries |
-| **AI Auto-Retraining** | ⚠️ Local threats only | ✅ Global + curated datasets (every 6h) |
-| **Malware Hashes** | ❌ None | ✅ 100,000+ daily updates |
+| **Exploit Databases** | ⚠️ Manual download (824 MB) | ✅ Stays on relay (you get trained models only) |
+| **AI Retraining** | ⚠️ Manual | ✅ Automatic every 6h (relay-side, you receive updates) |
+| **Bandwidth** | ⚠️ High (if downloading ExploitDB) | ✅ Low (280 KB model updates) |
 | **Support** | ❌ Community | ✅ Priority email |
 
-**Free version:** Local protection only. Manual ExploitDB setup. Isolated from global mesh.  
-**Premium:** Military-grade AI trained on millions of attacks. Global mesh. Zero setup.
+**Free version:** Local protection only. Manual ExploitDB setup (824 MB download). Train locally. Isolated.  
+**Premium:** Relay trains AI centrally (825 MB+ data). You download ONLY models (280 KB). Military-grade. Global mesh.
 
 ---
 
@@ -986,23 +989,34 @@ git --version
 ```
 
 ---
-## 📚 ExploitDB Signature Distribution (NEW!)
+## 📚 ExploitDB Signature Distribution
 
-### 🎯 Problem Solved: No More 500MB Downloads!
+### 🆓 Free Version (Local P2P - Manual Setup):
 
-**Previously:** Every container needed to download full ExploitDB database (500MB+, 46,948 exploits)
-- ❌ Windows: 500MB download + potential Windows Defender blocks
-- ❌ Mac: 500MB download  
-- ❌ Linux: 500MB download
+**Previously:** Every container needed to download full ExploitDB database (824 MB, 46,948 exploits)
+- ❌ Windows: 824 MB download + potential Windows Defender blocks
+- ❌ Mac: 824 MB download  
+- ❌ Linux: 824 MB download
 
-**Now with Signature Distribution:**
+**Now with P2P Signature Distribution (Free Mode):**
 - ✅ **One** Linux container downloads ExploitDB (master mode)
 - ✅ All other containers receive signatures via P2P (client mode)  
 - ✅ **No ExploitDB download** needed on Windows/Mac!
-- ✅ Same 95% detection capability
-- ✅ Automatic signature updates via P2P mesh
+- ✅ Same detection capability
+- ✅ Manual signature updates via P2P mesh
 
-### 🏗️ How It Works
+### 💎 Premium Version (Relay Server - Zero Setup):
+
+**No ExploitDB download needed AT ALL:**
+- ✅ Relay server hosts ExploitDB (824 MB stays on server)
+- ✅ Relay server trains AI centrally
+- ✅ You download ONLY trained models (280 KB)
+- ✅ Automatic updates every 6 hours
+- ✅ Zero manual setup. Zero exploit databases on your system.
+
+---
+
+### 🏗️ How Free P2P Works (If Not Using Premium Relay)
 
 **Master Mode (Linux with ExploitDB):**
 - Has full ExploitDB (46,948 signatures)
@@ -1130,14 +1144,15 @@ Result: Device has NO internet access! ❌
    cd enterprise-security
    ```
 
-**Step 2: ExploitDB Database (OPTIONAL with Signature Distribution!)**
+**Step 2: Choose Your Mode**
 
-**Option A: Skip ExploitDB (Recommended for Windows) - Use Signature Distribution:**
+**🆓 Free Mode Options:**
+
+**Option A: Skip ExploitDB - Use P2P Signature Distribution (Recommended):**
 ```powershell
 # NO download needed! Will receive signatures from Linux master via P2P
 # In server\.env, add:
 # PEER_URLS=https://YOUR_LINUX_IP:60001
-# SIGNATURE_MODE=client
 
 # Skip to Step 3
 ```
@@ -1148,6 +1163,16 @@ cd AI
 git clone https://github.com/offensive-security/exploitdb.git exploitdb
 cd ..
 # Note: Windows Defender may flag some files - add exclusion if needed
+```
+
+**💎 Premium Mode (Recommended - Zero Setup):**
+```powershell
+# NO ExploitDB download needed! Relay server hosts all training data.
+# In server\.env, add:
+# RELAY_URL=ws://YOUR_RELAY_IP:60001
+
+# Container will download ONLY pre-trained models (280 KB)
+# Skip to Step 3
 ```
 
 **Step 3: Configure Environment (IMPORTANT - Manual Edits Required)**
@@ -1250,14 +1275,15 @@ Get-NetFirewallRule -DisplayName "Enterprise Security*" | Format-Table DisplayNa
    cd enterprise-security
    ```
 
-**Step 2: ExploitDB Database (OPTIONAL with Signature Distribution!)**
+**Step 2: Choose Your Mode**
 
-**Option A: Skip ExploitDB (Recommended for macOS) - Use Signature Distribution:**
+**🆓 Free Mode Options:**
+
+**Option A: Skip ExploitDB - Use P2P Signature Distribution (Recommended):**
 ```bash
 # NO download needed! Will receive signatures from Linux master via P2P
 # In server/.env, add:
 # PEER_URLS=https://YOUR_LINUX_IP:60001
-# SIGNATURE_MODE=client
 
 # Skip to Step 3
 ```
@@ -1267,6 +1293,16 @@ Get-NetFirewallRule -DisplayName "Enterprise Security*" | Format-Table DisplayNa
 cd AI
 git clone https://github.com/offensive-security/exploitdb.git exploitdb
 cd ..
+```
+
+**💎 Premium Mode (Recommended - Zero Setup):**
+```bash
+# NO ExploitDB download needed! Relay server hosts all training data.
+# In server/.env, add:
+# RELAY_URL=ws://YOUR_RELAY_IP:60001
+
+# Container will download ONLY pre-trained models (280 KB)
+# Skip to Step 3
 ```
 
 **Step 3: Configure Environment (IMPORTANT - Manual Edits Required)**
@@ -1365,10 +1401,23 @@ sudo /usr/libexec/ApplicationFirewall/socketfilterfw --listapps | grep -i docker
 
 **Prerequisites:** Docker Engine, Docker Compose, and Git must be installed (see above)
 
-> 💡 **Linux Tip:** Linux containers are **ideal as MASTER nodes** in the signature distribution architecture. They serve ExploitDB signatures to Windows/Mac clients via P2P, eliminating the need for multiple 500MB downloads!
+> 💡 **Linux Tip (Free Mode):** Linux containers are **ideal as MASTER nodes** in P2P signature distribution. They serve ExploitDB signatures to Windows/Mac clients, eliminating multiple 824 MB downloads. **Premium Mode:** Skip ExploitDB entirely - relay server handles everything!
 
-**Option 1: Automated Quick Start (5 minutes) - Recommended**
+**Option 1: Automated Quick Start (5 minutes) - Premium Recommended**
 
+**💎 Premium Mode (Zero Setup):**
+```bash
+git clone https://github.com/yuhisern7/enterprise-security.git
+cd enterprise-security/server
+
+# Edit .env and add:
+# RELAY_URL=ws://YOUR_RELAY_IP:60001
+
+bash installation/install.sh
+```
+Container downloads ONLY trained models (280 KB). No ExploitDB needed.
+
+**🆓 Free Mode (With ExploitDB):**
 ```bash
 git clone https://github.com/yuhisern7/enterprise-security.git
 cd enterprise-security/server
@@ -1376,8 +1425,8 @@ bash installation/install.sh
 ```
 
 The script automatically:
-- Downloads ExploitDB database (46,948 exploits) - Linux becomes **MASTER**
-- Configures environment variables (SIGNATURE_MODE=auto)
+- Downloads ExploitDB database (46,948 exploits) - Linux becomes **MASTER** for P2P
+- Configures environment variables
 - Builds and starts container
 - Opens firewall (if ufw/firewalld detected)
 - Shows dashboard URL
@@ -1390,14 +1439,34 @@ git clone https://github.com/yuhisern7/enterprise-security.git
 cd enterprise-security
 ```
 
-**Step 2: Download ExploitDB Database (Recommended for Linux - Becomes Master)**
+**Step 2: Choose Your Mode**
+
+**💎 Premium Mode (Recommended - Zero Setup):**
+```bash
+# NO ExploitDB download needed!
+# Edit server/.env and add:
+# RELAY_URL=ws://YOUR_RELAY_IP:60001
+
+# Skip to Step 3
+```
+
+**🆓 Free Mode - Option A: Download ExploitDB (Becomes P2P Master):**
 ```bash
 cd AI
 git clone https://github.com/offensive-security/exploitdb.git exploitdb
 cd ..
 ```
 
-> 💡 **Why download on Linux?** Linux containers with ExploitDB automatically become **MASTER** nodes that serve signatures to Windows/Mac clients. This eliminates 500MB downloads on other platforms!
+> 💡 **Free Mode Benefit:** Linux with ExploitDB becomes **MASTER** node serving signatures to Windows/Mac via P2P, eliminating 824 MB downloads on other platforms.
+
+**🆓 Free Mode - Option B: Skip ExploitDB (Becomes P2P Client):**
+```bash
+# Skip ExploitDB download
+# Edit server/.env and add:
+# PEER_URLS=https://YOUR_LINUX_MASTER_IP:60001
+
+# Continue to Step 3
+```
 
 **Step 3: Configure Environment (IMPORTANT - Manual Edits Required)**
 ```bash
