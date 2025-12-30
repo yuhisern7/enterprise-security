@@ -631,12 +631,19 @@ def start_threat_intelligence_engine():
         print("[ThreatIntel] Starting threat intelligence crawlers...")
         crawler_manager = ThreatCrawlerManager()
         
-        # Add all crawlers
-        crawler_manager.add_crawler(CVECrawler())
+        # ✅ ACTIONABLE CRAWLERS ONLY (hashes, URLs, scores - NOT English text)
+        # MalwareBazaar: File hashes (MD5, SHA256, SHA1) - Direct signatures
         crawler_manager.add_crawler(MalwareBazaarCrawler())
-        crawler_manager.add_crawler(AlienVaultOTXCrawler())
+        
+        # URLhaus: Malicious URLs - Blocking/filtering
         crawler_manager.add_crawler(URLhausCrawler())
-        crawler_manager.add_crawler(AttackerKBCrawler())
+        
+        # CVE: Vulnerability scores (CVSS numerical ratings)
+        crawler_manager.add_crawler(CVECrawler())
+        
+        # ❌ DISABLED: Text-heavy crawlers (AI can't learn from English descriptions)
+        # crawler_manager.add_crawler(AlienVaultOTXCrawler())  # English threat reports
+        # crawler_manager.add_crawler(AttackerKBCrawler())     # English assessments
         
         # Start crawling in background (every 6 hours)
         def run_crawlers():
