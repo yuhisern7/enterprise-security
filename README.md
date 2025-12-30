@@ -111,23 +111,23 @@ Email: yuhisern@protonmail.com
 When you deploy a container anywhere in the world, it automatically:
 
 1. **Connects to Relay Server** → Uses WebSocket connection to central relay (ws://206.189.88.127:60001)
-2. **Discovers Peers** → Tracks unique peer names from threat message exchange (not just relay's static count)
+2. **Discovers Peers** → Tracks unique peer names from threat message exchange
 3. **Detects Local Attacks** → Monitors your network traffic in real-time (scans, exploits, suspicious IPs)
 4. **Learns Attack Patterns** → AI analyzes attack signatures using 46,948 ExploitDB exploits + behavioral patterns
 5. **Syncs Training Data** → Broadcasts threats to ALL peers via relay, receives threats from other containers
-6. **Self-Correcting Peer Count** → System tracks actual peers communicated with, not relay's potentially stale count
-7. **Updates AI Models** → Retrains neural networks **every 1 MINUTE** with combined global + local threat data
+6. **Filters Compatible Peers** → Only learns from nodes with similar profiles (federated ML)
+7. **Updates AI Models** → Intelligent retraining with exponential backoff (6h→12h→24h intervals)
 8. **Blocks Smarter** → Detects attacks faster because AI learned from millions of global threats
 
 **🔄 Automatic Synchronization Process:**
 ```
 Tokyo Container detects new attack at 09:00 JST
-    ↓ (INSTANT via WebSocket relay)
+    ↓ (INSTANT via WebSocket relay with RSA-2048 signature)
 Broadcasts to: New York, London, Sydney, Mumbai, Berlin
-    ↓ (Peer tracking - containers learn about each other)
-All containers update their seen_peers list
-    ↓ (AI retraining - 60 seconds)
-ALL containers now recognize this attack pattern
+    ↓ (Peer compatibility filtering - only similar node types)
+Compatible containers accept threat (incompatible nodes reject)
+    ↓ (Intelligent AI retraining - 6h/12h/24h intervals)
+ALL compatible containers now recognize this attack pattern
     ↓ (Result)
 London gets same attack at 14:00 GMT → BLOCKED INSTANTLY
 ```
@@ -149,8 +149,9 @@ London gets same attack at 14:00 GMT → BLOCKED INSTANTLY
 **🚀 Benefits of Worldwide Mesh:**
 - **Network Effect**: 1 container = protects 1 network | 1,000 containers = protect ALL networks
 - **Instant Broadcast**: Attack in Tokyo → All containers notified in <1 second via relay
-- **Smart Peer Tracking**: System tracks peers via actual communication, self-corrects stale relay counts
-- **Ultra-Fast Learning**: AI retrains every 60 seconds (most aggressive in the industry)
+- **Cryptographic Security**: RSA-2048 + HMAC-SHA256 prevents fake threats
+- **Intelligent Learning**: Exponential backoff training (6h→12h→24h) ensures model stability
+- **Federated ML**: Only learns from compatible peer types (Windows↔Windows, Linux↔Linux)
 - **GPU Acceleration**: Optional NVIDIA/AMD/Apple GPU support for faster training
 - **No Single Point of Failure**: Relay is stateless, containers work standalone if relay goes down
 - **Infinite Scale**: Add unlimited containers, performance stays constant
@@ -334,30 +335,30 @@ We analyzed major security platforms and found gaps:
 
 ---
 
-## 🧠 Machine Learning Limitations & Known Issues
+## 🧠 Machine Learning Implementation
 
-### ⚠️ Critical ML Engineering Problems (Acknowledged)
+### ✅ Production-Grade ML Features (All Implemented)
 
-The current ML implementation has **serious flaws** that impact reliability. We document these openly:
+The ML system has been engineered to solve common distributed learning problems:
 
-#### 🔴 Problem 1: Retraining Every Minute is Counterproductive
+#### ✅ Intelligent Retraining Strategy
 
-**Current Implementation:**
+**Implementation:**
 ```python
-# pcs_ai.py line 981
-if minutes_since_training > 1:  # Retrain every 1 minute
-    return True
+# pcs_ai.py - Exponential backoff based on data volume
+if len(threats) < 1000:
+    return hours_since_training > 6   # Early learning: 6h intervals
+elif len(threats) < 5000:
+    return hours_since_training > 12  # Mid-stage: 12h intervals
+else:
+    return hours_since_training > 24  # Mature: 24h intervals
 ```
 
-**Why This is Wrong:**
-- **Small sample sizes** → Unstable models (retraining with 5-10 samples)
-- **Noise dominates signal** → Random fluctuations treated as patterns
-- **Overfitting risk** → Models memorize individual attacks instead of learning patterns
-- **Peer data quality unknown** → Malicious nodes can inject bad samples every minute
-- **Computational waste** → Models don't improve, just thrash
-
-**ML Truth:**  
-> More training ≠ Better learning  
+**Benefits:**
+- **Minimum 100 samples** required before first training (prevents noise-based overfitting)
+- **Exponential backoff** prevents model thrashing
+- **Volume-based intervals** adapt to data availability
+- **Statistical significance** ensured before retraining
 > You need **stable, representative samples** over time, not frequent updates.
 
 **Impact:**
@@ -1574,15 +1575,15 @@ For production environments with high availability:
 - **Automatic IP Blocking**: Instant iptables firewall blacklisting
 - **ARP Spoofing Device Blocker**: Block devices from network access without router admin (Man-in-the-Middle attack)
 - **VPN/Tor Detection**: De-anonymization techniques
-- **Ultra-Fast Retraining**: AI retrains every **60 seconds** or 5 new threats
+- **Intelligent ML Training**: Exponential backoff (6h/12h/24h), time-weighted samples, 90-day sliding window
 
 ### Global Relay Mesh Network
 - **Star Topology**: All containers connect to central relay (ws://206.189.88.127:60001)
-- **Instant Broadcast**: Threats shared via WebSocket in real-time
-- **Smart Peer Tracking**: System tracks unique peers via threat message exchange
-- **Self-Correcting Counts**: Containers discover peers through actual communication, not stale relay data
+- **Instant Broadcast**: Threats shared via WebSocket in real-time with RSA-2048 signatures
+- **Cryptographic Security**: HMAC-SHA256 integrity validation, replay attack protection
+- **Peer Compatibility**: Only learns from similar node types (federated ML)
 - **Privacy-Preserving**: Dashboard shows ONLY your attacks, AI learns from everyone
-- **Peer Blocking**: Block malicious containers from mesh network
+- **Peer Blocking**: Reject threats from malicious or incompatible containers
 - **Resilient**: Containers work standalone if relay goes down
 - **Collective Intelligence**: Network gets smarter with each container
 - **Scalable**: 1000+ containers on single relay server
@@ -1968,10 +1969,14 @@ _peer_threats = []    # Peer attacks (AI learns, dashboard hides)
 # ML trains on _threat_log + _peer_threats
 ```
 
-**Automatic Retraining:**
-- **Every 1 MINUTE** (ultra-aggressive, most frequent in the industry)
-- **OR** every 5 new threats detected
-- Adapts to evolving attack patterns in real-time
+**Intelligent ML Training:**
+- **Minimum 100 samples** required (prevents noise-based overfitting)
+- **Exponential backoff**: 6h → 12h → 24h intervals based on data volume
+- **Time-weighted samples**: Recent threats (<7 days) weighted 10x higher
+- **90-day sliding window**: Auto-expire old threats
+- **Federated normalization**: Node-specific feature scaling
+- **Peer compatibility filtering**: Only learn from similar node types
+- Adapts to evolving attack patterns while maintaining stability
 - No manual intervention required
 - Optional GPU training for faster model updates
 
@@ -1999,14 +2004,14 @@ _peer_threats = []    # Peer attacks (AI learns, dashboard hides)
 - ML prediction: <100ms per IP
 
 **Sync Speed:**
-- Threat broadcast: **INSTANT** via WebSocket relay
+- Threat broadcast: **INSTANT** via WebSocket relay (cryptographically signed)
 - Dashboard refresh: 5 minutes (configurable)
 - Device scanning: Every 5 minutes
 - Threat crawler sync: Every 6 hours
 - Peer discovery: Real-time via threat message exchange
-- Network convergence: <1 minute (via seen_peers tracking)
+- Network convergence: <1 second (peer_joined/peer_left notifications)
 - ARP spoofing: Fake packets every 2 seconds per blocked device
-- AI retraining: **Every 60 seconds** or 5 new threats (whichever comes first)
+- AI retraining: **Intelligent intervals** - 6h/12h/24h based on data volume (minimum 100 samples)
 - GPU training: 1-5 minutes depending on dataset size (vs 10-30 minutes on CPU)
 
 ---
