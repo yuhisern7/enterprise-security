@@ -3,15 +3,34 @@ version: '3.8'
 services:
   relay-server:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: relay/Dockerfile
     container_name: security-relay-server
     restart: unless-stopped
     network_mode: host
+    volumes:
+      # Mount ai_training_materials (825 MB training data)
+      - ./ai_training_materials:/app/relay/ai_training_materials
+      # Mount json logs (global_attacks.json, threat_log.json)
+      - ./json:/app/relay/json
+      # Mount trained models for persistence
+      - ./ml_models:/app/relay/ml_models
     environment:
+      # WebSocket relay configuration
       - RELAY_HOST=0.0.0.0
       - RELAY_PORT=60001
       - RELAY_NAME=central-relay
+      
+      # Model distribution API configuration
+      - API_HOST=0.0.0.0
+      - API_PORT=60002
+      
+      # Training configuration
+      - TRAINING_ENABLED=true
+      - TRAINING_INTERVAL_HOURS=6
+      
+      # Logging
+      - LOG_LEVEL=INFO
     healthcheck:
       test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.connect(('localhost', 60001)); s.close()"]
       interval: 30s
