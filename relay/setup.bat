@@ -41,16 +41,23 @@ echo.
 echo 2. Configure firewall (if applicable):
 echo    Allow TCP port 60001 inbound
 echo.
+echo.
 echo 3. On each security container, edit server\.env:
 echo    RELAY_ENABLED=true
 echo    RELAY_URL=ws://YOUR-PUBLIC-IP:60001
-echo    P2P_SYNC_ENABLED=false
+echo    RELAY_CRYPTO_ENABLED=true
 echo.
-echo 4. Restart containers:
+echo 4. Rebuild containers (to install cryptography package):
+echo    cd ..\server
 echo    docker compose down
+echo    docker compose build
 echo    docker compose up -d
 echo.
-echo 5. Verify connection:
+echo 5. Test connection:
+echo    curl http://localhost:60000/api/relay/status
+echo    (Should show: "connected": true)
+echo.
+echo 6. Verify relay logs:
 echo    docker logs security-relay-server
 echo.
 echo ==================================

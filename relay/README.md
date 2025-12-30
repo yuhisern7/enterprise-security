@@ -1,5 +1,28 @@
 # Relay Server - Platform-Specific Setup
 
+## ✨ Features (December 2025)
+
+**Security:**
+- ✅ **Cryptographic Signing**: RSA-2048 + HMAC-SHA256 message authentication
+- ✅ **Replay Protection**: Timestamp validation (5-minute window) + nonce tracking
+- ✅ **Peer Broadcasting**: Real-time peer_joined/peer_left notifications
+- ✅ **Node Fingerprinting**: Automatic OS/type detection for federated learning
+- ✅ **Compatibility Scoring**: 0.0-1.0 peer compatibility for data quality
+
+**Machine Learning:**
+- ✅ **Time-Weighted Training**: 10x weight for recent threats (<7 days)
+- ✅ **90-Day Sliding Window**: Automatic expiration of stale threat data
+- ✅ **Federated Normalization**: Z-score per node type (prevents feature skew)
+- ✅ **Distribution Drift Detection**: Alerts when features >3σ from baseline
+
+**Network:**
+- ✅ **WebSocket Protocol**: Lightweight, persistent connections
+- ✅ **Host Networking**: Direct port access (no Docker NAT overhead)
+- ✅ **Health Checks**: Automatic container restart on failure
+- ✅ **Graceful Shutdown**: Broadcasts peer_left before disconnecting
+
+---
+
 ## 🖥️ Choose Your Platform:
 
 ### Linux (Ubuntu/Debian/CentOS)
@@ -39,6 +62,7 @@ git clone https://github.com/yuhisern7/enterprise-security.git
 cd enterprise-security/relay
 
 # Run automated setup
+chmod +x setup.sh
 ./setup.sh
 
 # Verify running
@@ -62,22 +86,25 @@ firewall-cmd --reload
 
 **Requirements:**
 - macOS 11 (Big Sur) or later
-- Docker Desktop for Mac installed
-- Running Docker Desktop
+- Docker installed (via Homebrew or Docker Desktop)
+- Docker running
 
-**Install Docker Desktop:**
-1. Download from: https://www.docker.com/products/docker-desktop
-2. Open Docker.dmg
-3. Drag Docker to Applications
-4. Launch Docker Desktop
-5. Wait for "Docker Desktop is running" in menu bar
+**Install Docker:**
+```bash
+# Option 1: Homebrew (recommended)
+brew install --cask docker
+
+# Option 2: Download Docker Desktop
+# https://www.docker.com/products/docker-desktop
+```
 
 **Quick Start:**
 ```bash
 # Navigate to relay directory
 cd enterprise-security/relay
 
-# Run macOS setup script
+# Make script executable and run
+chmod +x setup-macos.sh
 ./setup-macos.sh
 
 # Verify running
@@ -111,17 +138,18 @@ RELAY_URL=wss://YOUR-MAC-PUBLIC-IP:60001
 
 **Requirements:**
 - Windows 10/11 (Pro, Enterprise, or Education)
-- Docker Desktop for Windows installed
+- Docker installed (Docker Desktop or Podman)
 - WSL 2 enabled
-- Running Docker Desktop
+- Docker running
 
-**Install Docker Desktop:**
-1. Download from: https://www.docker.com/products/docker-desktop
-2. Run installer
-3. Enable WSL 2 when prompted
-4. Restart computer
-5. Launch Docker Desktop
-6. Wait for "Docker Desktop is running" in system tray
+**Install Docker:**
+```powershell
+# Option 1: Winget (Windows Package Manager)
+winget install Docker.DockerDesktop
+
+# Option 2: Download Docker Desktop
+# https://www.docker.com/products/docker-desktop
+```
 
 **Quick Start:**
 ```cmd

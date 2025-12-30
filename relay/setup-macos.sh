@@ -21,15 +21,16 @@ fi
 if ! command -v docker &> /dev/null; then
     echo "❌ Docker not found!"
     echo ""
-    echo "Please install Docker Desktop for Mac:"
+    echo "Install Docker using Homebrew:"
+    echo "brew install --cask docker"
+    echo ""
+    echo "Or download Docker Desktop:"
     echo "https://www.docker.com/products/docker-desktop"
     echo ""
-    echo "Installation steps:"
-    echo "1. Download Docker.dmg"
-    echo "2. Drag Docker to Applications"
-    echo "3. Launch Docker Desktop"
-    echo "4. Wait for Docker to start"
-    echo "5. Run this script again"
+    echo "After installation:"
+    echo "1. Launch Docker Desktop"
+    echo "2. Wait for Docker to start"
+    echo "3. Run this script again"
     exit 1
 fi
 
@@ -86,17 +87,17 @@ if [ "$PUBLIC_IP" != "Unable to detect" ]; then
 else
     echo "   RELAY_URL=ws://YOUR-PUBLIC-IP:60001"
 fi
-echo "   P2P_SYNC_ENABLED=false"
+echo "   RELAY_CRYPTO_ENABLED=true"
 echo ""
-echo "3. Restart containers:"
-echo "   docker compose down && docker compose up -d"
+echo "3. Rebuild containers (to install cryptography package):"
+echo "   cd ../server"
+echo "   docker compose down"
+echo "   docker compose build"
+echo "   docker compose up -d"
 echo ""
 echo "4. Test connection:"
-if [ "$PUBLIC_IP" != "Unable to detect" ]; then
-    echo "   telnet $PUBLIC_IP 60001"
-else
-    echo "   telnet YOUR-PUBLIC-IP 60001"
-fi
+echo "   curl http://localhost:60000/api/relay/status"
+echo "   (Should show: \"connected\": true)"
 echo ""
 echo "=================================="
 if [ "$PUBLIC_IP" != "Unable to detect" ]; then
