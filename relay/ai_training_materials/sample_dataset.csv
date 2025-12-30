@@ -1,0 +1,11 @@
+src_ip,attack_type,severity,threat_score,protocol,port,payload_size,country,is_malicious
+192.168.1.100,SQL Injection,high,0.95,TCP,80,1024,US,1
+203.0.113.45,XSS Attack,high,0.92,TCP,443,768,CN,1
+198.51.100.23,Port Scan,medium,0.78,TCP,22,64,RU,1
+192.0.2.10,DDoS,critical,0.99,UDP,53,32768,CN,1
+10.0.0.50,Brute Force,high,0.88,TCP,22,256,RU,1
+172.16.0.5,Normal Traffic,low,0.05,TCP,443,1500,US,0
+192.168.1.50,Normal Traffic,low,0.03,TCP,80,512,US,0
+10.0.0.100,Normal Traffic,low,0.02,UDP,53,128,US,0
+172.16.0.20,Normal Traffic,low,0.04,TCP,443,2048,CA,0
+192.168.2.30,Normal Traffic,low,0.01,TCP,80,640,UK,0

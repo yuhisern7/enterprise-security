@@ -24,7 +24,7 @@ class GPUTrainer:
         self.gpu_name = None
         self.framework = None  # 'tensorflow' or 'pytorch'
         self.model = None
-        self.training_data_path = "/app/AI/exploitdb/ai_training_materials"
+        self.training_data_path = "/app/relay/ai_training_materials"
         
         # Detect GPU
         self._detect_gpu()

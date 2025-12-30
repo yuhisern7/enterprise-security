@@ -45,12 +45,33 @@ Registration: 202403184091 (MA0319303)
 - Cryptographic security (RSA-2048 + HMAC-SHA256)
 - Replay attack protection (timestamp + nonce validation)
 
-**🧠 AI Training Materials:**
-- Curated datasets from real-world attacks (10,000+ threat samples)
-- Node fingerprinting profiles (Windows/Linux/Docker/embedded)
-- Federated learning models pre-trained on global threats
-- Time-weighted threat datasets (10x recent, 90-day sliding window)
-- Behavioral anomaly profiles from honeypot networks
+**🧠 Centralized AI Training Materials (Hosted on Relay Server):**
+- **Automated Download:** Connect to relay server → Training materials sync automatically
+- **46,948+ ExploitDB Signatures:** Pre-scraped attack patterns (SQL injection, XSS, RCE, etc.)
+- **100,000+ Malware Hashes:** MalwareBazaar database (MD5, SHA256, SHA1)
+- **10,000+ Malicious URLs:** URLhaus blacklist (phishing, malware distribution sites)
+- **Global Attack Database:** Real attacks from all subscribers logged centrally
+- **Pre-Trained ML Models:** threat_classifier.pkl, anomaly_detector.pkl (trained on millions of threats)
+- **Node Fingerprinting Profiles:** Windows/Linux/Docker compatibility scoring
+- **Zero Setup:** No manual ExploitDB download - relay server serves everything
+
+**📊 How It Works:**
+1. **You subscribe ($25/month)** → Get relay server URL (ws://relay.youromain.com:60001)
+2. **Set RELAY_URL** in your `.env` file
+3. **Start container** → Connects to relay automatically
+4. **Training materials download** → ExploitDB signatures, malware hashes, ML models sync from relay
+5. **Global attacks logged** → Every threat detected by any subscriber stored centrally
+6. **AI learns continuously** → Your container trains on millions of attacks without manual work
+
+**Storage Location:**
+- **Relay Server:** `/relay/ai_training_materials/` (centralized - 825 MB+)
+  - `exploitdb/` - 46,948 exploit signatures
+  - `ml_models/` - Pre-trained models (.pkl files)
+  - `learned_signatures.json` - 3,066 attack patterns (910 KB)
+  - `crawlers/` - MalwareBazaar + URLhaus data
+  - `global_attacks.json` - Attacks from all subscribers (grows continuously)
+
+- **Your Container:** Accesses via relay connection (no manual download needed)
 
 **🚀 Enterprise Features:**
 - Priority relay server access (99.9% uptime SLA)

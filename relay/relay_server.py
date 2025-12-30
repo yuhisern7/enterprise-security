@@ -2,6 +2,9 @@
 """
 WebSocket Relay Server for Enterprise Security Mesh
 Relays threat intelligence between unlimited security containers worldwide
+
+NEW: Centralized Attack Database - All attacks from all containers stored here
+Premium subscribers get access to millions of real-world attacks for AI training
 """
 
 import asyncio
@@ -9,7 +12,7 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import Set
+from typing import Set, Dict, Any
 import websockets
 from websockets.server import WebSocketServerProtocol
 
@@ -22,12 +25,17 @@ logger = logging.getLogger(__name__)
 # Connected clients (all security containers worldwide)
 connected_clients: Set[WebSocketServerProtocol] = set()
 
+# Centralized Attack Database (stored in ai_training_materials)
+ATTACK_DB_PATH = "ai_training_materials/global_attacks.json"
+ATTACK_STATS_PATH = "ai_training_materials/attack_statistics.json"
+
 # Statistics
 stats = {
     "total_connections": 0,
     "active_connections": 0,
     "messages_relayed": 0,
     "threats_shared": 0,
+    "attacks_logged": 0,
     "start_time": datetime.utcnow().isoformat()
 }
 
@@ -98,6 +106,81 @@ async def unregister_client(websocket: WebSocketServerProtocol):
             stats["active_connections"] = len(connected_clients)
 
 
+async def log_attack_to_database(attack_data: Dict[str, Any]):
+    """
+    Log attack to centralized database for global AI training.
+    All attacks from all containers stored here permanently.
+    """
+    try:
+        # Load existing attacks
+        attacks = []
+        if os.path.exists(ATTACK_DB_PATH):
+            with open(ATTACK_DB_PATH, 'r') as f:
+                attacks = json.load(f)
+        
+        # Add new attack
+        attacks.append({
+            **attack_data,
+            "logged_at_relay": datetime.utcnow().isoformat(),
+            "relay_server": os.getenv("RELAY_NAME", "central-relay")
+        })
+        
+        # Save to database
+        with open(ATTACK_DB_PATH, 'w') as f:
+            json.dump(attacks, f, indent=2)
+        
+        stats["attacks_logged"] += 1
+        logger.debug(f"📝 Attack logged to database (Total: {stats['attacks_logged']})")
+        
+    except Exception as e:
+        logger.error(f"Failed to log attack to database: {e}")
+
+
+async def update_attack_statistics():
+    """Update global attack statistics for analytics"""
+    try:
+        if not os.path.exists(ATTACK_DB_PATH):
+            return
+        
+        with open(ATTACK_DB_PATH, 'r') as f:
+            attacks = json.load(f)
+        
+        # Calculate statistics
+        attack_types = {}
+        countries = {}
+        severities = {}
+        
+        for attack in attacks:
+            # Attack types
+            attack_type = attack.get('attack_type', 'unknown')
+            attack_types[attack_type] = attack_types.get(attack_type, 0) + 1
+            
+            # Countries
+            country = attack.get('geolocation', {}).get('country', 'unknown')
+            countries[country] = countries.get(country, 0) + 1
+            
+            # Severities
+            severity = attack.get('level', 'unknown')
+            severities[severity] = severities.get(severity, 0) + 1
+        
+        statistics = {
+            "total_attacks": len(attacks),
+            "last_updated": datetime.utcnow().isoformat(),
+            "attack_types": attack_types,
+            "countries": countries,
+            "severities": severities,
+            "relay_server": os.getenv("RELAY_NAME", "central-relay")
+        }
+        
+        with open(ATTACK_STATS_PATH, 'w') as f:
+            json.dump(statistics, f, indent=2)
+        
+        logger.info(f"📊 Statistics updated: {len(attacks)} total attacks logged")
+        
+    except Exception as e:
+        logger.error(f"Failed to update statistics: {e}")
+
+
 async def broadcast_message(message: dict, sender: WebSocketServerProtocol):
     """Broadcast threat intelligence to all containers except sender"""
     if not connected_clients:
@@ -113,6 +196,9 @@ async def broadcast_message(message: dict, sender: WebSocketServerProtocol):
     # Count as threat if it contains threat data
     if "threat_type" in message or "threats" in message:
         stats["threats_shared"] += 1
+        
+        # **NEW**: Log attack to centralized database
+        await log_attack_to_database(message)
     
     # Broadcast to all clients except sender
     disconnected = set()
@@ -184,13 +270,17 @@ async def handle_client(websocket: WebSocketServerProtocol):
 
 
 async def stats_reporter():
-    """Periodically log server statistics"""
+    """Periodically log server statistics and update attack analytics"""
     while True:
         await asyncio.sleep(300)  # Every 5 minutes
         logger.info(f"📊 Stats - Active: {stats['active_connections']}, "
                    f"Total: {stats['total_connections']}, "
                    f"Messages: {stats['messages_relayed']}, "
-                   f"Threats: {stats['threats_shared']}")
+                   f"Threats: {stats['threats_shared']}, "
+                   f"Attacks Logged: {stats['attacks_logged']}")
+        
+        # Update global attack statistics
+        await update_attack_statistics()
 
 
 async def main():
@@ -200,6 +290,11 @@ async def main():
     
     logger.info(f"🚀 Starting WebSocket Relay Server on {host}:{port}")
     logger.info(f"🌍 Ready to relay threats between unlimited containers worldwide")
+    logger.info(f"📝 Centralized Attack Database: {ATTACK_DB_PATH}")
+    logger.info(f"📊 Attack Statistics: {ATTACK_STATS_PATH}")
+    
+    # Create ai_training_materials directory if not exists
+    os.makedirs("ai_training_materials", exist_ok=True)
     
     # Start stats reporter
     asyncio.create_task(stats_reporter())

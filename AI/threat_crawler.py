@@ -446,7 +446,7 @@ class ThreatCrawlerManager:
         
         return indicators
     
-    def save_results(self, threats: List[Dict], filepath: str = 'AI/ml_models/threat_intelligence_crawled.json'):
+    def save_results(self, threats: List[Dict], filepath: str = 'ml_models/threat_intelligence_crawled.json'):
         """Save crawl results to JSON file"""
         try:
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
