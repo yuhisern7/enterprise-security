@@ -1571,9 +1571,10 @@
             <li>⚙️ <strong>Configurable Ports:</strong> Customize which services to enable and which ports to use</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🎓 6. Continuous Self-Learning & Model Updates</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🎓 6. Continuous Self-Learning & Model Updates (December 2025 - FIXED)</strong></p>
           <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>⚡ <strong>Ultra-Aggressive Training:</strong> ML models retrain every <strong>1 MINUTE</strong> or every 5 detected threats (most aggressive in the industry)</li>
+            <li>⚡ <strong>Time-Weighted Training:</strong> Recent threats (<7 days) weighted <strong>10x higher</strong> • Exponential decay after 30 days • Retraining with <strong>exponential backoff: 6h → 12h → 24h</strong></li>
+            <li>📅 <strong>90-Day Sliding Window:</strong> Auto-expires threats older than 90 days to prevent model staleness</li>
             <li>🔄 <strong>ExploitDB Sync:</strong> Scrapes 5,000 new exploit signatures every 24 hours from local database (46,948+ total signatures)</li>
             <li>🍯 <strong>Honeypot Intelligence:</strong> Real attack attempts from honeypots feed ML pattern recognition</li>
             <li>🌐 <strong>Threat Crawler Data:</strong> 204 items from 5 global threat feeds refresh every 6 hours</li>
@@ -1584,13 +1585,14 @@
             <li>🎯 <strong>Zero Human Input:</strong> Entire learning cycle fully automated - AI improves itself continuously</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🌐 7. Global Relay Mesh Network (Star Topology)</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🌐 7. Global Relay Mesh Network (Star Topology - December 2025 FIXED)</strong></p>
           <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
             <li>🌍 <strong>Worldwide Peer Discovery:</strong> Containers auto-discover each other via WebSocket relay server (ws://206.189.88.127:60001)</li>
-            <li>🔄 <strong>Real-Time Threat Sharing:</strong> Every detected attack broadcasts to ALL connected peers instantly</li>
+            <li>🔐 <strong>Cryptographic Security:</strong> <strong>RSA-2048 signatures + HMAC-SHA256</strong> authenticate all threat messages • Replay protection (5-min timestamp + nonce tracking)</li>
+            <li>🖥️ <strong>Node Fingerprinting:</strong> Auto-detects OS/type (Windows/Linux/Docker/embedded) • <strong>Compatibility scoring (0.0-1.0)</strong> ensures quality peer connections</li>
+            <li>📊 <strong>Federated Normalization:</strong> Z-score normalization <strong>per node type</strong> prevents feature skew • Distribution drift alerts (>3σ)</li>
+            <li>🔄 <strong>Real-Time Peer Broadcasting:</strong> Relay broadcasts <strong>peer_joined/peer_left</strong> to all clients • Peer counts synchronize instantly across all nodes</li>
             <li>🧠 <strong>Collective Intelligence:</strong> Each container learns from global attack patterns - Tokyo attack protects New York container</li>
-            <li>📊 <strong>Smart Peer Tracking:</strong> System tracks unique peers via threat message exchange, not just relay's static count</li>
-            <li>🎯 <strong>Self-Correcting Peer Count:</strong> Even if relay's peer count is stale, containers discover peers through actual communication</li>
             <li>⚡ <strong>Automatic Convergence:</strong> Both Linux and Windows containers show identical peer count after threat exchange (~1 minute)</li>
             <li>🔐 <strong>Peer Blocking:</strong> Block malicious peers from mesh network with one click (stored in blocked_peers.json)</li>
             <li>📈 <strong>Scalable Architecture:</strong> Relay handles unlimited peers - tested with 1000+ simultaneous connections</li>

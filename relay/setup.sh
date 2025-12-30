@@ -35,15 +35,24 @@ fi
 echo ""
 echo "🔥 Configuring firewall..."
 if command -v ufw &> /dev/null; then
+    # CRITICAL: Allow SSH first to prevent lockout!
+    ufw allow 22/tcp comment 'SSH Access'
     ufw allow 60001/tcp comment 'WebSocket Relay'
-    ufw --force enable
-    echo "✅ UFW configured - Port 60001 open"
+    
+    # Check if UFW is already enabled
+    if ufw status | grep -q "Status: active"; then
+        echo "✅ UFW already active - Rules added"
+    else
+        echo "⚠️  UFW is installed but not enabled"
+        echo "   To enable firewall manually (ONLY if you have SSH access):"
+        echo "   sudo ufw enable"
+    fi
 elif command -v firewall-cmd &> /dev/null; then
     firewall-cmd --permanent --add-port=60001/tcp
     firewall-cmd --reload
     echo "✅ Firewalld configured"
 else
-    echo "⚠️  Manual firewall configuration needed: Allow TCP port 60001"
+    echo "⚠️  No firewall detected - Port 60001 should be accessible"
 fi
 
 # Get public IP
