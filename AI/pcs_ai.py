@@ -60,12 +60,16 @@ import secrets
 import pickle
 import warnings
 import ipaddress
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import List, Dict, Optional, Tuple
 from collections import defaultdict
 import pytz
+
+# Initialize logger
+logger = logging.getLogger(__name__)
 
 # Machine Learning / Real AI imports
 try:
