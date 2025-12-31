@@ -1713,6 +1713,21 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
             _threat_log.pop(0)
         # Save to disk for persistence
         _save_threat_log()
+        
+        # 🔬 SIGNATURE EXTRACTION: Extract attack patterns (NOT exploit code)
+        try:
+            from signature_extractor import extract_from_threat
+            signatures = extract_from_threat({
+                'payload': details,  # Attack string
+                'ip': ip_address,
+                'type': threat_type,
+                'timestamp': event['timestamp']
+            })
+            event['extracted_signatures'] = signatures  # Add to event (patterns only)
+            print(f"[SIGNATURE EXTRACTOR] Extracted {len(signatures.get('keywords_found', []))} keywords, "
+                  f"{len(signatures.get('encodings_detected', []))} encodings from attack")
+        except Exception as e:
+            print(f"[SIGNATURE EXTRACTOR] Warning: {e}")
     else:
         _peer_threats.append(event)  # Peer threats (AI training only)
         # Keep only last 500 peer events in memory

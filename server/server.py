@@ -777,6 +777,32 @@ def get_gpu_info():
     })
 
 
+@app.route('/api/signatures/extracted', methods=['GET'])
+def get_extracted_signatures():
+    """Get automatically extracted attack signatures (DEFENSIVE - no exploit code)"""
+    try:
+        from AI.signature_extractor import get_signature_extractor
+        
+        extractor = get_signature_extractor()
+        ml_data = extractor.get_ml_training_data()
+        
+        return jsonify({
+            'status': 'success',
+            'metadata': {
+                'total_patterns': ml_data['total_samples'],
+                'attack_distribution': ml_data['attack_distribution'],
+                'architecture': 'DEFENSIVE - Patterns only, NO exploit code stored',
+                'data_safety': ml_data['data_safety']
+            },
+            'top_encodings': dict(list(extractor.attack_patterns['encodings_used'].items())[:10]),
+            'top_keywords': dict(list(extractor.attack_patterns['attack_keywords'].items())[:20]),
+            'encoding_chains_detected': len(extractor.attack_patterns['encoding_chains']),
+            'regex_patterns_generated': len(extractor.attack_patterns['regex_patterns'])
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
 # REMOVED: GPU training (relay server only)
 # Subscribers download pre-trained models (280 KB) from relay
 # Training (heavy compute) happens centrally on relay server
