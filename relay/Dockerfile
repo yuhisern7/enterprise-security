@@ -17,11 +17,11 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 WORKDIR /app/relay
 
 # Copy relay server files
-COPY relay_server.py .
-COPY training_sync_api.py .
-COPY ai_retraining.py .
-COPY gpu_trainer.py .
-COPY start_services.py .
+COPY relay/relay_server.py .
+COPY relay/training_sync_api.py .
+COPY relay/ai_retraining.py .
+COPY relay/gpu_trainer.py .
+COPY relay/start_services.py .
 
 # Copy AI module (needed for pcs_ai imports - includes all enterprise features)
 COPY AI /app/AI
