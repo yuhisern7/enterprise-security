@@ -131,6 +131,266 @@
       </div>
     </header>
     
+    <!-- FEATURE REGISTRY - Complete Feature List (Expandable) -->
+    <div id="featureRegistry" style="background: linear-gradient(135deg, #1a1e2e, #151b2c); border-bottom: 2px solid #5fe2ff; padding: 0; max-width: 1400px; margin: 0 auto; overflow: hidden; transition: max-height 0.3s ease;">
+      <div onclick="toggleFeatureRegistry()" style="padding: 0.75rem 2rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: rgba(95, 226, 255, 0.05);">
+        <div>
+          <h3 style="margin: 0; color: #5fe2ff; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span id="featureRegistryIcon">▶️</span>
+            📊 FEATURE REGISTRY - All Available Features (60 Active)
+          </h3>
+          <p style="margin: 0.25rem 0 0; color: #8a92b6; font-size: 0.8rem;">Click to expand/collapse • Hover over features to see API endpoints</p>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <span style="background: #2a7f3f; color: #5fff9f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">✅ 60 Active</span>
+          <span style="background: #7f7f2a; color: #ffff5f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🚧 64 Planned</span>
+        </div>
+      </div>
+      
+      <div id="featureRegistryContent" style="display: none; padding: 1.5rem 2rem; max-height: 70vh; overflow-y: auto;">
+        
+        <!-- Core Monitoring & Detection -->
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: #5fe2ff; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="background: #2a7f3f; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">ACTIVE</span>
+            🛡️ Core Monitoring & Detection (6 Features)
+          </h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
+            <div class="feature-item" title="API: /api/threat_log" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Live Threat Monitor (Real-time attack logs)</span>
+            </div>
+            <div class="feature-item" title="API: /api/stats" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Security Overview Statistics</span>
+            </div>
+            <div class="feature-item" title="Section: Threat Analysis" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Threat Analysis by Type (SQL, XSS, DDoS)</span>
+            </div>
+            <div class="feature-item" title="Chart: Canvas" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Attack Type Breakdown Chart (Visual)</span>
+            </div>
+            <div class="feature-item" title="Section: VPN/Tor Stats" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">VPN/Tor De-Anonymization Statistics</span>
+            </div>
+            <div class="feature-item" title="Section: Failed Logins" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Failed Login Attempts Monitor</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI & Machine Learning -->
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: #5fe2ff; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="background: #2a7f3f; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">ACTIVE</span>
+            🤖 AI & Machine Learning (5 Features)
+          </h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
+            <div class="feature-item" title="Section: ML Models" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Real AI/ML Models (RandomForest, IsolationForest, LSTM)</span>
+            </div>
+            <div class="feature-item" title="API: /api/p2p/status" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">AI Training Network (P2P Mesh)</span>
+            </div>
+            <div class="feature-item" title="API: /api/models/sync" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">ML Model Sync (6-hour auto-update)</span>
+            </div>
+            <div class="feature-item" title="API: /api/adaptive_honeypot/status" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Adaptive Honeypot (SSH, FTP, HTTP, Telnet)</span>
+            </div>
+            <div class="feature-item" title="API: /api/signatures/extracted" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ff9f5f;">
+              <span style="color: #ff9f5f; font-size: 1.2rem;">🌟</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem; font-weight: 600;">Automated Signature Extraction (UNIQUE)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Network & Device Management -->
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: #5fe2ff; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="background: #2a7f3f; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">ACTIVE</span>
+            🌐 Network & Device Management (5 Features)
+          </h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
+            <div class="feature-item" title="Section: Network Devices" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Network Devices Protected (ARP discovery)</span>
+            </div>
+            <div class="feature-item" title="API: /api/connected-devices" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Connected Devices API (Real-time)</span>
+            </div>
+            <div class="feature-item" title="API: /api/device-history" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Device History (7-day tracking)</span>
+            </div>
+            <div class="feature-item" title="API: /api/device/block, /api/device/unblock" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Device Blocking/Unblocking Controls</span>
+            </div>
+            <div class="feature-item" title="Section: Open Ports" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Port Scanning Detection (Open ports visible)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance, Compliance & Visualization -->
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: #5fe2ff; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="background: #2a7f3f; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">ACTIVE</span>
+            📊 Performance, Compliance & Visualization (9 Features)
+          </h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
+            <div class="feature-item" title="API: /api/performance/metrics" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Network Performance Metrics (ML anomaly)</span>
+            </div>
+            <div class="feature-item" title="API: /api/compliance/summary" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Compliance Dashboard (PCI-DSS, HIPAA, GDPR, SOC 2)</span>
+            </div>
+            <div class="feature-item" title="Section: Export" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">HTML Report Generation (Multiple formats)</span>
+            </div>
+            <div class="feature-item" title="API: /api/visualization/topology" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Network Topology Visualization</span>
+            </div>
+            <div class="feature-item" title="API: /api/visualization/attack-flows" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Attack Flow Visualization</span>
+            </div>
+            <div class="feature-item" title="API: /api/visualization/heatmap" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Heatmap Visualization (Threat density)</span>
+            </div>
+            <div class="feature-item" title="API: /api/visualization/geographic" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Geographic Visualization (World map)</span>
+            </div>
+            <div class="feature-item" title="HTTPS: Port 60000" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">HTTPS Dashboard (SSL encrypted)</span>
+            </div>
+            <div class="feature-item" title="Section: Settings" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">System Configuration (API keys, timezone, ports)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PLANNED FEATURES (Phase 1-3) -->
+        <div style="margin-bottom: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #2a3548;">
+          <h4 style="color: #ffb85f; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="background: #7f7f2a; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">PLANNED</span>
+            🚧 Phase 1: Critical Features (Week 1-2) - 4 Features
+          </h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
+            <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
+              <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Deep Packet Inspection (HTTP/DNS/SSH)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
+              <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Application-Aware Blocking (Tor, BitTorrent, miners)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
+              <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">User Identity Tracking (Active Directory)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
+              <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Full Packet Capture (PCAP forensics)</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: #ffb85f; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="background: #7f7f2a; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">PLANNED</span>
+            🚧 Phase 2: Enterprise Features (Week 3-4) - 5 Features
+          </h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
+            <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
+              <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Geo-IP Blocking (Country blacklists)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
+              <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">DNS Security (Tunneling, DGA detection)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
+              <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Threat Hunting UI (Advanced search/filter)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
+              <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Email/SMS Alerts (Critical notifications)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
+              <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">TLS Fingerprinting (JA3/JA4 without decrypt)</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 0;">
+          <h4 style="color: #ffb85f; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="background: #7f7f2a; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">PLANNED</span>
+            🚧 Phase 3: Advanced Features (Month 2-4) - 4 Features
+          </h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
+            <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
+              <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Sandbox Detonation (Automated malware analysis)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
+              <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Insider Threat Detection (Behavioral analytics)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
+              <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">SOAR Integration (Phantom, Demisto, XSOAR)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
+              <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Container/K8s Security (Docker/Kubernetes monitoring)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature Testing Tools -->
+        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #2a3548;">
+          <h4 style="color: #5fe2ff; margin-bottom: 0.75rem;">🧪 Quick Feature Tests</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            <button onclick="testFeature('signatures')" style="background: linear-gradient(135deg, #ff9f5f, #dd7f4f); padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+              Test Signature Extraction
+            </button>
+            <button onclick="testFeature('performance')" style="background: linear-gradient(135deg, #5fff9f, #4fdd88); padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+              Test Performance API
+            </button>
+            <button onclick="testFeature('compliance')" style="background: linear-gradient(135deg, #5fe2ff, #4fc9dd); padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+              Test Compliance API
+            </button>
+            <button onclick="testFeature('visualization')" style="background: linear-gradient(135deg, #9f5fff, #7f4fdd); padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+              Test Visualization APIs
+            </button>
+          </div>
+          <div id="featureTestResult" style="margin-top: 0.75rem; padding: 0.75rem; background: #1a2135; border-radius: 4px; display: none;"></div>
+        </div>
+      </div>
+    </div>
+    
     <!-- Clear Data Modal -->
     <div id="clearModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 9999; align-items: center; justify-content: center;">
       <div style="background: #151b2c; border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7); border: 2px solid #ff5f5f;">
@@ -3080,6 +3340,63 @@
           
         } catch (error) {
           console.error('Error loading compliance data:', error);
+        }
+      }
+      
+      // ========================================
+      // FEATURE REGISTRY FUNCTIONS
+      // ========================================
+      
+      function toggleFeatureRegistry() {
+        const content = document.getElementById('featureRegistryContent');
+        const icon = document.getElementById('featureRegistryIcon');
+        
+        if (content.style.display === 'none') {
+          content.style.display = 'block';
+          icon.textContent = '▼';
+        } else {
+          content.style.display = 'none';
+          icon.textContent = '▶️';
+        }
+      }
+      
+      async function testFeature(featureName) {
+        const resultDiv = document.getElementById('featureTestResult');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = `<div style="color: #5fe2ff;">🧪 Testing ${featureName}...</div>`;
+        
+        try {
+          let endpoint = '';
+          switch(featureName) {
+            case 'signatures':
+              endpoint = '/api/signatures/extracted';
+              break;
+            case 'performance':
+              endpoint = '/api/performance/metrics';
+              break;
+            case 'compliance':
+              endpoint = '/api/compliance/summary';
+              break;
+            case 'visualization':
+              endpoint = '/api/visualization/all';
+              break;
+            default:
+              throw new Error('Unknown feature');
+          }
+          
+          const response = await fetch(endpoint);
+          const data = await response.json();
+          
+          if (response.ok) {
+            resultDiv.innerHTML = `
+              <div style="color: #5fff9f; margin-bottom: 0.5rem;">✅ ${featureName.toUpperCase()} - Test Passed</div>
+              <pre style="background: #0b1020; padding: 0.75rem; border-radius: 4px; overflow-x: auto; font-size: 0.75rem; color: #a9b3d4; max-height: 200px; overflow-y: auto;">${JSON.stringify(data, null, 2)}</pre>
+            `;
+          } else {
+            resultDiv.innerHTML = `<div style="color: #ff5f5f;">❌ ${featureName.toUpperCase()} - Test Failed: ${response.statusText}</div>`;
+          }
+        } catch (error) {
+          resultDiv.innerHTML = `<div style="color: #ff5f5f;">❌ ${featureName.toUpperCase()} - Error: ${error.message}</div>`;
         }
       }
     </script>
