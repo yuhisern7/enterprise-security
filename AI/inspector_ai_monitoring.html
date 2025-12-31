@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Battle-Hardened AI – Security Monitoring</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
       body { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; background: #0b1020; color: #f5f7ff; }
       header { padding: 1.5rem 2rem; background: #111727; border-bottom: 1px solid #232a3d; display: flex; justify-content: space-between; align-items: center; }
@@ -315,6 +316,165 @@
     </div>
 
     <main>
+      <!-- Information Panel -->
+      <section>
+        <h2>ℹ️ AI Security Monitoring - How It Works</h2>
+        <div style="line-height: 1.8;">
+          
+          <p class="muted"><strong>🔍 1. Network Device Discovery & Active Defense (Every 5 Minutes)</strong></p>
+          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
+            <li>📱 <strong>Comprehensive Device Scanning:</strong> ARP-based discovery identifies ALL network devices (phones, computers, cameras, routers, IoT)</li>
+            <li>🏷️ <strong>Smart Device Classification:</strong> Auto-identifies iOS/macOS, Android, Windows, Linux, Security Cameras (Hikvision), Routers (TP-Link), Raspberry Pi, IoT devices</li>
+            <li>🎯 <strong>MAC Vendor Database:</strong> 300+ vendor prefixes for accurate device type detection</li>
+            <li>🌐 <strong>Multi-Method Hostname Resolution:</strong> Uses DNS, NetBIOS, mDNS/Avahi, /etc/hosts, and DHCP leases to identify device names</li>
+            <li>📜 <strong>7-Day Connection History:</strong> Tracks all devices that connected in past week with auto-cleanup</li>
+            <li>🚫 <strong>ARP Spoofing Blocker:</strong> Active network defense using Man-in-the-Middle attack to block malicious/unwanted devices without router access</li>
+            <li>⚡ <strong>Instant Device Isolation:</strong> Blocked devices lose internet access via traffic interception (more powerful than router blocking)</li>
+          </ul>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>📡 2. Real-Time Network Traffic Monitoring (Scapy Deep Packet Inspection)</strong></p>
+          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
+            <li>📊 <strong>Full Packet Capture:</strong> Monitors ALL TCP/UDP/ICMP/ARP/DNS traffic across entire network in real-time</li>
+            <li>🛡️ <strong>Multi-Device Protection:</strong> Simultaneously analyzes traffic from all discovered devices (phones, computers, cameras, IoT)</li>
+            <li>⚡ <strong>Sub-Millisecond Analysis:</strong> Each packet analyzed in <1ms for immediate threat detection</li>
+            <li>🔍 <strong>Protocol Inspection:</strong> Deep inspection of HTTP/HTTPS headers, payloads, DNS queries, ARP packets</li>
+            <li>📈 <strong>Traffic Pattern Analysis:</strong> Detects anomalies in connection rates, packet sizes, protocol usage</li>
+          </ul>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🤖 3. Multi-Layer AI Threat Intelligence Engine</strong></p>
+          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
+            <li>📋 <strong>ExploitDB Signature Matching:</strong> 46,948+ real exploit signatures (SQL injection, XSS, RCE, LFI, RFI)</li>
+            <li>🧠 <strong>Triple ML Models:</strong> IsolationForest (anomaly), RandomForest (classification), GradientBoosting (reputation)</li>
+            <li>🌍 <strong>Global Threat Intelligence:</strong> VirusTotal API queries 70+ security vendors for IP reputation</li>
+            <li>🎯 <strong>Attack Tool Fingerprinting:</strong> Signature-based detection of nmap, masscan, sqlmap, nikto, burp, metasploit, hydra</li>
+            <li>🔓 <strong>Anonymizer Detection:</strong> Identifies VPN, Tor, proxies and attempts real IP de-anonymization</li>
+            <li>🕵️ <strong>Behavioral Analysis:</strong> Machine learning-based normal traffic baseline vs suspicious anomalies</li>
+          </ul>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🌐 4. Automated Threat Intelligence Crawlers (Every 6 Hours)</strong></p>
+          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
+            <li>📹 <strong>MalwareBazaar:</strong> 100+ latest malware samples with MD5/SHA256 hashes from CSV feed (no authentication)</li>
+            <li>🌍 <strong>URLhaus:</strong> 100+ recent malicious URLs from abuse.ch CSV export</li>
+            <li>🛡️ <strong>CVE Intelligence:</strong> Trending vulnerabilities from CVE Trends API</li>
+            <li>📡 <strong>AlienVault OTX:</strong> Threat intelligence pulses (sample data when API unavailable)</li>
+            <li>⚔️ <strong>AttackerKB:</strong> Vulnerability assessments and exploit intelligence</li>
+            <li>🤖 <strong>ML Integration:</strong> 204 threat indicators automatically fed to ML models for continuous learning</li>
+            <li>🔄 <strong>Self-Learning:</strong> AI trains on latest global threats without human intervention</li>
+          </ul>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🍯 5. Dynamic Honeypot Network (8 Attack Attraction Services)</strong></p>
+          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
+            <li>🔌 <strong>FTP Honeypot:</strong> Fake FTP server logs brute force attempts, captures credentials</li>
+            <li>📟 <strong>Telnet/SSH Traps:</strong> Simulates vulnerable remote access, records attack commands</li>
+            <li>💾 <strong>SMB/NetBIOS:</strong> Windows file sharing honeypot attracts ransomware/lateral movement</li>
+            <li>🌐 <strong>HTTP/HTTPS Decoys:</strong> Fake web servers with deliberate vulnerabilities</li>
+            <li>📧 <strong>SMTP Honeypot:</strong> Email server trap for spam/phishing detection</li>
+            <li>📊 <strong>Real Attack Learning:</strong> Every honeypot interaction logged and analyzed for ML training</li>
+            <li>⚙️ <strong>Configurable Ports:</strong> Customize which services to enable and which ports to use</li>
+          </ul>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🎓 6. Continuous Self-Learning & Model Updates (December 2025 - FIXED)</strong></p>
+          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
+            <li>⚡ <strong>Time-Weighted Training:</strong> Recent threats (<7 days) weighted <strong>10x higher</strong> • Exponential decay after 30 days • Retraining with <strong>exponential backoff: 6h → 12h → 24h</strong></li>
+            <li>📅 <strong>90-Day Sliding Window:</strong> Auto-expires threats older than 90 days to prevent model staleness</li>
+            <li>🔄 <strong>ExploitDB Sync:</strong> Scrapes 5,000 new exploit signatures every 24 hours from local database (46,948+ total signatures)</li>
+            <li>🍯 <strong>Honeypot Intelligence:</strong> Real attack attempts from honeypots feed ML pattern recognition</li>
+            <li>🌐 <strong>Threat Crawler Data:</strong> 204 items from 5 global threat feeds refresh every 6 hours</li>
+            <li>🚀 <strong>GPU-Accelerated Training:</strong> Optional TensorFlow/PyTorch neural networks with CUDA/NVIDIA support for faster training</li>
+            <li>🧪 <strong>Behavioral Profiling:</strong> Learns normal traffic patterns for each device type (phone/camera/computer)</li>
+            <li>🔍 <strong>Device Activity Tracking:</strong> Connection history identifies unusual network behavior and potential compromises</li>
+            <li>🌍 <strong>Global Mesh Learning:</strong> Connects to relay server - when one container detects an attack, ALL containers learn instantly</li>
+            <li>🎯 <strong>Zero Human Input:</strong> Entire learning cycle fully automated - AI improves itself continuously</li>
+          </ul>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🌐 7. Global Relay Mesh Network (Star Topology - December 2025 FIXED)</strong></p>
+          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
+            <li>🌍 <strong>Worldwide Peer Discovery:</strong> Containers auto-discover each other via WebSocket relay server (ws://206.189.88.127:60001)</li>
+            <li>🔐 <strong>Cryptographic Security:</strong> <strong>RSA-2048 signatures + HMAC-SHA256</strong> authenticate all threat messages • Replay protection (5-min timestamp + nonce tracking)</li>
+            <li>🖥️ <strong>Node Fingerprinting:</strong> Auto-detects OS/type (Windows/Linux/Docker/embedded) • <strong>Compatibility scoring (0.0-1.0)</strong> ensures quality peer connections</li>
+            <li>📊 <strong>Federated Normalization:</strong> Z-score normalization <strong>per node type</strong> prevents feature skew • Distribution drift alerts (>3σ)</li>
+            <li>🔄 <strong>Real-Time Peer Broadcasting:</strong> Relay broadcasts <strong>peer_joined/peer_left</strong> to all clients • Peer counts synchronize instantly across all nodes</li>
+            <li>🧠 <strong>Collective Intelligence:</strong> Each container learns from global attack patterns - Tokyo attack protects New York container</li>
+            <li>⚡ <strong>Automatic Convergence:</strong> Both Linux and Windows containers show identical peer count after threat exchange (~1 minute)</li>
+            <li>🔐 <strong>Peer Blocking:</strong> Block malicious peers from mesh network with one click (stored in blocked_peers.json)</li>
+            <li>📈 <strong>Scalable Architecture:</strong> Relay handles unlimited peers - tested with 1000+ simultaneous connections</li>
+          </ul>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>⚡ 8. Automated Response & Active Defense</strong></p>
+          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
+            <li>🚫 <strong>Instant IP Blocking:</strong> Malicious IPs added to iptables firewall blacklist in real-time</li>
+            <li>⏱️ <strong>Intelligent Rate Limiting:</strong> Suspicious IPs throttled with exponential backoff (1s → 2s → 4s → 8s)</li>
+            <li>🎯 <strong>ARP Spoofing Defense:</strong> Block entire devices from network access without router credentials</li>
+            <li>📝 <strong>Forensic Logging:</strong> Every attack logged with timestamp, geolocation, threat type, payload, tool signature</li>
+            <li>🔔 <strong>SIEM Integration:</strong> Real-time threat data export to enterprise SOC/SIEM systems</li>
+            <li>📊 <strong>Live Dashboard:</strong> Updates every 5 minutes with threat feed, device status, ML metrics, crawler stats</li>
+            <li>🛡️ <strong>Multi-Layer Defense:</strong> Combines signature matching + ML anomaly detection + behavioral analysis + threat intelligence</li>
+          </ul>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🛡️ Complete Threat Detection Coverage:</strong></p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1rem 1.5rem;">
+            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ff5f5f;">
+              <strong style="color: #ff5f5f;">💉 Injection Attacks</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">SQL injection, XSS, LDAP, XML, Command injection with 100+ ExploitDB signatures</p>
+            </div>
+            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ffb85f;">
+              <strong style="color: #ffb85f;">🔍 Reconnaissance & Scanning</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Port scanning (nmap, masscan), vulnerability scanning (nikto), network enumeration</p>
+            </div>
+            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ff5fff;">
+              <strong style="color: #ff5fff;">⚡ DDoS & Network Floods</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">SYN floods, UDP floods, HTTP floods, ICMP floods (>100 requests/5min trigger)</p>
+            </div>
+            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #5fe2ff;">
+              <strong style="color: #5fe2ff;">🔓 Brute Force & Credential Attacks</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Failed login attempts, credential stuffing, password spraying detected via honeypots</p>
+            </div>
+            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #9f5fff;">
+              <strong style="color: #9f5fff;">🎭 Man-in-the-Middle Attacks</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">ARP spoofing, DNS poisoning, session hijacking, SSL stripping attempts</p>
+            </div>
+            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #5fff9f;">
+              <strong style="color: #5fff9f;">🤖 Attack Tool Signatures</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">nmap, sqlmap, nikto, burp, metasploit, hydra, gobuster detected by fingerprint</p>
+            </div>
+            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ff9f5f;">
+              <strong style="color: #ff9f5f;">🦠 Malware & Exploit Delivery</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Known malware hashes, exploit kits, RCE attempts, backdoor deployment</p>
+            </div>
+            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #5fafff;">
+              <strong style="color: #5fafff;">📹 IoT/Camera Compromise</strong>
+              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Security camera attacks, IoT botnet enrollment, default credential exploitation</p>
+            </div>
+          </div>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>📋 Forensic Data Captured Per Attack:</strong></p>
+          <ul class="muted" style="margin-left: 1.5rem;">
+            <li>🕐 Precise Timestamp (Asia/Kuala_Lumpur timezone with milliseconds)</li>
+            <li>🌐 Attacker IP + Full Geolocation (country, city, region, ISP, ASN, coordinates)</li>
+            <li>⚠️ Multi-Tier Classification (Threat type + Severity: CRITICAL/DANGEROUS/SUSPICIOUS/SAFE)</li>
+            <li>📝 Complete Attack Payload (HTTP headers, POST data, User-Agent, cookies)</li>
+            <li>🎯 Attack Tool Fingerprint (if detected: nmap version, sqlmap mode, etc.)</li>
+            <li>🔓 Anonymization Status (Direct connection / VPN provider / Tor exit node / Proxy type)</li>
+            <li>🌍 VirusTotal Score (X/70 vendors flagged as malicious/suspicious/harmless)</li>
+            <li>🍯 Honeypot Interaction Log (if triggered: service type, commands executed, credentials attempted)</li>
+            <li>🛡️ Action Taken (IP blocked / Rate limited / Dropped / Device isolated via ARP spoofing)</li>
+            <li>📊 ML Model Confidence (0-100% threat probability from anomaly detection)</li>
+          </ul>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>⚙️ System Configuration & Management:</strong></p>
+          <ul class="muted" style="margin-left: 1.5rem;">
+            <li>🔑 <strong>API Keys:</strong> Configure VirusTotal & AbuseIPDB keys via System Settings panel (optional but recommended)</li>
+            <li>🍯 <strong>Honeypot Control:</strong> Enable/disable individual fake services (FTP, Telnet, SSH, SMB, HTTP, SMTP) on custom ports</li>
+            <li>🧠 <strong>ML Model Management:</strong> View training status, force manual retrain, check last update time, see model accuracy</li>
+            <li>📚 <strong>ExploitDB Status:</strong> Monitor 46,948 signatures, check last scrape time, view learning statistics</li>
+            <li>🌐 <strong>Threat Crawlers:</strong> See 5 active crawlers collecting 204 global threat indicators every 6 hours</li>
+            <li>🚫 <strong>IP Blocking:</strong> Toggle auto-blocking, manually add/remove IPs, view blocked list with timestamps</li>
+            <li>🎯 <strong>Device Management:</strong> Block/unblock devices via ARP spoofing, view 7-day connection history</li>
+            <li>📊 <strong>Dashboard Refresh:</strong> Configurable auto-refresh (current: 5 minutes) for live threat monitoring</li>
+          </ul>
+        </div>
+      </section>
+
       <!-- AI Training Network Status -->
       <section id="p2p-network-status" style="background: linear-gradient(135deg, #1a2a3d, #1a1e2e); border: 2px solid #5fe2ff;">
         <h2>🤖 AI Training Network - Shared Machine Learning</h2>
@@ -1462,212 +1622,51 @@
       </section>
       {% endif %}
 
-      <!-- Information Panel -->
+      <!-- Enterprise Performance Metrics -->
       <section>
-        <h2>ℹ️ AI Security Monitoring - How It Works</h2>
-        <div style="line-height: 1.8;">
-          
-          <p class="muted"><strong>🔍 1. Network Device Discovery & Active Defense (Every 5 Minutes)</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>📱 <strong>Comprehensive Device Scanning:</strong> ARP-based discovery identifies ALL network devices (phones, computers, cameras, routers, IoT)</li>
-            <li>🏷️ <strong>Smart Device Classification:</strong> Auto-identifies iOS/macOS, Android, Windows, Linux, Security Cameras (Hikvision), Routers (TP-Link), Raspberry Pi, IoT devices</li>
-            <li>🎯 <strong>MAC Vendor Database:</strong> 300+ vendor prefixes for accurate device type detection</li>
-            <li>🌐 <strong>Multi-Method Hostname Resolution:</strong> Uses DNS, NetBIOS, mDNS/Avahi, /etc/hosts, and DHCP leases to identify device names</li>
-            <li>📜 <strong>7-Day Connection History:</strong> Tracks all devices that connected in past week with auto-cleanup</li>
-            <li>🚫 <strong>ARP Spoofing Blocker:</strong> Active network defense using Man-in-the-Middle attack to block malicious/unwanted devices without router access</li>
-            <li>⚡ <strong>Instant Device Isolation:</strong> Blocked devices lose internet access via traffic interception (more powerful than router blocking)</li>
-          </ul>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>📡 2. Real-Time Network Traffic Monitoring (Scapy Deep Packet Inspection)</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>📊 <strong>Full Packet Capture:</strong> Monitors ALL TCP/UDP/ICMP/ARP/DNS traffic across entire network in real-time</li>
-            <li>🛡️ <strong>Multi-Device Protection:</strong> Simultaneously analyzes traffic from all discovered devices (phones, computers, cameras, IoT)</li>
-            <li>⚡ <strong>Sub-Millisecond Analysis:</strong> Each packet analyzed in <1ms for immediate threat detection</li>
-            <li>🔍 <strong>Protocol Inspection:</strong> Deep inspection of HTTP/HTTPS headers, payloads, DNS queries, ARP packets</li>
-            <li>📈 <strong>Traffic Pattern Analysis:</strong> Detects anomalies in connection rates, packet sizes, protocol usage</li>
-          </ul>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🤖 3. Multi-Layer AI Threat Intelligence Engine</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>📋 <strong>ExploitDB Signature Matching:</strong> 46,948+ real exploit signatures (SQL injection, XSS, RCE, LFI, RFI)</li>
-            <li>🧠 <strong>Triple ML Models:</strong> IsolationForest (anomaly), RandomForest (classification), GradientBoosting (reputation)</li>
-            <li>🌍 <strong>Global Threat Intelligence:</strong> VirusTotal API queries 70+ security vendors for IP reputation</li>
-            <li>🎯 <strong>Attack Tool Fingerprinting:</strong> Signature-based detection of nmap, masscan, sqlmap, nikto, burp, metasploit, hydra</li>
-            <li>🔓 <strong>Anonymizer Detection:</strong> Identifies VPN, Tor, proxies and attempts real IP de-anonymization</li>
-            <li>🕵️ <strong>Behavioral Analysis:</strong> Machine learning-based normal traffic baseline vs suspicious anomalies</li>
-          </ul>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🌐 4. Automated Threat Intelligence Crawlers (Every 6 Hours)</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>📹 <strong>MalwareBazaar:</strong> 100+ latest malware samples with MD5/SHA256 hashes from CSV feed (no authentication)</li>
-            <li>🌍 <strong>URLhaus:</strong> 100+ recent malicious URLs from abuse.ch CSV export</li>
-            <li>🛡️ <strong>CVE Intelligence:</strong> Trending vulnerabilities from CVE Trends API</li>
-            <li>📡 <strong>AlienVault OTX:</strong> Threat intelligence pulses (sample data when API unavailable)</li>
-            <li>⚔️ <strong>AttackerKB:</strong> Vulnerability assessments and exploit intelligence</li>
-            <li>🤖 <strong>ML Integration:</strong> 204 threat indicators automatically fed to ML models for continuous learning</li>
-            <li>🔄 <strong>Self-Learning:</strong> AI trains on latest global threats without human intervention</li>
-          </ul>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🍯 5. Dynamic Honeypot Network (8 Attack Attraction Services)</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>🔌 <strong>FTP Honeypot:</strong> Fake FTP server logs brute force attempts, captures credentials</li>
-            <li>📟 <strong>Telnet/SSH Traps:</strong> Simulates vulnerable remote access, records attack commands</li>
-            <li>💾 <strong>SMB/NetBIOS:</strong> Windows file sharing honeypot attracts ransomware/lateral movement</li>
-            <li>🌐 <strong>HTTP/HTTPS Decoys:</strong> Fake web servers with deliberate vulnerabilities</li>
-            <li>📧 <strong>SMTP Honeypot:</strong> Email server trap for spam/phishing detection</li>
-            <li>📊 <strong>Real Attack Learning:</strong> Every honeypot interaction logged and analyzed for ML training</li>
-            <li>⚙️ <strong>Configurable Ports:</strong> Customize which services to enable and which ports to use</li>
-          </ul>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🎓 6. Continuous Self-Learning & Model Updates (December 2025 - FIXED)</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>⚡ <strong>Time-Weighted Training:</strong> Recent threats (<7 days) weighted <strong>10x higher</strong> • Exponential decay after 30 days • Retraining with <strong>exponential backoff: 6h → 12h → 24h</strong></li>
-            <li>📅 <strong>90-Day Sliding Window:</strong> Auto-expires threats older than 90 days to prevent model staleness</li>
-            <li>🔄 <strong>ExploitDB Sync:</strong> Scrapes 5,000 new exploit signatures every 24 hours from local database (46,948+ total signatures)</li>
-            <li>🍯 <strong>Honeypot Intelligence:</strong> Real attack attempts from honeypots feed ML pattern recognition</li>
-            <li>🌐 <strong>Threat Crawler Data:</strong> 204 items from 5 global threat feeds refresh every 6 hours</li>
-            <li>🚀 <strong>GPU-Accelerated Training:</strong> Optional TensorFlow/PyTorch neural networks with CUDA/NVIDIA support for faster training</li>
-            <li>🧪 <strong>Behavioral Profiling:</strong> Learns normal traffic patterns for each device type (phone/camera/computer)</li>
-            <li>🔍 <strong>Device Activity Tracking:</strong> Connection history identifies unusual network behavior and potential compromises</li>
-            <li>🌍 <strong>Global Mesh Learning:</strong> Connects to relay server - when one container detects an attack, ALL containers learn instantly</li>
-            <li>🎯 <strong>Zero Human Input:</strong> Entire learning cycle fully automated - AI improves itself continuously</li>
-          </ul>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🌐 7. Global Relay Mesh Network (Star Topology - December 2025 FIXED)</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>🌍 <strong>Worldwide Peer Discovery:</strong> Containers auto-discover each other via WebSocket relay server (ws://206.189.88.127:60001)</li>
-            <li>🔐 <strong>Cryptographic Security:</strong> <strong>RSA-2048 signatures + HMAC-SHA256</strong> authenticate all threat messages • Replay protection (5-min timestamp + nonce tracking)</li>
-            <li>🖥️ <strong>Node Fingerprinting:</strong> Auto-detects OS/type (Windows/Linux/Docker/embedded) • <strong>Compatibility scoring (0.0-1.0)</strong> ensures quality peer connections</li>
-            <li>📊 <strong>Federated Normalization:</strong> Z-score normalization <strong>per node type</strong> prevents feature skew • Distribution drift alerts (>3σ)</li>
-            <li>🔄 <strong>Real-Time Peer Broadcasting:</strong> Relay broadcasts <strong>peer_joined/peer_left</strong> to all clients • Peer counts synchronize instantly across all nodes</li>
-            <li>🧠 <strong>Collective Intelligence:</strong> Each container learns from global attack patterns - Tokyo attack protects New York container</li>
-            <li>⚡ <strong>Automatic Convergence:</strong> Both Linux and Windows containers show identical peer count after threat exchange (~1 minute)</li>
-            <li>🔐 <strong>Peer Blocking:</strong> Block malicious peers from mesh network with one click (stored in blocked_peers.json)</li>
-            <li>📈 <strong>Scalable Architecture:</strong> Relay handles unlimited peers - tested with 1000+ simultaneous connections</li>
-          </ul>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>⚡ 8. Automated Response & Active Defense</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>🚫 <strong>Instant IP Blocking:</strong> Malicious IPs added to iptables firewall blacklist in real-time</li>
-            <li>⏱️ <strong>Intelligent Rate Limiting:</strong> Suspicious IPs throttled with exponential backoff (1s → 2s → 4s → 8s)</li>
-            <li>🎯 <strong>ARP Spoofing Defense:</strong> Block entire devices from network access without router credentials</li>
-            <li>📝 <strong>Forensic Logging:</strong> Every attack logged with timestamp, geolocation, threat type, payload, tool signature</li>
-            <li>🔔 <strong>SIEM Integration:</strong> Real-time threat data export to enterprise SOC/SIEM systems</li>
-            <li>📊 <strong>Live Dashboard:</strong> Updates every 5 minutes with threat feed, device status, ML metrics, crawler stats</li>
-            <li>🛡️ <strong>Multi-Layer Defense:</strong> Combines signature matching + ML anomaly detection + behavioral analysis + threat intelligence</li>
-          </ul>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🛡️ Complete Threat Detection Coverage:</strong></p>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1rem 1.5rem;">
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ff5f5f;">
-              <strong style="color: #ff5f5f;">💉 Injection Attacks</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">SQL injection, XSS, LDAP, XML, Command injection with 100+ ExploitDB signatures</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ffb85f;">
-              <strong style="color: #ffb85f;">🔍 Reconnaissance & Scanning</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Port scanning (nmap, masscan), vulnerability scanning (nikto), network enumeration</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ff5fff;">
-              <strong style="color: #ff5fff;">⚡ DDoS & Network Floods</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">SYN floods, UDP floods, HTTP floods, ICMP floods (>100 requests/5min trigger)</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #5fe2ff;">
-              <strong style="color: #5fe2ff;">🔓 Brute Force & Credential Attacks</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Failed login attempts, credential stuffing, password spraying detected via honeypots</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #9f5fff;">
-              <strong style="color: #9f5fff;">🎭 Man-in-the-Middle Attacks</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">ARP spoofing, DNS poisoning, session hijacking, SSL stripping attempts</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #5fff9f;">
-              <strong style="color: #5fff9f;">🤖 Attack Tool Signatures</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">nmap, sqlmap, nikto, burp, metasploit, hydra, gobuster detected by fingerprint</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ff9f5f;">
-              <strong style="color: #ff9f5f;">🦠 Malware & Exploit Delivery</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Known malware hashes, exploit kits, RCE attempts, backdoor deployment</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #5fafff;">
-              <strong style="color: #5fafff;">📹 IoT/Camera Compromise</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Security camera attacks, IoT botnet enrollment, default credential exploitation</p>
-            </div>
+        <h2>⚡ Network Performance Metrics</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="stat-card success">
+            <div class="stat-label">📡 Current Bandwidth</div>
+            <div class="stat-value" id="bandwidth-metric">-- Mbps</div>
           </div>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>📋 Forensic Data Captured Per Attack:</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem;">
-            <li>🕐 Precise Timestamp (Asia/Kuala_Lumpur timezone with milliseconds)</li>
-            <li>🌐 Attacker IP + Full Geolocation (country, city, region, ISP, ASN, coordinates)</li>
-            <li>⚠️ Multi-Tier Classification (Threat type + Severity: CRITICAL/DANGEROUS/SUSPICIOUS/SAFE)</li>
-            <li>📝 Complete Attack Payload (HTTP headers, POST data, User-Agent, cookies)</li>
-            <li>🎯 Attack Tool Fingerprint (if detected: nmap version, sqlmap mode, etc.)</li>
-            <li>🔓 Anonymization Status (Direct connection / VPN provider / Tor exit node / Proxy type)</li>
-            <li>🌍 VirusTotal Score (X/70 vendors flagged as malicious/suspicious/harmless)</li>
-            <li>🍯 Honeypot Interaction Log (if triggered: service type, commands executed, credentials attempted)</li>
-            <li>🛡️ Action Taken (IP blocked / Rate limited / Dropped / Device isolated via ARP spoofing)</li>
-            <li>📊 ML Model Confidence (0-100% threat probability from anomaly detection)</li>
-          </ul>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>⚙️ System Configuration & Management:</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem;">
-            <li>🔑 <strong>API Keys:</strong> Configure VirusTotal & AbuseIPDB keys via System Settings panel (optional but recommended)</li>
-            <li>🍯 <strong>Honeypot Control:</strong> Enable/disable individual fake services (FTP, Telnet, SSH, SMB, HTTP, SMTP) on custom ports</li>
-            <li>🧠 <strong>ML Model Management:</strong> View training status, force manual retrain, check last update time, see model accuracy</li>
-            <li>📚 <strong>ExploitDB Status:</strong> Monitor 46,948 signatures, check last scrape time, view learning statistics</li>
-            <li>🌐 <strong>Threat Crawlers:</strong> See 5 active crawlers collecting 204 global threat indicators every 6 hours</li>
-            <li>🚫 <strong>IP Blocking:</strong> Toggle auto-blocking, manually add/remove IPs, view blocked list with timestamps</li>
-            <li>🎯 <strong>Device Management:</strong> Block/unblock devices via ARP spoofing, view 7-day connection history</li>
-            <li>📊 <strong>Dashboard Refresh:</strong> Configurable auto-refresh (current: 5 minutes) for live threat monitoring</li>
-          </ul>
+          <div class="stat-card">
+            <div class="stat-label">⚡ Network Latency</div>
+            <div class="stat-value" id="latency-metric">-- ms</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">📦 Packet Loss</div>
+            <div class="stat-value" id="packetloss-metric">--%</div>
+          </div>
+        </div>
+        <div style="background: #1a2135; padding: 1rem; border-radius: 8px;">
+          <canvas id="performanceChart" style="max-height: 300px;"></canvas>
         </div>
       </section>
 
-      <section style="background: linear-gradient(135deg, #1a2135, #0d1221); border: 1px solid #5fe2ff;">
-        <h2>🎯 System Status</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
-          <div>
-            <p class="muted">Monitoring Status</p>
-            <p style="font-size: 1.2rem; color: #5fff9f; font-weight: 600;">🟢 ACTIVE</p>
+      <!-- Compliance Dashboard -->
+      <section>
+        <h2>✅ Compliance Dashboard</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+          <div class="stat-card success">
+            <div class="stat-label">🏦 PCI-DSS v4.0</div>
+            <div class="stat-value" id="pci-score">--%</div>
           </div>
-          <div>
-            <p class="muted">Auto-Refresh Rate</p>
-            <p style="font-size: 1.2rem; color: #5fe2ff; font-weight: 600;">⏱️ 5 Minutes</p>
+          <div class="stat-card success">
+            <div class="stat-label">🏥 HIPAA</div>
+            <div class="stat-value" id="hipaa-score">--%</div>
           </div>
-          <div>
-            <p class="muted">Protection Level</p>
-            <p style="font-size: 1.2rem; color: #ff5fff; font-weight: 600;">🛡️ MAXIMUM</p>
+          <div class="stat-card success">
+            <div class="stat-label">🌍 GDPR</div>
+            <div class="stat-value" id="gdpr-score">--%</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-label">🔒 SOC 2</div>
+            <div class="stat-value" id="soc2-score">--%</div>
           </div>
         </div>
       </section>
 
-      <!-- Information Panel -->
-      <section style="display: none;">
-        <h2>ℹ️ About AI Security Monitoring</h2>
-        <div style="line-height: 1.8;">
-          <p class="muted"><strong>What the AI monitors:</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem;">
-            <li><strong>Brute Force Attacks:</strong> Multiple failed login attempts from the same IP</li>
-            <li><strong>DDoS Protection:</strong> Excessive request rates (>100 requests in 5 minutes)</li>
-            <li><strong>SQL Injection:</strong> Malicious database query patterns in URLs</li>
-            <li><strong>XSS Attacks:</strong> Cross-site scripting attempt detection</li>
-            <li><strong>Directory Traversal:</strong> Unauthorized file system access attempts</li>
-            <li><strong>Port Scanning:</strong> Network reconnaissance from scanning tools</li>
-            <li><strong>Bot Detection:</strong> Automated attack tools (sqlmap, nikto, nmap, etc.)</li>
-          </ul>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>Automatic Actions:</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem;">
-            <li><strong>IP Blocking:</strong> Malicious IPs are automatically added to block list</li>
-            <li><strong>Connection Dropping:</strong> Dangerous requests are terminated immediately</li>
-            <li><strong>Real-time Logging:</strong> All events recorded with full details</li>
-            <li><strong>Threat Categorization:</strong> Each threat assigned severity level</li>
-          </ul>
-
-          <p class="muted" style="margin-top: 1.5rem;">
-            <strong>Note:</strong> This dashboard auto-refreshes every 5 minutes to show real-time data. 
-            All blocked IPs persist until manually unblocked by system administrators.
-          </p>
-        </div>
-      </section>
     </main>
 
     <div class="refresh-indicator">
@@ -2991,10 +2990,90 @@
         loadConnectedDevices();
         loadHoneypotPersonas();
         loadHoneypotStatus();
+        loadEnterpriseMetrics();
+        loadComplianceData();
         
         // Refresh honeypot status every 30 seconds
         setInterval(loadHoneypotStatus, 30000);
+        // Refresh enterprise metrics every 10 seconds
+        setInterval(loadEnterpriseMetrics, 10000);
       });
+
+      // Enterprise Performance Metrics
+      let performanceChart = null;
+      
+      async function loadEnterpriseMetrics() {
+        try {
+          const response = await fetch('/api/performance/metrics');
+          const data = await response.json();
+          
+          // Update metrics
+          document.getElementById('bandwidth-metric').textContent = (data.bandwidth || 0).toFixed(2) + ' Mbps';
+          document.getElementById('latency-metric').textContent = (data.latency || 0).toFixed(1) + ' ms';
+          document.getElementById('packetloss-metric').textContent = (data.packet_loss || 0).toFixed(2) + '%';
+          
+          // Initialize or update chart
+          if (!performanceChart && document.getElementById('performanceChart')) {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            performanceChart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                labels: data.labels || [],
+                datasets: [
+                  {
+                    label: 'Bandwidth (Mbps)',
+                    data: data.bandwidth_history || [],
+                    borderColor: '#5fe2ff',
+                    backgroundColor: 'rgba(95, 226, 255, 0.1)',
+                    tension: 0.4
+                  },
+                  {
+                    label: 'Latency (ms)',
+                    data: data.latency_history || [],
+                    borderColor: '#5fff9f',
+                    backgroundColor: 'rgba(95, 255, 159, 0.1)',
+                    tension: 0.4
+                  }
+                ]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { labels: { color: '#a9b3d4' } }
+                },
+                scales: {
+                  x: { ticks: { color: '#a9b3d4' }, grid: { color: 'rgba(95, 226, 255, 0.1)' } },
+                  y: { ticks: { color: '#a9b3d4' }, grid: { color: 'rgba(95, 226, 255, 0.1)' } }
+                }
+              }
+            });
+          } else if (performanceChart) {
+            performanceChart.data.labels = data.labels || [];
+            performanceChart.data.datasets[0].data = data.bandwidth_history || [];
+            performanceChart.data.datasets[1].data = data.latency_history || [];
+            performanceChart.update();
+          }
+          
+        } catch (error) {
+          console.error('Error loading enterprise metrics:', error);
+        }
+      }
+      
+      async function loadComplianceData() {
+        try {
+          const response = await fetch('/api/compliance/summary');
+          const data = await response.json();
+          
+          document.getElementById('pci-score').textContent = (data.pci_dss || 0) + '%';
+          document.getElementById('hipaa-score').textContent = (data.hipaa || 0) + '%';
+          document.getElementById('gdpr-score').textContent = (data.gdpr || 0) + '%';
+          document.getElementById('soc2-score').textContent = (data.soc2 || 0) + '%';
+          
+        } catch (error) {
+          console.error('Error loading compliance data:', error);
+        }
+      }
     </script>
   </body>
 </html>

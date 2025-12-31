@@ -40,8 +40,33 @@ pcs_ai._load_threat_data()
 
 @app.route('/')
 def dashboard():
-    """Main dashboard - Enterprise Security Command Center"""
+    """Main dashboard - Complete Feature Set + Enterprise Visualizations"""
+    return render_template('inspector_ai_monitoring.html',
+                         stats=pcs_ai.get_threat_statistics(),
+                         blocked_ips=pcs_ai.get_blocked_ips(),
+                         whitelisted_ips=pcs_ai.get_whitelisted_ips(),
+                         threat_logs=pcs_ai._threat_log[-100:][::-1],
+                         ml_stats=pcs_ai.get_ml_model_stats(),
+                         vpn_stats=pcs_ai.get_vpn_tor_statistics())
+
+
+@app.route('/legacy')
+def legacy_dashboard():
+    """Legacy AI Monitoring Dashboard"""
+    return render_template('inspector_ai_monitoring.html',
+                         stats=pcs_ai.get_threat_statistics(),
+                         blocked_ips=pcs_ai.get_blocked_ips(),
+                         whitelisted_ips=pcs_ai.get_whitelisted_ips(),
+                         threat_logs=pcs_ai._threat_log[-100:][::-1],
+                         ml_stats=pcs_ai.get_ml_model_stats(),
+                         vpn_stats=pcs_ai.get_vpn_tor_statistics())
+
+
+@app.route('/enterprise')
+def enterprise_dashboard():
+    """Alias for main dashboard"""
     return render_template('dashboard.html')
+
 
 
 @app.route('/inspector/ai-monitoring')
@@ -925,6 +950,17 @@ def api_stats():
         'blocked_ips': pcs_ai.get_blocked_ips(),
         'ml_stats': pcs_ai.get_ml_model_stats(),
         'vpn_stats': pcs_ai.get_vpn_tor_statistics()
+    })
+
+
+@app.route('/api/threat_log')
+def api_threat_log():
+    """Get threat log data for new dashboard"""
+    stats = pcs_ai.get_threat_statistics()
+    return jsonify({
+        'threats': stats.get('recent_threats', []),
+        'total': stats.get('total_threats_detected', 0),
+        'blocked_ips': pcs_ai.get_blocked_ips()
     })
 
 
