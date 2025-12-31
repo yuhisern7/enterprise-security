@@ -2114,7 +2114,7 @@ if __name__ == '__main__':
     monitoring_thread = threading.Thread(target=start_network_monitoring, daemon=True)
     monitoring_thread.start()
     
-    # Check if we should run HTTPS (for P2P encryption)
+    # Check if SSL certificates exist
     import os
     ssl_cert = '/app/ssl/cert.pem'
     ssl_key = '/app/ssl/key.pem'
@@ -2124,19 +2124,21 @@ if __name__ == '__main__':
     p2p_port = int(os.getenv('P2P_PORT', '60001'))
     
     if os.path.exists(ssl_cert) and os.path.exists(ssl_key):
-        # Run HTTPS server for encrypted P2P communication
-        print("🔐 Starting HTTPS server for encrypted P2P connections...")
-        print(f"📊 Dashboard: http://localhost:{dashboard_port}")
-        print(f"🌐 P2P Sync: https://localhost:{p2p_port}")
+        # Run HTTPS for both dashboard AND P2P
+        print("🔐 Starting HTTPS server (secure encrypted connections)...")
+        print(f"📊 Dashboard: https://localhost:{dashboard_port} (HTTPS - Secure)")
+        print(f"🌐 P2P Sync: https://localhost:{p2p_port} (HTTPS)")
+        print("⚠️  Your browser will show SSL warning (self-signed cert) - this is normal")
+        print("    Click 'Advanced' → 'Proceed to localhost' to access dashboard")
         
-        # Start HTTP server in background (for dashboard)
-        http_thread = threading.Thread(
-            target=lambda: app.run(host='0.0.0.0', port=dashboard_port, debug=False, threaded=True),
+        # Start HTTPS dashboard in background
+        https_dashboard_thread = threading.Thread(
+            target=lambda: app.run(host='0.0.0.0', port=dashboard_port, debug=False, threaded=True, ssl_context=(ssl_cert, ssl_key)),
             daemon=True
         )
-        http_thread.start()
+        https_dashboard_thread.start()
         
-        # Run HTTPS server in main thread (for P2P)
+        # Run HTTPS P2P server in main thread
         app.run(
             host='0.0.0.0',
             port=p2p_port,
@@ -2146,8 +2148,9 @@ if __name__ == '__main__':
         )
     else:
         # Fall back to HTTP only
-        print("ℹ️  Running HTTP only (no SSL cert found)")
-        print(f"📊 Dashboard: http://localhost:{dashboard_port}")
+        print("⚠️  WARNING: Running HTTP only (no SSL cert found)")
+        print("    To enable HTTPS, SSL certificates will be auto-generated on container start")
+        print(f"📊 Dashboard: http://localhost:{dashboard_port} (INSECURE)")
         app.run(
             host='0.0.0.0',
             port=dashboard_port,

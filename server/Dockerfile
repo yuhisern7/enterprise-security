@@ -53,9 +53,9 @@ ENV PYTHONUNBUFFERED=1
 # Run as root (required for network monitoring)
 USER root
 
-# Health check (uses DASHBOARD_PORT environment variable, defaults to 60000)
+# Health check (uses HTTPS on DASHBOARD_PORT, defaults to 60000)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests, os; requests.get(f'http://localhost:{os.getenv(\"DASHBOARD_PORT\", \"60000\")}', timeout=5)" || exit 1
+    CMD python -c "import requests, os; requests.get(f'https://localhost:{os.getenv(\"DASHBOARD_PORT\", \"60000\")}', verify=False, timeout=5)" || exit 1
 
 # Start the server
 CMD ["python", "server.py"]

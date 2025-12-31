@@ -82,7 +82,8 @@ cd battle-hardened-ai/server
 docker compose up -d
 ```
 
-**Dashboard:** http://localhost:60000  
+**Dashboard:** https://localhost:60000 (HTTPS - Self-signed cert)  
+**Note:** Browser will show security warning - click "Advanced" → "Proceed to localhost"  
 **Default:** Auto-detects network, starts monitoring ALL devices
 
 ---
