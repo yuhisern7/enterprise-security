@@ -33,6 +33,7 @@ docker-volumes/
 .idea/
 *.swp
 *.swo
+*.code-workspace
 
 # OS
 .DS_Store
