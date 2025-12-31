@@ -32,9 +32,9 @@ Unlike traditional antivirus (install on every device), you only need **ONE cont
 **🌍 Perfect For:**
 - **Homes:** Military-grade protection for your family's devices
 - **Small Businesses:** Enterprise security without enterprise costs
-- **Governments:** Secure entire departments with one container per building
+- **Governments:** Secure entire departments with one container per network
 - **Police/Military:** Battle-hardened AI learns from global threats 24/7
-- **Enterprises:** One container per branch office = complete network protection
+- **Enterprises:** One container per network = complete network protection
 
 
 ---
