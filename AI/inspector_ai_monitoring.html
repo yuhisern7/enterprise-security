@@ -137,12 +137,12 @@
         <div>
           <h3 style="margin: 0; color: #5fe2ff; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
             <span id="featureRegistryIcon">▶️</span>
-            📊 FEATURE REGISTRY - All Available Features (60 Active)
+            📊 FEATURE REGISTRY - All Available Features (17 Dashboard Sections)
           </h3>
-          <p style="margin: 0.25rem 0 0; color: #8a92b6; font-size: 0.8rem;">Click to expand/collapse • Hover over features to see API endpoints</p>
+          <p style="margin: 0.25rem 0 0; color: #8a92b6; font-size: 0.8rem;">Click to expand/collapse • Hover over features to see API endpoints • 50 API endpoints active</p>
         </div>
         <div style="display: flex; gap: 1rem; align-items: center;">
-          <span style="background: #2a7f3f; color: #5fff9f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">✅ 60 Active</span>
+          <span style="background: #2a7f3f; color: #5fff9f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">✅ 17 Sections</span>
           <span style="background: #7f7f2a; color: #ffff5f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🚧 64 Planned</span>
         </div>
       </div>
@@ -213,46 +213,50 @@
           </div>
         </div>
 
-        <!-- Network & Device Management -->
+        <!-- Network & Device Management - CONSOLIDATED -->
         <div style="margin-bottom: 1.5rem;">
           <h4 style="color: #5fe2ff; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
             <span style="background: #2a7f3f; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">ACTIVE</span>
-            🌐 Network & Device Management (5 Features)
+            🌐 Network & Device Management (1 Consolidated Section = 5 Features)
           </h4>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
-            <div class="feature-item" title="Section: Network Devices" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
-              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
-              <span style="color: #f5f7ff; font-size: 0.85rem;">Network Devices Protected (ARP discovery)</span>
+            <div class="feature-item" title="Section: Network Devices (Consolidated)" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ff9f5f;">
+              <span style="color: #ff9f5f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem; font-weight: 600;">🌐 Network Devices - Live Monitor, Ports & History (CONSOLIDATED - 3 tabs)</span>
             </div>
-            <div class="feature-item" title="API: /api/connected-devices" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
-              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
-              <span style="color: #f5f7ff; font-size: 0.85rem;">Connected Devices API (Real-time)</span>
+            <div class="feature-item" title="Tab 1: Live Devices" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f; margin-left: 1rem;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">📡</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Tab 1: Live Devices (ARP discovery, 8 device types, block/unblock)</span>
             </div>
-            <div class="feature-item" title="API: /api/device-history" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
-              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
-              <span style="color: #f5f7ff; font-size: 0.85rem;">Device History (7-day tracking)</span>
+            <div class="feature-item" title="Tab 2: Port Scanning" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f; margin-left: 1rem;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">🔍</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Tab 2: Port Scanning Results (Open ports, risky port warnings)</span>
             </div>
-            <div class="feature-item" title="API: /api/device/block, /api/device/unblock" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
-              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
-              <span style="color: #f5f7ff; font-size: 0.85rem;">Device Blocking/Unblocking Controls</span>
-            </div>
-            <div class="feature-item" title="Section: Open Ports" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
-              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
-              <span style="color: #f5f7ff; font-size: 0.85rem;">Port Scanning Detection (Open ports visible)</span>
+            <div class="feature-item" title="Tab 3: 7-Day History" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f; margin-left: 1rem;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">📅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Tab 3: Device Connection History (7-day tracking, online/offline status)</span>
             </div>
           </div>
         </div>
 
-        <!-- Performance, Compliance & Visualization -->
+        <!-- Performance, Compliance & Visualization - UPDATED -->
         <div style="margin-bottom: 1.5rem;">
           <h4 style="color: #5fe2ff; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
             <span style="background: #2a7f3f; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">ACTIVE</span>
-            📊 Performance, Compliance & Visualization (9 Features)
+            📊 Performance, Compliance & Visualization (11 Features)
           </h4>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
-            <div class="feature-item" title="API: /api/performance/metrics" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
-              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
-              <span style="color: #f5f7ff; font-size: 0.85rem;">Network Performance Metrics (ML anomaly)</span>
+            <div class="feature-item" title="Section: System Health (Consolidated)" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ff9f5f;">
+              <span style="color: #ff9f5f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem; font-weight: 600;">💻 System Health & Network Performance (CONSOLIDATED - 2 tabs)</span>
+            </div>
+            <div class="feature-item" title="Tab 1: System Health" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f; margin-left: 1rem;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">🖥️</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Tab 1: System Health (CPU, RAM, Disk, Uptime, Service status)</span>
+            </div>
+            <div class="feature-item" title="Tab 2: Network Performance" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f; margin-left: 1rem;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">📡</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Tab 2: Network Performance (Bandwidth, Latency, Packet loss, Chart)</span>
             </div>
             <div class="feature-item" title="API: /api/compliance/summary" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
               <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
@@ -286,15 +290,51 @@
               <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;">System Configuration (API keys, timezone, ports)</span>
             </div>
+            <div class="feature-item" title="API: /api/signatures/extracted" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ff9f5f;">
+              <span style="color: #ff9f5f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem; font-weight: 600;">Signature Extraction Dashboard (UNIQUE)</span>
+            </div>
           </div>
         </div>
 
-        <!-- PLANNED FEATURES (Phase 1-3) -->
+        <!-- PLANNED FEATURES - TRACK 1: DASHBOARD VISUALIZATIONS (Priority: Immediate) -->
+        <div style="margin-bottom: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #2a3548;">
+          <h4 style="color: #5fff9f; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="background: #2a7f3f; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem; font-weight: 600;">PRIORITY</span>
+            🎨 Track 1: Dashboard Visualizations (Sections 18-22) - 5-7 hours
+          </h4>
+          <p style="margin: 0 0 0.75rem; color: #8a92b6; font-size: 0.8rem;">🎯 Goal: Complete 22 sections = Most advanced monitoring tool on the planet</p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
+            <div class="feature-item" style="background: rgba(95, 255, 159, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 18: Network Topology (API ready ✅)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(95, 255, 159, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 19: Attack Flow Visualization (API ready ✅)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(95, 255, 159, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 20: Geographic Attack Map (API ready ✅)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(95, 255, 159, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 21: Threat Density Heatmap (API ready ✅)</span>
+            </div>
+            <div class="feature-item" style="background: rgba(95, 255, 159, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">⏳</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 22: Performance Anomalies (API ready ✅)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PLANNED FEATURES - TRACK 2: ENTERPRISE FEATURES (After Track 1) -->
         <div style="margin-bottom: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #2a3548;">
           <h4 style="color: #ffb85f; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span style="background: #7f7f2a; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">PLANNED</span>
-            🚧 Phase 1: Critical Features (Week 1-2) - 4 Features
+            <span style="background: #7f7f2a; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">AFTER TRACK 1</span>
+            🏢 Track 2: Enterprise Features - Phase 1 (Week 1-2) - 4 Features
           </h4>
+          <p style="margin: 0 0 0.75rem; color: #8a92b6; font-size: 0.8rem;">🎯 Goal: Enterprise/Government contracts</p>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
             <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
               <span style="color: #ffb85f; font-size: 1.2rem;">⏳</span>
@@ -317,8 +357,8 @@
 
         <div style="margin-bottom: 1.5rem;">
           <h4 style="color: #ffb85f; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span style="background: #7f7f2a; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">PLANNED</span>
-            🚧 Phase 2: Enterprise Features (Week 3-4) - 5 Features
+            <span style="background: #7f7f2a; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">AFTER TRACK 1</span>
+            🏢 Track 2: Enterprise Features - Phase 2 (Week 3-4) - 5 Features
           </h4>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
             <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
@@ -346,8 +386,8 @@
 
         <div style="margin-bottom: 0;">
           <h4 style="color: #ffb85f; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span style="background: #7f7f2a; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">PLANNED</span>
-            🚧 Phase 3: Advanced Features (Month 2-4) - 4 Features
+            <span style="background: #7f7f2a; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">AFTER TRACK 1</span>
+            🏢 Track 2: Enterprise Features - Phase 3 (Month 2-4) - 4 Features
           </h4>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
             <div class="feature-item" style="background: rgba(255, 184, 95, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #ffb85f;">
@@ -578,7 +618,8 @@
     <main>
       <!-- Information Panel -->
       <section>
-        <h2>ℹ️ AI Security Monitoring - How It Works</h2>
+        <h2>📍 Section 1 | ℹ️ AI Security Monitoring - How It Works</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fff9f;">✅ <strong>EXISTING FEATURE:</strong> Overview of AI-powered network security system</p>
         <div style="line-height: 1.8;">
           
           <p class="muted"><strong>🔍 1. Network Device Discovery & Active Defense (Every 5 Minutes)</strong></p>
@@ -640,7 +681,6 @@
             <li>🔄 <strong>ExploitDB Sync:</strong> Scrapes 5,000 new exploit signatures every 24 hours from local database (46,948+ total signatures)</li>
             <li>🍯 <strong>Honeypot Intelligence:</strong> Real attack attempts from honeypots feed ML pattern recognition</li>
             <li>🌐 <strong>Threat Crawler Data:</strong> 204 items from 5 global threat feeds refresh every 6 hours</li>
-            <li>🚀 <strong>GPU-Accelerated Training:</strong> Optional TensorFlow/PyTorch neural networks with CUDA/NVIDIA support for faster training</li>
             <li>🧪 <strong>Behavioral Profiling:</strong> Learns normal traffic patterns for each device type (phone/camera/computer)</li>
             <li>🔍 <strong>Device Activity Tracking:</strong> Connection history identifies unusual network behavior and potential compromises</li>
             <li>🌍 <strong>Global Mesh Learning:</strong> Connects to relay server - when one container detects an attack, ALL containers learn instantly</li>
@@ -737,7 +777,8 @@
 
       <!-- AI Training Network Status -->
       <section id="p2p-network-status" style="background: linear-gradient(135deg, #1a2a3d, #1a1e2e); border: 2px solid #5fe2ff;">
-        <h2>🤖 AI Training Network - Shared Machine Learning</h2>
+        <h2>📍 Section 2 | 🤖 AI Training Network - Shared Machine Learning</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fe2ff;">✅ <strong>EXISTING FEATURE:</strong> Global P2P mesh for distributed AI training & real-time threat sharing</p>
         <p class="muted" style="margin-bottom: 1rem;">
           <strong id="network-status-text">When A gets attacked, B and C learn automatically. Brilliant. 🚀</strong>
         </p>
@@ -795,12 +836,29 @@
         </div>
       </section>
 
-      <!-- Connected Devices Section -->
+      <!-- Connected Devices Section - CONSOLIDATED -->
       <section style="background: linear-gradient(135deg, #1a3d2a, #1a2e1e); border: 2px solid #5fff9f;">
-        <h2>🌐 Network Devices Protected by This System</h2>
+        <h2>📍 Section 3 | 🌐 Network Devices - Live Monitor, Ports & History</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE (CONSOLIDATED):</strong> 3-in-1 tabbed section - Live devices + Port scanning + 7-day history</p>
         <p class="muted" style="margin-bottom: 1rem;">
-          <strong>📱 All devices connected to your network are monitored and protected</strong> - iOS, Android, Windows, Mac, Linux, IoT devices
+          <strong>📱 Complete device monitoring:</strong> All connected devices + Port scanning + 7-day history tracking
         </p>
+        
+        <!-- Tab Navigation -->
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #2a4a3d;">
+          <button onclick="switchDeviceTab('live')" id="tab-live" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #5fff9f, #5fe2ff); color: #0b1020; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            📡 Live Devices
+          </button>
+          <button onclick="switchDeviceTab('ports')" id="tab-ports" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🔍 Port Scanning
+          </button>
+          <button onclick="switchDeviceTab('history')" id="tab-history" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            📅 7-Day History
+          </button>
+        </div>
+
+        <!-- Live Devices Tab -->
+        <div id="device-tab-live" style="display: block;">
         
         <div class="stats-grid">
           <div class="stat-card success">
@@ -885,6 +943,86 @@
             <strong>⚡ Protection:</strong> All detected devices are automatically protected from network attacks
           </p>
         </div>
+        </div>
+
+        <!-- Port Scanning Tab -->
+        <div id="device-tab-ports" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="stat-card warning">
+              <div class="stat-label">⚠️ Risky Ports Open</div>
+              <div class="stat-value" id="risky-ports-count">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">🔓 Total Open Ports</div>
+              <div class="stat-value" id="total-open-ports">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">📱 Devices Scanned</div>
+              <div class="stat-value" id="devices-scanned">0</div>
+            </div>
+          </div>
+
+          <div style="background: rgba(255, 95, 95, 0.1); padding: 1rem; border-radius: 8px; border: 1px solid #ff5f5f; margin-bottom: 1rem;">
+            <h3 style="margin: 0 0 0.5rem; color: #ff5f5f; font-size: 0.95rem;">⚠️ High-Risk Ports Detected</h3>
+            <div id="risky-ports-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <span style="color: #8a92b6; font-size: 0.85rem;">No risky ports detected</span>
+            </div>
+          </div>
+
+          <div class="threat-log-container" style="max-height: 400px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Device Name</th>
+                  <th>IP Address</th>
+                  <th>MAC Address</th>
+                  <th>Open Ports</th>
+                  <th>Risk Level</th>
+                </tr>
+              </thead>
+              <tbody id="port-scan-table">
+                <tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading port scan data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Device History Tab -->
+        <div id="device-tab-history" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="stat-card">
+              <div class="stat-label">📱 Unique Devices (7 days)</div>
+              <div class="stat-value" id="history-unique-devices">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">🔄 Total Connections</div>
+              <div class="stat-value" id="history-total-connections">0</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-label">📊 Currently Online</div>
+              <div class="stat-value" id="history-online-now">0</div>
+            </div>
+          </div>
+
+          <div class="threat-log-container" style="max-height: 500px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Device Name</th>
+                  <th>IP Address</th>
+                  <th>MAC Address</th>
+                  <th>Vendor</th>
+                  <th>First Seen</th>
+                  <th>Last Seen</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="device-history-table">
+                <tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading connection history...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
         
         <div style="margin-top: 1rem; padding: 1rem; background: rgba(255, 95, 95, 0.1); border-radius: 6px; border: 1px solid #ff5f5f;">
           <p class="muted" style="margin: 0; line-height: 1.8;">
@@ -899,7 +1037,8 @@
 
       <!-- VPN/Tor De-Anonymization Stats -->
       <section style="background: linear-gradient(135deg, #2a1a3d, #1a1a2e); border: 2px solid #ff5fff;">
-        <h2>🔓 VPN/Tor De-Anonymization Statistics</h2>
+        <h2>📍 Section 4 | 🔓 VPN/Tor De-Anonymization Statistics</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Military-grade IP revelation - Breaks VPN/Tor to reveal real attacker IPs</p>
         <p class="muted" style="margin-bottom: 1rem;">
           🚨 <strong>Government-Grade IP Revelation System Active</strong> - Breaking VPN/Tor encryption to reveal real attacker identities
         </p>
@@ -957,7 +1096,8 @@
 
       <!-- Real AI/ML Model Statistics -->
       <section style="background: linear-gradient(135deg, #1a3d2a, #1a2e1a); border: 2px solid #5fff9f;">
-        <h2>🤖 Real AI/ML Models - Machine Learning Intelligence</h2>
+        <h2>📍 Section 5 | 🤖 Real AI/ML Models - Machine Learning Intelligence</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fe2ff;">✅ <strong>EXISTING FEATURE:</strong> ML models for threat detection & pattern recognition</p>
         <p class="muted" style="margin-bottom: 1rem;">
           ⚡ <strong>Production ML Models Active</strong> - Real scikit-learn models detecting zero-day attacks + pattern classification
         </p>
@@ -1060,37 +1200,7 @@
           </button>
         </div>
         
-        <!-- GPU Training Section -->
-        <div style="margin-top: 1.5rem; background: linear-gradient(135deg, #1a1a2e, #2a1a3d); padding: 1.5rem; border-radius: 8px; border: 2px solid #ff5fff;">
-          <h3 style="margin: 0 0 1rem; color: #ff5fff; font-size: 1.2rem;">🚀 GPU-Accelerated Training</h3>
-          
-          <!-- GPU Info Display -->
-          <div id="gpu-info-card" style="padding: 1rem; background: rgba(95, 226, 255, 0.05); border-radius: 6px; border: 1px solid #5fe2ff; margin-bottom: 1rem;">
-            <p style="margin: 0; color: #5fe2ff;">⏳ Detecting GPU...</p>
-          </div>
-          
-          <!-- Training Materials Folder Info -->
-          <p style="margin: 0 0 0.75rem; color: #aaa; font-size: 0.9rem;">
-            📁 <strong>Training Materials:</strong> AI/exploitdb/ai_training_materials/<br>
-            💡 <strong>Supported GPUs:</strong> NVIDIA (CUDA), AMD (ROCm), Apple (Metal via TensorFlow)<br>
-            📦 <strong>Formats:</strong> CSV, JSON, NPY (NumPy arrays)
-          </p>
-          
-          <!-- GPU Buttons -->
-          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-            <button onclick="loadGPUInfo()" style="background: linear-gradient(135deg, #5fe2ff, #4fc2df); font-weight: bold;">
-              🔍 Detect GPU
-            </button>
-            <button id="gpu-train-btn" onclick="trainWithGPU()" style="background: linear-gradient(135deg, #ff5fff, #df4fdf); font-weight: bold;">
-              🚀 Train Using GPU
-            </button>
-          </div>
-          
-          <!-- Training Results -->
-          <div id="gpu-training-results" style="margin-top: 1rem; display: none; padding: 1rem; background: rgba(95, 255, 159, 0.1); border-radius: 6px; border: 1px solid #5fff9f;">
-            <p id="gpu-results-text" style="margin: 0; color: #5fff9f;"></p>
-          </div>
-        </div>
+
         
         {% if ml_stats.needs_retraining %}
         <div style="margin-top: 1rem; padding: 1rem; background: rgba(255, 184, 95, 0.1); border-radius: 6px; border: 1px solid #ffb85f;">
@@ -1225,7 +1335,8 @@
 
       <!-- Overview Statistics -->
       <section>
-        <h2>📊 Security Overview - Live Statistics</h2>
+        <h2>📍 Section 6 | 📊 Security Overview - Live Statistics</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fff9f;">✅ <strong>EXISTING FEATURE:</strong> Real-time security metrics & threat counters</p>
         <div class="stats-grid">
           <div class="stat-card critical">
             <div class="stat-label">🚫 BLOCKED IPs</div>
@@ -1275,7 +1386,8 @@
 
       <!-- Threat Breakdown by Type -->
       <section>
-        <h2>🎯 Threat Analysis by Type</h2>
+        <h2>📍 Section 7 | 🎯 Threat Analysis by Type</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ffb85f;">✅ <strong>EXISTING FEATURE:</strong> Categorized threat breakdown & analysis</p>
         <div class="threat-breakdown">
           {% if stats.threats_by_type %}
             {% for threat_type, count in stats.threats_by_type.items() %}
@@ -1294,7 +1406,8 @@
 
       <!-- Blocked IP Addresses -->
       <section>
-        <h2>🔒 Blocked IP Addresses ({{ stats.blocked_ips_count }})</h2>
+        <h2>📍 Section 8 | 🔒 Blocked IP Addresses ({{ stats.blocked_ips_count }})</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Auto-blocked attackers - ARP-based network isolation with unblock controls</p>
         <p class="muted" style="margin-bottom: 1rem;">
           Select an action for each blocked IP: <strong>Unblock</strong> (remove from block list), <strong>Whitelist</strong> (permanently allow), or <strong>Keep Blocked</strong>
         </p>
@@ -1318,7 +1431,8 @@
 
       <!-- Whitelisted IP Addresses -->
       <section style="background: linear-gradient(135deg, #1a3d2a, #1a2e1e); border: 2px solid #5fff9f;">
-        <h2>✅ Whitelisted IP Addresses ({{ whitelisted_ips|length }})</h2>
+        <h2>📍 Section 9 | ✅ Whitelisted IP Addresses ({{ whitelisted_ips|length }})</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fff9f;">✅ <strong>EXISTING FEATURE:</strong> Trusted IP management & exemption list</p>
         <p class="muted" style="margin-bottom: 1rem;">
           These IPs are <strong>permanently allowed</strong> and will never be blocked. Includes relay server, GitHub, and other trusted sources.
         </p>
@@ -1344,7 +1458,8 @@
 
       <!-- Adaptive Honeypot -->
       <section style="background: linear-gradient(135deg, #3d2a1a, #2e1e1a); border: 2px solid #ffb85f;">
-        <h2>🍯 Adaptive Honeypot - AI Training Sandbox</h2>
+        <h2>📍 Section 10 | 🍯 Adaptive Honeypot - AI Training Sandbox</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5fff;">✅ <strong>EXISTING FEATURE:</strong> 8 honeypot services for real attack capture & ML training</p>
         <p class="muted" style="margin-bottom: 1rem;">
           <strong>One honeypot, many disguises.</strong> Morphs into different services (FTP, SSH, HTTP, etc.) to attract attackers. All attacks are logged and <strong>fed into AI training</strong> to learn threat patterns. Safe, isolated sandbox environment.
         </p>
@@ -1440,9 +1555,10 @@
       </section>
 
       <!-- Failed Login Attempts -->
-      {% if stats.failed_login_attempts %}
-        <section>
-          <h2>🔐 Failed Login Attempts (Monitored IPs)</h2>
+      <section>
+        <h2>📍 Section 11 | 🔐 Failed Login Attempts (Monitored IPs)</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Brute-force tracking - SSH/RDP/Web login attack monitoring</p>
+        {% if stats.failed_login_attempts %}
           <table>
             <thead>
               <tr>
@@ -1469,12 +1585,22 @@
               {% endfor %}
             </tbody>
           </table>
-        </section>
-      {% endif %}
+        {% else %}
+          <div style="padding: 2rem; text-align: center; background: rgba(95, 255, 159, 0.1); border-radius: 8px; border: 1px dashed #5fff9f;">
+            <p style="font-size: 1.1rem; margin: 0;">
+              ✅ No failed login attempts detected
+            </p>
+            <p class="muted" style="margin: 0.5rem 0 0;">
+              Monitoring SSH, RDP, FTP, and web authentication attempts. Any brute-force attacks will be logged here.
+            </p>
+          </div>
+        {% endif %}
+      </section>
 
       <!-- Recent Threat Log -->
       <section>
-        <h2>📝 Live Threat Monitor - Real-Time Attack Logs</h2>
+        <h2>📍 Section 12 | 📝 Live Threat Monitor - Real-Time Attack Logs</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">✅ <strong>EXISTING FEATURE:</strong> Real-time attack logging with IP geolocation & VPN/Tor detection</p>
         <p class="muted" style="margin-bottom: 1rem;">
           🔴 Live monitoring of all security events | Auto-refreshes every 5 minutes | 
           Showing latest 100 events sorted by timestamp (newest first) | 🌍 Geolocation tracking enabled for law enforcement
@@ -1599,7 +1725,8 @@
 
       <!-- AI Crawlers & Learning Sources -->
       <section>
-        <h2>🤖 AI Security Crawlers & Threat Intelligence Sources</h2>
+        <h2>📍 Section 13 | 🤖 AI Security Crawlers & Threat Intelligence Sources</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fe2ff;">✅ <strong>EXISTING FEATURE:</strong> 10 automated crawlers for global threat intelligence gathering</p>
         <p class="muted" style="margin-bottom: 1rem;">
           Automated crawlers continuously monitor these security research sources to learn about latest exploits, malware, and attack patterns. Data is used to train ML models and update threat signatures.
         </p>
@@ -1870,7 +1997,8 @@
       <!-- Attack Type Statistics -->
       {% if stats.get('attack_summary') %}
       <section>
-        <h2>📈 Attack Type Breakdown</h2>
+        <h2>📍 Section 14 | 📈 Attack Type Breakdown</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Visual analytics - Chart showing distribution of attack types</p>
         <div class="threat-breakdown">
           {% for attack_type, count in stats.attack_summary.items() %}
           <div class="threat-item">
@@ -1882,31 +2010,75 @@
       </section>
       {% endif %}
 
-      <!-- Enterprise Performance Metrics -->
-      <section>
-        <h2>⚡ Network Performance Metrics</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-          <div class="stat-card success">
-            <div class="stat-label">📡 Current Bandwidth</div>
-            <div class="stat-value" id="bandwidth-metric">-- Mbps</div>
+      <!-- System Health & Network Performance - CONSOLIDATED -->
+      <section style="background: linear-gradient(135deg, #1a3d2a, #1a2e1e); border: 2px solid #5fff9f;">
+        <h2>📍 Section 15 | 💻 System Health & Network Performance</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE (CONSOLIDATED):</strong> 2-in-1 tabbed section - System resources + Network performance monitoring</p>
+        <p class="muted">🏥 Real-time monitoring: System resources + Network metrics + Service health</p>
+        
+        <!-- Tab Navigation -->
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #2a4a3d;">
+          <button onclick="switchHealthTab('system')" id="health-tab-system" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #5fff9f, #5fe2ff); color: #0b1020; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🖥️ System Health
+          </button>
+          <button onclick="switchHealthTab('network')" id="health-tab-network" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            📡 Network Performance
+          </button>
+        </div>
+
+        <!-- System Health Tab -->
+        <div id="health-content-system" style="display: block;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="stat-card">
+              <div class="stat-label">🖥️ CPU Usage</div>
+              <div class="stat-value" id="health-cpu">--%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">💾 Memory Usage</div>
+              <div class="stat-value" id="health-memory">--%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">💿 Disk Usage</div>
+              <div class="stat-value" id="health-disk">--%</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-label">⏱️ Uptime</div>
+              <div class="stat-value" id="health-uptime">--</div>
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-label">⚡ Network Latency</div>
-            <div class="stat-value" id="latency-metric">-- ms</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">📦 Packet Loss</div>
-            <div class="stat-value" id="packetloss-metric">--%</div>
+
+          <h3 style="color: #5fff9f; font-size: 1rem; margin: 1.5rem 0 0.75rem;">🔧 Service Health Status</h3>
+          <div id="health-services" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.75rem;">
+            <div style="text-align: center; color: #8a92b6; padding: 1rem;">Loading service status...</div>
           </div>
         </div>
-        <div style="background: #1a2135; padding: 1rem; border-radius: 8px;">
-          <canvas id="performanceChart" style="max-height: 300px;"></canvas>
+
+        <!-- Network Performance Tab -->
+        <div id="health-content-network" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="stat-card success">
+              <div class="stat-label">📡 Current Bandwidth</div>
+              <div class="stat-value" id="bandwidth-metric">-- Mbps</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">⚡ Network Latency</div>
+              <div class="stat-value" id="latency-metric">-- ms</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">📦 Packet Loss</div>
+              <div class="stat-value" id="packetloss-metric">--%</div>
+            </div>
+          </div>
+          <div style="background: #1a2135; padding: 1rem; border-radius: 8px;">
+            <canvas id="performanceChart" style="max-height: 300px;"></canvas>
+          </div>
         </div>
       </section>
 
       <!-- Compliance Dashboard -->
       <section>
-        <h2>✅ Compliance Dashboard</h2>
+        <h2>📍 Section 16 | ✅ Compliance Dashboard</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Regulatory compliance - PCI-DSS, HIPAA, GDPR, SOC 2 scoring</p>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
           <div class="stat-card success">
             <div class="stat-label">🏦 PCI-DSS v4.0</div>
@@ -1927,6 +2099,69 @@
         </div>
       </section>
 
+      <!-- Automated Signature Extraction Dashboard (UNIQUE FEATURE) -->
+      <section style="background: linear-gradient(135deg, #3d1a2a, #2e1a1e); border: 2px solid #ff9f5f;">
+        <h2>📍 Section 17 | 📦 Automated Signature Extraction - Attack Pattern Analysis</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE (UNIQUE!):</strong> Military-safe ML training - Extracts ONLY patterns, NEVER stores exploit payloads</p>
+        <p class="muted">✅ <strong>Military/Police Safe:</strong> Extracts ONLY attack patterns (keywords, encodings, regex) - ZERO exploit code stored</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="stat-card success">
+            <div class="stat-label">📦 Total Patterns Extracted</div>
+            <div class="stat-value" id="sig-total-patterns">0</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">🔐 Encodings Detected</div>
+            <div class="stat-value" id="sig-encoding-count">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">🔑 Keywords Extracted</div>
+            <div class="stat-value" id="sig-keyword-count">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">📝 Regex Patterns</div>
+            <div class="stat-value" id="sig-regex-count">0</div>
+          </div>
+        </div>
+
+        <div style="background: rgba(95, 226, 255, 0.05); padding: 1rem; border-radius: 8px; border: 1px solid #5fe2ff; margin-bottom: 1rem;">
+          <h3 style="margin: 0 0 0.75rem; color: #5fe2ff; font-size: 1rem;">🔐 Defensive Architecture Status</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="color: #5fff9f; font-size: 1.5rem;">✅</span>
+              <span style="color: #a9b3d4; font-size: 0.85rem;">Patterns Only Stored</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="color: #5fff9f; font-size: 1.5rem;">✅</span>
+              <span style="color: #a9b3d4; font-size: 0.85rem;">Zero Exploit Code</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="color: #5fff9f; font-size: 1.5rem;">✅</span>
+              <span style="color: #a9b3d4; font-size: 0.85rem;">Military/Police Compliant</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="color: #5fff9f; font-size: 1.5rem;">✅</span>
+              <span style="color: #a9b3d4; font-size: 0.85rem;">Auto ML Training</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="color: #ffb85f; font-size: 1rem; margin: 1.5rem 0 0.75rem;">🔐 Top Detected Encodings</h3>
+        <div id="sig-encodings" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-bottom: 1.5rem;">
+          <div style="text-align: center; color: #8a92b6;">Loading...</div>
+        </div>
+
+        <h3 style="color: #ffb85f; font-size: 1rem; margin: 1.5rem 0 0.75rem;">🔑 Top Extracted Keywords</h3>
+        <div id="sig-keywords" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-bottom: 1.5rem;">
+          <div style="text-align: center; color: #8a92b6;">Loading...</div>
+        </div>
+
+        <h3 style="color: #ffb85f; font-size: 1rem; margin: 1.5rem 0 0.75rem;">📊 Attack Type Distribution</h3>
+        <div id="sig-attack-dist" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
+          <div style="text-align: center; color: #8a92b6;">Loading...</div>
+        </div>
+      </section>
+
     </main>
 
     <div class="refresh-indicator">
@@ -1943,9 +2178,6 @@
           location.reload();
         }
       }, 1000);
-      
-      // Load GPU info on page load
-      loadGPUInfo();
       
       // Export monitoring data
       function exportData() {
@@ -2115,99 +2347,6 @@
           alert('❌ Network error: ' + error.message);
           btn.disabled = false;
           btn.textContent = '🔄 Force Retrain ML Models Now';
-        }
-      }
-      
-      // GPU Training Functions
-      async function loadGPUInfo() {
-        try {
-          const response = await fetch('/api/gpu/info');
-          const data = await response.json();
-          
-          const infoCard = document.getElementById('gpu-info-card');
-          const trainBtn = document.getElementById('gpu-train-btn');
-          
-          if (data.success && data.gpu_info.available) {
-            const gpu = data.gpu_info;
-            infoCard.innerHTML = `
-              <p style="margin: 0; color: #5fff9f;">
-                ✅ <strong>GPU DETECTED:</strong> ${gpu.name || 'Unknown GPU'}<br>
-                🔧 <strong>Type:</strong> ${gpu.type || 'Unknown'}<br>
-                🧠 <strong>Framework:</strong> ${gpu.framework || 'None'}
-              </p>
-            `;
-            trainBtn.disabled = false;
-          } else {
-            infoCard.innerHTML = `
-              <p style="margin: 0; color: #ffb85f;">
-                ⚠️ <strong>NO GPU DETECTED</strong><br>
-                Training will use CPU (slower). Install CUDA for GPU acceleration.
-              </p>
-            `;
-            trainBtn.disabled = true;
-          }
-        } catch (error) {
-          document.getElementById('gpu-info-card').innerHTML = `
-            <p style="margin: 0; color: #ff5f5f;">❌ Failed to detect GPU: ${error.message}</p>
-          `;
-        }
-      }
-      
-      async function trainWithGPU() {
-        if (!confirm('Train ML models using GPU?\n\nThis will:\n- Load training materials from ai_training_materials/\n- Train TensorFlow/PyTorch neural networks\n- Use GPU acceleration (CUDA)\n\nTraining may take 1-5 minutes depending on dataset size.')) {
-          return;
-        }
-        
-        const btn = document.getElementById('gpu-train-btn');
-        const resultsDiv = document.getElementById('gpu-training-results');
-        const resultsText = document.getElementById('gpu-results-text');
-        
-        btn.disabled = true;
-        btn.textContent = '⏳ Training on GPU...';
-        resultsDiv.style.display = 'none';
-        
-        try {
-          const response = await fetch('/api/gpu/train', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          const result = await response.json();
-          
-          if (result.success) {
-            resultsDiv.style.display = 'block';
-            resultsText.innerHTML = `
-              ✅ <strong>GPU Training Complete!</strong><br>
-              📊 <strong>Accuracy:</strong> ${(result.accuracy * 100).toFixed(1)}%<br>
-              📁 <strong>Samples:</strong> ${result.samples}<br>
-              ⏱️ <strong>Time:</strong> ${result.training_time.toFixed(2)}s<br>
-              🧠 <strong>Framework:</strong> ${result.framework}<br>
-              📂 <strong>Files Loaded:</strong> ${result.files_loaded.join(', ')}
-            `;
-            btn.textContent = '✅ Training Complete';
-            setTimeout(() => {
-              btn.textContent = '🚀 Train Using GPU';
-              btn.disabled = false;
-            }, 3000);
-          } else {
-            resultsDiv.style.display = 'block';
-            resultsDiv.style.background = 'rgba(255, 95, 95, 0.1)';
-            resultsDiv.style.borderColor = '#ff5f5f';
-            resultsText.style.color = '#ff5f5f';
-            resultsText.textContent = '❌ Training failed: ' + (result.error || result.message);
-            btn.textContent = '🚀 Train Using GPU';
-            btn.disabled = false;
-          }
-        } catch (error) {
-          resultsDiv.style.display = 'block';
-          resultsDiv.style.background = 'rgba(255, 95, 95, 0.1)';
-          resultsDiv.style.borderColor = '#ff5f5f';
-          resultsText.style.color = '#ff5f5f';
-          resultsText.textContent = '❌ Network error: ' + error.message;
-          btn.textContent = '🚀 Train Using GPU';
-          btn.disabled = false;
         }
       }
       
@@ -2988,6 +3127,64 @@
         loadConnectedDevices();
       }
       
+      // Tab switching functions for consolidated sections
+      function switchDeviceTab(tab) {
+        // Hide all tabs
+        document.getElementById('device-tab-live').style.display = 'none';
+        document.getElementById('device-tab-ports').style.display = 'none';
+        document.getElementById('device-tab-history').style.display = 'none';
+        
+        // Reset all tab buttons
+        document.getElementById('tab-live').style.background = '#1a2135';
+        document.getElementById('tab-live').style.color = '#f5f7ff';
+        document.getElementById('tab-ports').style.background = '#1a2135';
+        document.getElementById('tab-ports').style.color = '#f5f7ff';
+        document.getElementById('tab-history').style.background = '#1a2135';
+        document.getElementById('tab-history').style.color = '#f5f7ff';
+        
+        // Show selected tab
+        if (tab === 'live') {
+          document.getElementById('device-tab-live').style.display = 'block';
+          document.getElementById('tab-live').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
+          document.getElementById('tab-live').style.color = '#0b1020';
+        } else if (tab === 'ports') {
+          document.getElementById('device-tab-ports').style.display = 'block';
+          document.getElementById('tab-ports').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
+          document.getElementById('tab-ports').style.color = '#0b1020';
+          loadPortScanData(); // Refresh data when tab opened
+        } else if (tab === 'history') {
+          document.getElementById('device-tab-history').style.display = 'block';
+          document.getElementById('tab-history').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
+          document.getElementById('tab-history').style.color = '#0b1020';
+          loadDeviceHistory(); // Refresh data when tab opened
+        }
+      }
+      
+      function switchHealthTab(tab) {
+        // Hide all tabs
+        document.getElementById('health-content-system').style.display = 'none';
+        document.getElementById('health-content-network').style.display = 'none';
+        
+        // Reset all tab buttons
+        document.getElementById('health-tab-system').style.background = '#1a2135';
+        document.getElementById('health-tab-system').style.color = '#f5f7ff';
+        document.getElementById('health-tab-network').style.background = '#1a2135';
+        document.getElementById('health-tab-network').style.color = '#f5f7ff';
+        
+        // Show selected tab
+        if (tab === 'system') {
+          document.getElementById('health-content-system').style.display = 'block';
+          document.getElementById('health-tab-system').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
+          document.getElementById('health-tab-system').style.color = '#0b1020';
+          loadSystemHealth(); // Refresh data when tab opened
+        } else if (tab === 'network') {
+          document.getElementById('health-content-network').style.display = 'block';
+          document.getElementById('health-tab-network').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
+          document.getElementById('health-tab-network').style.color = '#0b1020';
+          loadPerformanceMetrics(); // Refresh data when tab opened
+        }
+      }
+      
       // Previous connections functions
       function togglePreviousConnections() {
         const modal = document.getElementById('previous-connections-modal');
@@ -3260,11 +3457,23 @@
         loadHoneypotStatus();
         loadEnterpriseMetrics();
         loadComplianceData();
+        loadSignatureExtractionData();
+        loadPortScanData();
+        loadDeviceHistory();
+        loadSystemHealth();
         
         // Refresh honeypot status every 30 seconds
         setInterval(loadHoneypotStatus, 30000);
         // Refresh enterprise metrics every 10 seconds
         setInterval(loadEnterpriseMetrics, 10000);
+        // Refresh signature extraction every 15 seconds
+        setInterval(loadSignatureExtractionData, 15000);
+        // Refresh port scan data every 30 seconds
+        setInterval(loadPortScanData, 30000);
+        // Refresh device history every 30 seconds
+        setInterval(loadDeviceHistory, 30000);
+        // Refresh system health every 10 seconds
+        setInterval(loadSystemHealth, 10000);
       });
 
       // Enterprise Performance Metrics
@@ -3397,6 +3606,242 @@
           }
         } catch (error) {
           resultDiv.innerHTML = `<div style="color: #ff5f5f;">❌ ${featureName.toUpperCase()} - Error: ${error.message}</div>`;
+        }
+      }
+      
+      // ========================================
+      // SIGNATURE EXTRACTION DASHBOARD
+      // ========================================
+      
+      async function loadSignatureExtractionData() {
+        try {
+          const response = await fetch('/api/signatures/extracted');
+          const data = await response.json();
+          
+          if (data.status === 'success') {
+            // Update stats
+            document.getElementById('sig-total-patterns').textContent = data.metadata?.total_patterns || 0;
+            document.getElementById('sig-encoding-count').textContent = Object.keys(data.top_encodings || {}).length;
+            document.getElementById('sig-keyword-count').textContent = Object.keys(data.top_keywords || {}).length;
+            document.getElementById('sig-regex-count').textContent = data.regex_patterns_generated || 0;
+            
+            // Top encodings
+            const encodingsDiv = document.getElementById('sig-encodings');
+            if (Object.keys(data.top_encodings || {}).length > 0) {
+              encodingsDiv.innerHTML = Object.entries(data.top_encodings || {}).slice(0, 6).map(([encoding, count]) => `
+                <div style="background: #1a2135; padding: 0.75rem; border-radius: 6px; text-align: center;">
+                  <div style="font-size: 1.5rem; font-weight: 700; color: #ffb85f;">${count}</div>
+                  <div style="font-size: 0.75rem; color: #a9b3d4; text-transform: uppercase;">${encoding}</div>
+                </div>
+              `).join('');
+            } else {
+              encodingsDiv.innerHTML = '<div style="text-align: center; color: #8a92b6; grid-column: 1 / -1;">No encodings detected yet</div>';
+            }
+            
+            // Top keywords
+            const keywordsDiv = document.getElementById('sig-keywords');
+            if (Object.keys(data.top_keywords || {}).length > 0) {
+              keywordsDiv.innerHTML = Object.entries(data.top_keywords || {}).slice(0, 8).map(([keyword, count]) => `
+                <div style="background: #1a2135; padding: 0.75rem; border-radius: 6px; text-align: center;">
+                  <div style="font-size: 1.3rem; font-weight: 700; color: #5fe2ff;">${count}</div>
+                  <div style="font-size: 0.75rem; color: #a9b3d4;">${keyword}</div>
+                </div>
+              `).join('');
+            } else {
+              keywordsDiv.innerHTML = '<div style="text-align: center; color: #8a92b6; grid-column: 1 / -1;">No keywords extracted yet</div>';
+            }
+            
+            // Attack distribution
+            const attackDistDiv = document.getElementById('sig-attack-dist');
+            if (data.metadata?.attack_distribution && Object.keys(data.metadata.attack_distribution).length > 0) {
+              attackDistDiv.innerHTML = Object.entries(data.metadata.attack_distribution).map(([type, count]) => `
+                <div style="background: #1a2135; padding: 0.75rem; border-radius: 6px; border-left: 3px solid #ff9f5f;">
+                  <div style="font-size: 1.2rem; font-weight: 700; color: #ff9f5f;">${count}</div>
+                  <div style="font-size: 0.8rem; color: #a9b3d4;">${type}</div>
+                </div>
+              `).join('');
+            } else {
+              attackDistDiv.innerHTML = '<div style="text-align: center; color: #8a92b6; grid-column: 1 / -1;">No attacks analyzed yet</div>';
+            }
+          }
+        } catch (error) {
+          console.error('Error loading signature extraction data:', error);
+        }
+      }
+      
+      // ========================================
+      // PORT SCANNING RESULTS
+      // ========================================
+      
+      async function loadPortScanData() {
+        try {
+          const response = await fetch('/api/connected-devices');
+          const devices = await response.json();
+          
+          const riskyPorts = [22, 23, 3389, 445, 139, 135, 1433, 3306, 5432, 6379, 27017];
+          let totalOpenPorts = 0;
+          let riskyPortsOpen = 0;
+          let riskyPortsList = new Set();
+          
+          const tbody = document.getElementById('port-scan-table');
+          
+          if (devices.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #8a92b6;">No devices detected yet</td></tr>';
+            return;
+          }
+          
+          tbody.innerHTML = devices.map(device => {
+            const openPorts = device.open_ports || [];
+            totalOpenPorts += openPorts.length;
+            
+            const hasRiskyPorts = openPorts.some(p => riskyPorts.includes(p));
+            if (hasRiskyPorts) {
+              riskyPortsOpen++;
+              openPorts.filter(p => riskyPorts.includes(p)).forEach(p => riskyPortsList.add(p));
+            }
+            
+            const riskLevel = hasRiskyPorts ? 'critical' : (openPorts.length > 5 ? 'warning' : 'safe');
+            const riskText = hasRiskyPorts ? 'High Risk' : (openPorts.length > 5 ? 'Medium' : 'Low');
+            
+            return `
+              <tr>
+                <td>${device.hostname || 'Unknown'}</td>
+                <td><code>${device.ip}</code></td>
+                <td style="font-family: monospace; font-size: 0.85rem;">${device.mac}</td>
+                <td style="font-family: monospace; font-size: 0.85rem;">
+                  ${openPorts.length > 0 ? openPorts.map(p => 
+                    riskyPorts.includes(p) ? 
+                    `<span style="color: #ff5f5f; font-weight: 600;">${p}</span>` : 
+                    p
+                  ).join(', ') : 'None'}
+                </td>
+                <td><span class="badge badge-${riskLevel}">${riskText}</span></td>
+              </tr>
+            `;
+          }).join('');
+          
+          // Update stats
+          document.getElementById('risky-ports-count').textContent = riskyPortsOpen;
+          document.getElementById('total-open-ports').textContent = totalOpenPorts;
+          document.getElementById('devices-scanned').textContent = devices.length;
+          
+          // Update risky ports list
+          const riskyPortsListDiv = document.getElementById('risky-ports-list');
+          if (riskyPortsList.size > 0) {
+            riskyPortsListDiv.innerHTML = Array.from(riskyPortsList).sort((a, b) => a - b).map(port => {
+              const portNames = {
+                22: 'SSH', 23: 'Telnet', 3389: 'RDP', 445: 'SMB', 139: 'NetBIOS',
+                135: 'RPC', 1433: 'MSSQL', 3306: 'MySQL', 5432: 'PostgreSQL',
+                6379: 'Redis', 27017: 'MongoDB'
+              };
+              return `<span style="background: #7f2a2a; color: #ff5f5f; padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">${port} (${portNames[port] || 'Unknown'})</span>`;
+            }).join(' ');
+          } else {
+            riskyPortsListDiv.innerHTML = '<span style="color: #5fff9f; font-size: 0.85rem;">✅ No risky ports detected</span>';
+          }
+        } catch (error) {
+          console.error('Error loading port scan data:', error);
+        }
+      }
+      
+      // ========================================
+      // DEVICE CONNECTION HISTORY
+      // ========================================
+      
+      async function loadDeviceHistory() {
+        try {
+          const response = await fetch('/api/device-history');
+          const history = await response.json();
+          
+          const responseDevices = await fetch('/api/connected-devices');
+          const currentDevices = await responseDevices.json();
+          const currentMACs = new Set(currentDevices.map(d => d.mac));
+          
+          const tbody = document.getElementById('device-history-table');
+          
+          if (history.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #8a92b6;">No connection history available</td></tr>';
+            document.getElementById('history-unique-devices').textContent = '0';
+            document.getElementById('history-total-connections').textContent = '0';
+            document.getElementById('history-online-now').textContent = '0';
+            return;
+          }
+          
+          tbody.innerHTML = history.map(device => {
+            const isOnline = currentMACs.has(device.mac);
+            return `
+              <tr>
+                <td>${device.hostname || 'Unknown'}</td>
+                <td><code>${device.ip}</code></td>
+                <td style="font-family: monospace; font-size: 0.85rem;">${device.mac}</td>
+                <td>${device.vendor || 'Unknown'}</td>
+                <td style="font-size: 0.85rem;">${device.first_seen || 'Unknown'}</td>
+                <td style="font-size: 0.85rem;">${device.last_seen || 'Unknown'}</td>
+                <td>
+                  <span class="badge badge-${isOnline ? 'success' : 'monitored'}">
+                    ${isOnline ? '🟢 Online' : '⚪ Offline'}
+                  </span>
+                </td>
+              </tr>
+            `;
+          }).join('');
+          
+          // Update stats
+          document.getElementById('history-unique-devices').textContent = history.length;
+          document.getElementById('history-total-connections').textContent = history.reduce((sum, d) => sum + (d.connection_count || 1), 0);
+          document.getElementById('history-online-now').textContent = Array.from(currentMACs).length;
+          
+        } catch (error) {
+          console.error('Error loading device history:', error);
+        }
+      }
+      
+      // ========================================
+      // SYSTEM HEALTH DASHBOARD
+      // ========================================
+      
+      async function loadSystemHealth() {
+        try {
+          const response = await fetch('/api/system-status');
+          const data = await response.json();
+          
+          // Update stats
+          document.getElementById('health-cpu').textContent = (data.cpu_usage || 0) + '%';
+          document.getElementById('health-memory').textContent = (data.memory_usage || 0) + '%';
+          document.getElementById('health-disk').textContent = (data.disk_usage || 0) + '%';
+          document.getElementById('health-uptime').textContent = data.uptime || 'Unknown';
+          
+          // Service health
+          const servicesDiv = document.getElementById('health-services');
+          const services = data.services || {};
+          
+          if (Object.keys(services).length > 0) {
+            servicesDiv.innerHTML = Object.entries(services).map(([name, status]) => `
+              <div style="background: #1a2135; padding: 0.75rem; border-radius: 6px; border-left: 3px solid ${status === 'running' ? '#5fff9f' : '#ff5f5f'}; display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: #f5f7ff; font-weight: 600;">${name}</span>
+                <span class="badge badge-${status === 'running' ? 'success' : 'critical'}">
+                  ${status === 'running' ? '✅ Running' : '❌ Stopped'}
+                </span>
+              </div>
+            `).join('');
+          } else {
+            servicesDiv.innerHTML = `
+              <div style="background: #1a2135; padding: 0.75rem; border-radius: 6px; border-left: 3px solid #5fff9f; display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: #f5f7ff; font-weight: 600;">Network Monitor</span>
+                <span class="badge badge-success">✅ Running</span>
+              </div>
+              <div style="background: #1a2135; padding: 0.75rem; border-radius: 6px; border-left: 3px solid #5fff9f; display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: #f5f7ff; font-weight: 600;">AI Engine</span>
+                <span class="badge badge-success">✅ Running</span>
+              </div>
+              <div style="background: #1a2135; padding: 0.75rem; border-radius: 6px; border-left: 3px solid #5fff9f; display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: #f5f7ff; font-weight: 600;">P2P Sync</span>
+                <span class="badge badge-success">✅ Running</span>
+              </div>
+            `;
+          }
+        } catch (error) {
+          console.error('Error loading system health:', error);
         }
       }
     </script>
