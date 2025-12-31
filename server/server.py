@@ -1710,18 +1710,24 @@ def generate_env_file():
 
 @app.route('/api/performance/metrics', methods=['GET'])
 def get_performance_metrics():
-    """Get network performance metrics for all IPs"""
+    """Get network performance metrics for dashboard"""
     try:
         import AI.network_performance as net_perf
         
-        ip_address = request.args.get('ip')
+        # Get network-wide statistics for dashboard
+        stats = net_perf.get_network_statistics()
         
-        if ip_address:
-            metrics = net_perf.get_performance_metrics(ip_address)
-            return jsonify({'status': 'success', 'metrics': metrics})
-        else:
-            metrics = net_perf.get_all_performance_metrics()
-            return jsonify({'status': 'success', 'metrics': metrics})
+        # Convert bytes to Mbps (assuming measurements over 1 second)
+        bandwidth_mbps = (stats.get('total_bandwidth_in', 0) + stats.get('total_bandwidth_out', 0)) / 1_000_000
+        
+        return jsonify({
+            'bandwidth': bandwidth_mbps,
+            'latency': stats.get('average_latency', 0),
+            'packet_loss': stats.get('congestion_level', 0) * 100,  # Convert 0-1 to percentage
+            'labels': [],
+            'bandwidth_history': [],
+            'latency_history': []
+        })
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
@@ -1777,11 +1783,23 @@ def get_compliance_report(report_type):
 
 @app.route('/api/compliance/summary', methods=['GET'])
 def get_compliance_summary():
-    """Get compliance summary across all standards"""
+    """Get compliance summary for dashboard"""
     try:
         import AI.compliance_reporting as compliance
         summary = compliance.get_compliance_summary()
-        return jsonify({'status': 'success', 'summary': summary})
+        
+        # Extract compliance standards and convert to percentages (100% = COMPLIANT)
+        standards = summary.get('compliance_standards', {})
+        
+        return jsonify({
+            'pci_dss': 100 if standards.get('pci_dss') == 'COMPLIANT' else 0,
+            'hipaa': 100 if standards.get('hipaa') == 'COMPLIANT' else 0,
+            'gdpr': 100 if standards.get('gdpr') == 'COMPLIANT' else 0,
+            'soc2': 100 if standards.get('soc2') == 'COMPLIANT' else 0,
+            'total_events': summary.get('total_security_events', 0),
+            'blocked_attacks': summary.get('blocked_attacks', 0),
+            'critical_incidents': summary.get('critical_incidents', 0)
+        })
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
