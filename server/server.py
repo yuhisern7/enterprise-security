@@ -981,6 +981,10 @@ def check_login():
     })
 
 
+# ============================================================================
+# SECTION 6, 12, 14: CORE STATISTICS & THREAT MONITORING
+# ============================================================================
+
 @app.route('/api/stats')
 def api_stats():
     """Get statistics as JSON"""
@@ -992,6 +996,7 @@ def api_stats():
     })
 
 
+# SECTION 12: Live Threat Monitor
 @app.route('/api/threat_log')
 def api_threat_log():
     """Get threat log data for new dashboard"""
@@ -1003,6 +1008,11 @@ def api_threat_log():
     })
 
 
+# ============================================================================
+# SECTION 8 & 9: IP MANAGEMENT (BLOCKED & WHITELISTED IPS)
+# ============================================================================
+
+# SECTION 8: Blocked IP Addresses
 @app.route('/api/unblock/<ip_address>', methods=['POST'])
 def unblock_ip(ip_address):
     """Unblock an IP address"""
@@ -1059,6 +1069,10 @@ def remove_from_whitelist():
         'message': f'IP {ip_address} removed from whitelist' if success else f'IP {ip_address} not in whitelist or cannot be removed'
     })
 
+
+# ============================================================================
+# SECTION 2: AI TRAINING NETWORK - SHARED MACHINE LEARNING
+# ============================================================================
 
 @app.route('/api/p2p/status', methods=['GET'])
 def get_p2p_status():
@@ -1734,6 +1748,10 @@ def generate_env_file():
 # NEW API ENDPOINTS - Performance, Compliance, Visualization
 # ============================================================================
 
+# ============================================================================
+# SECTION 15: SYSTEM HEALTH & NETWORK PERFORMANCE
+# ============================================================================
+
 @app.route('/api/performance/metrics', methods=['GET'])
 def get_performance_metrics():
     """Get network performance metrics for dashboard"""
@@ -1779,6 +1797,10 @@ def get_performance_anomalies():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+
+# ============================================================================
+# SECTION 16: COMPLIANCE DASHBOARD
+# ============================================================================
 
 @app.route('/api/compliance/report/<report_type>', methods=['GET'])
 def get_compliance_report(report_type):
@@ -1830,6 +1852,11 @@ def get_compliance_summary():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
+# ============================================================================
+# SECTIONS 18-22: FUTURE VISUALIZATION FEATURES (TRACK 1)
+# ============================================================================
+
+# SECTION 18: Network Topology Visualization
 @app.route('/api/visualization/topology', methods=['GET'])
 def get_network_topology():
     """Get network topology map"""
@@ -1887,7 +1914,10 @@ def get_all_visualizations():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
-# API endpoint to get connected devices
+# ============================================================================
+# SECTION 3: NETWORK DEVICES - LIVE MONITOR, PORTS & HISTORY (3-IN-1)
+# ============================================================================
+
 @app.route('/api/connected-devices', methods=['GET'])
 def get_connected_devices_api():
     """Get all devices connected to the network"""
@@ -1975,6 +2005,10 @@ def unblock_device_api():
 
 
 # API endpoints for Adaptive Honeypot
+# ============================================================================
+# SECTION 10: ADAPTIVE HONEYPOT - AI TRAINING SANDBOX
+# ============================================================================
+
 @app.route('/api/adaptive_honeypot/status', methods=['GET'])
 def adaptive_honeypot_status():
     """Get adaptive honeypot status"""

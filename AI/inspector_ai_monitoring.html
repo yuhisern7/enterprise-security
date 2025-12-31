@@ -3004,6 +3004,10 @@
         loadP2PStatus(); // Redirect to P2P status
       }
       
+      // ============================================================================
+      // SECTION 3: NETWORK DEVICES
+      // ============================================================================
+      
       // Connected Devices Monitoring
       async function loadConnectedDevices() {
         try {
@@ -3352,6 +3356,10 @@
       // ADAPTIVE HONEYPOT FUNCTIONS
       // ========================================
       
+      // ============================================================================
+      // SECTION 10: ADAPTIVE HONEYPOT
+      // ============================================================================
+      
       // Load available honeypot personas
       async function loadHoneypotPersonas() {
         try {
@@ -3623,6 +3631,10 @@
         }
       }
       
+      // ============================================================================
+      // SECTION 16: COMPLIANCE DASHBOARD
+      // ============================================================================
+      
       async function loadComplianceData() {
         try {
           const response = await fetch('/api/compliance/summary');
@@ -3699,6 +3711,10 @@
       // SIGNATURE EXTRACTION DASHBOARD
       // ========================================
       
+      // ============================================================================
+      // SECTION 17: SIGNATURE EXTRACTION
+      // ============================================================================
+      
       async function loadSignatureExtractionData() {
         try {
           const response = await fetch('/api/signatures/extracted');
@@ -3759,6 +3775,7 @@
       // PORT SCANNING RESULTS
       // ========================================
       
+      // SECTION 3: Port Scan Data (Network Devices)
       async function loadPortScanData() {
         try {
           const response = await fetch('/api/connected-devices');
@@ -3834,6 +3851,7 @@
       // DEVICE CONNECTION HISTORY
       // ========================================
       
+      // SECTION 3: Device History (Network Devices)
       async function loadDeviceHistory() {
         try {
           const response = await fetch('/api/device-history');
@@ -3885,6 +3903,10 @@
       // ========================================
       // SYSTEM HEALTH DASHBOARD
       // ========================================
+      
+      // ============================================================================
+      // SECTION 15: SYSTEM HEALTH
+      // ============================================================================
       
       async function loadSystemHealth() {
         try {
