@@ -9,12 +9,49 @@
 | Category | Status | Count | Timeline |
 |----------|--------|-------|----------|
 | **✅ Dashboard Sections** | Live & Working | **17/22** | - |
-| **🎨 Visualization Track** | Planned | 5 sections | 5-7 hours |
-| **🏢 Enterprise Track** | Planned | 13 features | 2-4 months |
+| **🎨 Visualization Sections** | Next Priority | **5 sections** | 5-7 hours |
+| **🏢 Enterprise Features** | After Viz | **13 features** | 2-4 months |
+| **📊 Total Planned** | Two Tracks | **18 items** | 5 viz + 13 enterprise |
 | **🔌 Active APIs** | Production | 50+ endpoints | - |
 | **🌍 P2P Network** | Global Mesh | 100+ countries | - |
 
 **Next Milestone:** Complete Sections 18-22 (visualizations) → **22 sections = Most advanced monitoring tool** 🏆
+
+---
+
+## 📝 TRACKING GUIDE - Where to Update When Adding New Sections
+
+**When you implement a new dashboard section, update EXACTLY 2 places:**
+
+### 1️⃣ Dashboard (AI/inspector_ai_monitoring.html)
+- **Line ~145:** Update count badges at Feature Registry top
+  - Find: `✅ 17 Sections | 🎨 5 Viz (Next) | 🏢 13 Enterprise`
+  - After Section 18: `✅ 18 Sections | 🎨 4 Viz (Next) | 🏢 13 Enterprise`
+- **Line ~300+:** Feature Registry - Move implemented item from "TRACK 1" to "EXISTING"
+- **Line ~589+:** Add new `<section>` HTML block with numbered header `<h2>📍 Section X |`
+
+### 2️⃣ README.md (This File)
+- **Line ~10:** Update "Dashboard Sections" row in status table (17/22 → 18/22)
+- **Line ~45:** Move checkbox from "FUTURE FEATURES" to "EXISTING FEATURES"
+  - Change `- [ ] **Section 18:**` to `- [x] **Section 18:**`
+  - Move line up to "EXISTING FEATURES" section (line ~25+)
+
+**That's it!** Just 2 files. Dashboard badges + README checklist = always in sync.
+
+**Example After Implementing Section 18:**
+```diff
+Dashboard Line 145:
+- ✅ 17 Sections | 🎨 5 Viz (Next) | 🏢 13 Enterprise
++ ✅ 18 Sections | 🎨 4 Viz (Next) | 🏢 13 Enterprise
+
+README Line 10:
+- **✅ Dashboard Sections** | Live & Working | **17/22** | -
++ **✅ Dashboard Sections** | Live & Working | **18/22** | -
+
+README Line 45 (move from line ~47):
+- - [ ] **Section 18:** 🗺️ Network Topology Visualization
++ - [x] **Section 18:** 🗺️ Network Topology Visualization (moved to EXISTING)
+```
 
 ---
 
