@@ -6,7 +6,7 @@
 
 **One attack anywhere. Everyone protected everywhere.**
 
-This is a **Network Monitor (IDS/IPS), NOT antivirus.** One container watches ALL network traffic and blocks attackers before they reach your devices—invisible and unstoppable.
+This is an **Autonomous Network Monitor (IDS/IPS), NOT antivirus.** One container watches ALL network traffic and blocks attackers before they reach your devices—invisible and unstoppable.
 
 **When ANY subscriber worldwide detects an attack:**
 - Attack logged to central relay server instantly
