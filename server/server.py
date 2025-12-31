@@ -777,6 +777,10 @@ def get_gpu_info():
     })
 
 
+# ============================================================================
+# SECTION 17: AUTOMATED SIGNATURE EXTRACTION
+# ============================================================================
+
 @app.route('/api/signatures/extracted', methods=['GET'])
 def get_extracted_signatures():
     """Get automatically extracted attack signatures (DEFENSIVE - no exploit code)"""

@@ -58,7 +58,7 @@
         "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-01T04:21:47.403713",
+    "last_seen": "2026-01-01T04:27:18.771307",
     "first_seen": "2025-12-29T19:59:39.075591"
   },
   "e8:48:b8:2e:80:85": {
@@ -67,7 +67,7 @@
     "type": "Router/Network",
     "hostname": "TP-Link-Router-101",
     "open_ports": [],
-    "last_seen": "2026-01-01T04:21:52.119068",
+    "last_seen": "2026-01-01T04:27:23.655803",
     "first_seen": "2025-12-31T23:04:51.350682"
   },
   "24:0f:9b:24:a0:4a": {
@@ -113,7 +113,7 @@
         "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-01T04:21:58.360300",
+    "last_seen": "2026-01-01T04:27:25.705750",
     "first_seen": "2025-12-31T23:04:53.424096"
   },
   "1c:86:9a:3f:61:3c": {
@@ -122,7 +122,7 @@
     "type": "Android",
     "hostname": "Samsung-Phone-106",
     "open_ports": [],
-    "last_seen": "2026-01-01T04:22:05.139066",
+    "last_seen": "2026-01-01T04:27:34.599876",
     "first_seen": "2025-12-31T23:04:55.488868"
   },
   "36:ce:45:73:56:3d": {
@@ -130,20 +130,6 @@
     "mac": "36:ce:45:73:56:3d",
     "type": "Unknown",
     "hostname": "Device-105",
-    "open_ports": [
-      {
-        "port": 445,
-        "service": "SMB"
-      }
-    ],
-    "last_seen": "2026-01-01T04:10:56.232686",
-    "first_seen": "2026-01-01T04:10:56.232712"
-  },
-  "22:9c:c8:47:7d:23": {
-    "ip": "192.168.0.107",
-    "mac": "22:9c:c8:47:7d:23",
-    "type": "Unknown",
-    "hostname": "Device-107",
     "open_ports": [
       {
         "port": 22,
@@ -182,8 +168,50 @@
         "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-01T04:05:17.045124",
-    "first_seen": "2026-01-01T04:05:17.045138"
+    "last_seen": "2026-01-01T04:27:38.811865",
+    "first_seen": "2026-01-01T04:27:38.811896"
+  },
+  "22:9c:c8:47:7d:23": {
+    "ip": "192.168.0.107",
+    "mac": "22:9c:c8:47:7d:23",
+    "type": "Unknown",
+    "hostname": "Device-107",
+    "open_ports": [
+      {
+        "port": 22,
+        "service": "SSH"
+      },
+      {
+        "port": 80,
+        "service": "HTTP"
+      },
+      {
+        "port": 445,
+        "service": "SMB"
+      },
+      {
+        "port": 554,
+        "service": "RTSP"
+      },
+      {
+        "port": 3389,
+        "service": "RDP"
+      },
+      {
+        "port": 5900,
+        "service": "VNC"
+      },
+      {
+        "port": 8080,
+        "service": "HTTP-Alt"
+      },
+      {
+        "port": 8443,
+        "service": "HTTPS-Alt"
+      }
+    ],
+    "last_seen": "2026-01-01T04:27:46.279481",
+    "first_seen": "2026-01-01T04:27:46.279490"
   },
   "40:ac:bf:3e:53:af": {
     "ip": "192.168.0.104",
@@ -228,7 +256,7 @@
         "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-01T04:22:00.419827",
+    "last_seen": "2026-01-01T04:27:36.665754",
     "first_seen": "2025-12-31T23:04:57.553709"
   },
   "48:35:2b:cb:48:0a": {
@@ -320,7 +348,7 @@
         "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-01T04:21:56.311272",
+    "last_seen": "2026-01-01T04:27:27.764159",
     "first_seen": "2025-12-31T23:05:06.456731"
   },
   "84:46:93:6d:3c:3f": {
@@ -366,7 +394,7 @@
         "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-01T04:21:54.215529",
+    "last_seen": "2026-01-01T04:27:29.872315",
     "first_seen": "2025-12-31T23:05:04.396236"
   },
   "92:dc:0b:ea:17:30": {
@@ -414,8 +442,13 @@
     "mac": "2a:dc:4c:1d:91:1e",
     "type": "Unknown",
     "hostname": "Device-108",
-    "open_ports": [],
-    "last_seen": "2026-01-01T03:16:39.581629",
-    "first_seen": "2026-01-01T03:16:39.581645"
+    "open_ports": [
+      {
+        "port": 445,
+        "service": "SMB"
+      }
+    ],
+    "last_seen": "2026-01-01T04:27:43.400077",
+    "first_seen": "2026-01-01T04:27:43.400097"
   }
 }
