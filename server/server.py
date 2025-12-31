@@ -778,7 +778,7 @@ def get_gpu_info():
 
 
 # ============================================================================
-# SECTION 17: AUTOMATED SIGNATURE EXTRACTION
+# SECTION 13: AUTOMATED SIGNATURE EXTRACTION
 # ============================================================================
 
 @app.route('/api/signatures/extracted', methods=['GET'])
@@ -986,7 +986,7 @@ def check_login():
 
 
 # ============================================================================
-# SECTION 6, 12, 14: CORE STATISTICS & THREAT MONITORING
+# SECTION 6, 11: CORE STATISTICS & THREAT MONITORING
 # ============================================================================
 
 @app.route('/api/stats')
@@ -1000,7 +1000,7 @@ def api_stats():
     })
 
 
-# SECTION 12: Live Threat Monitor
+# SECTION 11: Live Threat Monitor
 @app.route('/api/threat_log')
 def api_threat_log():
     """Get threat log data for new dashboard"""
@@ -1753,7 +1753,7 @@ def generate_env_file():
 # ============================================================================
 
 # ============================================================================
-# SECTION 15: SYSTEM HEALTH & NETWORK PERFORMANCE
+# SECTION 14: SYSTEM HEALTH & NETWORK PERFORMANCE
 # ============================================================================
 
 @app.route('/api/performance/metrics', methods=['GET'])
@@ -1803,7 +1803,7 @@ def get_performance_anomalies():
 
 
 # ============================================================================
-# SECTION 16: COMPLIANCE DASHBOARD
+# SECTION 21: COMPLIANCE DASHBOARD
 # ============================================================================
 
 @app.route('/api/compliance/report/<report_type>', methods=['GET'])
@@ -1857,10 +1857,10 @@ def get_compliance_summary():
 
 
 # ============================================================================
-# SECTIONS 18-22: FUTURE VISUALIZATION FEATURES (TRACK 1)
+# SECTIONS 8-13: VISUALIZATION FEATURES
 # ============================================================================
 
-# SECTION 18: Network Topology Visualization
+# SECTION 11: Network Topology Visualization (part of Network Devices)
 @app.route('/api/visualization/topology', methods=['GET'])
 def get_network_topology():
     """Get network topology map"""
@@ -1923,7 +1923,7 @@ def get_all_visualizations():
 
 
 # ============================================================================
-# SECTION 3: NETWORK DEVICES - LIVE MONITOR, PORTS & HISTORY (3-IN-1)
+# SECTION 11: NETWORK DEVICES - LIVE MONITOR, PORTS & HISTORY (3-IN-1)
 # ============================================================================
 
 @app.route('/api/connected-devices', methods=['GET'])
@@ -2014,7 +2014,7 @@ def unblock_device_api():
 
 # API endpoints for Adaptive Honeypot
 # ============================================================================
-# SECTION 10: ADAPTIVE HONEYPOT - AI TRAINING SANDBOX
+# SECTION 18: ADAPTIVE HONEYPOT - AI TRAINING SANDBOX
 # ============================================================================
 
 @app.route('/api/adaptive_honeypot/status', methods=['GET'])
@@ -2191,37 +2191,14 @@ if __name__ == '__main__':
     dashboard_port = int(os.getenv('DASHBOARD_PORT', '60000'))
     p2p_port = int(os.getenv('P2P_PORT', '60001'))
     
-    if os.path.exists(ssl_cert) and os.path.exists(ssl_key):
-        # Run HTTPS for both dashboard AND P2P
-        print("🔐 Starting HTTPS server (secure encrypted connections)...")
-        print(f"📊 Dashboard: https://localhost:{dashboard_port} (HTTPS - Secure)")
-        print(f"🌐 P2P Sync: https://localhost:{p2p_port} (HTTPS)")
-        print("⚠️  Your browser will show SSL warning (self-signed cert) - this is normal")
-        print("    Click 'Advanced' → 'Proceed to localhost' to access dashboard")
-        
-        # Start HTTPS dashboard in background
-        https_dashboard_thread = threading.Thread(
-            target=lambda: app.run(host='0.0.0.0', port=dashboard_port, debug=False, threaded=True, ssl_context=(ssl_cert, ssl_key)),
-            daemon=True
-        )
-        https_dashboard_thread.start()
-        
-        # Run HTTPS P2P server in main thread
-        app.run(
-            host='0.0.0.0',
-            port=p2p_port,
-            debug=True,
-            threaded=True,
-            ssl_context=(ssl_cert, ssl_key)
-        )
-    else:
-        # Fall back to HTTP only
-        print("⚠️  WARNING: Running HTTP only (no SSL cert found)")
-        print("    To enable HTTPS, SSL certificates will be auto-generated on container start")
-        print(f"📊 Dashboard: http://localhost:{dashboard_port} (INSECURE)")
-        app.run(
-            host='0.0.0.0',
-            port=dashboard_port,
-            debug=True,
-            threaded=True
-        )
+    # HTTPS is handled by Gunicorn entrypoint - Flask runs in HTTP mode
+    print("📊 Starting server (HTTPS handled by container entrypoint)...")
+    print(f"📊 Dashboard: https://localhost:60000 (HTTPS - Secure)")
+    
+    # Run Flask in HTTP mode (Gunicorn will handle HTTPS wrapping)
+    app.run(
+        host='0.0.0.0',
+        port=5000,  # Gunicorn listens on 5000 internally
+        debug=False,
+        threaded=True
+    )

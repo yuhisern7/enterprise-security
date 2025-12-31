@@ -36,6 +36,10 @@ COPY server/report_generator.py .
 RUN mkdir -p json
 COPY server/json/ json/
 
+# Copy entrypoint script
+COPY server/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 # Generate self-signed SSL certificate for encrypted P2P communication
 RUN mkdir -p /app/ssl && \
     openssl req -x509 -newkey rsa:4096 -nodes \
@@ -44,7 +48,7 @@ RUN mkdir -p /app/ssl && \
     -days 3650 \
     -subj "/C=US/ST=State/L=City/O=Security/CN=enterprise-security"
 
-# Expose ports (Dashboard HTTP and P2P HTTPS)
+# Expose ports (Dashboard HTTPS and P2P)
 EXPOSE 60000 60001
 
 # Set environment variables
@@ -53,9 +57,9 @@ ENV PYTHONUNBUFFERED=1
 # Run as root (required for network monitoring)
 USER root
 
-# Health check (uses HTTPS on DASHBOARD_PORT, defaults to 60000)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import requests, os; requests.get(f'https://localhost:{os.getenv(\"DASHBOARD_PORT\", \"60000\")}', verify=False, timeout=5)" || exit 1
+# Health check (uses HTTPS on 60000)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -k https://localhost:60000/ > /dev/null 2>&1 || exit 1
 
-# Start the server
-CMD ["python", "server.py"]
+# Start the server with HTTPS entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]

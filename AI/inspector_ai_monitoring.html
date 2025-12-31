@@ -1551,109 +1551,6 @@
         {% endif %}
       </section>
 
-      <!-- ========================================
-           SECTION 10: ADAPTIVE HONEYPOT - AI TRAINING SANDBOX
-           Lines: ~1476-1578
-           Purpose: Honeypot with AI learning from attacker behavior
-           ======================================== -->
-      <!-- Adaptive Honeypot -->
-      <section style="background: linear-gradient(135deg, #3d2a1a, #2e1e1a); border: 2px solid #ffb85f;">
-        <h2>📍 Section 10 | 🍯 Adaptive Honeypot - AI Training Sandbox</h2>
-        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5fff;">✅ <strong>EXISTING FEATURE:</strong> 8 honeypot services for real attack capture & ML training</p>
-        <p class="muted" style="margin-bottom: 1rem;">
-          <strong>One honeypot, many disguises.</strong> Morphs into different services (FTP, SSH, HTTP, etc.) to attract attackers. All attacks are logged and <strong>fed into AI training</strong> to learn threat patterns. Safe, isolated sandbox environment.
-        </p>
-        
-        <!-- Honeypot Status Display -->
-        <div id="honeypot-status-display" style="padding: 1rem; background: rgba(255, 184, 95, 0.1); border-radius: 6px; border: 1px solid #ffb85f; margin-bottom: 1.5rem;">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-            <div>
-              <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Status</div>
-              <div id="honeypot-running-status" style="color: #ff6b6b; font-weight: bold; font-size: 1.1rem;">⏸️ Stopped</div>
-            </div>
-            <div>
-              <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Current Persona</div>
-              <div id="honeypot-current-persona" style="color: #ffb85f; font-weight: bold; font-family: monospace;">None</div>
-            </div>
-            <div>
-              <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Listening Port</div>
-              <div id="honeypot-current-port" style="color: #ffb85f; font-weight: bold; font-family: monospace;">N/A</div>
-            </div>
-            <div>
-              <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Total Attacks Logged</div>
-              <div id="honeypot-attack-count" style="color: #ff6b6b; font-weight: bold; font-size: 1.1rem;">0</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Honeypot Configuration -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
-          <div>
-            <label style="display: block; margin-bottom: 0.5rem; color: #a9b3d4; font-weight: bold;">Service Persona</label>
-            <select id="honeypot-persona" style="width: 100%; padding: 0.75rem; background: #0a0e27; color: #fff; border: 2px solid #ffb85f; border-radius: 6px; font-size: 1rem;">
-              <option value="">Loading personas...</option>
-            </select>
-            <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.5rem;">Choose which service to impersonate (FTP, SSH, HTTP, etc.)</div>
-          </div>
-
-          <div>
-            <label style="display: block; margin-bottom: 0.5rem; color: #a9b3d4; font-weight: bold;">Listening Port</label>
-            <input type="number" id="honeypot-port" min="1" max="65535" placeholder="e.g., 2222" style="width: 100%; padding: 0.75rem; background: #0a0e27; color: #fff; border: 2px solid #ffb85f; border-radius: 6px; font-size: 1rem;">
-            <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.5rem;">
-              <div style="margin-bottom: 0.3rem;">Quick presets:</div>
-              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <button type="button" onclick="document.getElementById('honeypot-port').value=21" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">21 (FTP)</button>
-                <button type="button" onclick="document.getElementById('honeypot-port').value=22" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">22 (SSH)</button>
-                <button type="button" onclick="document.getElementById('honeypot-port').value=23" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">23 (Telnet)</button>
-                <button type="button" onclick="document.getElementById('honeypot-port').value=80" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">80 (HTTP)</button>
-                <button type="button" onclick="document.getElementById('honeypot-port').value=445" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">445 (SMB)</button>
-                <button type="button" onclick="document.getElementById('honeypot-port').value=3306" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">3306 (MySQL)</button>
-                <button type="button" onclick="document.getElementById('honeypot-port').value=3389" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">3389 (RDP)</button>
-                <button type="button" onclick="document.getElementById('honeypot-port').value=5900" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">5900 (VNC)</button>
-              </div>
-              <div style="color: #ff9f5f; margin-top: 0.3rem; font-size: 0.7rem;">⚠️ Ports below 1024 require root/admin privileges</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1.5rem;">
-          <label style="display: block; margin-bottom: 0.5rem; color: #a9b3d4; font-weight: bold;">Custom Banner (Optional)</label>
-          <textarea id="honeypot-banner" rows="3" placeholder="Leave empty to use default banner for selected persona..." style="width: 100%; padding: 0.75rem; background: #0a0e27; color: #fff; border: 2px solid #ffb85f; border-radius: 6px; font-size: 0.9rem; font-family: monospace;"></textarea>
-          <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.5rem;">Override the default service banner/signature (advanced users only)</div>
-        </div>
-
-        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-          <button onclick="startHoneypot()" style="flex: 1; padding: 1rem; background: linear-gradient(135deg, #5fff9f, #00cc66); color: #0a0e27; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            ▶️ Start Honeypot
-          </button>
-          <button onclick="stopHoneypot()" style="flex: 1; padding: 1rem; background: linear-gradient(135deg, #ff6b6b, #cc0000); color: #fff; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-            ⏹️ Stop Honeypot
-          </button>
-        </div>
-
-        <!-- Recent Attacks -->
-        <div>
-          <h3 style="color: #ffb85f; margin-bottom: 1rem;">🎯 Recent Attacks (Last 10)</h3>
-          <div id="honeypot-attacks-container" style="max-height: 400px; overflow-y: auto;">
-            <table style="width: 100%;">
-              <thead>
-                <tr>
-                  <th style="text-align: left;">Time</th>
-                  <th style="text-align: left;">Attacker IP</th>
-                  <th style="text-align: left;">Persona</th>
-                  <th style="text-align: left;">Input Preview</th>
-                </tr>
-              </thead>
-              <tbody id="honeypot-attacks-table">
-                <tr>
-                  <td colspan="4" style="text-align: center; color: #a9b3d4; padding: 2rem;">No attacks logged yet</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
       <!-- Failed Login Attempts -->
       <!-- ========================================
          SECTION 11: FAILED LOGIN ATTEMPTS (BRUTE-FORCE TRACKING)
@@ -1661,7 +1558,7 @@
          Purpose: SSH/login attack monitoring (always visible)
          ======================================== -->
     <section>
-        <h2>📍 Section 11 | 🔐 Failed Login Attempts (Monitored IPs)</h2>
+        <h2>📍 Section 10 | 🔐 Failed Login Attempts (Monitored IPs)</h2>
         <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Brute-force tracking - SSH/RDP/Web login attack monitoring</p>
         {% if stats.failed_login_attempts %}
           <table>
@@ -1709,7 +1606,7 @@
          Purpose: Live-scrolling threat feed with attack details
          ======================================== -->
     <section>
-        <h2>📍 Section 12 | 📝 Live Threat Monitor - Real-Time Attack Logs</h2>
+        <h2>📍 Section 11 | 📝 Live Threat Monitor - Real-Time Attack Logs</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">✅ <strong>EXISTING FEATURE:</strong> Real-time attack logging with IP geolocation & VPN/Tor detection</p>
         <p class="muted" style="margin-bottom: 1rem;">
           🔴 Live monitoring of all security events | Auto-refreshes every 5 minutes | 
@@ -1833,14 +1730,305 @@
         {% endif %}
       </section>
 
+      <!-- Attack Type Statistics -->
+      {% if stats.get('attack_summary') %}
+      <!-- ========================================
+         SECTION 14: ATTACK TYPE BREAKDOWN
+         Lines: ~2001-2015
+         Purpose: Statistical attack type analysis
+         ======================================== -->
+    <section>
+        <h2>📍 Section 12 | 📈 Attack Type Breakdown</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Visual analytics - Chart showing distribution of attack types</p>
+        <div class="threat-breakdown">
+          {% for attack_type, count in stats.attack_summary.items() %}
+          <div class="threat-item">
+            <div class="threat-item-name">{{ attack_type }}</div>
+            <div class="threat-item-count">{{ count }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <!-- ========================================
+           SECTION 17: AUTOMATED SIGNATURE EXTRACTION - ATTACK PATTERNS
+           Lines: ~2124-2220
+           Purpose: AI-generated YARA/Snort/Suricata signatures
+           ======================================== -->
+      <!-- Automated Signature Extraction Dashboard (UNIQUE FEATURE) -->
+      <section style="background: linear-gradient(135deg, #3d1a2a, #2e1a1e); border: 2px solid #ff9f5f;">
+        <h2>📍 Section 13 | 📦 Automated Signature Extraction - Attack Pattern Analysis</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE (UNIQUE!):</strong> Military-safe ML training - Extracts ONLY patterns, NEVER stores exploit payloads</p>
+        <p class="muted">✅ <strong>Military/Police Safe:</strong> Extracts ONLY attack patterns (keywords, encodings, regex) - ZERO exploit code stored</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="stat-card success">
+            <div class="stat-label">📦 Total Patterns Extracted</div>
+            <div class="stat-value" id="sig-total-patterns">0</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">🔐 Encodings Detected</div>
+            <div class="stat-value" id="sig-encoding-count">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">🔑 Keywords Extracted</div>
+            <div class="stat-value" id="sig-keyword-count">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">📝 Regex Patterns</div>
+            <div class="stat-value" id="sig-regex-count">0</div>
+          </div>
+        </div>
+
+        <div style="background: rgba(95, 226, 255, 0.05); padding: 1rem; border-radius: 8px; border: 1px solid #5fe2ff; margin-bottom: 1rem;">
+          <h3 style="margin: 0 0 0.75rem; color: #5fe2ff; font-size: 1rem;">🔐 Defensive Architecture Status</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="color: #5fff9f; font-size: 1.5rem;">✅</span>
+              <span style="color: #a9b3d4; font-size: 0.85rem;">Patterns Only Stored</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="color: #5fff9f; font-size: 1.5rem;">✅</span>
+              <span style="color: #a9b3d4; font-size: 0.85rem;">Zero Exploit Code</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="color: #5fff9f; font-size: 1.5rem;">✅</span>
+              <span style="color: #a9b3d4; font-size: 0.85rem;">Military/Police Compliant</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="color: #5fff9f; font-size: 1.5rem;">✅</span>
+              <span style="color: #a9b3d4; font-size: 0.85rem;">Auto ML Training</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 style="color: #ffb85f; font-size: 1rem; margin: 1.5rem 0 0.75rem;">🔐 Top Detected Encodings</h3>
+        <div id="sig-encodings" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-bottom: 1.5rem;">
+          <div style="text-align: center; color: #8a92b6;">Loading...</div>
+        </div>
+
+        <h3 style="color: #ffb85f; font-size: 1rem; margin: 1.5rem 0 0.75rem;">🔑 Top Extracted Keywords</h3>
+        <div id="sig-keywords" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-bottom: 1.5rem;">
+          <div style="text-align: center; color: #8a92b6;">Loading...</div>
+        </div>
+
+        <h3 style="color: #ffb85f; font-size: 1rem; margin: 1.5rem 0 0.75rem;">📊 Attack Type Distribution</h3>
+        <div id="sig-attack-dist" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
+          <div style="text-align: center; color: #8a92b6;">Loading...</div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           SECTION 15: SYSTEM HEALTH & NETWORK PERFORMANCE (2-IN-1)
+           Lines: ~2035-2099
+           Purpose: CPU/RAM/disk + bandwidth monitoring
+           ======================================== -->
+      <!-- System Health & Network Performance - CONSOLIDATED -->
+      <section style="background: linear-gradient(135deg, #1a3d2a, #1a2e1e); border: 2px solid #5fff9f;">
+        <h2>📍 Section 14 | 💻 System Health & Network Performance</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE (CONSOLIDATED):</strong> 2-in-1 tabbed section - System resources + Network performance monitoring</p>
+        <p class="muted">🏥 Real-time monitoring: System resources + Network metrics + Service health</p>
+        
+        <!-- Tab Navigation -->
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #2a4a3d;">
+          <button onclick="switchHealthTab('system')" id="health-tab-system" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #5fff9f, #5fe2ff); color: #0b1020; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🖥️ System Health
+          </button>
+          <button onclick="switchHealthTab('network')" id="health-tab-network" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            📡 Network Performance
+          </button>
+        </div>
+
+        <!-- System Health Tab -->
+        <div id="health-content-system" style="display: block;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="stat-card">
+              <div class="stat-label">🖥️ CPU Usage</div>
+              <div class="stat-value" id="health-cpu">--%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">💾 Memory Usage</div>
+              <div class="stat-value" id="health-memory">--%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">💿 Disk Usage</div>
+              <div class="stat-value" id="health-disk">--%</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-label">⏱️ Uptime</div>
+              <div class="stat-value" id="health-uptime">--</div>
+            </div>
+          </div>
+
+          <h3 style="color: #5fff9f; font-size: 1rem; margin: 1.5rem 0 0.75rem;">🔧 Service Health Status</h3>
+          <div id="health-services" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.75rem;">
+            <div style="text-align: center; color: #8a92b6; padding: 1rem;">Loading service status...</div>
+          </div>
+        </div>
+
+        <!-- Network Performance Tab -->
+        <div id="health-content-network" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="stat-card success">
+              <div class="stat-label">📡 Current Bandwidth</div>
+              <div class="stat-value" id="bandwidth-metric">-- Mbps</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">⚡ Network Latency</div>
+              <div class="stat-value" id="latency-metric">-- ms</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">📦 Packet Loss</div>
+              <div class="stat-value" id="packetloss-metric">--%</div>
+            </div>
+          </div>
+          <div style="background: #1a2135; padding: 1rem; border-radius: 8px;">
+            <canvas id="performanceChart" style="max-height: 300px;"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Compliance Dashboard -->
+      <!-- ========================================
+         SECTION 16: COMPLIANCE DASHBOARD
+         Lines: ~2081-2104
+         Purpose: GDPR/HIPAA/SOC2/ISO27001 compliance tracking
+         ======================================== -->
+    <section>
+        <h2>📍 Section 15 | ✅ Compliance Dashboard</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Regulatory compliance - PCI-DSS, HIPAA, GDPR, SOC 2 scoring</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+          <div class="stat-card success">
+            <div class="stat-label">🏦 PCI-DSS v4.0</div>
+            <div class="stat-value" id="pci-score">--%</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-label">🏥 HIPAA</div>
+            <div class="stat-value" id="hipaa-score">--%</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-label">🌍 GDPR</div>
+            <div class="stat-value" id="gdpr-score">--%</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-label">🔒 SOC 2</div>
+            <div class="stat-value" id="soc2-score">--%</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+           SECTION 10: ADAPTIVE HONEYPOT - AI TRAINING SANDBOX
+           Lines: ~1476-1578
+           Purpose: Honeypot with AI learning from attacker behavior
+           ======================================== -->
+      <!-- Adaptive Honeypot -->
+      <section style="background: linear-gradient(135deg, #3d2a1a, #2e1e1a); border: 2px solid #ffb85f;">
+        <h2>📍 Section 16 | 🍯 Adaptive Honeypot - AI Training Sandbox</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5fff;">✅ <strong>EXISTING FEATURE:</strong> 8 honeypot services for real attack capture & ML training</p>
+        <p class="muted" style="margin-bottom: 1rem;">
+          <strong>One honeypot, many disguises.</strong> Morphs into different services (FTP, SSH, HTTP, etc.) to attract attackers. All attacks are logged and <strong>fed into AI training</strong> to learn threat patterns. Safe, isolated sandbox environment.
+        </p>
+        
+        <!-- Honeypot Status Display -->
+        <div id="honeypot-status-display" style="padding: 1rem; background: rgba(255, 184, 95, 0.1); border-radius: 6px; border: 1px solid #ffb85f; margin-bottom: 1.5rem;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div>
+              <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Status</div>
+              <div id="honeypot-running-status" style="color: #ff6b6b; font-weight: bold; font-size: 1.1rem;">⏸️ Stopped</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Current Persona</div>
+              <div id="honeypot-current-persona" style="color: #ffb85f; font-weight: bold; font-family: monospace;">None</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Listening Port</div>
+              <div id="honeypot-current-port" style="color: #ffb85f; font-weight: bold; font-family: monospace;">N/A</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Total Attacks Logged</div>
+              <div id="honeypot-attack-count" style="color: #ff6b6b; font-weight: bold; font-size: 1.1rem;">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Honeypot Configuration -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; color: #a9b3d4; font-weight: bold;">Service Persona</label>
+            <select id="honeypot-persona" style="width: 100%; padding: 0.75rem; background: #0a0e27; color: #fff; border: 2px solid #ffb85f; border-radius: 6px; font-size: 1rem;">
+              <option value="">Loading personas...</option>
+            </select>
+            <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.5rem;">Choose which service to impersonate (FTP, SSH, HTTP, etc.)</div>
+          </div>
+
+          <div>
+            <label style="display: block; margin-bottom: 0.5rem; color: #a9b3d4; font-weight: bold;">Listening Port</label>
+            <input type="number" id="honeypot-port" min="1" max="65535" placeholder="e.g., 2222" style="width: 100%; padding: 0.75rem; background: #0a0e27; color: #fff; border: 2px solid #ffb85f; border-radius: 6px; font-size: 1rem;">
+            <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.5rem;">
+              <div style="margin-bottom: 0.3rem;">Quick presets:</div>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" onclick="document.getElementById('honeypot-port').value=21" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">21 (FTP)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=22" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">22 (SSH)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=23" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">23 (Telnet)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=80" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">80 (HTTP)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=445" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">445 (SMB)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=3306" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">3306 (MySQL)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=3389" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">3389 (RDP)</button>
+                <button type="button" onclick="document.getElementById('honeypot-port').value=5900" style="padding: 0.25rem 0.5rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">5900 (VNC)</button>
+              </div>
+              <div style="color: #ff9f5f; margin-top: 0.3rem; font-size: 0.7rem;">⚠️ Ports below 1024 require root/admin privileges</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; margin-bottom: 0.5rem; color: #a9b3d4; font-weight: bold;">Custom Banner (Optional)</label>
+          <textarea id="honeypot-banner" rows="3" placeholder="Leave empty to use default banner for selected persona..." style="width: 100%; padding: 0.75rem; background: #0a0e27; color: #fff; border: 2px solid #ffb85f; border-radius: 6px; font-size: 0.9rem; font-family: monospace;"></textarea>
+          <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.5rem;">Override the default service banner/signature (advanced users only)</div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+          <button onclick="startHoneypot()" style="flex: 1; padding: 1rem; background: linear-gradient(135deg, #5fff9f, #00cc66); color: #0a0e27; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            ▶️ Start Honeypot
+          </button>
+          <button onclick="stopHoneypot()" style="flex: 1; padding: 1rem; background: linear-gradient(135deg, #ff6b6b, #cc0000); color: #fff; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+            ⏹️ Stop Honeypot
+          </button>
+        </div>
+
+        <!-- Recent Attacks -->
+        <div>
+          <h3 style="color: #ffb85f; margin-bottom: 1rem;">🎯 Recent Attacks (Last 10)</h3>
+          <div id="honeypot-attacks-container" style="max-height: 400px; overflow-y: auto;">
+            <table style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="text-align: left;">Time</th>
+                  <th style="text-align: left;">Attacker IP</th>
+                  <th style="text-align: left;">Persona</th>
+                  <th style="text-align: left;">Input Preview</th>
+                </tr>
+              </thead>
+              <tbody id="honeypot-attacks-table">
+                <tr>
+                  <td colspan="4" style="text-align: center; color: #a9b3d4; padding: 2rem;">No attacks logged yet</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       <!-- AI Crawlers & Learning Sources -->
       <!-- ========================================
          SECTION 13: AI SECURITY CRAWLERS & THREAT INTELLIGENCE
          Lines: ~1729-2000
          Purpose: ExploitDB/CVE/dark web crawler status
          ======================================== -->
-    <section>
-        <h2>📍 Section 13 | 🤖 AI Security Crawlers & Threat Intelligence Sources</h2>
+      <section>
+        <h2>📍 Section 17 | 🤖 AI Security Crawlers & Threat Intelligence Sources</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fe2ff;">✅ <strong>EXISTING FEATURE:</strong> 10 automated crawlers for global threat intelligence gathering</p>
         <p class="muted" style="margin-bottom: 1rem;">
           Automated crawlers continuously monitor these security research sources to learn about latest exploits, malware, and attack patterns. Data is used to train ML models and update threat signatures.
@@ -2106,194 +2294,6 @@
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <!-- Attack Type Statistics -->
-      {% if stats.get('attack_summary') %}
-      <!-- ========================================
-         SECTION 14: ATTACK TYPE BREAKDOWN
-         Lines: ~2001-2015
-         Purpose: Statistical attack type analysis
-         ======================================== -->
-    <section>
-        <h2>📍 Section 14 | 📈 Attack Type Breakdown</h2>
-        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Visual analytics - Chart showing distribution of attack types</p>
-        <div class="threat-breakdown">
-          {% for attack_type, count in stats.attack_summary.items() %}
-          <div class="threat-item">
-            <div class="threat-item-name">{{ attack_type }}</div>
-            <div class="threat-item-count">{{ count }}</div>
-          </div>
-          {% endfor %}
-        </div>
-      </section>
-      {% endif %}
-
-      <!-- ========================================
-           SECTION 15: SYSTEM HEALTH & NETWORK PERFORMANCE (2-IN-1)
-           Lines: ~2035-2099
-           Purpose: CPU/RAM/disk + bandwidth monitoring
-           ======================================== -->
-      <!-- System Health & Network Performance - CONSOLIDATED -->
-      <section style="background: linear-gradient(135deg, #1a3d2a, #1a2e1e); border: 2px solid #5fff9f;">
-        <h2>📍 Section 15 | 💻 System Health & Network Performance</h2>
-        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE (CONSOLIDATED):</strong> 2-in-1 tabbed section - System resources + Network performance monitoring</p>
-        <p class="muted">🏥 Real-time monitoring: System resources + Network metrics + Service health</p>
-        
-        <!-- Tab Navigation -->
-        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #2a4a3d;">
-          <button onclick="switchHealthTab('system')" id="health-tab-system" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #5fff9f, #5fe2ff); color: #0b1020; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
-            🖥️ System Health
-          </button>
-          <button onclick="switchHealthTab('network')" id="health-tab-network" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
-            📡 Network Performance
-          </button>
-        </div>
-
-        <!-- System Health Tab -->
-        <div id="health-content-system" style="display: block;">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-            <div class="stat-card">
-              <div class="stat-label">🖥️ CPU Usage</div>
-              <div class="stat-value" id="health-cpu">--%</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">💾 Memory Usage</div>
-              <div class="stat-value" id="health-memory">--%</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">💿 Disk Usage</div>
-              <div class="stat-value" id="health-disk">--%</div>
-            </div>
-            <div class="stat-card success">
-              <div class="stat-label">⏱️ Uptime</div>
-              <div class="stat-value" id="health-uptime">--</div>
-            </div>
-          </div>
-
-          <h3 style="color: #5fff9f; font-size: 1rem; margin: 1.5rem 0 0.75rem;">🔧 Service Health Status</h3>
-          <div id="health-services" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.75rem;">
-            <div style="text-align: center; color: #8a92b6; padding: 1rem;">Loading service status...</div>
-          </div>
-        </div>
-
-        <!-- Network Performance Tab -->
-        <div id="health-content-network" style="display: none;">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-            <div class="stat-card success">
-              <div class="stat-label">📡 Current Bandwidth</div>
-              <div class="stat-value" id="bandwidth-metric">-- Mbps</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">⚡ Network Latency</div>
-              <div class="stat-value" id="latency-metric">-- ms</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">📦 Packet Loss</div>
-              <div class="stat-value" id="packetloss-metric">--%</div>
-            </div>
-          </div>
-          <div style="background: #1a2135; padding: 1rem; border-radius: 8px;">
-            <canvas id="performanceChart" style="max-height: 300px;"></canvas>
-          </div>
-        </div>
-      </section>
-
-      <!-- Compliance Dashboard -->
-      <!-- ========================================
-         SECTION 16: COMPLIANCE DASHBOARD
-         Lines: ~2081-2104
-         Purpose: GDPR/HIPAA/SOC2/ISO27001 compliance tracking
-         ======================================== -->
-    <section>
-        <h2>📍 Section 16 | ✅ Compliance Dashboard</h2>
-        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Regulatory compliance - PCI-DSS, HIPAA, GDPR, SOC 2 scoring</p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-          <div class="stat-card success">
-            <div class="stat-label">🏦 PCI-DSS v4.0</div>
-            <div class="stat-value" id="pci-score">--%</div>
-          </div>
-          <div class="stat-card success">
-            <div class="stat-label">🏥 HIPAA</div>
-            <div class="stat-value" id="hipaa-score">--%</div>
-          </div>
-          <div class="stat-card success">
-            <div class="stat-label">🌍 GDPR</div>
-            <div class="stat-value" id="gdpr-score">--%</div>
-          </div>
-          <div class="stat-card success">
-            <div class="stat-label">🔒 SOC 2</div>
-            <div class="stat-value" id="soc2-score">--%</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ========================================
-           SECTION 17: AUTOMATED SIGNATURE EXTRACTION - ATTACK PATTERNS
-           Lines: ~2124-2220
-           Purpose: AI-generated YARA/Snort/Suricata signatures
-           ======================================== -->
-      <!-- Automated Signature Extraction Dashboard (UNIQUE FEATURE) -->
-      <section style="background: linear-gradient(135deg, #3d1a2a, #2e1a1e); border: 2px solid #ff9f5f;">
-        <h2>📍 Section 17 | 📦 Automated Signature Extraction - Attack Pattern Analysis</h2>
-        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE (UNIQUE!):</strong> Military-safe ML training - Extracts ONLY patterns, NEVER stores exploit payloads</p>
-        <p class="muted">✅ <strong>Military/Police Safe:</strong> Extracts ONLY attack patterns (keywords, encodings, regex) - ZERO exploit code stored</p>
-        
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-          <div class="stat-card success">
-            <div class="stat-label">📦 Total Patterns Extracted</div>
-            <div class="stat-value" id="sig-total-patterns">0</div>
-          </div>
-          <div class="stat-card warning">
-            <div class="stat-label">🔐 Encodings Detected</div>
-            <div class="stat-value" id="sig-encoding-count">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">🔑 Keywords Extracted</div>
-            <div class="stat-value" id="sig-keyword-count">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">📝 Regex Patterns</div>
-            <div class="stat-value" id="sig-regex-count">0</div>
-          </div>
-        </div>
-
-        <div style="background: rgba(95, 226, 255, 0.05); padding: 1rem; border-radius: 8px; border: 1px solid #5fe2ff; margin-bottom: 1rem;">
-          <h3 style="margin: 0 0 0.75rem; color: #5fe2ff; font-size: 1rem;">🔐 Defensive Architecture Status</h3>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.75rem;">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span style="color: #5fff9f; font-size: 1.5rem;">✅</span>
-              <span style="color: #a9b3d4; font-size: 0.85rem;">Patterns Only Stored</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span style="color: #5fff9f; font-size: 1.5rem;">✅</span>
-              <span style="color: #a9b3d4; font-size: 0.85rem;">Zero Exploit Code</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span style="color: #5fff9f; font-size: 1.5rem;">✅</span>
-              <span style="color: #a9b3d4; font-size: 0.85rem;">Military/Police Compliant</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span style="color: #5fff9f; font-size: 1.5rem;">✅</span>
-              <span style="color: #a9b3d4; font-size: 0.85rem;">Auto ML Training</span>
-            </div>
-          </div>
-        </div>
-
-        <h3 style="color: #ffb85f; font-size: 1rem; margin: 1.5rem 0 0.75rem;">🔐 Top Detected Encodings</h3>
-        <div id="sig-encodings" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-bottom: 1.5rem;">
-          <div style="text-align: center; color: #8a92b6;">Loading...</div>
-        </div>
-
-        <h3 style="color: #ffb85f; font-size: 1rem; margin: 1.5rem 0 0.75rem;">🔑 Top Extracted Keywords</h3>
-        <div id="sig-keywords" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin-bottom: 1.5rem;">
-          <div style="text-align: center; color: #8a92b6;">Loading...</div>
-        </div>
-
-        <h3 style="color: #ffb85f; font-size: 1rem; margin: 1.5rem 0 0.75rem;">📊 Attack Type Distribution</h3>
-        <div id="sig-attack-dist" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
-          <div style="text-align: center; color: #8a92b6;">Loading...</div>
         </div>
       </section>
 
