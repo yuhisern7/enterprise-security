@@ -1,98 +1,5 @@
 {
   "devices": {
-    "28:f7:d6:af:62:01": {
-      "ip": "192.168.0.1",
-      "mac": "28:f7:d6:af:62:01",
-      "type": "Unknown",
-      "hostname": "_gateway",
-      "open_ports": [
-        {
-          "port": 80,
-          "service": "HTTP"
-        },
-        {
-          "port": 443,
-          "service": "HTTPS"
-        },
-        {
-          "port": 554,
-          "service": "RTSP"
-        },
-        {
-          "port": 3389,
-          "service": "RDP"
-        },
-        {
-          "port": 5900,
-          "service": "VNC"
-        },
-        {
-          "port": 8080,
-          "service": "HTTP-Alt"
-        },
-        {
-          "port": 8443,
-          "service": "HTTPS-Alt"
-        }
-      ],
-      "last_seen": "2026-01-01T04:33:00.124075",
-      "first_seen": "2025-12-29T19:59:39.075591"
-    },
-    "e8:48:b8:2e:80:85": {
-      "ip": "192.168.0.101",
-      "mac": "e8:48:b8:2e:80:85",
-      "type": "Router/Network",
-      "hostname": "TP-Link-Router-101",
-      "open_ports": [],
-      "last_seen": "2026-01-01T04:33:04.872052",
-      "first_seen": "2025-12-31T23:04:51.350682"
-    },
-    "84:46:93:6d:3c:3f": {
-      "ip": "192.168.0.100",
-      "mac": "84:46:93:6d:3c:3f",
-      "type": "Android",
-      "hostname": "Xiaomi-Phone-100",
-      "open_ports": [
-        {
-          "port": 22,
-          "service": "SSH"
-        },
-        {
-          "port": 80,
-          "service": "HTTP"
-        },
-        {
-          "port": 443,
-          "service": "HTTPS"
-        },
-        {
-          "port": 445,
-          "service": "SMB"
-        },
-        {
-          "port": 554,
-          "service": "RTSP"
-        },
-        {
-          "port": 3389,
-          "service": "RDP"
-        },
-        {
-          "port": 5900,
-          "service": "VNC"
-        },
-        {
-          "port": 8080,
-          "service": "HTTP-Alt"
-        },
-        {
-          "port": 8443,
-          "service": "HTTPS-Alt"
-        }
-      ],
-      "last_seen": "2026-01-01T04:33:06.986678",
-      "first_seen": "2025-12-31T23:05:04.396236"
-    },
     "40:ac:bf:37:d6:39": {
       "ip": "192.168.0.102",
       "mac": "40:ac:bf:37:d6:39",
@@ -136,54 +43,8 @@
           "service": "HTTPS-Alt"
         }
       ],
-      "last_seen": "2026-01-01T04:33:09.069067",
+      "last_seen": "2026-01-01T05:19:24.353470",
       "first_seen": "2025-12-31T23:05:06.456731"
-    },
-    "24:0f:9b:24:a0:4a": {
-      "ip": "192.168.0.103",
-      "mac": "24:0f:9b:24:a0:4a",
-      "type": "Security Camera",
-      "hostname": "Hikvision-Camera-103",
-      "open_ports": [
-        {
-          "port": 22,
-          "service": "SSH"
-        },
-        {
-          "port": 80,
-          "service": "HTTP"
-        },
-        {
-          "port": 443,
-          "service": "HTTPS"
-        },
-        {
-          "port": 445,
-          "service": "SMB"
-        },
-        {
-          "port": 554,
-          "service": "RTSP"
-        },
-        {
-          "port": 3389,
-          "service": "RDP"
-        },
-        {
-          "port": 5900,
-          "service": "VNC"
-        },
-        {
-          "port": 8080,
-          "service": "HTTP-Alt"
-        },
-        {
-          "port": 8443,
-          "service": "HTTPS-Alt"
-        }
-      ],
-      "last_seen": "2026-01-01T04:33:11.119456",
-      "first_seen": "2025-12-31T23:04:53.424096"
     },
     "40:ac:bf:3e:53:af": {
       "ip": "192.168.0.104",
@@ -228,23 +89,14 @@
           "service": "HTTPS-Alt"
         }
       ],
-      "last_seen": "2026-01-01T04:33:13.187627",
+      "last_seen": "2026-01-01T05:19:26.481401",
       "first_seen": "2025-12-31T23:04:57.553709"
     },
-    "1c:86:9a:3f:61:3c": {
-      "ip": "192.168.0.106",
-      "mac": "1c:86:9a:3f:61:3c",
-      "type": "Android",
-      "hostname": "Samsung-Phone-106",
-      "open_ports": [],
-      "last_seen": "2026-01-01T04:33:17.907019",
-      "first_seen": "2025-12-31T23:04:55.488868"
-    },
-    "36:ce:45:73:56:3d": {
-      "ip": "192.168.0.105",
-      "mac": "36:ce:45:73:56:3d",
+    "22:9c:c8:47:7d:23": {
+      "ip": "192.168.0.107",
+      "mac": "22:9c:c8:47:7d:23",
       "type": "Unknown",
-      "hostname": "Device-105",
+      "hostname": "Device-107",
       "open_ports": [
         {
           "port": 22,
@@ -283,9 +135,157 @@
           "service": "HTTPS-Alt"
         }
       ],
-      "last_seen": "2026-01-01T04:33:19.999836",
-      "first_seen": "2026-01-01T04:27:38.811896"
+      "last_seen": "2026-01-01T05:19:28.717108",
+      "first_seen": "2026-01-01T05:17:39.929051"
+    },
+    "e8:48:b8:2e:80:85": {
+      "ip": "192.168.0.101",
+      "mac": "e8:48:b8:2e:80:85",
+      "type": "Router/Network",
+      "hostname": "TP-Link-Router-101",
+      "open_ports": [],
+      "last_seen": "2026-01-01T05:19:33.432035",
+      "first_seen": "2025-12-31T23:04:51.350682"
+    },
+    "24:0f:9b:24:a0:4a": {
+      "ip": "192.168.0.103",
+      "mac": "24:0f:9b:24:a0:4a",
+      "type": "Security Camera",
+      "hostname": "Hikvision-Camera-103",
+      "open_ports": [
+        {
+          "port": 22,
+          "service": "SSH"
+        },
+        {
+          "port": 80,
+          "service": "HTTP"
+        },
+        {
+          "port": 443,
+          "service": "HTTPS"
+        },
+        {
+          "port": 445,
+          "service": "SMB"
+        },
+        {
+          "port": 554,
+          "service": "RTSP"
+        },
+        {
+          "port": 3389,
+          "service": "RDP"
+        },
+        {
+          "port": 5900,
+          "service": "VNC"
+        },
+        {
+          "port": 8080,
+          "service": "HTTP-Alt"
+        },
+        {
+          "port": 8443,
+          "service": "HTTPS-Alt"
+        }
+      ],
+      "last_seen": "2026-01-01T05:19:35.515806",
+      "first_seen": "2025-12-31T23:04:53.424096"
+    },
+    "84:46:93:6d:3c:3f": {
+      "ip": "192.168.0.100",
+      "mac": "84:46:93:6d:3c:3f",
+      "type": "Android",
+      "hostname": "Xiaomi-Phone-100",
+      "open_ports": [
+        {
+          "port": 22,
+          "service": "SSH"
+        },
+        {
+          "port": 80,
+          "service": "HTTP"
+        },
+        {
+          "port": 443,
+          "service": "HTTPS"
+        },
+        {
+          "port": 445,
+          "service": "SMB"
+        },
+        {
+          "port": 554,
+          "service": "RTSP"
+        },
+        {
+          "port": 3389,
+          "service": "RDP"
+        },
+        {
+          "port": 5900,
+          "service": "VNC"
+        },
+        {
+          "port": 8080,
+          "service": "HTTP-Alt"
+        },
+        {
+          "port": 8443,
+          "service": "HTTPS-Alt"
+        }
+      ],
+      "last_seen": "2026-01-01T05:19:37.630178",
+      "first_seen": "2025-12-31T23:05:04.396236"
+    },
+    "1c:86:9a:3f:61:3c": {
+      "ip": "192.168.0.106",
+      "mac": "1c:86:9a:3f:61:3c",
+      "type": "Android",
+      "hostname": "Samsung-Phone-106",
+      "open_ports": [],
+      "last_seen": "2026-01-01T05:19:42.347910",
+      "first_seen": "2025-12-31T23:04:55.488868"
+    },
+    "28:f7:d6:af:62:01": {
+      "ip": "192.168.0.1",
+      "mac": "28:f7:d6:af:62:01",
+      "type": "Unknown",
+      "hostname": "_gateway",
+      "open_ports": [
+        {
+          "port": 80,
+          "service": "HTTP"
+        },
+        {
+          "port": 443,
+          "service": "HTTPS"
+        },
+        {
+          "port": 554,
+          "service": "RTSP"
+        },
+        {
+          "port": 3389,
+          "service": "RDP"
+        },
+        {
+          "port": 5900,
+          "service": "VNC"
+        },
+        {
+          "port": 8080,
+          "service": "HTTP-Alt"
+        },
+        {
+          "port": 8443,
+          "service": "HTTPS-Alt"
+        }
+      ],
+      "last_seen": "2026-01-01T05:19:42.994874",
+      "first_seen": "2025-12-29T19:59:39.075591"
     }
   },
-  "last_scan_time": "2026-01-01T04:33:19.999892"
+  "last_scan_time": "2026-01-01T05:19:42.994925"
 }

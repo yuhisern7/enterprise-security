@@ -45,7 +45,19 @@ def _load_threat_log() -> List[dict]:
         
         if os.path.exists(threat_log_file):
             with open(threat_log_file, 'r') as f:
-                return json.load(f)
+                data = json.load(f)
+                # Ensure data is a list, not a string or other type
+                if isinstance(data, list):
+                    return data
+                elif isinstance(data, dict):
+                    # If it's a dict with 'threats' or 'logs' key, extract the list
+                    return data.get('threats', data.get('logs', []))
+                else:
+                    print(f"[VISUALIZATION] Unexpected threat log format: {type(data)}")
+                    return []
+    except json.JSONDecodeError as e:
+        print(f"[VISUALIZATION] Failed to parse threat log JSON: {e}")
+        return []
     except Exception as e:
         print(f"[VISUALIZATION] Failed to load threat log: {e}")
     
@@ -62,7 +74,44 @@ def _load_connected_devices() -> List[dict]:
         
         if os.path.exists(devices_file):
             with open(devices_file, 'r') as f:
-                return json.load(f)
+                data = json.load(f)
+                # Ensure data is a list
+                if isinstance(data, list):
+                    return data
+                elif isinstance(data, dict):
+                    # If it's a dict with 'devices' key
+                    devices_data = data.get('devices', [])
+                    
+                    # Handle both list and dict formats
+                    if isinstance(devices_data, list):
+                        return devices_data
+                    elif isinstance(devices_data, dict):
+                        # Convert dict of dicts to list of dicts
+                        devices_list = []
+                        for mac, device_info in devices_data.items():
+                            if isinstance(device_info, dict):
+                                # Normalize the device info
+                                normalized = {
+                                    'ip_address': device_info.get('ip', ''),
+                                    'hostname': device_info.get('hostname', 'Unknown'),
+                                    'mac_address': device_info.get('mac', mac),
+                                    'device_type': device_info.get('type', 'unknown'),
+                                    'status': device_info.get('status', 'active'),
+                                    'open_ports': device_info.get('open_ports', []),
+                                    'first_seen': device_info.get('first_seen', ''),
+                                    'last_seen': device_info.get('last_seen', '')
+                                }
+                                devices_list.append(normalized)
+                        return devices_list
+                    else:
+                        print(f"[VISUALIZATION] Unexpected devices.devices format: {type(devices_data)}")
+                        return []
+                else:
+                    print(f"[VISUALIZATION] Unexpected devices format: {type(data)}")
+                    return []
+    except json.JSONDecodeError as e:
+        print(f"[VISUALIZATION] Failed to parse devices JSON: {e}")
+        return []
     except Exception as e:
         print(f"[VISUALIZATION] Failed to load devices: {e}")
     
@@ -96,11 +145,17 @@ def generate_network_topology() -> dict:
     # Add connected devices
     device_threat_count = defaultdict(int)
     for threat in threats[-1000:]:  # Last 1000 threats
-        ip = threat.get('ip_address', '')
-        device_threat_count[ip] += 1
+        if isinstance(threat, dict):
+            ip = threat.get('ip_address', '')
+            if ip:
+                device_threat_count[ip] += 1
     
     for device in devices:
+        if not isinstance(device, dict):
+            continue
         ip = device.get('ip_address', '')
+        if not ip:
+            continue
         threat_count = device_threat_count.get(ip, 0)
         
         # Determine threat level by count

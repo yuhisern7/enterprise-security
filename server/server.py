@@ -1866,10 +1866,14 @@ def get_network_topology():
     """Get network topology map"""
     try:
         import AI.advanced_visualization as viz
+        import traceback
         topology = viz.generate_network_topology()
         return jsonify({'status': 'success', 'topology': topology})
     except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        import traceback
+        error_trace = traceback.format_exc()
+        print(f"[TOPOLOGY ERROR] {error_trace}")
+        return jsonify({'status': 'error', 'message': str(e), 'traceback': error_trace}), 500
 
 
 @app.route('/api/visualization/attack-flows', methods=['GET'])
