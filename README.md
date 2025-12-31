@@ -1,12 +1,12 @@
-# 🛡️ Battle-Hardened AI – Global Security Mesh
+# 🛡️ Battle-Hardened AI – Network Monitoring King
 
-**Military-Grade Protection for Homes & Businesses. $25/month.**
+**AI-Powered Network Security. One Container Protects Your Entire Network. $25/month.**
 
 ## 💡 The Genius Solution
 
 **One attack anywhere. Everyone protected everywhere.**
 
-Unlike traditional antivirus (install on every device), you only need **ONE container per network**. It protects ALL devices via passive packet capture—attackers can't detect it watching them.
+This is a **Network Monitor (IDS/IPS), NOT antivirus.** One container watches ALL network traffic and blocks attackers before they reach your devices—invisible and unstoppable.
 
 **When ANY subscriber worldwide detects an attack:**
 - Attack logged to central relay server instantly
@@ -14,7 +14,7 @@ Unlike traditional antivirus (install on every device), you only need **ONE cont
 - Every container blocks the attacker within seconds
 - Relay AI retrains centrally every 6 hours with 50,000+ global attacks (server-side)
 - Subscribers receive updated ML models automatically (280 KB download)
-- **Zero manual intervention. Zero exploit databases on your system. Pure automation.**
+- **Zero manual intervention. Zero exploit databases on your system. Pure network-level enforcement.**
 
 **🎯 Relay Server Trains AI On (Central Training - Not Downloaded by Subscribers):**
 - 46,948 ExploitDB signatures (SQL injection, XSS, RCE, LFI, etc.) - 824 MB stays on server
@@ -30,11 +30,11 @@ Unlike traditional antivirus (install on every device), you only need **ONE cont
 - **Deployment:** 5 minutes. One computer per office/home network.
 
 **🌍 Perfect For:**
-- **Homes:** Military-grade protection for your family's devices
-- **Small Businesses:** Enterprise security without enterprise costs
+- **Homes:** Network-wide protection for ALL family devices (laptops, phones, IoT, cameras)
+- **Small Businesses:** Enterprise-grade network security without enterprise costs
 - **Governments:** Secure entire departments with one container per network
-- **Police/Military:** Battle-hardened AI learns from global threats 24/7
-- **Enterprises:** One container per network = complete network protection
+- **Police/Military:** Network-level monitoring trained on global attacks 24/7 (invisible to attackers)
+- **Enterprises:** One container per network = complete perimeter protection
 
 
 ---
@@ -58,14 +58,15 @@ Registration: 202403184091 (MA0319303)
 
 ### ✨ What You Get:
 
-**🤖 100% Automated AI Learning:**
+**🤖 100% Automated Network Defense:**
 1. Subscribe ($25/month) → Receive relay server URL
 2. Set `RELAY_URL` in your `.env` file → Done
-3. Start container → Downloads ONLY pre-trained ML models (280 KB, not raw exploit data)
-4. When attack occurs ANYWHERE → Relay logs + broadcasts to ALL subscribers
-5. Relay server retrains AI every 6 hours with 50,000+ worldwide attacks
-6. Subscribers receive updated ML models automatically
-7. **Zero manual work. No exploit databases on your system. Military-grade AI inference only.**
+3. Start container → Downloads ONLY pre-trained ML models (280 KB network pattern detection)
+4. Container monitors ALL network traffic passively (invisible to attackers)
+5. When attack detected ANYWHERE → Relay logs + broadcasts to ALL subscribers
+6. Relay server retrains AI every 6 hours with 50,000+ worldwide network attacks
+7. Subscribers receive updated models automatically (network-level blocking)
+8. **Zero manual work. No exploit databases on your system. Pure network enforcement.**
 
 **🌐 What's Included:**
 - **Global Mesh Access:** Connect to security containers in 100+ countries
@@ -106,8 +107,8 @@ Registration: 202403184091 (MA0319303)
 | **Bandwidth** | ⚠️ High (if downloading ExploitDB) | ✅ Low (280 KB model updates) |
 | **Support** | ❌ Community | ✅ Priority email |
 
-**Free version:** Local protection only. Manual ExploitDB setup (824 MB download). Train locally. Isolated.  
-**Premium:** Relay trains AI centrally (825 MB+ data). You download ONLY models (280 KB). Military-grade. Global mesh.
+**Free version:** Local network monitoring only. Manual ExploitDB setup (824 MB download). Train locally. Isolated.  
+**Premium:** Relay trains AI centrally (825 MB+ data). You download ONLY models (280 KB). Network-level threat detection. Global intelligence mesh.
 
 ---
 
@@ -135,9 +136,9 @@ Registration: 202403184091 (MA0319303)
 ### **Real-World Scenarios:**
 
 **🏠 Home User:**
-- Traditional antivirus: $100/year (5 devices) - signature-based, easily bypassed
-- This system: $300/year - ML-based, trained on 50,000+ attacks, global mesh
-- **Value:** 100x better protection for 3x the price
+- Traditional antivirus: $100/year (5 devices) - endpoint protection, signature-based, easily bypassed
+- This system: $300/year - **network-level monitoring**, ML-based, trained on 50,000+ attacks, sees ALL devices
+- **Value:** 100x better protection for 3x the price (one container protects entire home network)
 
 **🏢 Small Business (50 employees):**
 - Traditional: CrowdStrike ($2,500/month) + FortiGate ($15k/year) + Engineer ($120k/year) = **$165,000/year**
@@ -151,17 +152,17 @@ Registration: 202403184091 (MA0319303)
 
 ---
 
-### **Why Homes & Businesses Get Military-Grade Defenses:**
+### **Why Homes & Businesses Get Enterprise-Grade Network Security:**
 
-| Capability | Traditional Military | This System |
+| Capability | Traditional Enterprise | This System |
 |------------|---------------------|-------------|
 | **Threat Intelligence** | Classified feeds ($500k/year) | 50,000+ global attacks ($25/month) |
-| **Attack Database** | Government-only access | Every subscriber's threats (shared) |
+| **Attack Database** | Vendor-only access | Every subscriber's threats (shared) |
 | **ML Models** | $1M+ to develop custom | Pre-trained on millions (included) |
-| **Automated Response** | SOC analysts ($150k/year each) | AI auto-blocks (included) |
-| **Global Coverage** | Allied nations only | 100+ countries (any subscriber) |
+| **Automated Response** | SOC analysts ($150k/year each) | AI auto-blocks at network level (included) |
+| **Global Coverage** | Limited threat feeds | 100+ countries (any subscriber) |
 
-**Result:** Military-grade capabilities for $300/year vs $10,000,000+/year to build
+**Result:** Enterprise-grade network monitoring for $300/year vs $10,000,000+/year to build
 
 ---
 
