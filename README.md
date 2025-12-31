@@ -73,6 +73,8 @@ Registration: 202403184091 (MA0319303)
 - **Pre-Trained ML Models:** anomaly_detector.pkl, threat_classifier.pkl (280 KB download)
 - **AI Trained On:** 46,948 ExploitDB signatures + 100,000+ malware hashes + 50,000+ worldwide attacks
 - **Real-Time Threat Intelligence:** Every subscriber's detected attacks shared instantly
+- **World-Class Dashboard:** Real-time threat visualization, device management, attack analytics, ML performance metrics
+- **Adaptive Honeypot:** Deception sandbox that changes services/ports to deceive and trap attackers
 - **Cryptographic Security:** RSA-2048 + HMAC-SHA256 + replay protection
 - **Priority Support:** Email support + knowledge base access
 - **No Exploit Databases:** Raw training data stays on relay server (secure)
@@ -720,6 +722,69 @@ The AI is trained on **50,000+ real network exploits** from ExploitDB:
 
 ---
 
+## 🍯 Adaptive Honeypot System
+
+### **Deception Technology - Deceive and Profile Attackers**
+
+The system includes an **adaptive honeypot** that acts as a decoy to:
+- **Deceive attackers** into revealing their techniques
+- **Waste attacker time** while real systems remain protected
+- **Collect threat intelligence** on hacker tools and methods
+- **Generate high-fidelity alerts** (honeypot hits = guaranteed malicious)
+
+### **How It Works:**
+
+```
+[Attacker Scans Your Network]
+           ↓
+[Discovers "Vulnerable" SSH Server on Port 2222]
+           ↓
+[Attacker Attempts Login - Honeypot Logs Everything]
+           ↓
+[Honeypot Records: IP, Username Attempts, Password Patterns, Tools Used]
+           ↓
+[AI Instantly Blocks IP + Shares Attack Pattern with Global Mesh]
+           ↓
+[Honeypot Automatically Changes to FTP on Port 3321]
+           ↓
+[Next Attacker Finds "Different" Service - Evasion Technique]
+```
+
+### **Adaptive Capabilities:**
+
+**Service Mimicry** (Fake Services That Look Real):
+- SSH honeypot - Simulates OpenSSH server with realistic banners
+- FTP honeypot - Fake file server with directory listings
+- HTTP honeypot - Fake admin panels (phpMyAdmin, WordPress login)
+- MySQL honeypot - Fake database server accepting connections
+- Telnet honeypot - Legacy service trap
+- SMB honeypot - Windows file sharing decoy
+
+**Port Randomization** (Changes Every 6-24 Hours):
+```bash
+# Example rotation schedule:
+Day 1: SSH on port 2222, FTP on port 2121
+Day 2: SSH on port 5522, HTTP on port 8080  
+Day 3: MySQL on port 3307, Telnet on port 2323
+# Randomization evades attacker reconnaissance
+```
+
+**Intelligence Collected:**
+- Attacker IP addresses and geographic origins
+- Username/password patterns (credential stuffing lists)
+- Exploitation tools used (Metasploit, SQLmap, Hydra signatures)
+- Attack timing and frequency
+- Botnet command patterns
+- Zero-day exploitation attempts
+
+**Why This Matters:**
+- **High-Fidelity Alerts**: Legitimate users never touch honeypots - 100% of honeypot traffic is malicious
+- **Early Warning**: Attackers reveal themselves before reaching real systems
+- **Threat Intelligence**: Honeypot data feeds AI training (real-world attack patterns)
+- **Attacker Profiling**: Track hacker sophistication levels and campaign patterns
+
+---
+
 ## 🧠 Machine Learning Implementation
 
 ### ✅ Production-Grade ML Features (All Implemented)
@@ -992,7 +1057,11 @@ With cryptographic security enabled, model poisoning via fake threats is prevent
 ✅ **Behavior Analysis** - Temporal and pattern correlation  
 ✅ **Cross-Signal Validation** - Requires multiple independent signals  
 ✅ **IP Reputation Tracking** - VPN/Tor/Proxy detection  
-✅ **Adaptive Honeypot** - AI-powered threat sandbox  
+✅ **Adaptive Honeypot** - AI-powered deception sandbox (changes services/ports to deceive hackers)  
+✅ **Service Mimicry** - Fake SSH, FTP, HTTP, MySQL services to trap attackers  
+✅ **Port Randomization** - Honeypot dynamically changes ports to evade detection  
+✅ **Attacker Profiling** - Log hacker techniques, tools, and behavior patterns  
+✅ **Evidence Collection** - Capture exploitation attempts for threat intelligence  
 ✅ **Anomaly Detection** - ML-based behavioral analysis  
 
 ---
@@ -1100,7 +1169,7 @@ tar -xzf ai-backup-20251230.tar.gz
 
 ## 📋 Pre-Requisites
 
-**💡 Important for Enterprises:** You only need **ONE computer per network** running this system. Docker Desktop's commercial licensing only applies if you install it on 250+ employees' machines. Since you're installing on just ONE machine per office/branch, Docker Desktop is FREE even for large companies.
+**💡 Important for Enterprises:** You only need **ONE computer per network** running this system. Docker Desktop's commercial licensing only applies if you install it on 250+ employees' machines. Since you're installing on just ONE machine per network, Docker Desktop is FREE even for large companies.
 
 ### Required Software (All Platforms)
 
@@ -1359,12 +1428,34 @@ Result: Device has NO internet access! ❌
 | **Works Anywhere** | ❌ NO (only your router) | ✅ YES |
 | **Power** | Medium | **MAXIMUM** |
 
-### 💻 Dashboard Features
+### 💻 World-Class Dashboard Features
 
-- **Block/Unblock Buttons** on every device
-- **Previous Connections** (7-day history)
+**Real-Time Monitoring:**
+- **Live Attack Feed** - See threats as they happen (your network only)
+- **Global Threat Map** - Visualize attacks from 100+ countries (anonymized)
+- **Network Topology View** - All devices mapped automatically
+- **Real-time Status Indicators** - Device health, connection quality
+
+**Device Management:**
+- **Block/Unblock Buttons** on every device (instant network-level blocking)
 - **8 Device Categories**: iOS/macOS, Android, Computers, Security Cameras, Routers, IoT, Unknown
-- **Real-time Status** indicators
+- **Previous Connections** (7-day history)
+- **Bandwidth Monitoring** per device
+- **Device Risk Scores** (ML-calculated)
+
+**Threat Intelligence:**
+- **Attack Analytics** - Top attack types, sources, patterns
+- **ML Performance Metrics** - Model accuracy, false positive rate
+- **Historical Trends** - Attack volume over time
+- **Threat Heatmaps** - Geographic attack origins
+- **IOC Database** - Indicators of Compromise tracking
+
+**Honeypot Management:**
+- **Adaptive Deception Controls** - Configure fake services
+- **Port Randomization** - Auto-change honeypot ports
+- **Service Mimicry** - Simulate SSH, FTP, HTTP, databases
+- **Attacker Profiles** - Track hacker behavior patterns
+- **Evidence Collection** - Log all honeypot interactions
 
 ### ⚖️ Legal Warning
 
