@@ -249,7 +249,7 @@
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
             <div class="feature-item" title="API: /api/visualization/topology" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
               <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
-              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 18: Network Topology Visualization (Interactive)</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 3: Network Topology Visualization (In Live Devices Tab)</span>
             </div>
           </div>
         </div>
@@ -316,25 +316,25 @@
         <div style="margin-bottom: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #2a3548;">
           <h4 style="color: #5fff9f; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
             <span style="background: #2a7f3f; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem; font-weight: 600;">PRIORITY</span>
-            🎨 Track 1: Dashboard Visualizations (Sections 19-22) - 4-6 hours
+            🎨 Track 1: Dashboard Visualizations (Sections 18-21) - 4-6 hours
           </h4>
           <p style="margin: 0 0 0.75rem; color: #8a92b6; font-size: 0.8rem;">🎯 Goal: Complete 22 sections = Most advanced monitoring tool on the planet</p>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
             <div class="feature-item" style="background: rgba(95, 255, 159, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
               <span style="color: #5fff9f; font-size: 1.2rem;">⏳</span>
-              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 19: Attack Flow Visualization (API ready ✅)</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 18: Attack Flow Visualization (API ready ✅)</span>
             </div>
             <div class="feature-item" style="background: rgba(95, 255, 159, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
               <span style="color: #5fff9f; font-size: 1.2rem;">⏳</span>
-              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 20: Geographic Attack Map (API ready ✅)</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 19: Geographic Attack Map (API ready ✅)</span>
             </div>
             <div class="feature-item" style="background: rgba(95, 255, 159, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
               <span style="color: #5fff9f; font-size: 1.2rem;">⏳</span>
-              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 21: Threat Density Heatmap (API ready ✅)</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 20: Threat Density Heatmap (API ready ✅)</span>
             </div>
             <div class="feature-item" style="background: rgba(95, 255, 159, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
               <span style="color: #5fff9f; font-size: 1.2rem;">⏳</span>
-              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 22: Performance Anomalies (API ready ✅)</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 21: Performance Anomalies (API ready ✅)</span>
             </div>
           </div>
         </div>
@@ -867,7 +867,7 @@
         <h2>📍 Section 3 | 🌐 Network Devices - Live Monitor, Ports & History</h2>
         <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE (CONSOLIDATED):</strong> 3-in-1 tabbed section - Live devices + Port scanning + 7-day history</p>
         <p class="muted" style="margin-bottom: 1rem;">
-          <strong>📱 Complete device monitoring:</strong> All connected devices + Port scanning + 7-day history tracking
+          <strong>📱 Complete device monitoring:</strong> All connected devices + Port scanning + 7-day history + Network Topology Visualization
         </p>
         
         <!-- Tab Navigation -->
@@ -880,6 +880,9 @@
           </button>
           <button onclick="switchDeviceTab('history')" id="tab-history" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
             📅 7-Day History
+          </button>
+          <button onclick="switchDeviceTab('topology')" id="tab-topology" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🗺️ Topology Map
           </button>
         </div>
 
@@ -1058,6 +1061,42 @@
             <strong>🔥 What Happens:</strong> Blocked device thinks it has internet, but all traffic is intercepted and dropped<br>
             <strong>⚖️ Legal Warning:</strong> Only block devices on YOUR OWN network. Blocking others' devices is illegal.
           </p>
+        </div>
+        
+        <!-- Topology Tab -->
+        <div id="device-tab-topology" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+            <div class="stat-card">
+              <div class="stat-label">🖥️ Total Devices</div>
+              <div class="stat-value" id="topology-total-devices">0</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-label">🟢 Active Devices</div>
+              <div class="stat-value" id="topology-active-devices">0</div>
+            </div>
+            <div class="stat-card warning">
+              <div class="stat-label">🚨 External Attackers</div>
+              <div class="stat-value" id="topology-attackers">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">🔗 Connections</div>
+              <div class="stat-value" id="topology-links">0</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 0.5rem; color: #8a92b6; font-size: 0.8rem;">
+            Last generated: <span id="topology-generated-at">--</span>
+          </div>
+
+          <div id="topology-graph-wrapper" style="background: #0b1020; border: 1px solid rgba(95, 226, 255, 0.2); border-radius: 10px; padding: 0.75rem;">
+            <svg id="topology-graph" width="100%" height="420" viewBox="0 0 720 420" preserveAspectRatio="xMidYMid meet" style="background: radial-gradient(circle at 50% 50%, rgba(95, 226, 255, 0.08), rgba(15, 23, 38, 0.95)); border-radius: 8px;"></svg>
+            <div id="topology-graph-empty" style="text-align: center; padding: 1rem; color: #8a92b6; display: none;">No devices detected yet</div>
+          </div>
+
+          <h3 style="color: #5fe2ff; font-size: 1rem; margin: 1.25rem 0 0.75rem;">📋 Node Details</h3>
+          <div id="topology-node-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem;">
+            <div style="text-align: center; color: #8a92b6;">Loading topology...</div>
+          </div>
         </div>
       </section>
 
@@ -2258,48 +2297,6 @@
         </div>
       </section>
 
-      <!-- ========================================
-           SECTION 18: NETWORK TOPOLOGY VISUALIZATION
-           Purpose: Interactive device + attacker topology
-           ======================================== -->
-      <section style="background: linear-gradient(135deg, #142035, #0f1726); border: 2px solid #5fe2ff;">
-        <h2>📍 Section 18 | 🗺️ Network Topology Visualization</h2>
-        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>NEW:</strong> Auto-generated device map with attackers and gateway links</p>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
-          <div class="stat-card">
-            <div class="stat-label">🖥️ Total Devices</div>
-            <div class="stat-value" id="topology-total-devices">0</div>
-          </div>
-          <div class="stat-card success">
-            <div class="stat-label">🟢 Active Devices</div>
-            <div class="stat-value" id="topology-active-devices">0</div>
-          </div>
-          <div class="stat-card warning">
-            <div class="stat-label">🚨 External Attackers</div>
-            <div class="stat-value" id="topology-attackers">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">🔗 Connections</div>
-            <div class="stat-value" id="topology-links">0</div>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 0.5rem; color: #8a92b6; font-size: 0.8rem;">
-          Last generated: <span id="topology-generated-at">--</span>
-        </div>
-
-        <div id="topology-graph-wrapper" style="background: #0b1020; border: 1px solid rgba(95, 226, 255, 0.2); border-radius: 10px; padding: 0.75rem;">
-          <svg id="topology-graph" width="100%" height="420" viewBox="0 0 720 420" preserveAspectRatio="xMidYMid meet" style="background: radial-gradient(circle at 50% 50%, rgba(95, 226, 255, 0.08), rgba(15, 23, 38, 0.95)); border-radius: 8px;"></svg>
-          <div id="topology-graph-empty" style="text-align: center; padding: 1rem; color: #8a92b6; display: none;">No devices detected yet</div>
-        </div>
-
-        <h3 style="color: #5fe2ff; font-size: 1rem; margin: 1.25rem 0 0.75rem;">📋 Node Details</h3>
-        <div id="topology-node-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem;">
-          <div style="text-align: center; color: #8a92b6;">Loading topology...</div>
-        </div>
-      </section>
-
     </main>
 
     <div class="refresh-indicator">
@@ -3283,6 +3280,7 @@
         document.getElementById('device-tab-live').style.display = 'none';
         document.getElementById('device-tab-ports').style.display = 'none';
         document.getElementById('device-tab-history').style.display = 'none';
+        document.getElementById('device-tab-topology').style.display = 'none';
         
         // Reset all tab buttons
         document.getElementById('tab-live').style.background = '#1a2135';
@@ -3291,6 +3289,8 @@
         document.getElementById('tab-ports').style.color = '#f5f7ff';
         document.getElementById('tab-history').style.background = '#1a2135';
         document.getElementById('tab-history').style.color = '#f5f7ff';
+        document.getElementById('tab-topology').style.background = '#1a2135';
+        document.getElementById('tab-topology').style.color = '#f5f7ff';
         
         // Show selected tab
         if (tab === 'live') {
@@ -3307,6 +3307,11 @@
           document.getElementById('tab-history').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
           document.getElementById('tab-history').style.color = '#0b1020';
           loadDeviceHistory(); // Refresh data when tab opened
+        } else if (tab === 'topology') {
+          document.getElementById('device-tab-topology').style.display = 'block';
+          document.getElementById('tab-topology').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
+          document.getElementById('tab-topology').style.color = '#0b1020';
+          loadNetworkTopology(); // Refresh data when tab opened
         }
       }
       
