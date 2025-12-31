@@ -2562,6 +2562,13 @@
               const deviceColor = getDeviceColor(device.type);
               const isBlocked = isDeviceBlocked(device.mac);
               
+              // Format open ports display
+              let portsHTML = '';
+              if (device.open_ports && device.open_ports.length > 0) {
+                const portsList = device.open_ports.map(p => `<span style="background: rgba(95, 226, 255, 0.2); padding: 0.1rem 0.4rem; border-radius: 3px; margin-right: 0.3rem; font-size: 0.75rem;">${p.port}/${p.service}</span>`).join('');
+                portsHTML = `<div style="margin-top: 0.3rem;"><strong style="color: #5fe2ff;">🔌 Open Ports:</strong> ${portsList}</div>`;
+              }
+              
               devicesHtml += `
                 <div style="background: ${isBlocked ? 'rgba(255, 95, 95, 0.15)' : '#0b1020'}; padding: 0.75rem 1rem; border-radius: 6px; border-left: 4px solid ${isBlocked ? '#ff5f5f' : deviceColor}; display: flex; justify-content: space-between; align-items: center;">
                   <div style="flex: 1;">
@@ -2575,6 +2582,7 @@
                       MAC: ${device.mac} • 
                       ${device.hostname !== 'Unknown' ? 'Hostname: ' + device.hostname : 'Name: Unknown'}
                     </div>
+                    ${portsHTML}
                   </div>
                   <div style="display: flex; align-items: center; gap: 0.75rem;">
                     <div style="text-align: right; font-size: 0.75rem; color: #8a92b6;">

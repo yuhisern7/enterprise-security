@@ -764,6 +764,19 @@ def clear_blocked_ips():
 # GPU training happens on relay server
 
 
+# GPU Info Endpoint (stub for compatibility)
+@app.route('/api/gpu/info', methods=['GET'])
+def get_gpu_info():
+    """Return GPU info stub - actual GPU training happens on relay server"""
+    return jsonify({
+        'gpu_available': False,
+        'gpu_count': 0,
+        'gpu_name': 'CPU Only (GPU training on relay server)',
+        'message': 'This container uses CPU for inference. GPU-accelerated training runs on the central relay server.',
+        'mode': 'Inference Only'
+    })
+
+
 # REMOVED: GPU training (relay server only)
 # Subscribers download pre-trained models (280 KB) from relay
 # Training (heavy compute) happens centrally on relay server

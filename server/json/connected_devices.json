@@ -5,7 +5,37 @@
       "mac": "28:f7:d6:af:62:01",
       "type": "Unknown",
       "hostname": "_gateway",
-      "last_seen": "2025-12-31T05:09:09.290598",
+      "open_ports": [
+        {
+          "port": 80,
+          "service": "HTTP"
+        },
+        {
+          "port": 443,
+          "service": "HTTPS"
+        },
+        {
+          "port": 554,
+          "service": "RTSP"
+        },
+        {
+          "port": 3389,
+          "service": "RDP"
+        },
+        {
+          "port": 5900,
+          "service": "VNC"
+        },
+        {
+          "port": 8080,
+          "service": "HTTP-Alt"
+        },
+        {
+          "port": 8443,
+          "service": "HTTPS-Alt"
+        }
+      ],
+      "last_seen": "2025-12-31T13:59:07.445216",
       "first_seen": "2025-12-29T19:59:39.075591"
     },
     "e8:48:b8:2e:80:85": {
@@ -13,7 +43,8 @@
       "mac": "e8:48:b8:2e:80:85",
       "type": "Router/Network",
       "hostname": "TP-Link-Router-101",
-      "last_seen": "2025-12-31T05:09:11.330763",
+      "open_ports": [],
+      "last_seen": "2025-12-31T13:59:12.180171",
       "first_seen": "2025-12-29T19:59:41.105531"
     },
     "24:0f:9b:24:a0:4a": {
@@ -21,49 +52,194 @@
       "mac": "24:0f:9b:24:a0:4a",
       "type": "Security Camera",
       "hostname": "Hikvision-Camera-103",
-      "last_seen": "2025-12-31T05:09:13.343374",
+      "open_ports": [
+        {
+          "port": 22,
+          "service": "SSH"
+        },
+        {
+          "port": 80,
+          "service": "HTTP"
+        },
+        {
+          "port": 443,
+          "service": "HTTPS"
+        },
+        {
+          "port": 445,
+          "service": "SMB"
+        },
+        {
+          "port": 554,
+          "service": "RTSP"
+        },
+        {
+          "port": 3389,
+          "service": "RDP"
+        },
+        {
+          "port": 5900,
+          "service": "VNC"
+        },
+        {
+          "port": 8080,
+          "service": "HTTP-Alt"
+        },
+        {
+          "port": 8443,
+          "service": "HTTPS-Alt"
+        }
+      ],
+      "last_seen": "2025-12-31T13:59:14.269247",
       "first_seen": "2025-12-29T19:59:43.143139"
-    },
-    "84:46:93:6d:3c:3f": {
-      "ip": "192.168.0.100",
-      "mac": "84:46:93:6d:3c:3f",
-      "type": "Android",
-      "hostname": "Xiaomi-Phone-100",
-      "last_seen": "2025-12-31T05:09:15.356971",
-      "first_seen": "2025-12-31T03:41:46.471374"
     },
     "1c:86:9a:3f:61:3c": {
       "ip": "192.168.0.105",
       "mac": "1c:86:9a:3f:61:3c",
       "type": "Android",
       "hostname": "Samsung-Phone-105",
-      "last_seen": "2025-12-31T05:09:17.370947",
-      "first_seen": "2025-12-29T19:59:45.175081"
-    },
-    "48:35:2b:cb:48:0a": {
-      "ip": "192.168.0.108",
-      "mac": "48:35:2b:cb:48:0a",
-      "type": "Unknown",
-      "hostname": "Device-108",
-      "last_seen": "2025-12-31T05:09:19.382932",
-      "first_seen": "2025-12-31T05:09:19.382946"
+      "open_ports": [],
+      "last_seen": "2025-12-31T13:59:18.987505",
+      "first_seen": "2025-12-31T12:20:34.928855"
     },
     "40:ac:bf:3e:53:af": {
       "ip": "192.168.0.104",
       "mac": "40:ac:bf:3e:53:af",
       "type": "Security Camera",
       "hostname": "Hikvision-Camera-104",
-      "last_seen": "2025-12-31T05:09:21.395875",
-      "first_seen": "2025-12-31T04:52:54.854573"
+      "open_ports": [
+        {
+          "port": 22,
+          "service": "SSH"
+        },
+        {
+          "port": 80,
+          "service": "HTTP"
+        },
+        {
+          "port": 443,
+          "service": "HTTPS"
+        },
+        {
+          "port": 445,
+          "service": "SMB"
+        },
+        {
+          "port": 554,
+          "service": "RTSP"
+        },
+        {
+          "port": 3389,
+          "service": "RDP"
+        },
+        {
+          "port": 5900,
+          "service": "VNC"
+        },
+        {
+          "port": 8080,
+          "service": "HTTP-Alt"
+        },
+        {
+          "port": 8443,
+          "service": "HTTPS-Alt"
+        }
+      ],
+      "last_seen": "2025-12-31T13:59:21.062638",
+      "first_seen": "2025-12-31T13:31:31.872253"
     },
     "40:ac:bf:37:d6:39": {
       "ip": "192.168.0.102",
       "mac": "40:ac:bf:37:d6:39",
       "type": "Security Camera",
       "hostname": "Hikvision-Camera-102",
-      "last_seen": "2025-12-31T05:09:23.410554",
-      "first_seen": "2025-12-31T03:41:44.458069"
+      "open_ports": [
+        {
+          "port": 22,
+          "service": "SSH"
+        },
+        {
+          "port": 80,
+          "service": "HTTP"
+        },
+        {
+          "port": 443,
+          "service": "HTTPS"
+        },
+        {
+          "port": 445,
+          "service": "SMB"
+        },
+        {
+          "port": 554,
+          "service": "RTSP"
+        },
+        {
+          "port": 3389,
+          "service": "RDP"
+        },
+        {
+          "port": 5900,
+          "service": "VNC"
+        },
+        {
+          "port": 8080,
+          "service": "HTTP-Alt"
+        },
+        {
+          "port": 8443,
+          "service": "HTTPS-Alt"
+        }
+      ],
+      "last_seen": "2025-12-31T13:59:23.197545",
+      "first_seen": "2025-12-31T13:53:40.864867"
+    },
+    "84:46:93:6d:3c:3f": {
+      "ip": "192.168.0.100",
+      "mac": "84:46:93:6d:3c:3f",
+      "type": "Android",
+      "hostname": "Xiaomi-Phone-100",
+      "open_ports": [
+        {
+          "port": 22,
+          "service": "SSH"
+        },
+        {
+          "port": 80,
+          "service": "HTTP"
+        },
+        {
+          "port": 443,
+          "service": "HTTPS"
+        },
+        {
+          "port": 445,
+          "service": "SMB"
+        },
+        {
+          "port": 554,
+          "service": "RTSP"
+        },
+        {
+          "port": 3389,
+          "service": "RDP"
+        },
+        {
+          "port": 5900,
+          "service": "VNC"
+        },
+        {
+          "port": 8080,
+          "service": "HTTP-Alt"
+        },
+        {
+          "port": 8443,
+          "service": "HTTPS-Alt"
+        }
+      ],
+      "last_seen": "2025-12-31T13:59:25.291625",
+      "first_seen": "2025-12-31T13:30:31.273638"
     }
   },
-  "last_scan_time": "2025-12-31T05:09:23.410572"
+  "last_scan_time": "2025-12-31T13:59:25.291646"
 }

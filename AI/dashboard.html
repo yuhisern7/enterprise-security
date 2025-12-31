@@ -842,6 +842,75 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Blocked IPs Management -->
+    <div class="card">
+      <h2 class="card-title">🚫 BLOCKED IPS MANAGEMENT</h2>
+      <div id="blockedIpsContainer">
+        <div class="loading">Loading blocked IPs...</div>
+      </div>
+    </div>
+
+    <!-- Connected Devices -->
+    <div class="card">
+      <h2 class="card-title">📱 CONNECTED DEVICES</h2>
+      <div id="devicesContainer">
+        <div class="loading">Loading devices...</div>
+      </div>
+    </div>
+
+    <!-- Adaptive Honeypot -->
+    <div class="card" style="border-color: #ffb85f;">
+      <h2 class="card-title">🍯 ADAPTIVE HONEYPOT</h2>
+      <p style="color: #a0aec0; margin-bottom: 1.5rem;">AI Training Sandbox - Morphs into different services to attract attackers. All attacks fed into AI training.</p>
+      
+      <!-- Honeypot Status -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; background: rgba(255, 184, 95, 0.1); border-radius: 8px; border: 1px solid #ffb85f;">
+        <div>
+          <div style="font-size: 0.75rem; color: #a0aec0; margin-bottom: 0.25rem;">Status</div>
+          <div id="honeypot-running-status" style="color: #ff6b6b; font-weight: bold;">⏸️ Stopped</div>
+        </div>
+        <div>
+          <div style="font-size: 0.75rem; color: #a0aec0; margin-bottom: 0.25rem;">Current Persona</div>
+          <div id="honeypot-current-persona" style="color: #ffb85f; font-weight: bold;">None</div>
+        </div>
+        <div>
+          <div style="font-size: 0.75rem; color: #a0aec0; margin-bottom: 0.25rem;">Listening Port</div>
+          <div id="honeypot-current-port" style="color: #ffb85f; font-weight: bold;">N/A</div>
+        </div>
+        <div>
+          <div style="font-size: 0.75rem; color: #a0aec0; margin-bottom: 0.25rem;">Attacks Logged</div>
+          <div id="honeypot-attack-count" style="color: #ff6b6b; font-weight: bold;">0</div>
+        </div>
+      </div>
+
+      <!-- Honeypot Configuration -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+        <div>
+          <label style="display: block; margin-bottom: 0.5rem; color: #a0aec0; font-weight: 600;">Service Persona</label>
+          <select id="honeypot-persona" style="width: 100%; padding: 0.75rem; background: rgba(26, 33, 53, 0.8); color: #e1e8f0; border: 1px solid rgba(95, 226, 255, 0.3); border-radius: 6px;">
+            <option value="">Loading personas...</option>
+          </select>
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 0.5rem; color: #a0aec0; font-weight: 600;">Listening Port</label>
+          <input type="number" id="honeypot-port" min="1" max="65535" placeholder="e.g., 2222" style="width: 100%; padding: 0.75rem; background: rgba(26, 33, 53, 0.8); color: #e1e8f0; border: 1px solid rgba(95, 226, 255, 0.3); border-radius: 6px;">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1rem;">
+        <button onclick="startHoneypot()" class="btn" style="flex: 1; background: linear-gradient(135deg, #5fff9f, #00cc66); color: #0a0e27;">▶️ Start Honeypot</button>
+        <button onclick="stopHoneypot()" class="btn" style="flex: 1; background: linear-gradient(135deg, #ff6b6b, #cc0000);">⏹️ Stop Honeypot</button>
+      </div>
+    </div>
+
+    <!-- P2P/Relay Status -->
+    <div class="card">
+      <h2 class="card-title">🌐 P2P/RELAY STATUS</h2>
+      <div id="p2pStatus">
+        <div class="loading">Loading P2P status...</div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -1454,6 +1523,227 @@
         }
       }
     }
+
+    // Load blocked IPs
+    async function loadBlockedIPs() {
+      try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+        const blockedIPs = data.blocked_ips || [];
+        
+        if (blockedIPs.length === 0) {
+          document.getElementById('blockedIpsContainer').innerHTML = '<p style="color: #a0aec0;">No blocked IPs</p>';
+          return;
+        }
+
+        const html = `
+          <table style="width: 100%;">
+            <thead>
+              <tr>
+                <th>IP Address</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${blockedIPs.map(ip => `
+                <tr>
+                  <td style="font-family: monospace; color: #5fe2ff;">${ip}</td>
+                  <td>
+                    <button onclick="unblockIP('${ip}')" class="btn" style="padding: 0.5rem 1rem; background: linear-gradient(135deg, #5fff9f, #00cc66); color: #0a0e27;">Unblock</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        
+        document.getElementById('blockedIpsContainer').innerHTML = html;
+      } catch (error) {
+        console.error('Error loading blocked IPs:', error);
+      }
+    }
+
+    // Unblock IP
+    async function unblockIP(ip) {
+      try {
+        const response = await fetch(`/api/unblock/${ip}`, { method: 'POST' });
+        if (response.ok) {
+          showToast(`✅ Unblocked ${ip}`, 'success');
+          loadBlockedIPs();
+        } else {
+          showToast(`❌ Failed to unblock ${ip}`, 'error');
+        }
+      } catch (error) {
+        console.error('Error unblocking IP:', error);
+        showToast('❌ Network error', 'error');
+      }
+    }
+
+    // Load connected devices
+    async function loadDevices() {
+      try {
+        const response = await fetch('/api/connected-devices');
+        const devices = await response.json();
+        
+        if (!devices || devices.length === 0) {
+          document.getElementById('devicesContainer').innerHTML = '<p style="color: #a0aec0;">No devices detected</p>';
+          return;
+        }
+
+        const html = `
+          <table style="width: 100%;">
+            <thead>
+              <tr>
+                <th>IP Address</th>
+                <th>MAC Address</th>
+                <th>Hostname</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${devices.map(device => `
+                <tr>
+                  <td style="font-family: monospace; color: #5fe2ff;">${device.ip || 'Unknown'}</td>
+                  <td style="font-family: monospace;">${device.mac || 'Unknown'}</td>
+                  <td>${device.hostname || 'Unknown'}</td>
+                  <td><span class="badge success">Active</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        
+        document.getElementById('devicesContainer').innerHTML = html;
+      } catch (error) {
+        console.error('Error loading devices:', error);
+      }
+    }
+
+    // Load honeypot status
+    async function loadHoneypotStatus() {
+      try {
+        const response = await fetch('/api/adaptive_honeypot/status');
+        const status = await response.json();
+        
+        if (status.running) {
+          document.getElementById('honeypot-running-status').innerHTML = '▶️ Running';
+          document.getElementById('honeypot-running-status').style.color = '#5fff9f';
+        } else {
+          document.getElementById('honeypot-running-status').innerHTML = '⏸️ Stopped';
+          document.getElementById('honeypot-running-status').style.color = '#ff6b6b';
+        }
+        
+        document.getElementById('honeypot-current-persona').textContent = status.current_persona || 'None';
+        document.getElementById('honeypot-current-port').textContent = status.port || 'N/A';
+        document.getElementById('honeypot-attack-count').textContent = status.attack_count || 0;
+
+        // Load personas
+        const personasResponse = await fetch('/api/adaptive_honeypot/personas');
+        const personas = await personasResponse.json();
+        
+        const select = document.getElementById('honeypot-persona');
+        select.innerHTML = '<option value="">Select a persona...</option>' + 
+          personas.map(p => `<option value="${p}">${p}</option>`).join('');
+          
+      } catch (error) {
+        console.error('Error loading honeypot status:', error);
+      }
+    }
+
+    // Start honeypot
+    async function startHoneypot() {
+      const persona = document.getElementById('honeypot-persona').value;
+      const port = document.getElementById('honeypot-port').value;
+      
+      if (!persona || !port) {
+        showToast('⚠️ Please select a persona and port', 'warning');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/adaptive_honeypot/configure', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ persona, port: parseInt(port) })
+        });
+        
+        if (response.ok) {
+          showToast('✅ Honeypot started', 'success');
+          loadHoneypotStatus();
+        } else {
+          showToast('❌ Failed to start honeypot', 'error');
+        }
+      } catch (error) {
+        console.error('Error starting honeypot:', error);
+        showToast('❌ Network error', 'error');
+      }
+    }
+
+    // Stop honeypot
+    async function stopHoneypot() {
+      try {
+        const response = await fetch('/api/adaptive_honeypot/stop', { method: 'POST' });
+        if (response.ok) {
+          showToast('⏹️ Honeypot stopped', 'info');
+          loadHoneypotStatus();
+        } else {
+          showToast('❌ Failed to stop honeypot', 'error');
+        }
+      } catch (error) {
+        console.error('Error stopping honeypot:', error);
+        showToast('❌ Network error', 'error');
+      }
+    }
+
+    // Load P2P status
+    async function loadP2PStatus() {
+      try {
+        const [p2pRes, relayRes] = await Promise.all([
+          fetch('/api/p2p/status'),
+          fetch('/api/relay/status')
+        ]);
+        
+        const p2p = await p2pRes.json();
+        const relay = await relayRes.json();
+        
+        const html = `
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div>
+              <h3 style="color: #5fe2ff; margin-bottom: 1rem;">Direct P2P</h3>
+              <div style="color: #a0aec0;">
+                <p><strong>Status:</strong> <span style="color: ${p2p.enabled ? '#5fff9f' : '#ff6b6b'}">${p2p.enabled ? 'Enabled' : 'Disabled'}</span></p>
+                <p><strong>Connected Peers:</strong> ${p2p.peer_count || 0}</p>
+                <p><strong>Port:</strong> ${p2p.port || 'N/A'}</p>
+              </div>
+            </div>
+            <div>
+              <h3 style="color: #5fe2ff; margin-bottom: 1rem;">Relay Server</h3>
+              <div style="color: #a0aec0;">
+                <p><strong>Status:</strong> <span style="color: ${relay.connected ? '#5fff9f' : '#ff6b6b'}">${relay.connected ? 'Connected' : 'Disconnected'}</span></p>
+                <p><strong>URL:</strong> ${relay.url || 'Not configured'}</p>
+                <p><strong>Global Peers:</strong> ${relay.global_peers || 0}</p>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        document.getElementById('p2pStatus').innerHTML = html;
+      } catch (error) {
+        console.error('Error loading P2P status:', error);
+      }
+    }
+
+    // Update the loadDashboardData function to include new sections
+    const originalLoadDashboardData = loadDashboardData;
+    loadDashboardData = async function() {
+      await originalLoadDashboardData();
+      await Promise.all([
+        loadBlockedIPs(),
+        loadDevices(),
+        loadHoneypotStatus(),
+        loadP2PStatus()
+      ]);
+    };
   </script>
 </body>
 </html>

@@ -309,11 +309,15 @@ class DeviceScanner:
                 if hostname == 'Unknown':
                     hostname = self._generate_device_name(ip, mac, device_type, vendor)
                 
+                # Scan for open ports
+                open_ports = self._scan_ports(ip)
+                
                 devices[mac] = {
                     'ip': ip,
                     'mac': mac,
                     'type': device_type,
                     'hostname': hostname,
+                    'open_ports': open_ports,
                     'last_seen': datetime.now().isoformat(),
                     'first_seen': _connected_devices.get(mac, {}).get('first_seen', datetime.now().isoformat())
                 }
@@ -442,6 +446,52 @@ class DeviceScanner:
         
         # Last resort: just use IP suffix
         return f"Device-{ip_suffix}"
+    
+    def _scan_ports(self, ip, timeout=0.3):
+        """Scan common ports on device (fast scan only - non-blocking)"""
+        # Reduced port list for faster scanning
+        common_ports = {
+            22: 'SSH',
+            80: 'HTTP',
+            443: 'HTTPS',
+            445: 'SMB',
+            554: 'RTSP',
+            3389: 'RDP',
+            5900: 'VNC',
+            8080: 'HTTP-Alt',
+            8443: 'HTTPS-Alt'
+        }
+        
+        open_ports = []
+        
+        for port, service in common_ports.items():
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(timeout)
+                # Set socket to non-blocking after timeout
+                sock.setblocking(False)
+                try:
+                    sock.connect((ip, port))
+                    open_ports.append({'port': port, 'service': service})
+                except BlockingIOError:
+                    # Connection in progress, wait briefly
+                    import select
+                    ready = select.select([], [sock], [], timeout)
+                    if ready[1]:
+                        # Socket is writable, connection succeeded
+                        open_ports.append({'port': port, 'service': service})
+                except (socket.error, OSError):
+                    pass
+                finally:
+                    try:
+                        sock.close()
+                    except:
+                        pass
+            except Exception:
+                # Silently skip ports that can't be scanned
+                pass
+        
+        return open_ports
     
     def _get_hostname(self, ip):
         """Try to get device hostname using multiple methods"""
