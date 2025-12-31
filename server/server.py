@@ -1803,7 +1803,7 @@ def get_performance_anomalies():
 
 
 # ============================================================================
-# SECTION 21: COMPLIANCE DASHBOARD
+# SECTION 15: COMPLIANCE DASHBOARD
 # ============================================================================
 
 @app.route('/api/compliance/report/<report_type>', methods=['GET'])
@@ -1857,10 +1857,10 @@ def get_compliance_summary():
 
 
 # ============================================================================
-# SECTIONS 8-13: VISUALIZATION FEATURES
+# SECTION 3: NETWORK TOPOLOGY (Part of Network Devices)
 # ============================================================================
 
-# SECTION 11: Network Topology Visualization (part of Network Devices)
+# SECTION 3: Network Topology Visualization (part of Network Devices)
 @app.route('/api/visualization/topology', methods=['GET'])
 def get_network_topology():
     """Get network topology map"""
@@ -1923,7 +1923,7 @@ def get_all_visualizations():
 
 
 # ============================================================================
-# SECTION 11: NETWORK DEVICES - LIVE MONITOR, PORTS & HISTORY (3-IN-1)
+# SECTION 3: NETWORK DEVICES - LIVE MONITOR, PORTS & HISTORY (3-IN-1)
 # ============================================================================
 
 @app.route('/api/connected-devices', methods=['GET'])
@@ -2014,7 +2014,7 @@ def unblock_device_api():
 
 # API endpoints for Adaptive Honeypot
 # ============================================================================
-# SECTION 18: ADAPTIVE HONEYPOT - AI TRAINING SANDBOX
+# SECTION 16: ADAPTIVE HONEYPOT - AI TRAINING SANDBOX
 # ============================================================================
 
 @app.route('/api/adaptive_honeypot/status', methods=['GET'])
