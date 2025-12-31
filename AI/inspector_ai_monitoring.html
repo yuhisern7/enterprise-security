@@ -1683,7 +1683,7 @@
               </thead>
               <tbody>
                 {% for log in threat_logs %}
-                  <tr style="{% if log.action == 'BLOCKED' %}background: rgba(255, 95, 95, 0.05);{% endif %}">
+                  <tr {% if log.action == 'BLOCKED' %}style="background: rgba(255, 95, 95, 0.05);"{% endif %}>
                     <td style="font-size: 0.8rem; font-family: monospace; white-space: nowrap;">
                       {{ log.timestamp[:19].replace('T', ' ') }}
                     </td>

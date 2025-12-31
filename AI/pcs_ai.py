@@ -1802,21 +1802,6 @@ def log_honeypot_attack(threat_data: dict) -> None:
         _block_ip(ip_address)
         print(f"[HONEYPOT→AI] 🛡️ AUTO-BLOCKED {ip_address} for honeypot interaction")
 
-
-    # 🌐 P2P SYNC: Broadcast threat to all peers
-    if P2P_SYNC_AVAILABLE:
-        try:
-            sync_threat(event)
-        except Exception as e:
-            print(f"[P2P] Warning: Failed to broadcast threat: {e}")
-    
-    # Relay: Broadcast to global mesh via relay server
-    if RELAY_AVAILABLE:
-        try:
-            relay_threat(event)
-        except Exception as e:
-            print(f"[RELAY] Warning: Failed to relay threat: {e}")
-
 def _block_ip(ip_address: str) -> None:
     """Block an IP address and save to persistent storage."""
     # Don't block whitelisted IPs
@@ -2681,19 +2666,15 @@ def assess_header_anomalies(headers: dict, ip_address: str) -> SecurityAssessmen
     # No single signal confirms attack - requires cross-signal agreement
     # ==========================================================================
     
+    # Get request count for this IP (needed for FP filter)
+    request_count = len(_request_tracker.get(ip_address, []))
+    
     if FP_FILTER_AVAILABLE and len(threats) > 0:
         signals = []
         
-        # Collect AI/ML signals
-        if ml_threats:
-            ml_confidence = ai_confidence if ai_confidence > 0 else 0.5
-            signals.append(create_signal(
-                signal_type=SignalType.AI_PREDICTION,
-                ip_address=ip_address,
-                confidence=ml_confidence,
-                details=f"AI detected: {', '.join(ml_threats)}",
-                raw_data={'ml_threats': ml_threats}
-            ))
+        # Note: assess_header_anomalies() doesn't have ML analysis results
+        # ML signals are only available in assess_request_pattern()
+        # So we only collect rule-based and network behavior signals here
         
         # Collect rule-based signals
         if threats:

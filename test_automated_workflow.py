@@ -156,7 +156,7 @@ def test_5_show_ai_retrain_status():
     print("="*70)
     
     try:
-        from AI.ai_retraining import get_retrain_manager
+        from relay.ai_retraining import get_retrain_manager
         
         manager = get_retrain_manager()
         status = manager.get_retrain_status()
