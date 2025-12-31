@@ -521,6 +521,95 @@
       color: #ffb85f;
     }
     
+    .alert.error {
+      background: rgba(255, 95, 95, 0.1);
+      border: 1px solid rgba(255, 95, 95, 0.3);
+      color: #ff5f5f;
+    }
+    
+    /* Offline indicator */
+    .offline-indicator {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 95, 95, 0.95);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      z-index: 10000;
+      display: none;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    .offline-indicator.show {
+      display: block;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    /* Loading spinner for buttons */
+    .btn.loading {
+      position: relative;
+      color: transparent;
+      pointer-events: none;
+    }
+    
+    .btn.loading::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      top: 50%;
+      left: 50%;
+      margin-left: -8px;
+      margin-top: -8px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Toast notifications */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10000;
+    }
+    
+    .toast {
+      background: rgba(15, 20, 35, 0.95);
+      border: 1px solid rgba(95, 226, 255, 0.3);
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      margin-top: 10px;
+      min-width: 300px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    .toast.success {
+      border-color: rgba(95, 255, 159, 0.5);
+    }
+    
+    .toast.error {
+      border-color: rgba(255, 95, 95, 0.5);
+    }
+    
     /* Scrollbar */
     ::-webkit-scrollbar {
       width: 8px;
@@ -557,6 +646,14 @@
   </style>
 </head>
 <body>
+  <!-- Offline Indicator -->
+  <div class="offline-indicator" id="offlineIndicator" role="alert" aria-live="assertive">
+    🔴 You are offline. Dashboard updates paused.
+  </div>
+  
+  <!-- Toast Notifications -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+  
   <div class="container">
     <!-- Header -->
     <header>
@@ -573,20 +670,20 @@
         <div class="stat-change positive" id="threatsChange">+0 today</div>
       </div>
       
-      <div class="card stat-card">
-        <div class="stat-value" id="networkQuality">--</div>
+      <div class="card stat-card" role="region" aria-label="Network Quality Statistics">
+        <div class="stat-value" id="networkQuality" aria-live="polite">--</div>
         <div class="stat-label">📊 Network Quality</div>
         <div class="stat-change" id="qualityChange">--</div>
       </div>
       
-      <div class="card stat-card">
-        <div class="stat-value" id="complianceScore">--</div>
+      <div class="card stat-card" role="region" aria-label="Compliance Score Statistics">
+        <div class="stat-value" id="complianceScore" aria-live="polite">--</div>
         <div class="stat-label">✅ Compliance Score</div>
         <div class="stat-change" id="complianceChange">--</div>
       </div>
       
-      <div class="card stat-card">
-        <div class="stat-value" id="activeNodes">--</div>
+      <div class="card stat-card" role="region" aria-label="Active Nodes Statistics">
+        <div class="stat-value" id="activeNodes" aria-live="polite">--</div>
         <div class="stat-label">🌐 Active Nodes</div>
         <div class="stat-change positive" id="nodesChange">Connected</div>
       </div>
@@ -664,10 +761,10 @@
       </div>
       
       <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-        <button class="btn btn-primary" onclick="generateComplianceReport('pci_dss')">📄 Generate PCI-DSS Report</button>
-        <button class="btn btn-primary" onclick="generateComplianceReport('hipaa')">📄 Generate HIPAA Report</button>
-        <button class="btn btn-primary" onclick="generateComplianceReport('gdpr')">📄 Generate GDPR Report</button>
-        <button class="btn btn-success" onclick="generateAllReports()">📋 Generate All Reports</button>
+        <button class="btn btn-primary" onclick="generateComplianceReport('pci_dss')" aria-label="Generate PCI-DSS Compliance Report">📄 Generate PCI-DSS Report</button>
+        <button class="btn btn-primary" onclick="generateComplianceReport('hipaa')" aria-label="Generate HIPAA Compliance Report">📄 Generate HIPAA Report</button>
+        <button class="btn btn-primary" onclick="generateComplianceReport('gdpr')" aria-label="Generate GDPR Compliance Report">📄 Generate GDPR Report</button>
+        <button class="btn btn-success" onclick="generateAllReports()" aria-label="Download All Compliance Reports">📋 Generate All Reports</button>
       </div>
     </div>
 
@@ -752,10 +849,90 @@
     let performanceChart, heatmapChart, attackFlowChart;
     let networkTopologyNetwork;
     
+    // Global state management
+    let isOnline = navigator.onLine;
+    let lastUpdateTime = Date.now();
+    const UPDATE_THROTTLE_MS = 10000; // 10 seconds minimum between updates
+    let isUpdating = false;
+    
+    // Toast notification system
+    function showToast(message, type = 'info', duration = 3000) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.setAttribute('role', 'alert');
+      toast.textContent = message;
+      
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(400px)';
+        setTimeout(() => toast.remove(), 300);
+      }, duration);
+    }
+    
+    // Offline/Online detection
+    window.addEventListener('online', () => {
+      isOnline = true;
+      document.getElementById('offlineIndicator').classList.remove('show');
+      showToast('✅ Connection restored', 'success');
+      loadDashboardData();
+    });
+    
+    window.addEventListener('offline', () => {
+      isOnline = false;
+      document.getElementById('offlineIndicator').classList.add('show');
+      showToast('🔴 Connection lost', 'error');
+    });
+    
+    // Rate limiting wrapper
+    function throttledUpdate(fn) {
+      const now = Date.now();
+      if (isUpdating) {
+        console.log('Update already in progress, skipping...');
+        return Promise.resolve();
+      }
+      
+      if (now - lastUpdateTime < UPDATE_THROTTLE_MS) {
+        const remaining = Math.ceil((UPDATE_THROTTLE_MS - (now - lastUpdateTime)) / 1000);
+        console.log(`Throttled: ${remaining}s until next update`);
+        return Promise.resolve();
+      }
+      
+      isUpdating = true;
+      lastUpdateTime = now;
+      
+      return fn().finally(() => {
+        isUpdating = false;
+      });
+    }
+    
+    // Error handler with user-friendly messages
+    function handleError(context, error) {
+      console.error(`Error in ${context}:`, error);
+      
+      let message = '❌ Failed to load data';
+      if (!isOnline) {
+        message = '🔴 No internet connection';
+      } else if (error.message.includes('Failed to fetch')) {
+        message = '🔴 Server connection failed';
+      } else if (error.message.includes('timeout')) {
+        message = '⏱️ Request timed out';
+      }
+      
+      showToast(message, 'error');
+    }
+    
     // Initialize dashboard
     document.addEventListener('DOMContentLoaded', function() {
       initCharts();
       loadDashboardData();
+      
+      // Check initial online status
+      if (!isOnline) {
+        document.getElementById('offlineIndicator').classList.add('show');
+      }
       
       // Refresh every 10 seconds
       setInterval(loadDashboardData, 10000);
@@ -883,21 +1060,28 @@
     
     // Load all dashboard data
     async function loadDashboardData() {
-      try {
-        await Promise.all([
-          loadPerformanceMetrics(),
-          loadComplianceData(),
-          loadNetworkTopology(),
-          loadThreatHeatmap(),
-          loadAttackFlow(),
-          loadGeographicData(),
-          loadAnomalies(),
-          loadRecentThreats(),
-          loadOverviewStats()
-        ]);
-      } catch (error) {
-        console.error('Error loading dashboard data:', error);
+      if (!isOnline) {
+        console.log('Offline - skipping dashboard update');
+        return;
       }
+      
+      return throttledUpdate(async () => {
+        try {
+          await Promise.all([
+            loadPerformanceMetrics(),
+            loadComplianceData(),
+            loadNetworkTopology(),
+            loadThreatHeatmap(),
+            loadAttackFlow(),
+            loadGeographicData(),
+            loadAnomalies(),
+            loadRecentThreats(),
+            loadOverviewStats()
+          ]);
+        } catch (error) {
+          handleError('Dashboard Data Load', error);
+        }
+      });
     }
     
     // Load overview statistics
@@ -914,7 +1098,10 @@
         document.getElementById('threatsChange').textContent = `+${todayThreats} today`;
         
       } catch (error) {
-        console.error('Error loading overview stats:', error);
+        handleError('Overview Stats', error);
+        // Set fallback values
+        document.getElementById('totalThreats').textContent = 'N/A';
+        document.getElementById('threatsChange').textContent = 'Unavailable';
       }
     }
     
@@ -1184,8 +1371,25 @@
     
     // Generate compliance report
     async function generateComplianceReport(type) {
+      if (!isOnline) {
+        showToast('🔴 Cannot generate report while offline', 'error');
+        return;
+      }
+      
+      // Find the button that was clicked and add loading state
+      const buttons = document.querySelectorAll('.btn');
+      let targetButton = null;
+      buttons.forEach(btn => {
+        if (btn.textContent.includes(type.toUpperCase()) || btn.textContent.includes(type.replace('_', '-').toUpperCase())) {
+          targetButton = btn;
+          btn.classList.add('loading');
+          btn.disabled = true;
+        }
+      });
+      
       try {
         const response = await fetch(`/api/compliance/report/${type}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         
         // Create download link
@@ -1195,23 +1399,60 @@
         a.href = url;
         a.download = `${type}_compliance_report_${new Date().toISOString().split('T')[0]}.json`;
         a.click();
+        URL.revokeObjectURL(url);
         
-        alert(`✅ ${type.toUpperCase()} Compliance Report Generated`);
+        showToast(`✅ ${type.toUpperCase().replace('_', '-')} report downloaded`, 'success');
         
       } catch (error) {
-        console.error('Error generating compliance report:', error);
-        alert('❌ Failed to generate report');
+        handleError('Compliance Report Generation', error);
+        showToast(`❌ Failed to generate ${type.toUpperCase().replace('_', '-')} report`, 'error');
+      } finally {
+        // Remove loading state
+        if (targetButton) {
+          targetButton.classList.remove('loading');
+          targetButton.disabled = false;
+        }
       }
     }
     
     // Generate all reports
     async function generateAllReports() {
-      await Promise.all([
-        generateComplianceReport('pci_dss'),
-        generateComplianceReport('hipaa'),
-        generateComplianceReport('gdpr'),
-        generateComplianceReport('soc2')
-      ]);
+      if (!isOnline) {
+        showToast('🔴 Cannot generate reports while offline', 'error');
+        return;
+      }
+      
+      // Find "Download All" button and add loading state
+      const buttons = document.querySelectorAll('.btn');
+      let downloadAllBtn = null;
+      buttons.forEach(btn => {
+        if (btn.textContent.includes('Download All')) {
+          downloadAllBtn = btn;
+          btn.classList.add('loading');
+          btn.disabled = true;
+        }
+      });
+      
+      try {
+        showToast('📥 Generating all compliance reports...', 'info');
+        
+        // Generate sequentially to avoid overwhelming the server
+        for (const type of ['pci_dss', 'hipaa', 'gdpr', 'soc2']) {
+          await generateComplianceReport(type);
+          // Small delay between requests
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
+        showToast('✅ All compliance reports downloaded', 'success', 5000);
+      } catch (error) {
+        handleError('All Reports Generation', error);
+      } finally {
+        // Remove loading state
+        if (downloadAllBtn) {
+          downloadAllBtn.classList.remove('loading');
+          downloadAllBtn.disabled = false;
+        }
+      }
     }
   </script>
 </body>
