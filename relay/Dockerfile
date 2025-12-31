@@ -32,8 +32,10 @@ RUN mkdir -p /app/relay/ml_models
 RUN mkdir -p /app/relay/json
 
 # Expose ports
-EXPOSE 60001  # WebSocket relay
-EXPOSE 60002  # Model distribution API
+# WebSocket relay
+EXPOSE 60001
+# Model distribution API
+EXPOSE 60002
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
