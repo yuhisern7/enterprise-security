@@ -137,13 +137,13 @@
         <div>
           <h3 style="margin: 0; color: #5fe2ff; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
             <span id="featureRegistryIcon">▶️</span>
-            📊 FEATURE REGISTRY - All Available Features (17 Dashboard Sections)
+            📊 FEATURE REGISTRY - All Available Features (18 Dashboard Sections)
           </h3>
           <p style="margin: 0.25rem 0 0; color: #8a92b6; font-size: 0.8rem;">Click to expand/collapse • Hover over features to see API endpoints • 50 API endpoints active</p>
         </div>
         <div style="display: flex; gap: 1rem; align-items: center;">
-          <span style="background: #2a7f3f; color: #5fff9f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">✅ 17 Sections</span>
-          <span style="background: #5f5f7f; color: #5fe2ff; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🎨 5 Viz (Next)</span>
+          <span style="background: #2a7f3f; color: #5fff9f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">✅ 18 Sections</span>
+          <span style="background: #5f5f7f; color: #5fe2ff; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🎨 4 Viz (Next)</span>
           <span style="background: #7f7f2a; color: #ffff5f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🏢 13 Enterprise</span>
         </div>
       </div>
@@ -240,6 +240,20 @@
           </div>
         </div>
 
+        <!-- Visualization (Live) -->
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: #5fe2ff; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="background: #2a7f3f; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem; font-weight: 600;">ACTIVE</span>
+            🗺️ Visualization (Live) (1 Feature)
+          </h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
+            <div class="feature-item" title="API: /api/visualization/topology" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+              <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 18: Network Topology Visualization (Interactive)</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Performance, Compliance & Visualization - UPDATED -->
         <div style="margin-bottom: 1.5rem;">
           <h4 style="color: #5fe2ff; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -302,14 +316,10 @@
         <div style="margin-bottom: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #2a3548;">
           <h4 style="color: #5fff9f; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
             <span style="background: #2a7f3f; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem; font-weight: 600;">PRIORITY</span>
-            🎨 Track 1: Dashboard Visualizations (Sections 18-22) - 5-7 hours
+            🎨 Track 1: Dashboard Visualizations (Sections 19-22) - 4-6 hours
           </h4>
           <p style="margin: 0 0 0.75rem; color: #8a92b6; font-size: 0.8rem;">🎯 Goal: Complete 22 sections = Most advanced monitoring tool on the planet</p>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
-            <div class="feature-item" style="background: rgba(95, 255, 159, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
-              <span style="color: #5fff9f; font-size: 1.2rem;">⏳</span>
-              <span style="color: #f5f7ff; font-size: 0.85rem;">Section 18: Network Topology (API ready ✅)</span>
-            </div>
             <div class="feature-item" style="background: rgba(95, 255, 159, 0.1); padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
               <span style="color: #5fff9f; font-size: 1.2rem;">⏳</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;">Section 19: Attack Flow Visualization (API ready ✅)</span>
@@ -2248,6 +2258,48 @@
         </div>
       </section>
 
+      <!-- ========================================
+           SECTION 18: NETWORK TOPOLOGY VISUALIZATION
+           Purpose: Interactive device + attacker topology
+           ======================================== -->
+      <section style="background: linear-gradient(135deg, #142035, #0f1726); border: 2px solid #5fe2ff;">
+        <h2>📍 Section 18 | 🗺️ Network Topology Visualization</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>NEW:</strong> Auto-generated device map with attackers and gateway links</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
+          <div class="stat-card">
+            <div class="stat-label">🖥️ Total Devices</div>
+            <div class="stat-value" id="topology-total-devices">0</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-label">🟢 Active Devices</div>
+            <div class="stat-value" id="topology-active-devices">0</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">🚨 External Attackers</div>
+            <div class="stat-value" id="topology-attackers">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">🔗 Connections</div>
+            <div class="stat-value" id="topology-links">0</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 0.5rem; color: #8a92b6; font-size: 0.8rem;">
+          Last generated: <span id="topology-generated-at">--</span>
+        </div>
+
+        <div id="topology-graph-wrapper" style="background: #0b1020; border: 1px solid rgba(95, 226, 255, 0.2); border-radius: 10px; padding: 0.75rem;">
+          <svg id="topology-graph" width="100%" height="420" viewBox="0 0 720 420" preserveAspectRatio="xMidYMid meet" style="background: radial-gradient(circle at 50% 50%, rgba(95, 226, 255, 0.08), rgba(15, 23, 38, 0.95)); border-radius: 8px;"></svg>
+          <div id="topology-graph-empty" style="text-align: center; padding: 1rem; color: #8a92b6; display: none;">No devices detected yet</div>
+        </div>
+
+        <h3 style="color: #5fe2ff; font-size: 1rem; margin: 1.25rem 0 0.75rem;">📋 Node Details</h3>
+        <div id="topology-node-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem;">
+          <div style="text-align: center; color: #8a92b6;">Loading topology...</div>
+        </div>
+      </section>
+
     </main>
 
     <div class="refresh-indicator">
@@ -3560,6 +3612,7 @@
         loadEnterpriseMetrics();
         loadComplianceData();
         loadSignatureExtractionData();
+        loadNetworkTopology();
         loadPortScanData();
         loadDeviceHistory();
         loadSystemHealth();
@@ -3570,6 +3623,7 @@
         setInterval(loadEnterpriseMetrics, 10000);
         // Refresh signature extraction every 15 seconds
         setInterval(loadSignatureExtractionData, 15000);
+        setInterval(loadNetworkTopology, 20000);
         // Refresh port scan data every 30 seconds
         setInterval(loadPortScanData, 30000);
         // Refresh device history every 30 seconds
@@ -3577,6 +3631,133 @@
         // Refresh system health every 10 seconds
         setInterval(loadSystemHealth, 10000);
       });
+
+      // ============================================================================
+      // SECTION 18: NETWORK TOPOLOGY VISUALIZATION
+      // ============================================================================
+
+      function layoutTopology(nodes) {
+        const width = 720;
+        const height = 420;
+        const center = { x: width / 2, y: height / 2 };
+        const positions = {};
+
+        const gateway = nodes.find(n => n.id === 'gateway');
+        if (gateway) {
+          positions[gateway.id] = center;
+        }
+
+        const devices = nodes.filter(n => n.id !== 'gateway' && n.type !== 'attacker');
+        const attackers = nodes.filter(n => n.type === 'attacker');
+
+        const deviceRadius = 160;
+        devices.forEach((node, idx) => {
+          const angle = (idx / Math.max(1, devices.length)) * Math.PI * 2;
+          positions[node.id] = {
+            x: center.x + deviceRadius * Math.cos(angle),
+            y: center.y + deviceRadius * Math.sin(angle)
+          };
+        });
+
+        const attackerRadius = 230;
+        attackers.forEach((node, idx) => {
+          const angle = (idx / Math.max(1, attackers.length)) * Math.PI * 2;
+          positions[node.id] = {
+            x: center.x + attackerRadius * Math.cos(angle),
+            y: center.y + attackerRadius * Math.sin(angle)
+          };
+        });
+
+        return { positions, width, height, center };
+      }
+
+      function renderTopology(topology) {
+        const svg = document.getElementById('topology-graph');
+        const emptyState = document.getElementById('topology-graph-empty');
+        if (!svg) return;
+
+        const nodes = topology?.nodes || [];
+        const edges = topology?.edges || [];
+
+        if (nodes.length === 0) {
+          svg.innerHTML = '';
+          svg.style.display = 'none';
+          if (emptyState) emptyState.style.display = 'block';
+          return;
+        }
+
+        if (emptyState) emptyState.style.display = 'none';
+        svg.style.display = 'block';
+
+        const { positions, width, height, center } = layoutTopology(nodes);
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+        const edgeLines = edges.map(edge => {
+          const fromPos = positions[edge.from] || center;
+          const toPos = positions[edge.to] || center;
+          const dash = edge.dashed ? 'stroke-dasharray="6 3"' : '';
+          return `<line x1="${fromPos.x}" y1="${fromPos.y}" x2="${toPos.x}" y2="${toPos.y}" stroke="${edge.color || '#5fe2ff'}" stroke-width="${edge.width || 1.5}" ${dash} opacity="0.75" />`;
+        }).join('');
+
+        const nodeCircles = nodes.map(node => {
+          const pos = positions[node.id] || center;
+          const radius = node.size ? node.size / 2 : 16;
+          const label = (node.label || node.id || '').replace(/\\n/g, ' ');
+          const fill = node.color || '#5fe2ff';
+          return `
+            <g>
+              <circle cx="${pos.x}" cy="${pos.y}" r="${radius}" fill="${fill}" stroke="#0b1020" stroke-width="2" opacity="0.9" />
+              <text x="${pos.x}" y="${pos.y + radius + 14}" fill="#a9b3d4" font-size="10" text-anchor="middle">${label}</text>
+            </g>
+          `;
+        }).join('');
+
+        svg.innerHTML = edgeLines + nodeCircles;
+      }
+
+      async function loadNetworkTopology() {
+        try {
+          const response = await fetch('/api/visualization/topology');
+          const data = await response.json();
+
+          if (data.status !== 'success') {
+            throw new Error(data.message || 'Failed to load topology');
+          }
+
+          const topology = data.topology || {};
+          const stats = topology.statistics || {};
+
+          document.getElementById('topology-total-devices').textContent = stats.total_devices ?? 0;
+          document.getElementById('topology-active-devices').textContent = stats.active_devices ?? 0;
+          document.getElementById('topology-attackers').textContent = stats.external_attackers ?? 0;
+          document.getElementById('topology-links').textContent = stats.total_connections ?? 0;
+          document.getElementById('topology-generated-at').textContent = topology.generated_at || '—';
+
+          renderTopology(topology);
+
+          const listDiv = document.getElementById('topology-node-list');
+          const nodes = topology.nodes || [];
+          if (nodes.length === 0) {
+            listDiv.innerHTML = '<div style="text-align: center; color: #8a92b6; grid-column: 1 / -1;">No devices detected yet</div>';
+          } else {
+            const sorted = [...nodes].sort((a, b) => (b.threat_count || 0) - (a.threat_count || 0)).slice(0, 8);
+            listDiv.innerHTML = sorted.map(node => `
+              <div style="background: #1a2135; padding: 0.75rem; border-radius: 8px; border-left: 3px solid ${node.color || '#5fe2ff'};">
+                <div style="color: #f5f7ff; font-weight: 700; margin-bottom: 0.35rem;">${node.label || node.id}</div>
+                <div style="color: #a9b3d4; font-size: 0.85rem;">IP: <code>${node.ip || 'N/A'}</code></div>
+                <div style="color: #a9b3d4; font-size: 0.85rem;">Type: ${node.type || 'unknown'}</div>
+                <div style="color: #a9b3d4; font-size: 0.85rem;">Threats: ${node.threat_count || 0}</div>
+              </div>
+            `).join('');
+          }
+        } catch (error) {
+          console.error('Error loading network topology:', error);
+          const listDiv = document.getElementById('topology-node-list');
+          if (listDiv) {
+            listDiv.innerHTML = `<div style="text-align: center; color: #ff5f5f; grid-column: 1 / -1;">Failed to load topology: ${error.message}</div>`;
+          }
+        }
+      }
 
       // Enterprise Performance Metrics
       let performanceChart = null;
