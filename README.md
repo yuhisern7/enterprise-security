@@ -401,7 +401,7 @@ This System:
 ✅ Agency A shares ONLY attack patterns (IP, type, timestamp)
 ✅ Agency B's dashboard never shows A's attacks (privacy preserved)
 ✅ Both agencies' AI learns from each other (collective defense)
-✅ No central database to breach (distributed P2P mesh)
+✅ Hybrid architecture: centralized intelligence (relay trains AI), decentralized enforcement (local blocking)
 ```
 
 **Compliance & Regulations:**
@@ -434,7 +434,7 @@ China-backed APT attacks DOE (Department of Energy)
 ```
 
 **Why This Is Revolutionary:**
-- **First Truly Distributed Security System** on the planet
+- **A hybrid architecture with centralized intelligence and decentralized enforcement**
 - **Community-owned open source** (relay network sold separately for sustainability)
 - **Privacy + Collective Intelligence** (thought to be impossible before this)
 - **Scales to billions of devices** (unlike centralized systems)
@@ -457,7 +457,7 @@ China-backed APT attacks DOE (Department of Energy)
 
 ## 🚀 What Makes This System Unique
 
-**Among the first open-source, container-based, AI-augmented distributed network protection systems with privacy-oriented threat sharing.**
+**Hybrid architecture: Centralized AI training on relay server + Decentralized threat enforcement on subscriber networks. Privacy-preserving collective intelligence.**
 
 We analyzed major security platforms and found gaps:
 - ❌ **MISP**: Requires central server, no privacy-preserving ML
@@ -476,7 +476,7 @@ We analyzed major security platforms and found gaps:
 6. **Collective Intelligence** - Every node contributes to shared learning
 7. **5-Gate False Positive Filter** - Multi-layered validation prevents false alarms
 
-**This is an evolving open-source security platform** - combining distributed learning with practical threat protection.
+**This is an evolving open-source security platform** - combining centralized AI training (relay) with decentralized enforcement (subscribers).
 
 ---
 
@@ -484,7 +484,7 @@ We analyzed major security platforms and found gaps:
 
 ### ✅ Production-Grade ML Features (All Implemented)
 
-The ML system has been engineered to solve common distributed learning problems:
+The ML system has been engineered with hybrid architecture (centralized training + decentralized enforcement):
 
 #### ✅ Intelligent Retraining Strategy
 
@@ -534,6 +534,11 @@ Then:
 - **Shared training data loses meaning**
 
 This is called **feature skew**, and it **breaks distributed ML silently**.
+
+**Our Solution (Hybrid Architecture):**
+- Relay server trains centrally on ALL data (normalizes across all node types)
+- Subscribers download pre-trained models (no local training conflicts)
+- Feature compatibility maintained by central training
 
 **Example:**
 ```python
@@ -677,10 +682,10 @@ With cryptographic security enabled, relay servers cannot inject fake threats. M
 #### 🔸 Model Poisoning Risk (ACKNOWLEDGED)
 
 **Current Risk:**  
-In distributed learning, malicious nodes can intentionally send bad training samples to corrupt AI models:
-- Injection of false attack patterns
-- Training models to ignore real threats
-- Degrading detection accuracy across the mesh
+In hybrid architecture, malicious subscribers could send fake attack data to relay server:
+- Injection of false attack patterns to central training
+- Attempting to corrupt centrally-trained models
+- Degrading detection accuracy for all subscribers
 
 **✅ Implemented Protections (December 2025):**
 - ✅ **Cryptographic message validation** - HMAC verifies message integrity before ML training
@@ -755,7 +760,8 @@ With cryptographic security enabled, model poisoning via fake threats is prevent
 ### 📊 Security Research & Validation
 
 This project draws inspiration from academic research in:
-- Distributed machine learning (federated learning)
+- Centralized machine learning with edge enforcement (hybrid architecture)
+- Federated learning principles (privacy-preserving intelligence)
 - Byzantine fault-tolerant systems
 - Privacy-preserving threat intelligence sharing
 - Intrusion detection systems (IDS/IPS)
@@ -2081,16 +2087,22 @@ docker compose up -d
 
 ## 📈 Scaling
 
-- **1 container**: Protects single location, learns locally
+**Premium Mode (Relay Server):**
+- **1 subscriber**: Protects single location, downloads models from relay (280 KB)
+- **100 subscribers**: Global threat intelligence, relay trains on all attacks
+- **10,000 subscribers**: Enterprise-scale, centralized AI training on massive dataset
+- **1,000,000 subscribers**: Real-time zero-day protection, worldwide enforcement
+
+**Free Mode (Local/P2P):**
+- **1 container**: Protects single location, trains locally on ExploitDB
 - **5 containers**: P2P mesh, collective defense across 5 locations
-- **100 containers**: Global network, near-instant threat propagation
-- **1000+ containers**: Enterprise-scale distributed security intelligence
+- **100 containers**: Global network, but each trains independently
 
 **Each container requires:**
 - CPU: 2-4 cores recommended
-- RAM: ~500MB
-- Storage: ~2GB (ExploitDB + logs)
-- Network: Minimal bandwidth (<1MB/day sync traffic)
+- RAM: ~500MB (Premium), ~2GB (Free with ExploitDB)
+- Storage: ~500MB (Premium), ~2GB (Free with ExploitDB)
+- Network: Minimal bandwidth (<1MB/day Premium, <10MB/day Free)
 
 ---
 
@@ -2240,7 +2252,7 @@ _peer_threats = []    # Peer attacks (AI learns, dashboard hides)
 - **Small Business**: Deploy on each office, collective defense across branches, track all devices (phones, cameras, IoT)
 - **MSP/Security Providers**: Offer to clients, all clients benefit from shared intelligence + 204 global threat indicators
 - **Research Networks**: Collaborative threat detection across institutions
-- **Edge Computing**: Distributed security without cloud dependency
+- **Edge Computing**: Hybrid architecture - centralized intelligence, decentralized enforcement
 - **Government**: Inter-agency defense without central database (FISMA/NIST compliant)
 - **IoT Security**: Monitor and isolate compromised IoT devices, security cameras, smart home equipment
 - **Guest Network Protection**: Track previous connections (7 days), block unwanted devices without router access
