@@ -95,6 +95,17 @@ except ImportError as e:
     print(f"[WARNING] Enterprise features not available: {e}")
     print("[INFO] System will run in standard mode without external threat intelligence")
 
+# Performance Monitoring and Visualization
+try:
+    import AI.network_performance as network_performance
+    import AI.compliance_reporting as compliance_reporting
+    import AI.advanced_visualization as advanced_visualization
+    ADVANCED_FEATURES_AVAILABLE = True
+    print("[ADVANCED] Performance monitoring, compliance reporting, and visualization modules loaded")
+except ImportError as e:
+    ADVANCED_FEATURES_AVAILABLE = False
+    print(f"[WARNING] Advanced features not available: {e}")
+
 # Peer-to-Peer Threat Sharing
 try:
     from AI.p2p_sync import get_p2p_sync, sync_threat, start_p2p_sync, get_p2p_status, get_peer_threats

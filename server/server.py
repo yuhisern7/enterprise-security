@@ -40,7 +40,13 @@ pcs_ai._load_threat_data()
 
 @app.route('/')
 def dashboard():
-    """Main dashboard - AI Security Monitoring"""
+    """Main dashboard - Enterprise Security Command Center"""
+    return render_template('dashboard.html')
+
+
+@app.route('/inspector/ai-monitoring')
+def ai_monitoring():
+    """Legacy AI Monitoring Dashboard"""
     return render_template('inspector_ai_monitoring.html',
                          stats=pcs_ai.get_threat_statistics(),
                          blocked_ips=pcs_ai.get_blocked_ips(),
@@ -48,12 +54,6 @@ def dashboard():
                          threat_logs=pcs_ai._threat_log[-100:][::-1],  # Latest 100, reversed
                          ml_stats=pcs_ai.get_ml_model_stats(),
                          vpn_stats=pcs_ai.get_vpn_tor_statistics())
-
-
-@app.route('/inspector/ai-monitoring')
-def ai_monitoring():
-    """AI Monitoring Dashboard (same as home)"""
-    return dashboard()
 
 
 @app.route('/inspector/ai-monitoring/export')
@@ -1653,6 +1653,145 @@ def generate_env_file():
         
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
+
+
+# ============================================================================
+# NEW API ENDPOINTS - Performance, Compliance, Visualization
+# ============================================================================
+
+@app.route('/api/performance/metrics', methods=['GET'])
+def get_performance_metrics():
+    """Get network performance metrics for all IPs"""
+    try:
+        import AI.network_performance as net_perf
+        
+        ip_address = request.args.get('ip')
+        
+        if ip_address:
+            metrics = net_perf.get_performance_metrics(ip_address)
+            return jsonify({'status': 'success', 'metrics': metrics})
+        else:
+            metrics = net_perf.get_all_performance_metrics()
+            return jsonify({'status': 'success', 'metrics': metrics})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/performance/network-stats', methods=['GET'])
+def get_network_stats():
+    """Get network-wide performance statistics"""
+    try:
+        import AI.network_performance as net_perf
+        stats = net_perf.get_network_statistics()
+        return jsonify({'status': 'success', 'stats': stats})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/performance/anomalies', methods=['GET'])
+def get_performance_anomalies():
+    """Get IPs with detected performance anomalies"""
+    try:
+        import AI.network_performance as net_perf
+        anomalies = net_perf.get_performance_anomalies()
+        return jsonify({'status': 'success', 'anomalies': anomalies})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/compliance/report/<report_type>', methods=['GET'])
+def get_compliance_report(report_type):
+    """Generate compliance report (pci_dss, hipaa, gdpr, soc2)"""
+    try:
+        import AI.compliance_reporting as compliance
+        from datetime import timedelta
+        
+        days = int(request.args.get('days', 30))
+        end_date = _get_current_time()
+        start_date = end_date - timedelta(days=days)
+        
+        if report_type == 'pci_dss':
+            report = compliance.generate_pci_dss_report(start_date, end_date)
+        elif report_type == 'hipaa':
+            report = compliance.generate_hipaa_report(start_date, end_date)
+        elif report_type == 'gdpr':
+            report = compliance.generate_gdpr_report(start_date, end_date)
+        elif report_type == 'soc2':
+            report = compliance.generate_soc2_report(start_date, end_date)
+        else:
+            return jsonify({'status': 'error', 'message': f'Unknown report type: {report_type}'}), 400
+        
+        return jsonify({'status': 'success', 'report': report})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/compliance/summary', methods=['GET'])
+def get_compliance_summary():
+    """Get compliance summary across all standards"""
+    try:
+        import AI.compliance_reporting as compliance
+        summary = compliance.get_compliance_summary()
+        return jsonify({'status': 'success', 'summary': summary})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/visualization/topology', methods=['GET'])
+def get_network_topology():
+    """Get network topology map"""
+    try:
+        import AI.advanced_visualization as viz
+        topology = viz.generate_network_topology()
+        return jsonify({'status': 'success', 'topology': topology})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/visualization/attack-flows', methods=['GET'])
+def get_attack_flows():
+    """Get attack flow diagram"""
+    try:
+        import AI.advanced_visualization as viz
+        time_range = int(request.args.get('minutes', 60))
+        flows = viz.generate_attack_flows(time_range)
+        return jsonify({'status': 'success', 'flows': flows})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/visualization/heatmap', methods=['GET'])
+def get_threat_heatmap():
+    """Get threat heatmap"""
+    try:
+        import AI.advanced_visualization as viz
+        hours = int(request.args.get('hours', 24))
+        heatmap = viz.generate_threat_heatmap(hours)
+        return jsonify({'status': 'success', 'heatmap': heatmap})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/visualization/geographic', methods=['GET'])
+def get_geographic_map():
+    """Get geographic attack origin map"""
+    try:
+        import AI.advanced_visualization as viz
+        geo_data = viz.generate_geographic_map()
+        return jsonify({'status': 'success', 'geographic': geo_data})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+
+@app.route('/api/visualization/all', methods=['GET'])
+def get_all_visualizations():
+    """Generate all visualizations at once"""
+    try:
+        import AI.advanced_visualization as viz
+        visualizations = viz.generate_all_visualizations()
+        return jsonify({'status': 'success', 'visualizations': visualizations})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
 # API endpoint to get connected devices

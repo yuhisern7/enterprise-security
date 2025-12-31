@@ -51,9 +51,12 @@ echo ""
 if [ ! -f "json/threat_log.json" ]; then
     echo "📁 Creating json directory and files..."
     mkdir -p json
+    mkdir -p json/compliance_reports
+    mkdir -p json/performance_metrics
     echo "[]" > json/threat_log.json
     echo "[]" > json/blocked_ips.json
-    echo "✅ Created json files"
+    echo "{}" > json/visualization_data.json
+    echo "✅ Created json files and enterprise feature directories"
 fi
 
 # Check if AI folder exists

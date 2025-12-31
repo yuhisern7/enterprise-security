@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Battle-Hardened AI - Enterprise Security Command Center</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vis-network@9.1.6/dist/vis-network.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/vis-network@9.1.6/dist/dist/vis-network.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0a0e1a 0%, #0d1520 50%, #0a0e1a 100%);
+      color: #e1e8f0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    /* Military Grid Background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        linear-gradient(0deg, rgba(95, 226, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(95, 226, 255, 0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    /* Scanline Effect */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(95, 226, 255, 0.01) 0px,
+        transparent 2px,
+        transparent 4px
+      );
+      pointer-events: none;
+      z-index: 0;
+      animation: scanline 8s linear infinite;
+    }
+    
+    @keyframes scanline {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(40px); }
+    }
+    
+    .container {
+      max-width: 1920px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Header */
+    header {
+      background: linear-gradient(135deg, rgba(26, 33, 53, 0.95), rgba(15, 20, 35, 0.95));
+      padding: 1.5rem 2rem;
+      border-radius: 12px;
+      border: 1px solid rgba(95, 226, 255, 0.3);
+      box-shadow: 0 0 40px rgba(95, 226, 255, 0.15), inset 0 0 60px rgba(95, 226, 255, 0.03);
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(95, 226, 255, 0.1), transparent);
+      animation: shimmer 3s infinite;
+    }
+    
+    @keyframes shimmer {
+      to { left: 100%; }
+    }
+    
+    h1 {
+      font-size: 2rem;
+      background: linear-gradient(135deg, #5fe2ff, #5fff9f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+      text-shadow: 0 0 30px rgba(95, 226, 255, 0.3);
+      letter-spacing: -0.5px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      color: #a0aec0;
+      font-size: 0.95rem;
+      font-weight: 400;
+    }
+    
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(95, 255, 159, 0.1);
+      border: 1px solid #5fff9f;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #5fff9f;
+      margin-top: 0.75rem;
+    }
+    
+    .status-indicator::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #5fff9f;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+      box-shadow: 0 0 10px #5fff9f;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    /* Grid Layout */
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .grid-2 {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    
+    .grid-3 {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+    
+    .grid-4 {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    
+    /* Cards */
+    .card {
+      background: linear-gradient(135deg, rgba(26, 33, 53, 0.6), rgba(15, 20, 35, 0.8));
+      border: 1px solid rgba(95, 226, 255, 0.2);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 40px rgba(95, 226, 255, 0.02);
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .card:hover {
+      border-color: rgba(95, 226, 255, 0.5);
+      box-shadow: 0 8px 30px rgba(95, 226, 255, 0.2), inset 0 0 60px rgba(95, 226, 255, 0.05);
+      transform: translateY(-2px);
+    }
+    
+    .card-title {
+      font-size: 0.9rem;
+      color: #a0aec0;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    /* Stat Cards */
+    .stat-card {
+      text-align: center;
+      padding: 1.25rem;
+    }
+    
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #5fe2ff, #9f5fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+      line-height: 1;
+    }
+    
+    .stat-label {
+      font-size: 0.85rem;
+      color: #a0aec0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .stat-change {
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    
+    .stat-change.positive {
+      background: rgba(95, 255, 159, 0.2);
+      color: #5fff9f;
+    }
+    
+    .stat-change.negative {
+      background: rgba(255, 95, 95, 0.2);
+      color: #ff5f5f;
+    }
+    
+    /* Metric Cards with Icons */
+    .metric-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(15, 20, 35, 0.5);
+      border-radius: 8px;
+      border: 1px solid rgba(95, 226, 255, 0.15);
+    }
+    
+    .metric-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    
+    .metric-icon.cyan {
+      background: linear-gradient(135deg, rgba(95, 226, 255, 0.2), rgba(95, 226, 255, 0.1));
+      border: 1px solid rgba(95, 226, 255, 0.3);
+      color: #5fe2ff;
+    }
+    
+    .metric-icon.green {
+      background: linear-gradient(135deg, rgba(95, 255, 159, 0.2), rgba(95, 255, 159, 0.1));
+      border: 1px solid rgba(95, 255, 159, 0.3);
+      color: #5fff9f;
+    }
+    
+    .metric-icon.red {
+      background: linear-gradient(135deg, rgba(255, 95, 95, 0.2), rgba(255, 95, 95, 0.1));
+      border: 1px solid rgba(255, 95, 95, 0.3);
+      color: #ff5f5f;
+    }
+    
+    .metric-icon.purple {
+      background: linear-gradient(135deg, rgba(159, 95, 255, 0.2), rgba(159, 95, 255, 0.1));
+      border: 1px solid rgba(159, 95, 255, 0.3);
+      color: #9f5fff;
+    }
+    
+    .metric-info {
+      flex: 1;
+    }
+    
+    .metric-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #e1e8f0;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+    
+    .metric-label {
+      font-size: 0.8rem;
+      color: #a0aec0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Charts */
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin-top: 1rem;
+    }
+    
+    .chart-container-lg {
+      height: 400px;
+    }
+    
+    /* Network Topology */
+    #networkTopology {
+      width: 100%;
+      height: 500px;
+      background: rgba(15, 20, 35, 0.5);
+      border-radius: 8px;
+      border: 1px solid rgba(95, 226, 255, 0.15);
+    }
+    
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    
+    thead {
+      background: rgba(95, 226, 255, 0.1);
+      border: 1px solid rgba(95, 226, 255, 0.2);
+    }
+    
+    th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #5fe2ff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(95, 226, 255, 0.1);
+      font-size: 0.9rem;
+    }
+    
+    tbody tr {
+      transition: background 0.2s ease;
+    }
+    
+    tbody tr:hover {
+      background: rgba(95, 226, 255, 0.05);
+    }
+    
+    /* Badges */
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+    
+    .badge.success {
+      background: rgba(95, 255, 159, 0.2);
+      color: #5fff9f;
+      border: 1px solid rgba(95, 255, 159, 0.3);
+    }
+    
+    .badge.warning {
+      background: rgba(255, 184, 95, 0.2);
+      color: #ffb85f;
+      border: 1px solid rgba(255, 184, 95, 0.3);
+    }
+    
+    .badge.danger {
+      background: rgba(255, 95, 95, 0.2);
+      color: #ff5f5f;
+      border: 1px solid rgba(255, 95, 95, 0.3);
+    }
+    
+    .badge.info {
+      background: rgba(95, 226, 255, 0.2);
+      color: #5fe2ff;
+      border: 1px solid rgba(95, 226, 255, 0.3);
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #5fe2ff, #4fc9dd);
+      color: #0a0e1a;
+      box-shadow: 0 4px 15px rgba(95, 226, 255, 0.3);
+    }
+    
+    .btn-primary:hover {
+      box-shadow: 0 6px 25px rgba(95, 226, 255, 0.5);
+      transform: translateY(-2px);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #5fff9f, #4fdd88);
+      color: #0a0e1a;
+      box-shadow: 0 4px 15px rgba(95, 255, 159, 0.3);
+    }
+    
+    .btn-success:hover {
+      box-shadow: 0 6px 25px rgba(95, 255, 159, 0.5);
+      transform: translateY(-2px);
+    }
+    
+    /* Progress Bar */
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(95, 226, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #5fe2ff, #5fff9f);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      box-shadow: 0 0 10px rgba(95, 226, 255, 0.5);
+    }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid rgba(95, 226, 255, 0.2);
+    }
+    
+    .tab {
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      border: none;
+      color: #a0aec0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .tab:hover {
+      color: #5fe2ff;
+    }
+    
+    .tab.active {
+      color: #5fe2ff;
+      border-bottom-color: #5fe2ff;
+    }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: #a0aec0;
+    }
+    
+    .spinner {
+      border: 3px solid rgba(95, 226, 255, 0.2);
+      border-top-color: #5fe2ff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Alert Box */
+    .alert {
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .alert.info {
+      background: rgba(95, 226, 255, 0.1);
+      border: 1px solid rgba(95, 226, 255, 0.3);
+      color: #5fe2ff;
+    }
+    
+    .alert.success {
+      background: rgba(95, 255, 159, 0.1);
+      border: 1px solid rgba(95, 255, 159, 0.3);
+      color: #5fff9f;
+    }
+    
+    .alert.warning {
+      background: rgba(255, 184, 95, 0.1);
+      border: 1px solid rgba(255, 184, 95, 0.3);
+      color: #ffb85f;
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 20, 35, 0.5);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(95, 226, 255, 0.3);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(95, 226, 255, 0.5);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+      }
+      
+      .stat-value {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1>⚔️ BATTLE-HARDENED AI</h1>
+      <p class="subtitle">Enterprise Security Command Center - Military-Grade Network Protection</p>
+      <div class="status-indicator">SYSTEM ACTIVE</div>
+    </header>
+
+    <!-- Critical Metrics Overview -->
+    <div class="grid grid-4">
+      <div class="card stat-card">
+        <div class="stat-value" id="totalThreats">--</div>
+        <div class="stat-label">🛡️ Threats Blocked</div>
+        <div class="stat-change positive" id="threatsChange">+0 today</div>
+      </div>
+      
+      <div class="card stat-card">
+        <div class="stat-value" id="networkQuality">--</div>
+        <div class="stat-label">📊 Network Quality</div>
+        <div class="stat-change" id="qualityChange">--</div>
+      </div>
+      
+      <div class="card stat-card">
+        <div class="stat-value" id="complianceScore">--</div>
+        <div class="stat-label">✅ Compliance Score</div>
+        <div class="stat-change" id="complianceChange">--</div>
+      </div>
+      
+      <div class="card stat-card">
+        <div class="stat-value" id="activeNodes">--</div>
+        <div class="stat-label">🌐 Active Nodes</div>
+        <div class="stat-change positive" id="nodesChange">Connected</div>
+      </div>
+    </div>
+
+    <!-- Network Performance Metrics -->
+    <div class="card">
+      <h2 class="card-title">⚡ NETWORK PERFORMANCE METRICS</h2>
+      <div class="grid grid-3" style="margin-top: 1rem;">
+        <div class="metric-card">
+          <div class="metric-icon cyan">📡</div>
+          <div class="metric-info">
+            <div class="metric-value" id="bandwidth">-- Mbps</div>
+            <div class="metric-label">Current Bandwidth</div>
+          </div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-icon green">⚡</div>
+          <div class="metric-info">
+            <div class="metric-value" id="latency">-- ms</div>
+            <div class="metric-label">Network Latency</div>
+          </div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-icon purple">📦</div>
+          <div class="metric-info">
+            <div class="metric-value" id="packetLoss">--%</div>
+            <div class="metric-label">Packet Loss</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chart-container chart-container-lg">
+        <canvas id="performanceChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Compliance Dashboard -->
+    <div class="card">
+      <h2 class="card-title">✅ COMPLIANCE DASHBOARD</h2>
+      <div class="grid grid-4" style="margin-top: 1rem;">
+        <div class="metric-card">
+          <div class="metric-icon green">🏦</div>
+          <div class="metric-info">
+            <div class="metric-value" id="pciScore">--%</div>
+            <div class="metric-label">PCI-DSS v4.0</div>
+          </div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-icon cyan">🏥</div>
+          <div class="metric-info">
+            <div class="metric-value" id="hipaaScore">--%</div>
+            <div class="metric-label">HIPAA</div>
+          </div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-icon purple">🌍</div>
+          <div class="metric-info">
+            <div class="metric-value" id="gdprScore">--%</div>
+            <div class="metric-label">GDPR</div>
+          </div>
+        </div>
+        
+        <div class="metric-card">
+          <div class="metric-icon green">🔒</div>
+          <div class="metric-info">
+            <div class="metric-value" id="soc2Score">--%</div>
+            <div class="metric-label">SOC 2 Type II</div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
+        <button class="btn btn-primary" onclick="generateComplianceReport('pci_dss')">📄 Generate PCI-DSS Report</button>
+        <button class="btn btn-primary" onclick="generateComplianceReport('hipaa')">📄 Generate HIPAA Report</button>
+        <button class="btn btn-primary" onclick="generateComplianceReport('gdpr')">📄 Generate GDPR Report</button>
+        <button class="btn btn-success" onclick="generateAllReports()">📋 Generate All Reports</button>
+      </div>
+    </div>
+
+    <!-- Grid: Network Topology + Attack Heatmap -->
+    <div class="grid grid-2">
+      <!-- Network Topology -->
+      <div class="card">
+        <h2 class="card-title">🗺️ NETWORK TOPOLOGY</h2>
+        <div id="networkTopology"></div>
+      </div>
+      
+      <!-- Threat Heatmap -->
+      <div class="card">
+        <h2 class="card-title">🔥 THREAT HEATMAP</h2>
+        <div class="chart-container chart-container-lg">
+          <canvas id="heatmapChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attack Flow Visualization -->
+    <div class="card">
+      <h2 class="card-title">🎯 ATTACK FLOW ANALYSIS</h2>
+      <div class="chart-container chart-container-lg">
+        <canvas id="attackFlowChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Geographic Attack Map -->
+    <div class="card">
+      <h2 class="card-title">🌍 GEOGRAPHIC ATTACK DISTRIBUTION</h2>
+      <div id="geoMap" style="margin-top: 1rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Country</th>
+              <th>Attacks</th>
+              <th>Threat Level</th>
+              <th>Blocked IPs</th>
+            </tr>
+          </thead>
+          <tbody id="geoMapTable">
+            <tr><td colspan="4" class="loading">Loading geographic data...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AI Anomaly Detection -->
+    <div class="card">
+      <h2 class="card-title">🤖 AI ANOMALY DETECTION</h2>
+      <div id="anomalies">
+        <div class="loading">
+          <div class="spinner"></div>
+          Analyzing network patterns with AI...
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Threats -->
+    <div class="card">
+      <h2 class="card-title">⚠️ RECENT THREATS</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Source IP</th>
+            <th>Attack Type</th>
+            <th>Severity</th>
+            <th>Action Taken</th>
+          </tr>
+        </thead>
+        <tbody id="threatTable">
+          <tr><td colspan="5" class="loading">Loading threat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Global charts
+    let performanceChart, heatmapChart, attackFlowChart;
+    let networkTopologyNetwork;
+    
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      initCharts();
+      loadDashboardData();
+      
+      // Refresh every 10 seconds
+      setInterval(loadDashboardData, 10000);
+    });
+    
+    // Initialize all charts
+    function initCharts() {
+      // Performance Chart
+      const perfCtx = document.getElementById('performanceChart').getContext('2d');
+      performanceChart = new Chart(perfCtx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: 'Bandwidth (Mbps)',
+              data: [],
+              borderColor: '#5fe2ff',
+              backgroundColor: 'rgba(95, 226, 255, 0.1)',
+              tension: 0.4,
+              fill: true
+            },
+            {
+              label: 'Latency (ms)',
+              data: [],
+              borderColor: '#5fff9f',
+              backgroundColor: 'rgba(95, 255, 159, 0.1)',
+              tension: 0.4,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#e1e8f0' }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#a0aec0' },
+              grid: { color: 'rgba(95, 226, 255, 0.1)' }
+            },
+            y: {
+              ticks: { color: '#a0aec0' },
+              grid: { color: 'rgba(95, 226, 255, 0.1)' }
+            }
+          }
+        }
+      });
+      
+      // Heatmap Chart
+      const heatCtx = document.getElementById('heatmapChart').getContext('2d');
+      heatmapChart = new Chart(heatCtx, {
+        type: 'bar',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Threat Intensity',
+            data: [],
+            backgroundColor: 'rgba(255, 95, 95, 0.6)',
+            borderColor: '#ff5f5f',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#e1e8f0' }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#a0aec0' },
+              grid: { color: 'rgba(95, 226, 255, 0.1)' }
+            },
+            y: {
+              ticks: { color: '#a0aec0' },
+              grid: { color: 'rgba(95, 226, 255, 0.1)' }
+            }
+          }
+        }
+      });
+      
+      // Attack Flow Chart
+      const flowCtx = document.getElementById('attackFlowChart').getContext('2d');
+      attackFlowChart = new Chart(flowCtx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            label: 'Attack Attempts',
+            data: [],
+            borderColor: '#ff5f5f',
+            backgroundColor: 'rgba(255, 95, 95, 0.1)',
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#e1e8f0' }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#a0aec0' },
+              grid: { color: 'rgba(95, 226, 255, 0.1)' }
+            },
+            y: {
+              ticks: { color: '#a0aec0' },
+              grid: { color: 'rgba(95, 226, 255, 0.1)' }
+            }
+          }
+        }
+      });
+    }
+    
+    // Load all dashboard data
+    async function loadDashboardData() {
+      try {
+        await Promise.all([
+          loadPerformanceMetrics(),
+          loadComplianceData(),
+          loadNetworkTopology(),
+          loadThreatHeatmap(),
+          loadAttackFlow(),
+          loadGeographicData(),
+          loadAnomalies(),
+          loadRecentThreats(),
+          loadOverviewStats()
+        ]);
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      }
+    }
+    
+    // Load overview statistics
+    async function loadOverviewStats() {
+      try {
+        const response = await fetch('/api/threat_log');
+        const threats = await response.json();
+        
+        document.getElementById('totalThreats').textContent = threats.length || 0;
+        
+        // Calculate today's threats
+        const today = new Date().toDateString();
+        const todayThreats = threats.filter(t => new Date(t.timestamp).toDateString() === today).length;
+        document.getElementById('threatsChange').textContent = `+${todayThreats} today`;
+        
+      } catch (error) {
+        console.error('Error loading overview stats:', error);
+      }
+    }
+    
+    // Load performance metrics
+    async function loadPerformanceMetrics() {
+      try {
+        const response = await fetch('/api/performance/metrics');
+        const data = await response.json();
+        
+        // Update current values
+        document.getElementById('bandwidth').textContent = 
+          (data.current?.bandwidth_mbps || 0).toFixed(2) + ' Mbps';
+        document.getElementById('latency').textContent = 
+          (data.current?.latency_ms || 0).toFixed(1) + ' ms';
+        document.getElementById('packetLoss').textContent = 
+          (data.current?.packet_loss_percent || 0).toFixed(2) + '%';
+        document.getElementById('networkQuality').textContent = 
+          (data.current?.quality_score || 0).toFixed(1) + '%';
+        
+        // Update chart
+        if (data.historical && data.historical.length > 0) {
+          const labels = data.historical.slice(-20).map(h => new Date(h.timestamp).toLocaleTimeString());
+          const bandwidth = data.historical.slice(-20).map(h => h.bandwidth_mbps);
+          const latency = data.historical.slice(-20).map(h => h.latency_ms);
+          
+          performanceChart.data.labels = labels;
+          performanceChart.data.datasets[0].data = bandwidth;
+          performanceChart.data.datasets[1].data = latency;
+          performanceChart.update();
+        }
+        
+      } catch (error) {
+        console.error('Error loading performance metrics:', error);
+      }
+    }
+    
+    // Load compliance data
+    async function loadComplianceData() {
+      try {
+        const response = await fetch('/api/compliance/summary');
+        const data = await response.json();
+        
+        document.getElementById('pciScore').textContent = 
+          (data.pci_dss?.compliance_score || 0).toFixed(0) + '%';
+        document.getElementById('hipaaScore').textContent = 
+          (data.hipaa?.compliance_score || 0).toFixed(0) + '%';
+        document.getElementById('gdprScore').textContent = 
+          (data.gdpr?.compliance_score || 0).toFixed(0) + '%';
+        document.getElementById('soc2Score').textContent = 
+          (data.soc2?.compliance_score || 0).toFixed(0) + '%';
+        
+        // Calculate overall compliance
+        const avg = (
+          (data.pci_dss?.compliance_score || 0) +
+          (data.hipaa?.compliance_score || 0) +
+          (data.gdpr?.compliance_score || 0) +
+          (data.soc2?.compliance_score || 0)
+        ) / 4;
+        
+        document.getElementById('complianceScore').textContent = avg.toFixed(0) + '%';
+        
+      } catch (error) {
+        console.error('Error loading compliance data:', error);
+      }
+    }
+    
+    // Load network topology
+    async function loadNetworkTopology() {
+      try {
+        const response = await fetch('/api/visualization/topology');
+        const data = await response.json();
+        
+        if (!data.nodes || data.nodes.length === 0) return;
+        
+        // Initialize vis.js network
+        const container = document.getElementById('networkTopology');
+        const networkData = {
+          nodes: new vis.DataSet(data.nodes.map(n => ({
+            id: n.id,
+            label: n.label,
+            color: n.type === 'gateway' ? '#5fe2ff' : 
+                   n.type === 'server' ? '#5fff9f' : '#9f5fff',
+            shape: 'dot',
+            size: n.type === 'gateway' ? 30 : 20
+          }))),
+          edges: new vis.DataSet(data.edges.map(e => ({
+            from: e.from,
+            to: e.to,
+            color: { color: 'rgba(95, 226, 255, 0.3)' },
+            width: 2
+          })))
+        };
+        
+        const options = {
+          nodes: {
+            font: { color: '#e1e8f0' }
+          },
+          edges: {
+            smooth: true
+          },
+          physics: {
+            enabled: true,
+            stabilization: { iterations: 100 }
+          },
+          interaction: {
+            hover: true
+          }
+        };
+        
+        if (!networkTopologyNetwork) {
+          networkTopologyNetwork = new vis.Network(container, networkData, options);
+        } else {
+          networkTopologyNetwork.setData(networkData);
+        }
+        
+        document.getElementById('activeNodes').textContent = data.nodes.length;
+        
+      } catch (error) {
+        console.error('Error loading network topology:', error);
+      }
+    }
+    
+    // Load threat heatmap
+    async function loadThreatHeatmap() {
+      try {
+        const response = await fetch('/api/visualization/heatmap');
+        const data = await response.json();
+        
+        if (!data.hourly_data || data.hourly_data.length === 0) return;
+        
+        const labels = data.hourly_data.map(h => h.hour);
+        const values = data.hourly_data.map(h => h.threat_count);
+        
+        heatmapChart.data.labels = labels;
+        heatmapChart.data.datasets[0].data = values;
+        heatmapChart.update();
+        
+      } catch (error) {
+        console.error('Error loading threat heatmap:', error);
+      }
+    }
+    
+    // Load attack flow
+    async function loadAttackFlow() {
+      try {
+        const response = await fetch('/api/visualization/attack-flows');
+        const data = await response.json();
+        
+        if (!data.timeline || data.timeline.length === 0) return;
+        
+        const labels = data.timeline.map(t => new Date(t.timestamp).toLocaleTimeString());
+        const values = data.timeline.map(t => t.count);
+        
+        attackFlowChart.data.labels = labels;
+        attackFlowChart.data.datasets[0].data = values;
+        attackFlowChart.update();
+        
+      } catch (error) {
+        console.error('Error loading attack flow:', error);
+      }
+    }
+    
+    // Load geographic data
+    async function loadGeographicData() {
+      try {
+        const response = await fetch('/api/visualization/geographic');
+        const data = await response.json();
+        
+        if (!data.countries || data.countries.length === 0) {
+          document.getElementById('geoMapTable').innerHTML = 
+            '<tr><td colspan="4" style="text-align: center; color: #a0aec0;">No geographic data available</td></tr>';
+          return;
+        }
+        
+        const html = data.countries.map(c => `
+          <tr>
+            <td>${c.country}</td>
+            <td>${c.attack_count}</td>
+            <td>
+              <span class="badge ${c.threat_level === 'critical' ? 'danger' : 
+                                    c.threat_level === 'high' ? 'warning' : 'info'}">
+                ${c.threat_level.toUpperCase()}
+              </span>
+            </td>
+            <td>${c.blocked_ips}</td>
+          </tr>
+        `).join('');
+        
+        document.getElementById('geoMapTable').innerHTML = html;
+        
+      } catch (error) {
+        console.error('Error loading geographic data:', error);
+      }
+    }
+    
+    // Load AI anomalies
+    async function loadAnomalies() {
+      try {
+        const response = await fetch('/api/performance/anomalies');
+        const data = await response.json();
+        
+        if (!data.anomalies || data.anomalies.length === 0) {
+          document.getElementById('anomalies').innerHTML = `
+            <div class="alert success">
+              <span style="font-size: 1.5rem;">✅</span>
+              <div>
+                <strong>No anomalies detected</strong><br>
+                Network behavior is within normal parameters
+              </div>
+            </div>
+          `;
+          return;
+        }
+        
+        const html = data.anomalies.map(a => `
+          <div class="alert warning">
+            <span style="font-size: 1.5rem;">⚠️</span>
+            <div>
+              <strong>${a.metric_type.toUpperCase()} Anomaly Detected</strong><br>
+              Value: ${a.value.toFixed(2)} (Severity: ${a.severity})<br>
+              Time: ${new Date(a.timestamp).toLocaleString()}
+            </div>
+          </div>
+        `).join('');
+        
+        document.getElementById('anomalies').innerHTML = html;
+        
+      } catch (error) {
+        console.error('Error loading anomalies:', error);
+      }
+    }
+    
+    // Load recent threats
+    async function loadRecentThreats() {
+      try {
+        const response = await fetch('/api/threat_log');
+        const threats = await response.json();
+        
+        if (!threats || threats.length === 0) {
+          document.getElementById('threatTable').innerHTML = 
+            '<tr><td colspan="5" style="text-align: center; color: #a0aec0;">No threats detected</td></tr>';
+          return;
+        }
+        
+        const html = threats.slice(-10).reverse().map(t => `
+          <tr>
+            <td>${new Date(t.timestamp).toLocaleString()}</td>
+            <td style="font-family: monospace; color: #ff5f5f;">${t.ip}</td>
+            <td>${t.reason || 'Unknown'}</td>
+            <td>
+              <span class="badge ${t.severity === 'critical' ? 'danger' : 'warning'}">
+                ${t.severity || 'HIGH'}
+              </span>
+            </td>
+            <td>
+              <span class="badge danger">BLOCKED</span>
+            </td>
+          </tr>
+        `).join('');
+        
+        document.getElementById('threatTable').innerHTML = html;
+        
+      } catch (error) {
+        console.error('Error loading recent threats:', error);
+      }
+    }
+    
+    // Generate compliance report
+    async function generateComplianceReport(type) {
+      try {
+        const response = await fetch(`/api/compliance/report/${type}`);
+        const data = await response.json();
+        
+        // Create download link
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${type}_compliance_report_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        
+        alert(`✅ ${type.toUpperCase()} Compliance Report Generated`);
+        
+      } catch (error) {
+        console.error('Error generating compliance report:', error);
+        alert('❌ Failed to generate report');
+      }
+    }
+    
+    // Generate all reports
+    async function generateAllReports() {
+      await Promise.all([
+        generateComplianceReport('pci_dss'),
+        generateComplianceReport('hipaa'),
+        generateComplianceReport('gdpr'),
+        generateComplianceReport('soc2')
+      ]);
+    }
+  </script>
+</body>
+</html>

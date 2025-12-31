@@ -15,6 +15,15 @@ import json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import AI.pcs_ai as pcs_ai
 
+# Import performance monitoring
+try:
+    import AI.network_performance as net_perf
+    PERFORMANCE_TRACKING_AVAILABLE = True
+    print("[NETWORK] Performance tracking enabled")
+except ImportError:
+    PERFORMANCE_TRACKING_AVAILABLE = False
+    print("[WARNING] Performance tracking not available")
+
 def _get_current_time():
     """Get current datetime in configured timezone"""
     try:
@@ -177,6 +186,15 @@ class NetworkMonitor:
         tcp = packet[TCP]
         dst_port = tcp.dport
         
+        # Performance tracking: bandwidth and packet counts
+        if PERFORMANCE_TRACKING_AVAILABLE:
+            try:
+                packet_size = len(packet)
+                net_perf.update_bandwidth(src_ip, packet_size, 0)  # Sent
+                net_perf.update_bandwidth(dst_ip, 0, packet_size)  # Received
+            except:
+                pass
+        
         # Track ports accessed by this IP
         self.port_scan_tracker[src_ip]['ports'].add(dst_port)
         self.port_scan_tracker[src_ip]['last_seen'] = _get_current_time()
@@ -223,6 +241,14 @@ class NetworkMonitor:
         """Analyze UDP packet for attacks"""
         udp = packet[UDP]
         dst_port = udp.dport
+        
+        # Performance tracking: bandwidth
+        if PERFORMANCE_TRACKING_AVAILABLE:
+            try:
+                packet_size = len(packet)
+                net_perf.update_bandwidth(src_ip, packet_size, 0)
+            except:
+                pass
         
         # Track UDP floods
         self.connection_tracker[f"udp_{src_ip}"] += 1
