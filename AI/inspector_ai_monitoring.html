@@ -175,7 +175,7 @@
             </div>
             <div class="feature-item" title="Section: VPN/Tor Stats" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
               <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
-              <span style="color: #f5f7ff; font-size: 0.85rem;">VPN/Tor De-Anonymization Statistics</span>
+              <span style="color: #f5f7ff; font-size: 0.85rem;">Attackers VPN/Tor De-Anonymization Statistics</span>
             </div>
             <div class="feature-item" title="Section: Failed Logins" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
               <span style="color: #5fff9f; font-size: 1.2rem;">✅</span>
@@ -1026,11 +1026,12 @@
                   <th>IP Address</th>
                   <th>MAC Address</th>
                   <th>Open Ports</th>
+                  <th>🔓 VPN Status</th>
                   <th>Risk Level</th>
                 </tr>
               </thead>
               <tbody id="port-scan-table">
-                <tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading port scan data...</td></tr>
+                <tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading port scan data...</td></tr>
               </tbody>
             </table>
           </div>
@@ -1051,6 +1052,12 @@
               <div class="stat-label">📊 Currently Online</div>
               <div class="stat-value" id="history-online-now">0</div>
             </div>
+          </div>
+
+          <div style="margin-bottom: 1rem; display: flex; justify-content: flex-end;">
+            <button onclick="clearDeviceHistory()" style="padding: 0.6rem 1.5rem; background: linear-gradient(135deg, #ff5f5f 0%, #d63031 100%); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(255, 95, 95, 0.3); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 95, 95, 0.4)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 8px rgba(255, 95, 95, 0.3)'">
+              🗑️ Clear History
+            </button>
           </div>
 
           <div class="threat-log-container" style="max-height: 500px;">
@@ -1121,13 +1128,13 @@
       </section>
 
       <!-- ========================================
-           SECTION 4: VPN/TOR DE-ANONYMIZATION STATISTICS
+           SECTION 4: ATTACKERS VPN/TOR DE-ANONYMIZATION STATISTICS
            Lines: ~1049-1108
            Purpose: VPN/Tor detection & exit node tracking
            ======================================== -->
       <!-- VPN/Tor De-Anonymization Stats -->
       <section style="background: linear-gradient(135deg, #2a1a3d, #1a1a2e); border: 2px solid #ff5fff;">
-        <h2>📍 Section 4 | 🔓 VPN/Tor De-Anonymization Statistics</h2>
+        <h2>📍 Section 4 | 🔓 Attackers VPN/Tor De-Anonymization Statistics</h2>
         <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Military-grade IP revelation - Breaks VPN/Tor to reveal real attacker IPs</p>
         <p class="muted" style="margin-bottom: 1rem;">
           🚨 <strong>Government-Grade IP Revelation System Active</strong> - Breaking VPN/Tor encryption to reveal real attacker identities
@@ -5028,7 +5035,8 @@
       async function loadPortScanData() {
         try {
           const response = await fetch('/api/connected-devices');
-          const devices = await response.json();
+          const data = await response.json();
+          const devices = data.devices || [];
           
           const riskyPorts = [22, 23, 3389, 445, 139, 135, 1433, 3306, 5432, 6379, 27017];
           let totalOpenPorts = 0;
@@ -5038,7 +5046,10 @@
           const tbody = document.getElementById('port-scan-table');
           
           if (devices.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #8a92b6;">No devices detected yet</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #8a92b6;">No devices detected yet. Click "Scan Now" to discover devices.</td></tr>';
+            document.getElementById('risky-ports-count').textContent = '0';
+            document.getElementById('total-open-ports').textContent = '0';
+            document.getElementById('devices-scanned').textContent = '0';
             return;
           }
           
@@ -5046,27 +5057,47 @@
             const openPorts = device.open_ports || [];
             totalOpenPorts += openPorts.length;
             
-            const hasRiskyPorts = openPorts.some(p => riskyPorts.includes(p));
-            if (hasRiskyPorts) {
+            // Check for risky ports
+            const deviceRiskyPorts = openPorts.filter(portInfo => {
+              const portNum = typeof portInfo === 'object' ? portInfo.port : portInfo;
+              return riskyPorts.includes(portNum);
+            });
+            
+            if (deviceRiskyPorts.length > 0) {
               riskyPortsOpen++;
-              openPorts.filter(p => riskyPorts.includes(p)).forEach(p => riskyPortsList.add(p));
+              deviceRiskyPorts.forEach(portInfo => {
+                const portNum = typeof portInfo === 'object' ? portInfo.port : portInfo;
+                riskyPortsList.add(portNum);
+              });
             }
             
-            const riskLevel = hasRiskyPorts ? 'critical' : (openPorts.length > 5 ? 'warning' : 'safe');
-            const riskText = hasRiskyPorts ? 'High Risk' : (openPorts.length > 5 ? 'Medium' : 'Low');
+            const riskLevel = deviceRiskyPorts.length > 0 ? 'critical' : (openPorts.length > 5 ? 'warning' : 'safe');
+            const riskText = deviceRiskyPorts.length > 0 ? 'High Risk' : (openPorts.length > 5 ? 'Medium' : 'Low');
+            
+            // Format port display
+            const portsDisplay = openPorts.length > 0 ? openPorts.map(portInfo => {
+              const portNum = typeof portInfo === 'object' ? portInfo.port : portInfo;
+              const service = typeof portInfo === 'object' ? portInfo.service : '';
+              const isRisky = riskyPorts.includes(portNum);
+              const display = service ? `${portNum}/${service}` : portNum;
+              return isRisky ? 
+                `<span style="color: #ff5f5f; font-weight: 600;">${display}</span>` : 
+                display;
+            }).join(', ') : 'None';
+            
+            // VPN detection display
+            const vpnData = device.vpn_detected || {};
+            const vpnDisplay = vpnData.is_vpn ? 
+              `<span class="badge badge-warning" title="${vpnData.indicators ? vpnData.indicators.join(', ') : 'VPN detected'}">🔒 VPN Active (${vpnData.confidence}%)</span>` : 
+              `<span class="badge badge-safe">✅ Direct</span>`;
             
             return `
               <tr>
-                <td>${device.hostname || 'Unknown'}</td>
-                <td><code>${device.ip}</code></td>
+                <td>${device.hostname || device.name || 'Unknown'}</td>
+                <td><code style="color: #5fe2ff;">${device.ip}</code></td>
                 <td style="font-family: monospace; font-size: 0.85rem;">${device.mac}</td>
-                <td style="font-family: monospace; font-size: 0.85rem;">
-                  ${openPorts.length > 0 ? openPorts.map(p => 
-                    riskyPorts.includes(p) ? 
-                    `<span style="color: #ff5f5f; font-weight: 600;">${p}</span>` : 
-                    p
-                  ).join(', ') : 'None'}
-                </td>
+                <td style="font-family: monospace; font-size: 0.85rem;">${portsDisplay}</td>
+                <td>${vpnDisplay}</td>
                 <td><span class="badge badge-${riskLevel}">${riskText}</span></td>
               </tr>
             `;
@@ -5093,6 +5124,11 @@
           }
         } catch (error) {
           console.error('Error loading port scan data:', error);
+          document.getElementById('port-scan-table').innerHTML = `
+            <tr><td colspan="6" style="text-align: center; padding: 2rem; color: #ff5f5f;">
+              ❌ Error loading port scan data: ${error.message}
+            </td></tr>
+          `;
         }
       }
       
@@ -5101,6 +5137,30 @@
       // ========================================
       
       // SECTION 3: Device History (Network Devices)
+      async function clearDeviceHistory() {
+        if (!confirm('⚠️ Are you sure you want to clear ALL device history?\n\nThis will permanently delete all 7-day connection records.')) {
+          return;
+        }
+        
+        try {
+          const response = await fetch('/api/device-history', {
+            method: 'DELETE'
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            alert('✅ Device history cleared successfully!');
+            loadDeviceHistory(); // Reload to show empty state
+          } else {
+            alert('❌ Failed to clear history: ' + (result.error || 'Unknown error'));
+          }
+        } catch (error) {
+          console.error('Error clearing device history:', error);
+          alert('❌ Error clearing history: ' + error.message);
+        }
+      }
+
       async function loadDeviceHistory() {
         try {
           const response = await fetch('/api/device-history');
@@ -5108,11 +5168,12 @@
           
           const responseDevices = await fetch('/api/connected-devices');
           const currentDevices = await responseDevices.json();
-          const currentMACs = new Set(currentDevices.map(d => d.mac));
+          const currentMACs = new Set(currentDevices.devices ? currentDevices.devices.map(d => d.mac) : []);
           
           const tbody = document.getElementById('device-history-table');
+          const historyDevices = history.devices || [];
           
-          if (history.length === 0) {
+          if (historyDevices.length === 0) {
             tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #8a92b6;">No connection history available</td></tr>';
             document.getElementById('history-unique-devices').textContent = '0';
             document.getElementById('history-total-connections').textContent = '0';
@@ -5120,7 +5181,7 @@
             return;
           }
           
-          tbody.innerHTML = history.map(device => {
+          tbody.innerHTML = historyDevices.map(device => {
             const isOnline = currentMACs.has(device.mac);
             return `
               <tr>
@@ -5140,8 +5201,8 @@
           }).join('');
           
           // Update stats
-          document.getElementById('history-unique-devices').textContent = history.length;
-          document.getElementById('history-total-connections').textContent = history.reduce((sum, d) => sum + (d.connection_count || 1), 0);
+          document.getElementById('history-unique-devices').textContent = historyDevices.length;
+          document.getElementById('history-total-connections').textContent = historyDevices.reduce((sum, d) => sum + (d.connection_count || 1), 0);
           document.getElementById('history-online-now').textContent = Array.from(currentMACs).length;
           
         } catch (error) {

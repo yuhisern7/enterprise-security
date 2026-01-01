@@ -1946,19 +1946,31 @@ def get_connected_devices_api():
         }), 500
 
 
-@app.route('/api/device-history', methods=['GET'])
+@app.route('/api/device-history', methods=['GET', 'DELETE'])
 def get_device_history_api():
-    """Get device connection history (last 7 days)"""
-    try:
-        from device_scanner import get_device_history
-        history_data = get_device_history()
-        return jsonify(history_data)
-    except Exception as e:
-        return jsonify({
-            'devices': [],
-            'total_count': 0,
-            'error': str(e)
-        }), 500
+    """Get or clear device connection history (last 7 days)"""
+    if request.method == 'DELETE':
+        # Clear device history
+        try:
+            from device_scanner import clear_device_history
+            clear_device_history()
+            return jsonify({'success': True, 'message': 'Device history cleared'})
+        except ImportError:
+            return jsonify({'success': False, 'error': 'Device scanner not available'}), 500
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)}), 500
+    else:
+        # Get device history
+        try:
+            from device_scanner import get_device_history
+            history_data = get_device_history()
+            return jsonify(history_data)
+        except Exception as e:
+            return jsonify({
+                'devices': [],
+                'total_count': 0,
+                'error': str(e)
+            }), 500
 
 
 @app.route('/api/device/block', methods=['POST'])

@@ -79,7 +79,17 @@ MAC_VENDORS = {
               'ec:85:2f', 'f0:18:98', 'f0:24:75', 'f0:5c:19', 'f0:98:9d', 'f0:99:b6', 'f0:b4:79',
               'f0:c3:71', 'f0:cb:a1', 'f0:d1:a9', 'f0:db:e2', 'f0:dc:e2', 'f0:f6:1c', 'f4:0f:24',
               'f4:1b:a1', 'f4:37:b7', 'f4:5c:89', 'f4:f1:5a', 'f4:f9:51', 'f8:1e:df', 'f8:27:93',
-              'f8:95:c7', 'fc:25:3f', 'fc:64:ba', 'fc:e9:98', 'fc:fc:48'],
+              'f8:95:c7', 'fc:25:3f', 'fc:64:ba', 'fc:e9:98', 'fc:fc:48',
+              # Latest Apple MAC prefixes (2023-2025)
+              '00:88:65', '14:7d:da', '1c:69:a5', '20:ee:28', '28:5a:3a', '2c:54:cf', '30:d9:d9',
+              '34:6f:24', '38:ca:da', '3c:e0:72', '40:ed:00', '44:85:00', '48:e7:da', '4c:20:b8',
+              '50:de:06', '54:2a:a4', '58:96:1d', '5c:8a:38', '60:8c:4a', '64:cf:0d', '68:54:fd',
+              '6c:94:f8', '70:a2:b3', '74:d4:35', '78:c1:a7', '7c:50:79', '80:92:40', '84:a1:34',
+              '88:66:a5', '8c:85:80', '90:9c:4a', '94:bf:c4', '98:35:cb', '9c:fc:01', 'a0:78:17',
+              'a4:83:e7', 'a8:51:ab', 'ac:e4:b5', 'b0:52:16', 'b4:f1:da', 'b8:78:26', 'bc:d0:74',
+              'c0:1a:da', 'c4:b3:01', 'c8:89:f3', 'cc:d2:81', 'd0:c5:f3', 'd4:61:da', 'd8:8f:76',
+              'dc:a9:71', 'e0:05:c5', 'e4:90:7e', 'e8:9f:80', 'ec:f4:51', 'f0:2f:74', 'f4:d4:88',
+              'f8:ff:c2', 'fc:18:3c'],
     
     # Android manufacturers
     'samsung': ['00:12:fb', '00:13:77', '00:15:99', '00:15:b9', '00:16:32', '00:16:6b', '00:16:6c',
@@ -312,12 +322,17 @@ class DeviceScanner:
                 # Scan for open ports
                 open_ports = self._scan_ports(ip)
                 
+                # Detect VPN usage on this device
+                vpn_detected = self._detect_vpn_usage(ip, hostname, open_ports)
+                
                 devices[mac] = {
                     'ip': ip,
                     'mac': mac,
                     'type': device_type,
+                    'vendor': vendor,
                     'hostname': hostname,
                     'open_ports': open_ports,
+                    'vpn_detected': vpn_detected,
                     'last_seen': datetime.now().isoformat(),
                     'first_seen': _connected_devices.get(mac, {}).get('first_seen', datetime.now().isoformat())
                 }
@@ -384,15 +399,15 @@ class DeviceScanner:
         mac = mac.lower()
         mac_prefix = ':'.join(mac.split(':')[:3])
         
-        # Check against known vendors
+        # Check against known vendors FIRST
         for device_type, prefixes in MAC_VENDORS.items():
             if mac_prefix in [p.lower() for p in prefixes]:
                 if device_type == 'apple':
-                    return 'iOS/macOS'
+                    return 'iPhone/iPad/Mac'
                 elif device_type in ['samsung', 'xiaomi', 'huawei', 'google']:
-                    return 'Android'
+                    return 'Android Phone'
                 elif device_type in ['dell', 'hp', 'lenovo', 'asus']:
-                    return 'Windows/Linux'
+                    return 'Windows/Linux PC'
                 elif device_type == 'raspberry':
                     return 'Linux (Raspberry Pi)'
                 elif device_type == 'tplink':
@@ -400,8 +415,18 @@ class DeviceScanner:
                 elif device_type == 'hikvision':
                     return 'Security Camera'
         
+        # Check for randomized MAC address (locally administered bit set)
+        # If bit 1 of first octet is set (locally administered), it's likely randomized
+        # Second character of first octet: 2, 3, 6, 7, a, b, e, or f
+        first_octet = mac.split(':')[0]
+        if len(first_octet) == 2:
+            second_char = first_octet[1].lower()
+            if second_char in ['2', '3', '6', '7', 'a', 'b', 'e', 'f']:
+                # This is a randomized MAC address (iOS Private Wi-Fi Address feature)
+                return 'iPhone/iPad (Private MAC)'
+        
         # Unknown device
-        return 'Unknown'
+        return 'Unknown Device'
     
     def _get_vendor_name(self, mac):
         """Get vendor name from MAC address"""
@@ -413,6 +438,13 @@ class DeviceScanner:
             if mac_prefix in [p.lower() for p in prefixes]:
                 return vendor_name.capitalize()
         
+        # Check for randomized MAC
+        first_octet = mac.split(':')[0]
+        if len(first_octet) == 2:
+            second_char = first_octet[1].lower()
+            if second_char in ['2', '3', '6', '7', 'a', 'b', 'e', 'f']:
+                return 'Apple (Randomized)'
+        
         return 'Unknown'
     
     def _generate_device_name(self, ip, mac, device_type, vendor):
@@ -421,15 +453,15 @@ class DeviceScanner:
         ip_suffix = ip.split('.')[-1]
         
         # Create name based on vendor and device type
-        if vendor != 'Unknown':
+        if 'iPhone' in device_type or 'iPad' in device_type or 'Private MAC' in device_type:
+            return f"iPhone-{ip_suffix}"
+        elif vendor != 'Unknown' and 'Randomized' not in vendor:
             if vendor.lower() == 'apple':
-                # Differentiate iOS/Mac by common patterns
-                if device_type == 'iOS/macOS':
-                    return f"Apple-Device-{ip_suffix}"
+                return f"Apple-{ip_suffix}"
             elif vendor.lower() in ['samsung', 'xiaomi', 'huawei', 'google']:
                 return f"{vendor}-Phone-{ip_suffix}"
             elif vendor.lower() in ['dell', 'hp', 'lenovo', 'asus']:
-                return f"{vendor}-Computer-{ip_suffix}"
+                return f"{vendor}-PC-{ip_suffix}"
             elif vendor.lower() == 'raspberry':
                 return f"RaspberryPi-{ip_suffix}"
             elif vendor.lower() == 'tplink':
@@ -440,26 +472,63 @@ class DeviceScanner:
                 return f"{vendor}-Device-{ip_suffix}"
         
         # Fallback to device type
-        if device_type != 'Unknown':
+        if device_type != 'Unknown Device':
             type_short = device_type.replace('/', '-').replace(' ', '-')
             return f"{type_short}-{ip_suffix}"
         
         # Last resort: just use IP suffix
-        return f"Device-{ip_suffix}"
+        return f"Unknown-{ip_suffix}"
     
-    def _scan_ports(self, ip, timeout=0.3):
-        """Scan common ports on device (fast scan only - non-blocking)"""
+    def _detect_vpn_usage(self, ip, hostname, open_ports):
+        """Detect if a device is using VPN by checking for VPN adapter patterns and ports"""
+        vpn_indicators = []
+        
+        # Check hostname for VPN adapter patterns
+        vpn_hostname_keywords = ['vpn', 'tunnel', 'tun0', 'tap0', 'wireguard', 'openvpn']
+        if hostname and hostname != 'Unknown':
+            hostname_lower = hostname.lower()
+            for keyword in vpn_hostname_keywords:
+                if keyword in hostname_lower:
+                    vpn_indicators.append(f"VPN in hostname: {keyword}")
+        
+        # Check for VPN-related open ports
+        vpn_port_map = {
+            1194: 'OpenVPN',
+            1723: 'PPTP VPN',
+            4500: 'IPSec VPN',
+            500: 'IKE VPN',
+            51820: 'WireGuard'
+        }
+        
+        for port_info in open_ports:
+            port = port_info['port'] if isinstance(port_info, dict) else port_info
+            if port in vpn_port_map:
+                vpn_indicators.append(f"VPN port {port} ({vpn_port_map[port]})")
+        
+        return {
+            'is_vpn': len(vpn_indicators) > 0,
+            'confidence': min(len(vpn_indicators) * 40, 100),
+            'indicators': vpn_indicators
+        }
+    
+    def _scan_ports(self, ip, timeout=0.5):
+        """Scan common ports on device (accurate scan with proper error checking)"""
         # Reduced port list for faster scanning
         common_ports = {
             22: 'SSH',
             80: 'HTTP',
             443: 'HTTPS',
             445: 'SMB',
+            500: 'IKE-VPN',
             554: 'RTSP',
+            1194: 'OpenVPN',
+            1723: 'PPTP',
             3389: 'RDP',
+            4500: 'IPSec',
             5900: 'VNC',
             8080: 'HTTP-Alt',
-            8443: 'HTTPS-Alt'
+            8443: 'HTTPS-Alt',
+            51820: 'WireGuard'
         }
         
         open_ports = []
@@ -468,25 +537,13 @@ class DeviceScanner:
             try:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.settimeout(timeout)
-                # Set socket to non-blocking after timeout
-                sock.setblocking(False)
-                try:
-                    sock.connect((ip, port))
+                result = sock.connect_ex((ip, port))
+                sock.close()
+                
+                # Port is open only if connect_ex returns 0
+                if result == 0:
                     open_ports.append({'port': port, 'service': service})
-                except BlockingIOError:
-                    # Connection in progress, wait briefly
-                    import select
-                    ready = select.select([], [sock], [], timeout)
-                    if ready[1]:
-                        # Socket is writable, connection succeeded
-                        open_ports.append({'port': port, 'service': service})
-                except (socket.error, OSError):
-                    pass
-                finally:
-                    try:
-                        sock.close()
-                    except:
-                        pass
+                    
             except Exception:
                 # Silently skip ports that can't be scanned
                 pass
@@ -627,6 +684,16 @@ def _cleanup_device_history():
     
     for mac in to_remove:
         del _device_history[mac]
+
+
+def clear_device_history():
+    """Clear all device history records"""
+    global _device_history
+    with _devices_lock:
+        _device_history = {}
+        _save_state()
+        print(f"[DEVICE SCANNER] Device history cleared")
+    return True
 
 
 def block_device(mac, ip):
