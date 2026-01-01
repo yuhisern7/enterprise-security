@@ -35,7 +35,7 @@
           "service": "HTTPS-Alt"
         }
       ],
-      "last_seen": "2026-01-01T03:47:55.006854",
+      "last_seen": "2026-01-01T04:04:24.670123",
       "first_seen": "2025-12-29T19:59:39.075591"
     },
     "e8:48:b8:2e:80:85": {
@@ -44,7 +44,7 @@
       "type": "Router/Network",
       "hostname": "TP-Link-Router-101",
       "open_ports": [],
-      "last_seen": "2026-01-01T03:47:59.737920",
+      "last_seen": "2026-01-01T04:04:29.420157",
       "first_seen": "2026-01-01T05:31:32.869006"
     },
     "24:0f:9b:24:a0:4a": {
@@ -90,7 +90,7 @@
           "service": "HTTPS-Alt"
         }
       ],
-      "last_seen": "2026-01-01T03:48:01.796318",
+      "last_seen": "2026-01-01T04:04:31.482541",
       "first_seen": "2026-01-01T05:31:34.929969"
     },
     "1c:86:9a:3f:61:3c": {
@@ -99,14 +99,14 @@
       "type": "Android",
       "hostname": "Samsung-Phone-106",
       "open_ports": [],
-      "last_seen": "2026-01-01T03:48:06.514200",
+      "last_seen": "2026-01-01T04:04:36.207768",
       "first_seen": "2026-01-01T05:31:39.647915"
     },
-    "40:ac:bf:37:d6:39": {
-      "ip": "192.168.0.102",
-      "mac": "40:ac:bf:37:d6:39",
-      "type": "Security Camera",
-      "hostname": "Hikvision-Camera-102",
+    "2a:dc:4c:1d:91:1e": {
+      "ip": "192.168.0.108",
+      "mac": "2a:dc:4c:1d:91:1e",
+      "type": "Unknown",
+      "hostname": "Device-108",
       "open_ports": [
         {
           "port": 22,
@@ -145,8 +145,54 @@
           "service": "HTTPS-Alt"
         }
       ],
-      "last_seen": "2026-01-01T03:48:08.643189",
-      "first_seen": "2025-12-31T23:05:06.456731"
+      "last_seen": "2026-01-01T04:04:38.386299",
+      "first_seen": "2026-01-01T03:59:13.583303"
+    },
+    "40:ac:bf:3e:53:af": {
+      "ip": "192.168.0.104",
+      "mac": "40:ac:bf:3e:53:af",
+      "type": "Security Camera",
+      "hostname": "Hikvision-Camera-104",
+      "open_ports": [
+        {
+          "port": 22,
+          "service": "SSH"
+        },
+        {
+          "port": 80,
+          "service": "HTTP"
+        },
+        {
+          "port": 443,
+          "service": "HTTPS"
+        },
+        {
+          "port": 445,
+          "service": "SMB"
+        },
+        {
+          "port": 554,
+          "service": "RTSP"
+        },
+        {
+          "port": 3389,
+          "service": "RDP"
+        },
+        {
+          "port": 5900,
+          "service": "VNC"
+        },
+        {
+          "port": 8080,
+          "service": "HTTP-Alt"
+        },
+        {
+          "port": 8443,
+          "service": "HTTPS-Alt"
+        }
+      ],
+      "last_seen": "2026-01-01T04:04:40.496343",
+      "first_seen": "2026-01-01T03:53:35.737190"
     },
     "84:46:93:6d:3c:3f": {
       "ip": "192.168.0.100",
@@ -191,9 +237,101 @@
           "service": "HTTPS-Alt"
         }
       ],
-      "last_seen": "2026-01-01T03:48:10.724921",
+      "last_seen": "2026-01-01T04:04:42.572085",
       "first_seen": "2025-12-31T23:05:04.396236"
+    },
+    "40:ac:bf:37:d6:39": {
+      "ip": "192.168.0.102",
+      "mac": "40:ac:bf:37:d6:39",
+      "type": "Security Camera",
+      "hostname": "Hikvision-Camera-102",
+      "open_ports": [
+        {
+          "port": 22,
+          "service": "SSH"
+        },
+        {
+          "port": 80,
+          "service": "HTTP"
+        },
+        {
+          "port": 443,
+          "service": "HTTPS"
+        },
+        {
+          "port": 445,
+          "service": "SMB"
+        },
+        {
+          "port": 554,
+          "service": "RTSP"
+        },
+        {
+          "port": 3389,
+          "service": "RDP"
+        },
+        {
+          "port": 5900,
+          "service": "VNC"
+        },
+        {
+          "port": 8080,
+          "service": "HTTP-Alt"
+        },
+        {
+          "port": 8443,
+          "service": "HTTPS-Alt"
+        }
+      ],
+      "last_seen": "2026-01-01T04:04:44.718105",
+      "first_seen": "2025-12-31T23:05:06.456731"
+    },
+    "36:ce:45:73:56:3d": {
+      "ip": "192.168.0.105",
+      "mac": "36:ce:45:73:56:3d",
+      "type": "Unknown",
+      "hostname": "Device-105",
+      "open_ports": [
+        {
+          "port": 22,
+          "service": "SSH"
+        },
+        {
+          "port": 80,
+          "service": "HTTP"
+        },
+        {
+          "port": 443,
+          "service": "HTTPS"
+        },
+        {
+          "port": 445,
+          "service": "SMB"
+        },
+        {
+          "port": 554,
+          "service": "RTSP"
+        },
+        {
+          "port": 3389,
+          "service": "RDP"
+        },
+        {
+          "port": 5900,
+          "service": "VNC"
+        },
+        {
+          "port": 8080,
+          "service": "HTTP-Alt"
+        },
+        {
+          "port": 8443,
+          "service": "HTTPS-Alt"
+        }
+      ],
+      "last_seen": "2026-01-01T04:04:47.087433",
+      "first_seen": "2026-01-01T04:04:47.087445"
     }
   },
-  "last_scan_time": "2026-01-01T03:48:10.724971"
+  "last_scan_time": "2026-01-01T04:04:47.087459"
 }
