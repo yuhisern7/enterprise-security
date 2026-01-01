@@ -6,9 +6,12 @@ For military/government/police use.
 import os
 import json
 import subprocess
+import platform
+import shutil
 from datetime import datetime
 from collections import defaultdict
 from typing import Dict, List
+import psutil
 
 class UserTracker:
     """Track users on the network using real system data"""
@@ -20,28 +23,56 @@ class UserTracker:
         self.suspicious_activities = []
         
     def get_arp_table(self) -> List[Dict]:
-        """Get ARP table to identify connected users"""
+        """Get ARP table to identify connected users (cross-platform)"""
         users = []
         try:
+            # Run arp command (works on Linux, macOS, Windows)
             result = subprocess.run(['arp', '-a'], capture_output=True, text=True, timeout=2)
             if result.returncode == 0:
+                system = platform.system()
+                
                 for line in result.stdout.split('\n'):
-                    if '(' in line and ')' in line:
-                        # Parse: hostname (192.168.1.100) at aa:bb:cc:dd:ee:ff [ether] on eth0
-                        parts = line.split()
-                        if len(parts) >= 4:
-                            hostname = parts[0] if parts[0] != '?' else 'Unknown'
-                            ip = parts[1].strip('()')
-                            mac = parts[3] if len(parts) > 3 else 'Unknown'
-                            
-                            users.append({
-                                'hostname': hostname,
-                                'ip': ip,
-                                'mac': mac,
-                                'last_seen': datetime.now().isoformat()
-                            })
+                    if not line.strip():
+                        continue
+                    
+                    try:
+                        # Windows format: Interface: 192.168.1.1 --- 0xb
+                        #                  Internet Address      Physical Address      Type
+                        #                  192.168.1.100        aa-bb-cc-dd-ee-ff     dynamic
+                        if system == 'Windows':
+                            if 'Interface:' in line or 'Internet Address' in line:
+                                continue
+                            parts = line.split()
+                            if len(parts) >= 2:
+                                ip = parts[0]
+                                mac = parts[1].replace('-', ':')
+                                if '.' in ip and ':' in mac:
+                                    users.append({
+                                        'hostname': 'Unknown',
+                                        'ip': ip,
+                                        'mac': mac,
+                                        'last_seen': datetime.now().isoformat()
+                                    })
+                        
+                        # macOS/Linux format: ? (192.168.1.100) at aa:bb:cc:dd:ee:ff [ether] on en0
+                        #                or: hostname (192.168.1.100) at aa:bb:cc:dd:ee:ff [ether] on eth0
+                        elif '(' in line and ')' in line:
+                            parts = line.split()
+                            if len(parts) >= 4:
+                                hostname = parts[0] if parts[0] != '?' else 'Unknown'
+                                ip = parts[1].strip('()')
+                                mac = parts[3] if len(parts) > 3 else 'Unknown'
+                                
+                                if '.' in ip:  # Valid IP
+                                    users.append({
+                                        'hostname': hostname,
+                                        'ip': ip,
+                                        'mac': mac,
+                                        'last_seen': datetime.now().isoformat()
+                                    })
+                    except:
+                        continue  # Skip malformed lines
         except subprocess.TimeoutExpired:
-            # ARP command timed out - return empty list
             pass
         except Exception as e:
             print(f"[USER_TRACKER] ARP error: {e}")
@@ -80,12 +111,11 @@ class UserTracker:
         users = self.get_arp_table()
         suspicious = self.detect_suspicious_activity(users)
         
-        # Count active sessions from netstat/ss
+        # Count active sessions using psutil (cross-platform)
         active_sessions = 0
         try:
-            result = subprocess.run(['ss', '-tu'], capture_output=True, text=True, timeout=2)
-            if result.returncode == 0:
-                active_sessions = len([l for l in result.stdout.split('\n') if 'ESTAB' in l])
+            connections = psutil.net_connections(kind='inet')
+            active_sessions = len([c for c in connections if c.status == 'ESTABLISHED'])
         except:
             pass
         

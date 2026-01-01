@@ -21,10 +21,10 @@ class PCAPCapture:
         self.hunt_count = 0
         
     def is_tcpdump_available(self) -> bool:
-        """Check if tcpdump is installed"""
+        """Check if tcpdump is installed (cross-platform)"""
         try:
-            result = subprocess.run(['which', 'tcpdump'], capture_output=True)
-            return result.returncode == 0
+            # Use shutil.which (cross-platform)
+            return shutil.which('tcpdump') is not None
         except:
             return False
     

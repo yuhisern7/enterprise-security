@@ -137,14 +137,14 @@
         <div>
           <h3 style="margin: 0; color: #5fe2ff; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
             <span id="featureRegistryIcon">▶️</span>
-            📊 FEATURE REGISTRY - All Available Features (24 Dashboard Sections)
+            📊 FEATURE REGISTRY - All Available Features (31 Dashboard Sections)
           </h3>
-          <p style="margin: 0.25rem 0 0; color: #8a92b6; font-size: 0.8rem;">Click to expand/collapse • Hover over features to see API endpoints • 65+ API endpoints active</p>
+          <p style="margin: 0.25rem 0 0; color: #8a92b6; font-size: 0.8rem;">Click to expand/collapse • Hover over features to see API endpoints • 82+ API endpoints active</p>
         </div>
         <div style="display: flex; gap: 1rem; align-items: center;">
-          <span style="background: #2a7f3f; color: #5fff9f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">✅ 24 Sections</span>
-          <span style="background: #5f5f7f; color: #5fe2ff; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🆕 7 New Features</span>
-          <span style="background: #7f7f2a; color: #ffff5f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🔌 65+ APIs</span>
+          <span style="background: #2a7f3f; color: #5fff9f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">✅ 31 Sections</span>
+          <span style="background: #5f5f7f; color: #5fe2ff; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🆕 14 Enhanced</span>
+          <span style="background: #7f7f2a; color: #ffff5f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🔌 82+ APIs</span>
         </div>
       </div>
       
@@ -1418,6 +1418,36 @@
         </div>
         {% endif %}
         
+        <!-- SECTION 3 ENHANCEMENT: Asset Inventory -->
+        <div style="margin-top: 1.5rem; background: linear-gradient(135deg, #2a1a3d, #1a1a2e); padding: 1.5rem; border-radius: 8px; border: 2px solid #9f5fff;">
+          <h3 style="margin: 0 0 1rem; color: #9f5fff; font-size: 1.2rem;">📦 Asset Inventory & Management</h3>
+          <p class="muted" style="margin-bottom: 1rem;">Complete software asset discovery, EOL detection, and shadow IT identification</p>
+          
+          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+            <div class="stat-card">
+              <div class="stat-label">📦 Total Assets</div>
+              <div class="stat-value" id="asset-total">--</div>
+            </div>
+            <div class="stat-card warning">
+              <div class="stat-label">⚠️ EOL Software</div>
+              <div class="stat-value" id="asset-eol">--</div>
+            </div>
+            <div class="stat-card critical">
+              <div class="stat-label">🚨 Shadow IT</div>
+              <div class="stat-value" id="asset-shadow">--</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">💰 License Issues</div>
+              <div class="stat-value" id="asset-license">--</div>
+            </div>
+          </div>
+          
+          <div style="margin-top: 1rem;">
+            <button class="btn" style="background: linear-gradient(135deg, #9f5fff, #7f4fdd);" onclick="scanAssets()">🔄 Scan Assets</button>
+            <button class="btn" style="background: linear-gradient(135deg, #5fe2ff, #4fc9dd); margin-left: 0.5rem;" onclick="viewAssetDetails()">📊 View Details</button>
+          </div>
+        </div>
+        
         {% else %}
         <div style="padding: 1.5rem; background: rgba(255, 95, 95, 0.1); border-radius: 8px; border: 1px solid #ff5f5f;">
           <p style="margin: 0; color: #ff5f5f; font-size: 1.1rem;">
@@ -2445,8 +2475,8 @@
          Purpose: User tracking and insider threat detection
          ======================================== -->
       <section>
-        <h2>📍 Section 20 | 👤 User & Identity Monitoring</h2>
-        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ffb85f;">🆕 <strong>NEW FEATURE:</strong> User behavior analytics and insider threat detection</p>
+        <h2>📍 Section 20 | 👤 User & Identity Monitoring + Zero Trust</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ffb85f;">🆕 <strong>ENHANCED:</strong> User behavior analytics, insider threat detection, and Zero Trust security</p>
         
         <div class="stats-grid">
           <div class="stat-card">
@@ -2464,6 +2494,44 @@
           <div class="stat-card success">
             <div class="stat-label">✅ Active Sessions</div>
             <div class="stat-value" id="active-sessions">--</div>
+          </div>
+        </div>
+        
+        <!-- ZERO TRUST ENHANCEMENT -->
+        <div style="margin-top: 1.5rem; background: linear-gradient(135deg, #1a2a3d, #1a1a2e); padding: 1.5rem; border-radius: 8px; border: 2px solid #5fe2ff;">
+          <h3 style="margin: 0 0 1rem; color: #5fe2ff; font-size: 1.2rem;">🔒 Zero Trust Security Framework</h3>
+          <p class="muted" style="margin-bottom: 1rem;">Continuous verification: "Never trust, always verify" - Device trust scoring and microsegmentation</p>
+          
+          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+            <div class="stat-card success">
+              <div class="stat-label">🟢 High Trust Devices</div>
+              <div class="stat-value" id="zt-high-trust">--</div>
+              <div class="muted">Trust Score ≥ 80</div>
+            </div>
+            <div class="stat-card warning">
+              <div class="stat-label">🟡 Medium Trust</div>
+              <div class="stat-value" id="zt-medium-trust">--</div>
+              <div class="muted">50-79 Score</div>
+            </div>
+            <div class="stat-card critical">
+              <div class="stat-label">🔴 Low Trust</div>
+              <div class="stat-value" id="zt-low-trust">--</div>
+              <div class="muted">Score < 50</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">⚠️ Policy Violations</div>
+              <div class="stat-value" id="zt-violations">--</div>
+            </div>
+          </div>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🔐 Conditional Access Policies</strong></p>
+          <div id="zt-policies" style="background: #1a2135; padding: 1rem; border-radius: 6px; margin-top: 0.75rem; max-height: 200px; overflow-y: auto;">
+            <div class="loading-spinner">Loading policies...</div>
+          </div>
+          
+          <div style="margin-top: 1rem;">
+            <button class="btn" style="background: linear-gradient(135deg, #5fe2ff, #4fc9dd);" onclick="evaluateTrustScores()">🔄 Evaluate Trust Scores</button>
+            <button class="btn" style="background: linear-gradient(135deg, #ff5f5f, #dd4f4f); margin-left: 0.5rem;" onclick="viewViolations()">🚨 View Violations</button>
           </div>
         </div>
         
@@ -2739,8 +2807,8 @@
          Purpose: REST API and SOAR platform integration
          ======================================== -->
       <section>
-        <h2>📍 Section 24 | 🔌 API for SOAR Integration</h2>
-        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ffb85f;">🆕 <strong>NEW FEATURE:</strong> RESTful API for Security Orchestration, Automation, and Response</p>
+        <h2>📍 Section 24 | 🔌 API for SOAR Integration + Workflow Automation</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ffb85f;">🆕 <strong>ENHANCED:</strong> RESTful API + Automated incident response workflows and playbooks</p>
         
         <div class="stats-grid">
           <div class="stat-card">
@@ -2758,6 +2826,42 @@
           <div class="stat-card">
             <div class="stat-label">⏱️ Avg Response Time</div>
             <div class="stat-value" id="api-latency">--</div>
+          </div>
+        </div>
+        
+        <!-- SOAR WORKFLOW ENHANCEMENT -->
+        <div style="margin-top: 1.5rem; background: linear-gradient(135deg, #2a1a1a, #1a1a2e); padding: 1.5rem; border-radius: 8px; border: 2px solid #ff9900;">
+          <h3 style="margin: 0 0 1rem; color: #ff9900; font-size: 1.2rem;">⚡ SOAR Workflow Automation</h3>
+          <p class="muted" style="margin-bottom: 1rem;">Automated incident response playbooks and orchestration workflows</p>
+          
+          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+            <div class="stat-card critical">
+              <div class="stat-label">🚨 Open Incidents</div>
+              <div class="stat-value" id="soar-incidents-open">--</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-label">✅ Resolved</div>
+              <div class="stat-value" id="soar-incidents-resolved">--</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">🤖 Playbooks</div>
+              <div class="stat-value" id="soar-playbooks">--</div>
+            </div>
+            <div class="stat-card warning">
+              <div class="stat-label">⏱️ MTTR (hours)</div>
+              <div class="stat-value" id="soar-mttr">--</div>
+              <div class="muted">Mean Time To Resolve</div>
+            </div>
+          </div>
+          
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🤖 Automated Playbooks</strong></p>
+          <div id="soar-playbook-list" style="background: #1a2135; padding: 1rem; border-radius: 6px; margin-top: 0.75rem; max-height: 250px; overflow-y: auto;">
+            <div class="loading-spinner">Loading playbooks...</div>
+          </div>
+          
+          <div style="margin-top: 1rem;">
+            <button class="btn" style="background: linear-gradient(135deg, #ff9900, #dd8800);" onclick="createIncident()">➕ Create Incident</button>
+            <button class="btn" style="background: linear-gradient(135deg, #5fe2ff, #4fc9dd); margin-left: 0.5rem;" onclick="viewIncidents()">📋 View All Incidents</button>
           </div>
         </div>
         
@@ -2844,6 +2948,329 @@
         <div style="margin-top: 1rem;">
           <button class="btn" style="background: linear-gradient(135deg, #5fe2ff, #4fc9dd);" onclick="window.open('/api/docs', '_blank')">📚 View Swagger Documentation</button>
           <button class="btn" style="background: linear-gradient(135deg, #9f5fff, #7f4fdd); margin-left: 1rem;" onclick="downloadOpenAPISpec()">📥 Download OpenAPI Spec</button>
+        </div>
+      </section>
+
+      <!-- ========================================
+         SECTION 25: VULNERABILITY MANAGEMENT
+         Purpose: CVE tracking, patch management, SBOM
+         ======================================== -->
+      <section>
+        <h2>📍 Section 25 | 🛡️ Vulnerability & Supply Chain Management</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🆕 <strong>NEW SECTION:</strong> CVE tracking, patch management, dependency scanning, and SBOM generation</p>
+        
+        <div class="stats-grid">
+          <div class="stat-card critical">
+            <div class="stat-label">🚨 Critical Vulnerabilities</div>
+            <div class="stat-value" id="vuln-critical">--</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">⚠️ High/Medium Vulns</div>
+            <div class="stat-value" id="vuln-high">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">📦 SBOM Components</div>
+            <div class="stat-value" id="sbom-components">--</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-label">✅ Patches Available</div>
+            <div class="stat-value" id="patches-available">--</div>
+          </div>
+        </div>
+        
+        <p class="muted" style="margin-top: 1.5rem;"><strong>🔍 Vulnerability Scanning</strong></p>
+        <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
+          <li>System package vulnerability detection (dpkg/apt)</li>
+          <li>Python dependency scanning (pip)</li>
+          <li>CVE database integration</li>
+          <li>CVSS v3.1 score calculation</li>
+          <li>Exploitability assessment</li>
+        </ul>
+        
+        <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
+          <h3 style="margin: 0 0 1rem; color: #ff5f5f; font-size: 1.1rem;">🔴 Top Critical Vulnerabilities</h3>
+          <div id="vuln-list" style="max-height: 400px; overflow-y: auto;">
+            <div class="loading-spinner">Loading vulnerabilities...</div>
+          </div>
+        </div>
+        
+        <p class="muted" style="margin-top: 1.5rem;"><strong>🔧 Patch Management</strong></p>
+        <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
+          <h3 style="margin: 0 0 1rem; color: #ffb85f; font-size: 1.1rem;">📋 Prioritized Patch Queue</h3>
+          <div id="patch-queue" style="max-height: 300px; overflow-y: auto;">
+            <div class="loading-spinner">Loading patches...</div>
+          </div>
+        </div>
+        
+        <p class="muted" style="margin-top: 1.5rem;"><strong>📦 Software Bill of Materials (SBOM)</strong></p>
+        <div style="margin-top: 1rem;">
+          <button class="btn" style="background: linear-gradient(135deg, #5fe2ff, #4fc9dd);" onclick="downloadSBOM()">📥 Download SBOM (JSON)</button>
+          <button class="btn" style="background: linear-gradient(135deg, #9f5fff, #7f4fdd); margin-left: 1rem;" onclick="scanDependencies()">🔄 Scan Dependencies</button>
+        </div>
+      </section>
+
+      <!-- ========================================
+         SECTION 26: CRYPTOCURRENCY MINING DETECTION  
+         Purpose: Enhanced Traffic Analysis - Crypto Mining Detection
+         ======================================== -->
+      <section>
+        <h2>📍 Section 26 | 🪙 Cryptocurrency Mining Detection</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🔥 <strong>ENHANCED:</strong> Section 18 Traffic Analysis + Crypto Mining Detection</p>
+        
+        <div class="stats-grid">
+          <div class="stat-card critical">
+            <div class="stat-label">⛏️ Miners Detected</div>
+            <div class="stat-value" id="crypto-miners">--</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">📊 High CPU Processes</div>
+            <div class="stat-value" id="crypto-cpu-spikes">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">🌐 Mining Connections</div>
+            <div class="stat-value" id="crypto-connections">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">⚠️ Risk Level</div>
+            <div class="stat-value" id="crypto-risk">--</div>
+          </div>
+        </div>
+        
+        <p class="muted" style="margin-top: 1.5rem;"><strong>⛏️ Detected Mining Activity</strong></p>
+        <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
+          <div id="crypto-mining-list" style="max-height: 300px; overflow-y: auto;">
+            <div class="loading-spinner">Scanning for crypto mining...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+         SECTION 27: DARK WEB MONITORING
+         Purpose: Enhanced Vulnerability Management - Dark Web Intelligence
+         ======================================== -->
+      <section>
+        <h2>📍 Section 27 | 🌑 Dark Web Monitoring</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🔥 <strong>ENHANCED:</strong> Section 25 Vulnerability Management + Dark Web Intelligence</p>
+        
+        <div class="stats-grid">
+          <div class="stat-card critical">
+            <div class="stat-label">🔑 Credential Leaks</div>
+            <div class="stat-value" id="darkweb-leaks">--</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">🏢 Brand Mentions</div>
+            <div class="stat-value" id="darkweb-mentions">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">🛒 Marketplace Findings</div>
+            <div class="stat-value" id="darkweb-marketplace">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">⚠️ Risk Level</div>
+            <div class="stat-value" id="darkweb-risk">--</div>
+          </div>
+        </div>
+        
+        <p class="muted" style="margin-top: 1.5rem;"><strong>🌑 Recent Dark Web Findings</strong></p>
+        <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
+          <div id="darkweb-findings-list" style="max-height: 300px; overflow-y: auto;">
+            <div class="loading-spinner">Monitoring dark web sources...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+         SECTION 28: ATTACK SIMULATION & PURPLE TEAM
+         Purpose: Enhanced SOAR - Attack Simulation & Security Testing
+         ======================================== -->
+      <section>
+        <h2>📍 Section 28 | 🎮 Attack Simulation (Purple Team)</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🔥 <strong>ENHANCED:</strong> Section 24 SOAR + Red Team/BAS Testing</p>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">🎯 MITRE Coverage</div>
+            <div class="stat-value" id="attack-sim-coverage">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">🛡️ Control Effectiveness</div>
+            <div class="stat-value" id="attack-sim-effectiveness">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">🔬 Simulations Run</div>
+            <div class="stat-value" id="attack-sim-total">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">📅 Scheduled Tests</div>
+            <div class="stat-value" id="attack-sim-scheduled">--</div>
+          </div>
+        </div>
+        
+        <p class="muted" style="margin-top: 1.5rem;"><strong>🎯 MITRE ATT&CK Coverage Heatmap</strong></p>
+        <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
+          <div id="mitre-heatmap" style="max-height: 400px; overflow-y: auto;">
+            <div class="loading-spinner">Loading MITRE ATT&CK coverage...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+         SECTION 29: CLOUD SECURITY POSTURE MANAGEMENT
+         Purpose: Multi-cloud monitoring and misconfiguration detection
+         ======================================== -->
+      <section>
+        <h2>📍 Section 29 | ☁️ Cloud Security Posture Management (CSPM)</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🆕 <strong>NEW SECTION:</strong> Multi-cloud monitoring (AWS/Azure/GCP), misconfiguration detection, IAM analysis</p>
+        
+        <div class="stats-grid">
+          <div class="stat-card critical">
+            <div class="stat-label">🚨 Misconfigurations</div>
+            <div class="stat-value" id="cloud-misconfigs">--</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">🔑 IAM Issues</div>
+            <div class="stat-value" id="cloud-iam-issues">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">🌐 Public Exposure</div>
+            <div class="stat-value" id="cloud-public">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">📊 Compliance Score</div>
+            <div class="stat-value" id="cloud-compliance">--</div>
+          </div>
+        </div>
+        
+        <p class="muted" style="margin-top: 1.5rem;"><strong>☁️ Supported Cloud Providers</strong></p>
+        <div class="grid grid-3" style="margin-top: 1rem;">
+          <div style="background: #1a2135; padding: 1.25rem; border-radius: 8px; border: 1px solid #2a3548; text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">☁️</div>
+            <div style="font-weight: 600; color: #ff9900; margin-bottom: 0.25rem;">AWS</div>
+            <div style="font-size: 0.8rem; color: #a9b3d4;">S3, EC2, IAM, VPC</div>
+            <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #2a3548;">
+              <div class="stat-value" style="font-size: 1.2rem;" id="aws-resources">--</div>
+              <div class="muted" style="font-size: 0.7rem;">Resources</div>
+            </div>
+          </div>
+          
+          <div style="background: #1a2135; padding: 1.25rem; border-radius: 8px; border: 1px solid #2a3548; text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">☁️</div>
+            <div style="font-weight: 600; color: #00a4ef; margin-bottom: 0.25rem;">Azure</div>
+            <div style="font-size: 0.8rem; color: #a9b3d4;">VM, Storage, AAD</div>
+            <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #2a3548;">
+              <div class="stat-value" style="font-size: 1.2rem;" id="azure-resources">--</div>
+              <div class="muted" style="font-size: 0.7rem;">Resources</div>
+            </div>
+          </div>
+          
+          <div style="background: #1a2135; padding: 1.25rem; border-radius: 8px; border: 1px solid #2a3548; text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">☁️</div>
+            <div style="font-weight: 600; color: #ea4335; margin-bottom: 0.25rem;">GCP</div>
+            <div style="font-size: 0.8rem; color: #a9b3d4;">GCE, GCS, IAM</div>
+            <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #2a3548;">
+              <div class="stat-value" style="font-size: 1.2rem;" id="gcp-resources">--</div>
+              <div class="muted" style="font-size: 0.7rem;">Resources</div>
+            </div>
+          </div>
+        </div>
+        
+        <p class="muted" style="margin-top: 1.5rem;"><strong>🔍 Misconfiguration Detection</strong></p>
+        <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
+          <h3 style="margin: 0 0 1rem; color: #ff5f5f; font-size: 1.1rem;">🚨 Critical Misconfigurations</h3>
+          <div id="cloud-misconfig-list" style="max-height: 400px; overflow-y: auto;">
+            <div class="loading-spinner">Scanning cloud resources...</div>
+          </div>
+        </div>
+        
+        <p class="muted" style="margin-top: 1.5rem;"><strong>📊 Compliance Frameworks</strong></p>
+        <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
+          <div id="compliance-frameworks" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <div class="loading-spinner">Loading compliance status...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+         SECTION 30: DATA LOSS PREVENTION (DLP)
+         Purpose: Enhanced Zero Trust - Data Loss Prevention
+         ======================================== -->
+      <section>
+        <h2>📍 Section 30 | 🔐 Data Loss Prevention (DLP)</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🔥 <strong>ENHANCED:</strong> Section 20 Zero Trust + DLP Monitoring</p>
+        
+        <div class="stats-grid">
+          <div class="stat-card critical">
+            <div class="stat-label">📄 PII Detections</div>
+            <div class="stat-value" id="dlp-pii">--</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">🏥 PHI Detections</div>
+            <div class="stat-value" id="dlp-phi">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">🚨 Exfiltration Attempts</div>
+            <div class="stat-value" id="dlp-exfiltration">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">📊 Classification Coverage</div>
+            <div class="stat-value" id="dlp-coverage">--</div>
+          </div>
+        </div>
+        
+        <p class="muted" style="margin-top: 1.5rem;"><strong>🔍 Data Classification Status</strong></p>
+        <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
+          <div id="data-classification" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+            <div class="loading-spinner">Loading data classification...</div>
+          </div>
+        </div>
+        
+        <p class="muted" style="margin-top: 1.5rem;"><strong>🚨 Recent DLP Events</strong></p>
+        <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
+          <div id="dlp-events-list" style="max-height: 300px; overflow-y: auto;">
+            <div class="loading-spinner">Monitoring sensitive data...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================
+         SECTION 31: BACKUP & RECOVERY STATUS
+         Purpose: Ransomware resilience and backup monitoring
+         ======================================== -->
+      <section>
+        <h2>📍 Section 31 | 💾 Backup & Recovery Status</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🆕 <strong>NEW SECTION:</strong> Backup monitoring, ransomware resilience, RTO tracking</p>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">💾 Backup Locations</div>
+            <div class="stat-value" id="backup-locations">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">✅ Successful Backups</div>
+            <div class="stat-value" id="backup-successful">--</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">🛡️ Resilience Score</div>
+            <div class="stat-value" id="backup-resilience">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">⏱️ RTO (Hours)</div>
+            <div class="stat-value" id="backup-rto">--</div>
+          </div>
+        </div>
+        
+        <p class="muted" style="margin-top: 1.5rem;"><strong>💾 Backup Locations</strong></p>
+        <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
+          <div id="backup-locations-list" style="max-height: 300px; overflow-y: auto;">
+            <div class="loading-spinner">Scanning backup locations...</div>
+          </div>
+        </div>
+        
+        <p class="muted" style="margin-top: 1.5rem;"><strong>🧪 Recovery Tests</strong></p>
+        <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
+          <div id="recovery-tests-list" style="max-height: 250px; overflow-y: auto;">
+            <div class="loading-spinner">Loading recovery test results...</div>
+          </div>
         </div>
       </section>
 
@@ -4172,7 +4599,7 @@
         loadDeviceHistory();
         loadSystemHealth();
         
-        // Load new sections (18-24)
+        // Load sections 18-24
         loadTrafficAnalysis();
         loadDNSGeoSecurity();
         loadUserIdentityMonitoring();
@@ -4180,6 +4607,18 @@
         loadSandboxStats();
         loadAlertStats();
         loadAPIStats();
+        
+        // Load new/enhanced sections
+        loadAssetInventory();             // Section 3 Enhancement
+        loadZeroTrust();                  // Section 20 Enhancement + DLP
+        loadSOARWorkflows();              // Section 24 Enhancement + Attack Simulation
+        loadVulnerabilityManagement();    // Section 25 Enhancement + Dark Web
+        loadCryptoMiningDetection();      // Section 26 NEW
+        loadDarkWebMonitoring();          // Section 27 NEW
+        loadAttackSimulation();           // Section 28 NEW
+        loadCloudSecurityPosture();       // Section 29 NEW
+        loadDataLossPrevention();         // Section 30 NEW
+        loadBackupRecovery();             // Section 31 NEW
         
         // Refresh honeypot status every 30 seconds
         setInterval(loadHoneypotStatus, 30000);
@@ -4194,7 +4633,7 @@
         setInterval(loadDeviceHistory, 30000);
         // Refresh system health every 10 seconds
         setInterval(loadSystemHealth, 10000);
-        // Refresh new sections every 30 seconds
+        // Refresh sections 18-24 every 30 seconds
         setInterval(loadTrafficAnalysis, 30000);
         setInterval(loadDNSGeoSecurity, 30000);
         setInterval(loadUserIdentityMonitoring, 30000);
@@ -4202,6 +4641,17 @@
         setInterval(loadSandboxStats, 30000);
         setInterval(loadAlertStats, 30000);
         setInterval(loadAPIStats, 30000);
+        // Refresh new/enhanced sections every 30 seconds
+        setInterval(loadAssetInventory, 30000);
+        setInterval(loadZeroTrust, 30000);
+        setInterval(loadSOARWorkflows, 30000);
+        setInterval(loadVulnerabilityManagement, 30000);
+        setInterval(loadCryptoMiningDetection, 30000);
+        setInterval(loadDarkWebMonitoring, 30000);
+        setInterval(loadAttackSimulation, 30000);
+        setInterval(loadCloudSecurityPosture, 30000);
+        setInterval(loadDataLossPrevention, 30000);
+        setInterval(loadBackupRecovery, 30000);
       });
 
       // ============================================================================
@@ -5147,6 +5597,543 @@
           }
         } catch (error) {
           console.error('Error loading API stats:', error);
+        }
+      }
+      
+      // ============================================================================
+      // SECTION 3 ENHANCEMENT: ASSET INVENTORY
+      // ============================================================================
+      
+      async function loadAssetInventory() {
+        try {
+          const response = await fetch('/api/assets/inventory');
+          const data = await response.json();
+          
+          if (!data.error) {
+            document.getElementById('asset-total').textContent = (data.total_assets || 0).toLocaleString();
+            document.getElementById('asset-eol').textContent = (data.eol_software || 0).toString();
+            document.getElementById('asset-shadow').textContent = (data.shadow_it || 0).toString();
+            document.getElementById('asset-license').textContent = (data.license_issues || 0).toString();
+          }
+        } catch (error) {
+          console.error('Error loading asset inventory:', error);
+        }
+      }
+      
+      async function scanAssets() {
+        alert('🔄 Starting asset scan... This may take a few moments.');
+        await loadAssetInventory();
+        alert('✅ Asset scan complete!');
+      }
+      
+      async function viewAssetDetails() {
+        window.open('/api/assets/inventory', '_blank');
+      }
+      
+      // ============================================================================
+      // SECTION 20 ENHANCEMENT: ZERO TRUST
+      // ============================================================================
+      
+      async function loadZeroTrust() {
+        try {
+          const response = await fetch('/api/zero-trust/scores');
+          const data = await response.json();
+          
+          if (!data.error) {
+            document.getElementById('zt-high-trust').textContent = (data.high_trust_devices || 0).toString();
+            document.getElementById('zt-medium-trust').textContent = (data.medium_trust_devices || 0).toString();
+            document.getElementById('zt-low-trust').textContent = (data.low_trust_devices || 0).toString();
+            document.getElementById('zt-violations').textContent = (data.policy_violations || 0).toString();
+            
+            // Load policies
+            if (data.conditional_access_policies) {
+              const policiesHtml = data.conditional_access_policies.slice(0, 5).map(p => `
+                <div style="padding: 0.75rem; background: rgba(95, 226, 255, 0.05); border-left: 3px solid #5fe2ff; border-radius: 4px; margin-bottom: 0.5rem;">
+                  <div style="font-weight: 600; color: #5fe2ff;">${p.name}</div>
+                  <div style="font-size: 0.8rem; color: #a9b3d4; margin-top: 0.25rem;">${p.description}</div>
+                </div>
+              `).join('');
+              document.getElementById('zt-policies').innerHTML = policiesHtml || '<div style="color: #a9b3d4; padding: 1rem;">No policies configured</div>';
+            }
+          }
+        } catch (error) {
+          console.error('Error loading Zero Trust data:', error);
+        }
+      }
+      
+      async function evaluateTrustScores() {
+        alert('🔄 Evaluating device trust scores...');
+        await loadZeroTrust();
+        alert('✅ Trust score evaluation complete!');
+      }
+      
+      async function viewViolations() {
+        window.open('/api/zero-trust/violations', '_blank');
+      }
+      
+      // ============================================================================
+      // SECTION 24 ENHANCEMENT: SOAR WORKFLOWS
+      // ============================================================================
+      
+      async function loadSOARWorkflows() {
+        try {
+          const response = await fetch('/api/soar/workflows');
+          const data = await response.json();
+          
+          if (!data.error) {
+            document.getElementById('soar-incidents-open').textContent = (data.open_incidents || 0).toString();
+            document.getElementById('soar-incidents-resolved').textContent = (data.resolved_incidents || 0).toString();
+            document.getElementById('soar-playbooks').textContent = (data.total_playbooks || 0).toString();
+            document.getElementById('soar-mttr').textContent = (data.mttr_hours || 0).toFixed(1);
+            
+            // Load playbooks
+            if (data.playbook_list) {
+              const playbooksHtml = data.playbook_list.map(pb => `
+                <div style="padding: 0.75rem; background: rgba(255, 153, 0, 0.05); border-left: 3px solid #ff9900; border-radius: 4px; margin-bottom: 0.5rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                      <div style="font-weight: 600; color: #ff9900;">${pb.name}</div>
+                      <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">${pb.description}</div>
+                      <div style="font-size: 0.7rem; color: #8a92b6; margin-top: 0.25rem;">Executions: ${pb.execution_count || 0}</div>
+                    </div>
+                    <button class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; background: linear-gradient(135deg, #5fff9f, #00cc66);" onclick="executePlaybook('${pb.id}')">▶️ Run</button>
+                  </div>
+                </div>
+              `).join('');
+              document.getElementById('soar-playbook-list').innerHTML = playbooksHtml || '<div style="color: #a9b3d4; padding: 1rem;">No playbooks configured</div>';
+            }
+          }
+        } catch (error) {
+          console.error('Error loading SOAR workflows:', error);
+        }
+      }
+      
+      async function createIncident() {
+        const type = prompt('Incident Type (e.g., malware, phishing, ddos):');
+        const severity = prompt('Severity (low/medium/high/critical):');
+        const description = prompt('Description:');
+        
+        if (!type || !severity || !description) {
+          alert('❌ All fields required');
+          return;
+        }
+        
+        try {
+          const response = await fetch('/api/soar/incidents', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, severity, description })
+          });
+          
+          const data = await response.json();
+          
+          if (data.id) {
+            alert(`✅ Incident created: ${data.id}`);
+            await loadSOARWorkflows();
+          } else {
+            alert('❌ Failed to create incident');
+          }
+        } catch (error) {
+          alert('❌ Error: ' + error.message);
+        }
+      }
+      
+      async function viewIncidents() {
+        window.open('/api/soar/incidents', '_blank');
+      }
+      
+      async function executePlaybook(playbookId) {
+        if (!confirm('Execute this automated playbook?')) {
+          return;
+        }
+        
+        try {
+          const response = await fetch(`/api/soar/playbooks/${playbookId}/execute`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            alert(`✅ Playbook executed!\n\nActions: ${data.actions_executed}\nTime: ${data.execution_time}`);
+            await loadSOARWorkflows();
+          } else {
+            alert('❌ Playbook execution failed: ' + data.error);
+          }
+        } catch (error) {
+          alert('❌ Error: ' + error.message);
+        }
+      }
+      
+      // ============================================================================
+      // SECTION 25: VULNERABILITY MANAGEMENT
+      // ============================================================================
+      
+      async function loadVulnerabilityManagement() {
+        try {
+          const response = await fetch('/api/vulnerabilities/scan');
+          const data = await response.json();
+          
+          if (!data.error) {
+            document.getElementById('vuln-critical').textContent = (data.by_severity?.critical || 0).toString();
+            const highMedium = (data.by_severity?.high || 0) + (data.by_severity?.medium || 0);
+            document.getElementById('vuln-high').textContent = highMedium.toString();
+            document.getElementById('sbom-components').textContent = (data.sbom_components || 0).toLocaleString();
+            document.getElementById('patches-available').textContent = (data.patches_available || 0).toString();
+            
+            // Display top vulnerabilities
+            if (data.top_vulnerabilities && data.top_vulnerabilities.length > 0) {
+              const vulnHtml = data.top_vulnerabilities.map(v => `
+                <div style="padding: 0.75rem; background: rgba(255, 95, 95, 0.05); border-left: 3px solid #ff5f5f; border-radius: 4px; margin-bottom: 0.5rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                      <div style="font-weight: 600; color: #ff5f5f;">${v.package || v.type}</div>
+                      <div style="font-size: 0.8rem; color: #a9b3d4; margin-top: 0.25rem;">${v.recommendation || 'Update required'}</div>
+                    </div>
+                    <div style="background: #7f2a2a; color: #ff5f5f; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">${v.severity?.toUpperCase()}</div>
+                  </div>
+                </div>
+              `).join('');
+              document.getElementById('vuln-list').innerHTML = vulnHtml;
+            } else {
+              document.getElementById('vuln-list').innerHTML = '<div style="color: #5fff9f; padding: 1rem; text-align: center;">✅ No vulnerabilities detected</div>';
+            }
+            
+            // Display patch queue
+            if (data.top_patches && data.top_patches.length > 0) {
+              const patchHtml = data.top_patches.slice(0, 10).map(p => `
+                <div style="padding: 0.6rem; background: rgba(255, 184, 95, 0.05); border-left: 3px solid #ffb85f; border-radius: 4px; margin-bottom: 0.4rem; display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <div style="font-weight: 600; color: #ffb85f; font-size: 0.85rem;">${p.package || p.type}</div>
+                    <div style="font-size: 0.7rem; color: #8a92b6;">Priority: ${p.priority?.toUpperCase()} | CVSS: ${p.cvss_score || 0}</div>
+                  </div>
+                  <span style="background: #7f4f2a; color: #ffb85f; padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.7rem; font-weight: 600;">${p.priority?.toUpperCase()}</span>
+                </div>
+              `).join('');
+              document.getElementById('patch-queue').innerHTML = patchHtml;
+            } else {
+              document.getElementById('patch-queue').innerHTML = '<div style="color: #a9b3d4; padding: 1rem; text-align: center;">No patches pending</div>';
+            }
+          }
+        } catch (error) {
+          console.error('Error loading vulnerability management:', error);
+        }
+      }
+      
+      async function downloadSBOM() {
+        window.location.href = '/api/vulnerabilities/sbom';
+      }
+      
+      async function scanDependencies() {
+        alert('🔄 Scanning dependencies... This may take a moment.');
+        await loadVulnerabilityManagement();
+        alert('✅ Dependency scan complete!');
+      }
+      
+      // ============================================================================
+      // SECTION 29: CLOUD SECURITY POSTURE MANAGEMENT
+      // ============================================================================
+      
+      async function loadCloudSecurityPosture() {
+        try {
+          const response = await fetch('/api/cloud/posture');
+          const data = await response.json();
+          
+          if (!data.error) {
+            document.getElementById('cloud-misconfigs').textContent = (data.total_misconfigurations || 0).toString();
+            document.getElementById('cloud-iam-issues').textContent = (data.iam_issues || 0).toString();
+            document.getElementById('cloud-public').textContent = (data.public_exposure || 0).toString();
+            
+            const compliancePct = data.compliance_status?.frameworks?.length > 0 ? 
+              Math.round((data.compliance_status.frameworks[0].compliant_checks / data.compliance_status.frameworks[0].total_checks) * 100) : 0;
+            document.getElementById('cloud-compliance').textContent = compliancePct + '%';
+            
+            // Cloud resource counts
+            document.getElementById('aws-resources').textContent = (data.by_cloud?.aws || 0).toString();
+            document.getElementById('azure-resources').textContent = (data.by_cloud?.azure || 0).toString();
+            document.getElementById('gcp-resources').textContent = (data.by_cloud?.gcp || 0).toString();
+            
+            // Display misconfigurations
+            if (data.top_misconfigurations && data.top_misconfigurations.length > 0) {
+              const misconfigHtml = data.top_misconfigurations.map(m => `
+                <div style="padding: 0.75rem; background: rgba(255, 95, 95, 0.05); border-left: 3px solid #ff5f5f; border-radius: 4px; margin-bottom: 0.5rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                      <div style="font-weight: 600; color: #ff5f5f; font-size: 0.9rem;">[${m.provider}] ${m.resource}</div>
+                      <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">${m.issue}</div>
+                      <div style="font-size: 0.7rem; color: #8a92b6; margin-top: 0.25rem;">💡 ${m.recommendation}</div>
+                    </div>
+                    <div style="background: #7f2a2a; color: #ff5f5f; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">${m.severity?.toUpperCase()}</div>
+                  </div>
+                </div>
+              `).join('');
+              document.getElementById('cloud-misconfig-list').innerHTML = misconfigHtml;
+            } else {
+              document.getElementById('cloud-misconfig-list').innerHTML = '<div style="color: #a9b3d4; padding: 1rem; text-align: center;">ℹ️ Install cloud CLI tools (aws, az, gcloud) to enable monitoring</div>';
+            }
+            
+            // Display compliance frameworks
+            if (data.compliance_status?.frameworks) {
+              const frameworksHtml = data.compliance_status.frameworks.map(fw => `
+                <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border: 1px solid #2a3548;">
+                  <div style="font-weight: 600; color: #5fe2ff; margin-bottom: 0.5rem;">${fw.name}</div>
+                  <div style="background: #0d1117; border-radius: 4px; height: 8px; overflow: hidden; margin-bottom: 0.5rem;">
+                    <div style="background: linear-gradient(90deg, #5fff9f, #00cc66); height: 100%; width: ${fw.compliance_percentage}%;"></div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #a9b3d4;">
+                    <span>${fw.compliant_checks} / ${fw.total_checks} checks</span>
+                    <span style="color: #5fff9f; font-weight: 600;">${fw.compliance_percentage}%</span>
+                  </div>
+                </div>
+              `).join('');
+              document.getElementById('compliance-frameworks').innerHTML = frameworksHtml;
+            }
+          }
+        } catch (error) {
+          console.error('Error loading cloud security posture:', error);
+        }
+      }
+      
+      // SECTION 26: CRYPTOCURRENCY MINING DETECTION
+      async function loadCryptoMiningDetection() {
+        try {
+          const response = await fetch('/api/traffic/crypto-mining');
+          const data = await response.json();
+          
+          document.getElementById('crypto-miners').textContent = data.miner_processes || 0;
+          document.getElementById('crypto-cpu-spikes').textContent = data.cpu_spikes || 0;
+          document.getElementById('crypto-connections').textContent = data.mining_connections || 0;
+          document.getElementById('crypto-risk').textContent = (data.risk_level || 'low').toUpperCase();
+          document.getElementById('crypto-risk').className = 'stat-value ' + (data.risk_level === 'high' ? 'critical' : data.risk_level === 'medium' ? 'warning' : '');
+          
+          // Display detected mining activity
+          if (data.detected_miners?.length > 0 || data.high_cpu_processes?.length > 0 || data.mining_traffic?.length > 0) {
+            let html = '';
+            
+            data.detected_miners?.forEach(m => {
+              html += `
+                <div style="padding: 0.75rem; background: rgba(255, 95, 95, 0.1); border-left: 3px solid #ff5f5f; border-radius: 4px; margin-bottom: 0.5rem;">
+                  <div style="font-weight: 600; color: #ff5f5f;">⛏️ ${m.process} (PID: ${m.pid})</div>
+                  <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">Signature: ${m.signature} | CPU: ${m.cpu_percent}%</div>
+                </div>
+              `;
+            });
+            
+            data.high_cpu_processes?.forEach(p => {
+              html += `
+                <div style="padding: 0.75rem; background: rgba(255, 159, 95, 0.05); border-left: 3px solid #ff9f5f; border-radius: 4px; margin-bottom: 0.5rem;">
+                  <div style="font-weight: 600; color: #ff9f5f;">📊 ${p.process} (PID: ${p.pid})</div>
+                  <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">CPU: ${p.cpu_percent}% | Memory: ${p.memory_percent}% | Suspected: ${p.suspected_miner ? 'Yes' : 'No'}</div>
+                </div>
+              `;
+            });
+            
+            data.mining_traffic?.forEach(t => {
+              html += `
+                <div style="padding: 0.75rem; background: rgba(95, 159, 255, 0.05); border-left: 3px solid #5f9fff; border-radius: 4px; margin-bottom: 0.5rem;">
+                  <div style="font-weight: 600; color: #5f9fff;">🌐 ${t.type}</div>
+                  <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">${t.connection.substring(0, 80)}</div>
+                </div>
+              `;
+            });
+            
+            document.getElementById('crypto-mining-list').innerHTML = html;
+          } else {
+            document.getElementById('crypto-mining-list').innerHTML = '<div style="color: #5fff9f; text-align: center; padding: 2rem;">✅ No cryptocurrency mining detected</div>';
+          }
+        } catch (error) {
+          console.error('Error loading crypto mining detection:', error);
+        }
+      }
+      
+      // SECTION 27: DARK WEB MONITORING
+      async function loadDarkWebMonitoring() {
+        try {
+          const response = await fetch('/api/vulnerabilities/darkweb');
+          const data = await response.json();
+          
+          document.getElementById('darkweb-leaks').textContent = data.credential_leaks || 0;
+          document.getElementById('darkweb-mentions').textContent = data.brand_mentions || 0;
+          document.getElementById('darkweb-marketplace').textContent = data.marketplace_findings || 0;
+          document.getElementById('darkweb-risk').textContent = (data.risk_level || 'low').toUpperCase();
+          document.getElementById('darkweb-risk').className = 'stat-value ' + (data.risk_level === 'high' ? 'critical' : 'safe');
+          
+          // Display findings
+          if (data.recent_leaks?.length > 0 || data.recent_mentions?.length > 0 || data.recent_marketplace?.length > 0) {
+            let html = '';
+            
+            data.recent_leaks?.forEach(leak => {
+              html += `
+                <div style="padding: 0.75rem; background: rgba(255, 95, 95, 0.1); border-left: 3px solid #ff5f5f; border-radius: 4px; margin-bottom: 0.5rem;">
+                  <div style="font-weight: 600; color: #ff5f5f;">🔑 Credential Leak Detected</div>
+                  <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">${leak.source || 'Unknown source'}</div>
+                </div>
+              `;
+            });
+            
+            data.recent_mentions?.forEach(mention => {
+              html += `
+                <div style="padding: 0.75rem; background: rgba(255, 159, 95, 0.05); border-left: 3px solid #ff9f5f; border-radius: 4px; margin-bottom: 0.5rem;">
+                  <div style="font-weight: 600; color: #ff9f5f;">🏢 Brand Mention</div>
+                  <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">${mention.forum || 'Dark web forum'}</div>
+                </div>
+              `;
+            });
+            
+            document.getElementById('darkweb-findings-list').innerHTML = html;
+          } else {
+            document.getElementById('darkweb-findings-list').innerHTML = '<div style="color: #5fff9f; text-align: center; padding: 2rem;">✅ No dark web threats detected</div>';
+          }
+        } catch (error) {
+          console.error('Error loading dark web monitoring:', error);
+        }
+      }
+      
+      // SECTION 28: ATTACK SIMULATION
+      async function loadAttackSimulation() {
+        try {
+          const response = await fetch('/api/soar/attack-simulation');
+          const data = await response.json();
+          
+          document.getElementById('attack-sim-coverage').textContent = data.mitre_coverage_percent + '%';
+          document.getElementById('attack-sim-effectiveness').textContent = data.control_effectiveness?.overall_score + '%';
+          document.getElementById('attack-sim-total').textContent = data.total_simulations || 0;
+          document.getElementById('attack-sim-scheduled').textContent = data.scheduled_exercises || 0;
+          
+          // Display MITRE ATT&CK heatmap
+          if (data.mitre_heatmap) {
+            let html = '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem;">';
+            
+            for (const [tactic, info] of Object.entries(data.mitre_heatmap)) {
+              const coverage = info.coverage_percent || 0;
+              const color = coverage >= 70 ? '#5fff9f' : coverage >= 40 ? '#ff9f5f' : '#ff5f5f';
+              
+              html += `
+                <div style="background: #1a2135; padding: 0.75rem; border-radius: 6px; border: 1px solid #2a3548;">
+                  <div style="font-weight: 600; font-size: 0.85rem; color: ${color}; margin-bottom: 0.5rem;">${tactic}</div>
+                  <div style="background: #0d1117; border-radius: 4px; height: 6px; overflow: hidden; margin-bottom: 0.5rem;">
+                    <div style="background: ${color}; height: 100%; width: ${coverage}%;"></div>
+                  </div>
+                  <div style="font-size: 0.7rem; color: #a9b3d4;">${info.detected_techniques} / ${info.total_techniques} techniques</div>
+                </div>
+              `;
+            }
+            
+            html += '</div>';
+            document.getElementById('mitre-heatmap').innerHTML = html;
+          }
+        } catch (error) {
+          console.error('Error loading attack simulation:', error);
+        }
+      }
+      
+      // SECTION 30: DATA LOSS PREVENTION
+      async function loadDataLossPrevention() {
+        try {
+          const response = await fetch('/api/zero-trust/dlp');
+          const data = await response.json();
+          
+          document.getElementById('dlp-pii').textContent = data.pii_detections || 0;
+          document.getElementById('dlp-phi').textContent = data.phi_detections || 0;
+          document.getElementById('dlp-exfiltration').textContent = data.exfiltration_attempts || 0;
+          document.getElementById('dlp-coverage').textContent = (data.data_classification?.classification_coverage || 0) + '%';
+          
+          // Data classification
+          if (data.data_classification) {
+            const dc = data.data_classification;
+            const html = `
+              <div style="background: #1a2135; padding: 0.75rem; border-radius: 6px; border: 1px solid #2a3548;">
+                <div style="font-size: 0.75rem; color: #5fff9f; margin-bottom: 0.25rem;">Public</div>
+                <div style="font-weight: 600; font-size: 1.2rem;">${dc.by_classification?.public || 0}</div>
+              </div>
+              <div style="background: #1a2135; padding: 0.75rem; border-radius: 6px; border: 1px solid #2a3548;">
+                <div style="font-size: 0.75rem; color: #5f9fff; margin-bottom: 0.25rem;">Internal</div>
+                <div style="font-weight: 600; font-size: 1.2rem;">${dc.by_classification?.internal || 0}</div>
+              </div>
+              <div style="background: #1a2135; padding: 0.75rem; border-radius: 6px; border: 1px solid #2a3548;">
+                <div style="font-size: 0.75rem; color: #ff9f5f; margin-bottom: 0.25rem;">Confidential</div>
+                <div style="font-weight: 600; font-size: 1.2rem;">${dc.by_classification?.confidential || 0}</div>
+              </div>
+              <div style="background: #1a2135; padding: 0.75rem; border-radius: 6px; border: 1px solid #2a3548;">
+                <div style="font-size: 0.75rem; color: #ff5f5f; margin-bottom: 0.25rem;">Restricted</div>
+                <div style="font-weight: 600; font-size: 1.2rem;">${dc.by_classification?.restricted || 0}</div>
+              </div>
+            `;
+            document.getElementById('data-classification').innerHTML = html;
+          }
+          
+          // DLP events
+          if (data.recent_events?.length > 0) {
+            const html = data.recent_events.map(e => `
+              <div style="padding: 0.75rem; background: rgba(255, 95, 95, 0.05); border-left: 3px solid #ff5f5f; border-radius: 4px; margin-bottom: 0.5rem;">
+                <div style="font-weight: 600; color: #ff5f5f;">${e.type}</div>
+                <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">${e.description || 'No details'}</div>
+              </div>
+            `).join('');
+            document.getElementById('dlp-events-list').innerHTML = html;
+          } else {
+            document.getElementById('dlp-events-list').innerHTML = '<div style="color: #5fff9f; text-align: center; padding: 2rem;">✅ No DLP violations detected</div>';
+          }
+        } catch (error) {
+          console.error('Error loading DLP:', error);
+        }
+      }
+      
+      // SECTION 33: BACKUP & RECOVERY
+      async function loadBackupRecovery() {
+        try {
+          const response = await fetch('/api/backup/status');
+          const data = await response.json();
+          
+          document.getElementById('backup-locations').textContent = data.total_backup_locations || 0;
+          document.getElementById('backup-successful').textContent = data.successful_backups || 0;
+          document.getElementById('backup-resilience').textContent = data.ransomware_resilience_score + '/100';
+          document.getElementById('backup-rto').textContent = data.recovery_time_objective?.rto_hours || 'N/A';
+          
+          // Color code resilience score
+          const resilienceEl = document.getElementById('backup-resilience');
+          if (data.ransomware_resilience_score >= 70) {
+            resilienceEl.className = 'stat-value safe';
+          } else if (data.ransomware_resilience_score >= 40) {
+            resilienceEl.className = 'stat-value warning';
+          } else {
+            resilienceEl.className = 'stat-value critical';
+          }
+          
+          // Backup locations
+          if (data.backup_locations?.length > 0) {
+            const html = data.backup_locations.map(b => `
+              <div style="padding: 0.75rem; background: ${b.status === 'success' ? 'rgba(95, 255, 159, 0.05)' : 'rgba(255, 159, 95, 0.05)'}; border-left: 3px solid ${b.status === 'success' ? '#5fff9f' : '#ff9f5f'}; border-radius: 4px; margin-bottom: 0.5rem;">
+                <div style="display: flex; justify-content: space-between;">
+                  <div>
+                    <div style="font-weight: 600; color: ${b.status === 'success' ? '#5fff9f' : '#ff9f5f'};">💾 ${b.location}</div>
+                    <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">Size: ${b.size} | Last backup: ${b.hours_since_backup}h ago</div>
+                  </div>
+                  <div style="background: ${b.status === 'success' ? '#2a5f3f' : '#5f3f2a'}; color: ${b.status === 'success' ? '#5fff9f' : '#ff9f5f'}; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; height: fit-content;">${b.status?.toUpperCase()}</div>
+                </div>
+              </div>
+            `).join('');
+            document.getElementById('backup-locations-list').innerHTML = html;
+          } else {
+            document.getElementById('backup-locations-list').innerHTML = '<div style="color: #ff9f5f; text-align: center; padding: 2rem;">⚠️ No backup locations detected</div>';
+          }
+          
+          // Recovery tests
+          if (data.recent_recovery_tests?.length > 0) {
+            const html = data.recent_recovery_tests.map(t => `
+              <div style="padding: 0.75rem; background: rgba(95, 255, 159, 0.05); border-left: 3px solid #5fff9f; border-radius: 4px; margin-bottom: 0.5rem;">
+                <div style="font-weight: 600; color: #5fff9f;">✅ ${t.backup_id}</div>
+                <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">Recovery Time: ${t.recovery_time_hours}h | Data Loss: ${t.data_loss_hours}h</div>
+              </div>
+            `).join('');
+            document.getElementById('recovery-tests-list').innerHTML = html;
+          } else {
+            document.getElementById('recovery-tests-list').innerHTML = '<div style="color: #a9b3d4; text-align: center; padding: 1.5rem;">ℹ️ No recovery tests performed yet</div>';
+          }
+        } catch (error) {
+          console.error('Error loading backup & recovery:', error);
         }
       }
     </script>

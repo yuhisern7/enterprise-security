@@ -2419,6 +2419,366 @@ def get_openapi_spec():
     })
 
 # ============================================================================
+# SECTION 3 ENHANCEMENT: ASSET INVENTORY
+# ============================================================================
+
+@app.route('/api/assets/inventory', methods=['GET'])
+def get_asset_inventory():
+    """Enhanced Section 3: Get complete asset inventory"""
+    try:
+        from AI.asset_inventory import asset_inventory
+        return jsonify(asset_inventory.get_stats())
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/assets/eol', methods=['GET'])
+def get_eol_software():
+    """Enhanced Section 3: Get end-of-life software"""
+    try:
+        from AI.asset_inventory import asset_inventory
+        eol = asset_inventory.detect_eol_software()
+        return jsonify({'eol_software': eol, 'count': len(eol)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/assets/shadow-it', methods=['GET'])
+def get_shadow_it():
+    """Enhanced Section 3: Detect shadow IT"""
+    try:
+        from AI.asset_inventory import asset_inventory
+        shadow_it = asset_inventory.detect_shadow_it()
+        return jsonify({'shadow_it': shadow_it, 'count': len(shadow_it)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# SECTION 20 ENHANCEMENT: ZERO TRUST MONITORING
+# ============================================================================
+
+@app.route('/api/zero-trust/scores', methods=['GET'])
+def get_zero_trust_scores():
+    """Enhanced Section 20: Get device trust scores"""
+    try:
+        from AI.zero_trust import zero_trust
+        return jsonify(zero_trust.get_stats())
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/zero-trust/policies', methods=['GET'])
+def get_conditional_access_policies():
+    """Enhanced Section 20: Get conditional access policies"""
+    try:
+        from AI.zero_trust import zero_trust
+        policies = zero_trust.get_conditional_access_policies()
+        return jsonify({'policies': policies, 'count': len(policies)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/zero-trust/violations', methods=['GET'])
+def get_privilege_violations():
+    """Enhanced Section 20: Get least privilege violations"""
+    try:
+        from AI.zero_trust import zero_trust
+        violations = zero_trust.check_least_privilege_violations()
+        return jsonify({'violations': violations, 'count': len(violations)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# SECTION 24 ENHANCEMENT: SOAR WORKFLOWS
+# ============================================================================
+
+@app.route('/api/soar/workflows', methods=['GET'])
+def get_soar_workflows():
+    """Enhanced Section 24: Get SOAR workflows"""
+    try:
+        from AI.soar_workflows import soar_workflows
+        return jsonify(soar_workflows.get_stats())
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/soar/incidents', methods=['GET'])
+def get_soar_incidents():
+    """Enhanced Section 24: Get all incidents"""
+    try:
+        from AI.soar_workflows import soar_workflows
+        return jsonify({'incidents': soar_workflows.incidents})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/soar/incidents', methods=['POST'])
+def create_soar_incident():
+    """Enhanced Section 24: Create new incident"""
+    try:
+        from AI.soar_workflows import soar_workflows
+        data = request.get_json()
+        incident = soar_workflows.create_incident(
+            incident_type=data.get('type', 'unknown'),
+            severity=data.get('severity', 'medium'),
+            description=data.get('description', 'No description')
+        )
+        return jsonify(incident)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/soar/playbooks', methods=['GET'])
+def get_soar_playbooks():
+    """Enhanced Section 24: Get automated playbooks"""
+    try:
+        from AI.soar_workflows import soar_workflows
+        return jsonify({'playbooks': soar_workflows.playbooks})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/soar/playbooks/<playbook_id>/execute', methods=['POST'])
+def execute_soar_playbook(playbook_id):
+    """Enhanced Section 24: Execute playbook"""
+    try:
+        from AI.soar_workflows import soar_workflows
+        data = request.get_json() or {}
+        result = soar_workflows.execute_playbook(playbook_id, data)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# SECTION 25: VULNERABILITY MANAGEMENT
+# ============================================================================
+
+@app.route('/api/vulnerabilities/scan', methods=['GET'])
+def scan_vulnerabilities():
+    """Section 25: Scan system for vulnerabilities"""
+    try:
+        from AI.vulnerability_manager import vulnerability_manager
+        return jsonify(vulnerability_manager.get_stats())
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/vulnerabilities/cves', methods=['GET'])
+def get_cves():
+    """Section 25: Get CVE vulnerabilities"""
+    try:
+        from AI.vulnerability_manager import vulnerability_manager
+        vulns = vulnerability_manager.scan_system_vulnerabilities()
+        return jsonify({'vulnerabilities': vulns, 'count': len(vulns)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/vulnerabilities/patches', methods=['GET'])
+def get_patches():
+    """Section 25: Get prioritized patches"""
+    try:
+        from AI.vulnerability_manager import vulnerability_manager
+        patches = vulnerability_manager.prioritize_patches()
+        return jsonify({'patches': patches, 'count': len(patches)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/vulnerabilities/sbom', methods=['GET'])
+def get_sbom():
+    """Section 25: Get Software Bill of Materials"""
+    try:
+        from AI.vulnerability_manager import vulnerability_manager
+        sbom = vulnerability_manager.generate_sbom()
+        return jsonify(sbom)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/vulnerabilities/dependencies', methods=['GET'])
+def get_vulnerable_dependencies():
+    """Section 25: Get vulnerable dependencies"""
+    try:
+        from AI.vulnerability_manager import vulnerability_manager
+        deps = vulnerability_manager.scan_dependencies()
+        return jsonify({'dependencies': deps, 'count': len(deps)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# SECTION 29: CLOUD SECURITY POSTURE MANAGEMENT
+# ============================================================================
+
+@app.route('/api/cloud/posture', methods=['GET'])
+def get_cloud_posture():
+    """Section 29: Get cloud security posture"""
+    try:
+        from AI.cloud_security import cloud_security
+        return jsonify(cloud_security.get_stats())
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/cloud/misconfigurations', methods=['GET'])
+def get_cloud_misconfigurations():
+    """Section 29: Get cloud misconfigurations"""
+    try:
+        from AI.cloud_security import cloud_security
+        aws = cloud_security.detect_aws_misconfigurations()
+        azure = cloud_security.detect_azure_misconfigurations()
+        gcp = cloud_security.detect_gcp_misconfigurations()
+        return jsonify({
+            'aws': aws,
+            'azure': azure,
+            'gcp': gcp,
+            'total': len(aws) + len(azure) + len(gcp)
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/cloud/iam', methods=['GET'])
+def get_cloud_iam_issues():
+    """Section 29: Get IAM policy issues"""
+    try:
+        from AI.cloud_security import cloud_security
+        issues = cloud_security.analyze_iam_policies()
+        return jsonify({'iam_issues': issues, 'count': len(issues)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/cloud/compliance', methods=['GET'])
+def get_cloud_compliance():
+    """Section 29: Get cloud compliance status"""
+    try:
+        from AI.cloud_security import cloud_security
+        compliance = cloud_security.get_compliance_status()
+        return jsonify(compliance)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# SECTION 18 ENHANCEMENT: CRYPTOCURRENCY MINING DETECTION
+# ============================================================================
+
+@app.route('/api/traffic/crypto-mining', methods=['GET'])
+def get_crypto_mining_detection():
+    """Enhanced Section 18: Get cryptocurrency mining detection stats"""
+    try:
+        from AI.traffic_analyzer import traffic_analyzer
+        stats = traffic_analyzer.get_crypto_mining_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# SECTION 25 ENHANCEMENT: DARK WEB MONITORING
+# ============================================================================
+
+@app.route('/api/vulnerabilities/darkweb', methods=['GET'])
+def get_darkweb_monitoring():
+    """Enhanced Section 25: Get dark web monitoring stats"""
+    try:
+        from AI.vulnerability_manager import vulnerability_manager
+        stats = vulnerability_manager.get_darkweb_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/vulnerabilities/credential-leaks', methods=['GET'])
+def get_credential_leaks():
+    """Enhanced Section 25: Check for credential leaks"""
+    try:
+        from AI.vulnerability_manager import vulnerability_manager
+        domain = request.args.get('domain', 'example.com')
+        leaks = vulnerability_manager.check_credential_leaks(domain)
+        return jsonify({'leaks': leaks, 'count': len(leaks)})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# SECTION 24 ENHANCEMENT: ATTACK SIMULATION (PURPLE TEAM)
+# ============================================================================
+
+@app.route('/api/soar/attack-simulation', methods=['GET'])
+def get_attack_simulation_stats():
+    """Enhanced Section 24: Get attack simulation statistics"""
+    try:
+        from AI.soar_workflows import soar_workflows
+        stats = soar_workflows.get_attack_simulation_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/soar/mitre-coverage', methods=['GET'])
+def get_mitre_coverage():
+    """Enhanced Section 24: Get MITRE ATT&CK coverage heatmap"""
+    try:
+        from AI.soar_workflows import soar_workflows
+        return jsonify({'coverage': soar_workflows.mitre_coverage})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/soar/red-team/schedule', methods=['POST'])
+def schedule_red_team():
+    """Enhanced Section 24: Schedule red team exercise"""
+    try:
+        from AI.soar_workflows import soar_workflows
+        data = request.get_json()
+        exercise = soar_workflows.schedule_red_team_exercise(
+            exercise_type=data.get('type', 'penetration_test'),
+            scheduled_date=data.get('date', datetime.now().isoformat())
+        )
+        return jsonify(exercise)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# SECTION 20 ENHANCEMENT: DATA LOSS PREVENTION (DLP)
+# ============================================================================
+
+@app.route('/api/zero-trust/dlp', methods=['GET'])
+def get_dlp_stats():
+    """Enhanced Section 20: Get DLP statistics"""
+    try:
+        from AI.zero_trust import zero_trust
+        stats = zero_trust.get_dlp_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/zero-trust/data-classification', methods=['GET'])
+def get_data_classification():
+    """Enhanced Section 20: Get data classification status"""
+    try:
+        from AI.zero_trust import zero_trust
+        classification = zero_trust.get_data_classification_status()
+        return jsonify(classification)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
+# SECTION 31: BACKUP & RECOVERY STATUS
+# ============================================================================
+
+@app.route('/api/backup/status', methods=['GET'])
+def get_backup_status():
+    """Section 31: Get backup status"""
+    try:
+        from AI.backup_recovery import backup_recovery
+        return jsonify(backup_recovery.get_stats())
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/backup/resilience', methods=['GET'])
+def get_ransomware_resilience():
+    """Section 31: Get ransomware resilience score"""
+    try:
+        from AI.backup_recovery import backup_recovery
+        score = backup_recovery.calculate_ransomware_resilience_score()
+        return jsonify({'resilience_score': score})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/backup/test-restore', methods=['POST'])
+def test_backup_restore():
+    """Section 31: Test backup restore"""
+    try:
+        from AI.backup_recovery import backup_recovery
+        data = request.get_json()
+        result = backup_recovery.test_backup_restore(data.get('backup_id', 'test-001'))
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+# ============================================================================
 # MAIN APPLICATION ENTRY POINT
 # ============================================================================
 

@@ -56,15 +56,34 @@ class FileAnalyzer:
         return hashes
     
     def get_file_type(self, filepath: str) -> str:
-        """Detect file type using file command"""
+        """Detect file type (cross-platform)"""
         try:
-            result = subprocess.run(['file', '-b', filepath], 
-                                  capture_output=True, text=True)
-            if result.returncode == 0:
-                return result.stdout.strip()
+            # Try mimetypes first (cross-platform)
+            mime_type, _ = mimetypes.guess_type(filepath)
+            if mime_type:
+                return mime_type
+            
+            # Unix systems: try 'file' command
+            if platform.system() in ['Linux', 'Darwin'] and shutil.which('file'):
+                result = subprocess.run(['file', '-b', filepath], 
+                                      capture_output=True, text=True, timeout=2)
+                if result.returncode == 0:
+                    return result.stdout.strip()[:100]
+            
+            # Fallback: check extension
+            ext = os.path.splitext(filepath)[1].lower()
+            ext_types = {
+                '.txt': 'text/plain',
+                '.pdf': 'application/pdf',
+                '.exe': 'application/x-executable',
+                '.dll': 'application/x-dll',
+                '.sh': 'application/x-sh',
+                '.py': 'text/x-python',
+                '.js': 'text/javascript'
+            }
+            return ext_types.get(ext, 'application/octet-stream')
         except:
-            pass
-        return "Unknown"
+            return 'unknown'
     
     def analyze_file(self, filepath: str, filename: str) -> Dict:
         """Analyze uploaded file"""
