@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
 Attack Signature Synchronization Service
-Receives attack signatures from all security nodes and stores in centralized database
+Receives attack signatures from all security nodes and stores DIRECTLY TO FILES
 
 Data Flow:
 1. Node detects attack → Extracts signature (keywords, encodings, patterns)
 2. Node DELETES attack payload (exploit code)
 3. Node sends ONLY signature hash + features to relay
-4. Relay stores signature in PostgreSQL database
-5. Relay uses signatures for ML training
+4. Relay stores signature DIRECTLY to ai_training_materials/learned_signatures.json
+5. AI training reads from files (no database needed)
 6. Relay distributes updated models back to all nodes
 
 Privacy Guarantee:
 - Nodes send ONLY attack patterns (no device info, no topology, no IPs)
-- Database stores ONLY signatures (no exploit code, no customer data)
+- Files store ONLY signatures (no exploit code, no customer data)
 - Signatures are anonymous (no customer ID attached)
 """
 
@@ -21,9 +21,9 @@ import asyncio
 import json
 import logging
 import hashlib
+import os
 from datetime import datetime
-from typing import Dict, Any, Optional
-from database import db
+from typing import Dict, Any, Optional, List
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -32,14 +32,43 @@ logger = logging.getLogger(__name__)
 class SignatureSyncService:
     """
     Handles incoming attack signatures from security nodes
-    Stores in centralized database for ML training
+    Stores DIRECTLY to JSON files for AI training (no database needed)
     """
     
-    def __init__(self):
+    def __init__(self, training_materials_dir: str = "ai_training_materials"):
         self.signatures_received = 0
         self.signatures_stored = 0
         self.duplicates_detected = 0
         self.invalid_signatures = 0
+        
+        # File paths
+        self.training_materials_dir = training_materials_dir
+        self.signatures_file = os.path.join(training_materials_dir, "learned_signatures.json")
+        self.global_attacks_file = os.path.join(training_materials_dir, "global_attacks.json")
+        
+        # Ensure directory exists
+        os.makedirs(training_materials_dir, exist_ok=True)
+        
+        # Initialize files if they don't exist
+        self._initialize_files()
+    
+    def _initialize_files(self):
+        """Initialize signature and attack files if they don't exist"""
+        if not os.path.exists(self.signatures_file):
+            with open(self.signatures_file, 'w') as f:
+                json.dump({
+                    "metadata": {
+                        "total_signatures": 0,
+                        "last_updated": datetime.utcnow().isoformat()
+                    },
+                    "signatures": []
+                }, f, indent=2)
+            logger.info(f"✅ Created {self.signatures_file}")
+        
+        if not os.path.exists(self.global_attacks_file):
+            with open(self.global_attacks_file, 'w') as f:
+                json.dump([], f, indent=2)
+            logger.info(f"✅ Created {self.global_attacks_file}")
     
     async def process_signature(self, signature_data: Dict[str, Any], source_ip: str = None) -> Dict[str, Any]:
         """
@@ -80,18 +109,18 @@ class SignatureSyncService:
             # Calculate derived features
             signature_data = self._enrich_signature(signature_data)
             
-            # Store in database
-            signature_id = db.insert_attack_signature(signature_data)
+            # Store DIRECTLY to file (no database)
+            stored = self._store_to_file(signature_data)
             
-            if signature_id:
+            if stored and not stored.get('duplicate'):
                 self.signatures_stored += 1
-                logger.info(f"✅ Stored signature {pattern_hash[:8]}... ({signature_data['attack_type']})")
+                logger.info(f"✅ Stored signature {pattern_hash[:8]}... to file ({signature_data['attack_type']})")
                 
                 return {
                     'success': True,
-                    'signature_id': signature_id,
                     'pattern_hash': pattern_hash,
-                    'duplicate': False
+                    'duplicate': False,
+                    'storage': 'file'
                 }
             else:
                 self.duplicates_detected += 1
@@ -228,14 +257,100 @@ class SignatureSyncService:
         
         return signature
     
+    def _store_to_file(self, signature: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Store signature directly to JSON file for AI training
+        
+        Returns:
+            Dict with success status and duplicate flag
+        """
+        try:
+            # Read existing signatures
+            with open(self.signatures_file, 'r') as f:
+                data = json.load(f)
+            
+            # Check for duplicates
+            pattern_hash = signature.get('pattern_hash')
+            for existing_sig in data.get('signatures', []):
+                if existing_sig.get('pattern_hash') == pattern_hash:
+                    # Update occurrence count
+                    existing_sig['global_occurrence_count'] = existing_sig.get('global_occurrence_count', 1) + 1
+                    existing_sig['last_seen'] = datetime.utcnow().isoformat()
+                    
+                    # Save updated data
+                    with open(self.signatures_file, 'w') as f:
+                        json.dump(data, f, indent=2)
+                    
+                    return {'success': True, 'duplicate': True}
+            
+            # Add new signature
+            signature['first_seen'] = datetime.utcnow().isoformat()
+            signature['last_seen'] = datetime.utcnow().isoformat()
+            signature['global_occurrence_count'] = 1
+            
+            data['signatures'].append(signature)
+            
+            # Update metadata
+            data['metadata']['total_signatures'] = len(data['signatures'])
+            data['metadata']['last_updated'] = datetime.utcnow().isoformat()
+            
+            # Save to file
+            with open(self.signatures_file, 'w') as f:
+                json.dump(data, f, indent=2)
+            
+            logger.debug(f"📝 Saved to {self.signatures_file} (Total: {data['metadata']['total_signatures']})")
+            return {'success': True, 'duplicate': False}
+            
+        except Exception as e:
+            logger.error(f"Failed to store signature to file: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    def store_global_attack(self, attack_data: Dict[str, Any]):
+        """
+        Store complete attack data to global_attacks.json for AI training
+        """
+        try:
+            # Read existing attacks
+            if os.path.exists(self.global_attacks_file):
+                with open(self.global_attacks_file, 'r') as f:
+                    attacks = json.load(f)
+            else:
+                attacks = []
+            
+            # Add timestamp if not present
+            if 'logged_at_relay' not in attack_data:
+                attack_data['logged_at_relay'] = datetime.utcnow().isoformat()
+            
+            # Append new attack
+            attacks.append(attack_data)
+            
+            # Save to file
+            with open(self.global_attacks_file, 'w') as f:
+                json.dump(attacks, f, indent=2)
+            
+            logger.debug(f"📝 Saved attack to {self.global_attacks_file} (Total: {len(attacks)})")
+            
+        except Exception as e:
+            logger.error(f"Failed to store attack to file: {e}")
+    
     def get_sync_statistics(self) -> Dict[str, Any]:
         """Get synchronization statistics"""
+        # Count signatures in file
+        total_sigs = 0
+        try:
+            with open(self.signatures_file, 'r') as f:
+                data = json.load(f)
+                total_sigs = len(data.get('signatures', []))
+        except:
+            pass
+        
         return {
             'signatures_received': self.signatures_received,
             'signatures_stored': self.signatures_stored,
             'duplicates_detected': self.duplicates_detected,
             'invalid_signatures': self.invalid_signatures,
-            'database_stats': db.get_database_stats()
+            'total_signatures_in_file': total_sigs,
+            'storage_type': 'file-based (no database)'
         }
 
 

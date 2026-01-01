@@ -1,6 +1,6 @@
 # Relay Server - Platform-Specific Setup
 
-## ✨ Features (December 2025)
+## ✨ Features (January 2026)
 
 **Security:**
 - ✅ **Cryptographic Signing**: RSA-2048 + HMAC-SHA256 message authentication
@@ -9,11 +9,13 @@
 - ✅ **Node Fingerprinting**: Automatic OS/type detection for federated learning
 - ✅ **Compatibility Scoring**: 0.0-1.0 peer compatibility for data quality
 
-**Machine Learning:**
+**Machine Learning (File-Based, No Database):**
+- ✅ **Direct File Storage**: Signatures saved to `ai_training_materials/learned_signatures.json`
+- ✅ **Global Attacks Log**: Complete attacks in `ai_training_materials/global_attacks.json`
 - ✅ **Time-Weighted Training**: 10x weight for recent threats (<7 days)
 - ✅ **90-Day Sliding Window**: Automatic expiration of stale threat data
 - ✅ **Federated Normalization**: Z-score per node type (prevents feature skew)
-- ✅ **Distribution Drift Detection**: Alerts when features >3σ from baseline
+- ✅ **No Database Required**: Zero credentials, zero setup - just files
 
 **Network:**
 - ✅ **WebSocket Protocol**: Lightweight, persistent connections
@@ -23,7 +25,44 @@
 
 ---
 
-## 🖥️ Choose Your Platform:
+## 🔄 Data Flow (Simplified)
+
+```
+1. Node detects attack → Extracts signature (keywords, encodings)
+2. Node DELETES exploit payload immediately
+3. Node sends signature to relay via WebSocket
+4. Relay stores DIRECTLY to ai_training_materials/learned_signatures.json
+5. AI trainer reads from JSON files (no database queries)
+6. Models trained every 6 hours from files
+7. Nodes download updated models
+```
+
+**No PostgreSQL. No credentials. Just simple JSON files.**
+
+---
+
+## � File Structure
+
+```
+relay/
+├── relay_server.py              # WebSocket server (main)
+├── signature_sync.py            # Stores signatures to JSON files
+├── ai_retraining.py            # Reads files, trains models
+├── gpu_trainer.py              # GPU-accelerated training
+├── ai_training_materials/      # ALL DATA STORED HERE
+│   ├── learned_signatures.json # Attack signatures from all nodes
+│   ├── global_attacks.json     # Complete attack logs
+│   ├── exploitdb/              # ExploitDB dataset
+│   └── ml_models/              # Trained models
+├── docker-compose.yml          # Docker configuration
+└── README.md                   # This file
+```
+
+**Key Point:** Everything is file-based. No database setup required.
+
+---
+
+## �🖥️ Choose Your Platform:
 
 ### Linux (Ubuntu/Debian/CentOS)
 ```bash
@@ -202,6 +241,8 @@ RELAY_URL=wss://YOUR-WINDOWS-PUBLIC-IP:60001
 | **Local Testing** | ✅ Yes | ✅ Yes | ✅ Yes |
 | **Setup Script** | setup.sh | setup-macos.sh | setup.bat |
 | **Firewall Config** | Manual | Automatic | Automatic |
+| **Database Required** | ❌ No | ❌ No | ❌ No |
+| **File Storage** | ✅ JSON Files | ✅ JSON Files | ✅ JSON Files |
 | **Public IP** | Static | Dynamic | Dynamic |
 | **Cost (Cloud)** | $5/month | N/A | N/A |
 | **24/7 Uptime** | ✅ Yes | ❌ Desktop Only | ❌ Desktop Only |

@@ -1,7 +1,12 @@
 {
-  "metrics": {
-    "146.75.46.49": {
-      "bandwidth": {
-        "bytes_sent": 151387,
-        "bytes_received": 0,
-        "last_measurement": 
+  "metrics": {},
+  "network_stats": {
+    "total_bandwidth_in": 0,
+    "total_bandwidth_out": 0,
+    "average_latency": 0.0,
+    "network_quality": 100.0,
+    "congestion_level": 0.0,
+    "active_connections": 0
+  },
+  "last_updated": "2026-01-01T11:52:23.678769+08:00"
+}

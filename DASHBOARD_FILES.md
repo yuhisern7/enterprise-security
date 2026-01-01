@@ -161,12 +161,27 @@ Flask API (server/server.py)
     ↓
 AI/pcs_ai.py (Threat Detection)
     ↓
+AI/false_positive_filter.py (5-Gate Pipeline)
+    ├─ Gate 1: Sanity & Context Filter
+    ├─ Gate 2: Behavior Consistency
+    ├─ Gate 3: Temporal Correlation
+    ├─ Gate 4: Cross-Signal Agreement
+    └─ Gate 5: Confidence Scoring (≥75%)
+    ↓
+✅ CONFIRMED Attacks Only
+    ↓
 server/json/*.json (Data Storage)
+    ↓
+AI/signature_extractor.py (Extract Patterns)
     ↓
 AI/relay_client.py (Share Patterns)
     ↓
-Relay Server (Global Intelligence)
+Relay Server → ai_training_materials/*.json
+    ↓
+AI Training (File-Based, No Database)
 ```
+
+**Filter Rejection:** False positives are BLOCKED and never reach JSON files or AI training.
 
 ## 🛡️ Privacy Architecture
 - **Local Storage:** All customer data stays in `server/json/`
