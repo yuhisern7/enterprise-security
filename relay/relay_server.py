@@ -3,8 +3,11 @@
 WebSocket Relay Server for Enterprise Security Mesh
 Relays threat intelligence between unlimited security containers worldwide
 
-NEW: Centralized Attack Database - All attacks from all containers stored here
-Premium subscribers get access to millions of real-world attacks for AI training
+NEW: Centralized Attack Signature Database (PostgreSQL)
+- Stores ONLY attack signatures (patterns, keywords, encodings)
+- NO exploit code stored (deleted immediately at source)
+- NO customer data (device lists, topology, IPs)
+- Privacy-compliant: Anonymous attack patterns only
 """
 
 import asyncio
@@ -15,6 +18,17 @@ from datetime import datetime
 from typing import Set, Dict, Any
 import websockets
 from websockets.server import WebSocketServerProtocol
+
+# Import database and signature sync
+try:
+    from signature_sync import handle_signature_upload, sync_service
+    DATABASE_ENABLED = True
+    logger_temp = logging.getLogger(__name__)
+    logger_temp.info("✅ Signature database enabled")
+except Exception as e:
+    DATABASE_ENABLED = False
+    logger_temp = logging.getLogger(__name__)
+    logger_temp.warning(f"⚠️  Database not available: {e}")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -197,7 +211,16 @@ async def broadcast_message(message: dict, sender: WebSocketServerProtocol):
     if "threat_type" in message or "threats" in message:
         stats["threats_shared"] += 1
         
-        # **NEW**: Log attack to centralized database
+        # **NEW**: If message contains attack signature, store in database
+        if "signature" in message and DATABASE_ENABLED:
+            try:
+                source_ip = sender.remote_address[0] if sender.remote_address else None
+                result = await handle_signature_upload(message["signature"], source_ip)
+                logger.info(f"Signature stored: {result.get('pattern_hash', 'N/A')[:8]}...")
+            except Exception as e:
+                logger.error(f"Failed to store signature: {e}")
+        
+        # Log to JSON fallback (for compatibility)
         await log_attack_to_database(message)
     
     # Broadcast to all clients except sender

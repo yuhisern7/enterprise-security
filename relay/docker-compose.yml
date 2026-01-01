@@ -1,6 +1,40 @@
 version: '3.8'
 
 services:
+  # PostgreSQL Database - Attack Signatures ONLY (NO customer data)
+  postgres:
+    image: postgres:16-alpine
+    container_name: attack-signature-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=attack_signatures
+      - POSTGRES_USER=battlehardened
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-change-this-password}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database_backups:/backups
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U battlehardened -d attack_signatures"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c work_mem=16MB
+      -c maintenance_work_mem=128MB
+
   relay-server:
     build:
       context: ..
@@ -8,6 +42,9 @@ services:
     container_name: security-relay-server
     restart: unless-stopped
     network_mode: host
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       # Mount ai_training_materials (825 MB training data)
       - ./ai_training_materials:/app/relay/ai_training_materials
@@ -24,6 +61,13 @@ services:
       # Model distribution API configuration
       - API_HOST=0.0.0.0
       - API_PORT=60002
+      
+      # Database configuration
+      - DB_HOST=localhost
+      - DB_PORT=5432
+      - DB_NAME=attack_signatures
+      - DB_USER=battlehardened
+      - DB_PASSWORD=${DB_PASSWORD:-change-this-password}
       
       # Training configuration
       - TRAINING_ENABLED=true
@@ -42,3 +86,7 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+volumes:
+  postgres_data:
+    driver: local
