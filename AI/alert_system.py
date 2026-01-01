@@ -15,8 +15,10 @@ class AlertSystem:
     """Send real alerts via email and SMS"""
     
     def __init__(self):
-        self.config_file = '/app/json/alert_config.json'
-        self.stats_file = '/app/json/alert_stats.json'
+        # Use /app in Docker, ./server/json outside Docker
+        base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
+        self.config_file = os.path.join(base_dir, 'json', 'alert_config.json')
+        self.stats_file = os.path.join(base_dir, 'json', 'alert_stats.json')
         self.config = self.load_config()
         self.stats = {'email_sent': 0, 'sms_sent': 0, 'failed': 0}
         self.load_stats()

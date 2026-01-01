@@ -13,8 +13,10 @@ class SOARIntegration:
     """Manage API keys for SOAR integrations"""
     
     def __init__(self):
-        self.keys_file = '/app/json/api_keys.json'
-        self.stats_file = '/app/json/api_stats.json'
+        # Use /app in Docker, ./server/json outside Docker
+        base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
+        self.keys_file = os.path.join(base_dir, 'json', 'api_keys.json')
+        self.stats_file = os.path.join(base_dir, 'json', 'api_stats.json')
         self.keys = self.load_keys()
         self.stats = {'total_requests': 0, 'last_request': None}
         self.load_stats()

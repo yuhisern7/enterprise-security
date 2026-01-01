@@ -14,14 +14,16 @@ class UserTracker:
     """Track users on the network using real system data"""
     
     def __init__(self):
-        self.users_file = '/app/json/tracked_users.json'
+        # Use /app in Docker, ./server/json outside Docker
+        base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
+        self.users_file = os.path.join(base_dir, 'json', 'tracked_users.json')
         self.suspicious_activities = []
         
     def get_arp_table(self) -> List[Dict]:
         """Get ARP table to identify connected users"""
         users = []
         try:
-            result = subprocess.run(['arp', '-a'], capture_output=True, text=True)
+            result = subprocess.run(['arp', '-a'], capture_output=True, text=True, timeout=2)
             if result.returncode == 0:
                 for line in result.stdout.split('\n'):
                     if '(' in line and ')' in line:
@@ -38,6 +40,9 @@ class UserTracker:
                                 'mac': mac,
                                 'last_seen': datetime.now().isoformat()
                             })
+        except subprocess.TimeoutExpired:
+            # ARP command timed out - return empty list
+            pass
         except Exception as e:
             print(f"[USER_TRACKER] ARP error: {e}")
         
@@ -49,8 +54,10 @@ class UserTracker:
         
         # Load threat log to check if any user IPs are in blocklist
         try:
-            if os.path.exists('/app/json/threat_log.json'):
-                with open('/app/json/threat_log.json', 'r') as f:
+            base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
+            threat_log = os.path.join(base_dir, 'json', 'threat_log.json')
+            if os.path.exists(threat_log):
+                with open(threat_log, 'r') as f:
                     threats = json.load(f)
                     blocked_ips = {t.get('src_ip') for t in threats if t.get('blocked')}
                     
@@ -76,7 +83,7 @@ class UserTracker:
         # Count active sessions from netstat/ss
         active_sessions = 0
         try:
-            result = subprocess.run(['ss', '-tu'], capture_output=True, text=True)
+            result = subprocess.run(['ss', '-tu'], capture_output=True, text=True, timeout=2)
             if result.returncode == 0:
                 active_sessions = len([l for l in result.stdout.split('\n') if 'ESTAB' in l])
         except:

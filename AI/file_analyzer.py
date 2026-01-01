@@ -14,7 +14,9 @@ class FileAnalyzer:
     """Analyze files for threats using hashes and file type detection"""
     
     def __init__(self):
-        self.analysis_log = '/app/json/file_analysis.json'
+        # Use /app in Docker, ./server/json outside Docker
+        base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
+        self.analysis_log = os.path.join(base_dir, 'json', 'file_analysis.json')
         self.stats = {
             'analyzed': 0,
             'malicious': 0,
@@ -115,8 +117,9 @@ class FileAnalyzer:
         """Check if hash is known malicious (checks local threat intel)"""
         try:
             # Check if hash exists in threat log
-            if os.path.exists('/app/AI/learned_signatures.json'):
-                with open('/app/AI/learned_signatures.json', 'r') as f:
+            sig_file = os.path.join(os.path.dirname(__file__), 'learned_signatures.json')
+            if os.path.exists(sig_file):
+                with open(sig_file, 'r') as f:
                     data = json.load(f)
                     # This is a simplified check - would need proper hash database
                     if sha256 in str(data):

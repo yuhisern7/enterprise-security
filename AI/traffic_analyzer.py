@@ -14,7 +14,9 @@ class TrafficAnalyzer:
     """Real-time traffic analysis using system network tools"""
     
     def __init__(self):
-        self.stats_file = '/app/json/traffic_stats.json'
+        # Use /app in Docker, ./server/json outside Docker
+        base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
+        self.stats_file = os.path.join(base_dir, 'json', 'traffic_stats.json')
         self.blocked_apps = defaultdict(int)
         
     def get_interface(self) -> Optional[str]:
