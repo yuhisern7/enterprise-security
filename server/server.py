@@ -2007,6 +2007,22 @@ def unblock_device_api():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
+@app.route('/api/scan-devices', methods=['POST'])
+def manual_scan_devices():
+    """Manually trigger device scan"""
+    try:
+        from device_scanner import trigger_manual_scan
+        result = trigger_manual_scan()
+        return jsonify({
+            'success': True,
+            'message': 'Device scan completed',
+            'devices_found': result.get('total_count', 0),
+            'scan_time': result.get('last_scan')
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # API endpoints for Adaptive Honeypot
 # ============================================================================
 # SECTION 16: ADAPTIVE HONEYPOT - AI TRAINING SANDBOX

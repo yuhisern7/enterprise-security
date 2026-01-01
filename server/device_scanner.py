@@ -656,5 +656,25 @@ def is_device_blocked(mac):
     return _is_blocked_real(mac)
 
 
+def trigger_manual_scan():
+    """Manually trigger a device scan and return results"""
+    global scanner
+    
+    if not SCAPY_AVAILABLE:
+        return {
+            'devices': [],
+            'total_count': 0,
+            'last_scan': None,
+            'device_summary': {},
+            'error': 'scapy not available'
+        }
+    
+    print("[DEVICE SCANNER] Manual scan triggered")
+    scanner._scan_network()
+    
+    # Return current device data
+    return get_connected_devices()
+
+
 # Global scanner instance
 scanner = DeviceScanner()

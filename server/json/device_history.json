@@ -30,15 +30,35 @@
     "hostname": "_gateway",
     "open_ports": [
       {
+        "port": 80,
+        "service": "HTTP"
+      },
+      {
+        "port": 443,
+        "service": "HTTPS"
+      },
+      {
+        "port": 554,
+        "service": "RTSP"
+      },
+      {
+        "port": 3389,
+        "service": "RDP"
+      },
+      {
         "port": 5900,
         "service": "VNC"
+      },
+      {
+        "port": 8080,
+        "service": "HTTP-Alt"
       },
       {
         "port": 8443,
         "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-02T00:11:48.074317",
+    "last_seen": "2026-01-02T00:28:30.155290",
     "first_seen": "2025-12-29T19:59:39.075591"
   },
   "e8:48:b8:2e:80:85": {
@@ -47,7 +67,7 @@
     "type": "Router/Network",
     "hostname": "TP-Link-Router-101",
     "open_ports": [],
-    "last_seen": "2026-01-02T00:11:56.042651",
+    "last_seen": "2026-01-02T00:28:34.881853",
     "first_seen": "2026-01-01T05:31:32.869006"
   },
   "24:0f:9b:24:a0:4a": {
@@ -93,7 +113,7 @@
         "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-02T00:11:58.100065",
+    "last_seen": "2026-01-02T00:28:36.963243",
     "first_seen": "2026-01-01T05:31:34.929969"
   },
   "1c:86:9a:3f:61:3c": {
@@ -102,7 +122,7 @@
     "type": "Android",
     "hostname": "Samsung-Phone-106",
     "open_ports": [],
-    "last_seen": "2026-01-02T00:12:02.817894",
+    "last_seen": "2026-01-02T00:28:45.959908",
     "first_seen": "2026-01-01T05:31:39.647915"
   },
   "36:ce:45:73:56:3d": {
@@ -112,44 +132,12 @@
     "hostname": "Device-105",
     "open_ports": [
       {
-        "port": 22,
-        "service": "SSH"
-      },
-      {
-        "port": 80,
-        "service": "HTTP"
-      },
-      {
-        "port": 443,
-        "service": "HTTPS"
-      },
-      {
         "port": 445,
         "service": "SMB"
-      },
-      {
-        "port": 554,
-        "service": "RTSP"
-      },
-      {
-        "port": 3389,
-        "service": "RDP"
-      },
-      {
-        "port": 5900,
-        "service": "VNC"
-      },
-      {
-        "port": 8080,
-        "service": "HTTP-Alt"
-      },
-      {
-        "port": 8443,
-        "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-01T04:04:47.087433",
-    "first_seen": "2026-01-01T04:04:47.087445"
+    "last_seen": "2026-01-02T00:28:56.966232",
+    "first_seen": "2026-01-02T00:28:56.966253"
   },
   "22:9c:c8:47:7d:23": {
     "ip": "192.168.0.107",
@@ -194,7 +182,7 @@
         "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-02T00:12:04.902661",
+    "last_seen": "2026-01-02T00:28:41.234915",
     "first_seen": "2026-01-01T23:52:57.305079"
   },
   "40:ac:bf:3e:53:af": {
@@ -240,7 +228,7 @@
         "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-02T00:12:06.987035",
+    "last_seen": "2026-01-02T00:28:50.223217",
     "first_seen": "2026-01-01T22:36:52.439855"
   },
   "48:35:2b:cb:48:0a": {
@@ -286,8 +274,8 @@
         "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-02T00:06:35.858630",
-    "first_seen": "2026-01-01T22:30:58.677295"
+    "last_seen": "2026-01-02T00:28:39.083357",
+    "first_seen": "2026-01-02T00:17:42.161360"
   },
   "40:ac:bf:37:d6:39": {
     "ip": "192.168.0.102",
@@ -332,7 +320,7 @@
         "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-02T00:12:09.063562",
+    "last_seen": "2026-01-02T00:28:52.320340",
     "first_seen": "2026-01-01T22:56:13.157775"
   },
   "84:46:93:6d:3c:3f": {
@@ -378,7 +366,7 @@
         "service": "HTTPS-Alt"
       }
     ],
-    "last_seen": "2026-01-02T00:12:11.159092",
+    "last_seen": "2026-01-02T00:28:48.129197",
     "first_seen": "2025-12-31T23:05:04.396236"
   },
   "92:dc:0b:ea:17:30": {

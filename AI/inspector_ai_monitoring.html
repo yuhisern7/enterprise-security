@@ -956,9 +956,14 @@
         <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(95, 255, 159, 0.1); border-radius: 6px; border: 1px solid #5fff9f;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
             <p class="muted" style="margin: 0;"><strong>🛡️ Protected Devices List:</strong></p>
-            <button id="previous-connections-btn" onclick="togglePreviousConnections()" style="background: linear-gradient(135deg, #5fff9f, #5fe2ff); color: #0b1020; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem;">
-              📜 Previous Connections
-            </button>
+            <div style="display: flex; gap: 0.5rem;">
+              <button id="manual-scan-btn" onclick="manualScanDevices()" style="background: linear-gradient(135deg, #4f9cff, #5fe2ff); color: #0b1020; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem;">
+                🔄 Scan Now
+              </button>
+              <button id="previous-connections-btn" onclick="togglePreviousConnections()" style="background: linear-gradient(135deg, #5fff9f, #5fe2ff); color: #0b1020; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem;">
+                📜 Previous Connections
+              </button>
+            </div>
           </div>
           <div id="device-list" style="max-height: 400px; overflow-y: auto;">
             <div class="loading-spinner">Scanning network for devices...</div>
@@ -981,7 +986,8 @@
         
         <div style="margin-top: 1rem; padding: 1rem; background: rgba(95, 226, 255, 0.1); border-radius: 6px; border: 1px solid #5fe2ff;">
           <p class="muted" style="margin: 0; line-height: 1.8;">
-            <strong>🔍 Device Discovery:</strong> Network scanned every 5 minutes - Last scan: <span id="last-device-scan" style="color: #5fe2ff;">Never</span><br>
+            <strong>🔍 Device Discovery:</strong> Automatic scan every 5 minutes • Last scan: <span id="last-device-scan" style="color: #5fe2ff;">Never</span><br>
+            <strong>📱 Detection:</strong> iOS, Android, Windows, Mac, Linux, Cameras, Routers, IoT devices<br>
             <strong>🔒 Privacy:</strong> Device information stays local - never shared with P2P network<br>
             <strong>⚡ Protection:</strong> All detected devices are automatically protected from network attacks
           </p>
@@ -4147,8 +4153,46 @@
           `;
         }
         
-        // Refresh every 60 seconds (matches scan interval)
-        setTimeout(loadConnectedDevices, 300000);
+        // Refresh every 60 seconds for real-time updates
+        setTimeout(loadConnectedDevices, 60000);
+      }
+      
+      // Manual scan devices
+      async function manualScanDevices() {
+        const btn = document.getElementById('manual-scan-btn');
+        const originalHTML = btn.innerHTML;
+        
+        try {
+          btn.disabled = true;
+          btn.innerHTML = '⏳ Scanning...';
+          btn.style.opacity = '0.6';
+          
+          const response = await fetch('/api/scan-devices', { method: 'POST' });
+          const result = await response.json();
+          
+          if (result.success) {
+            btn.innerHTML = '✅ Scan Complete!';
+            // Reload devices immediately
+            await loadConnectedDevices();
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+              btn.innerHTML = originalHTML;
+              btn.disabled = false;
+              btn.style.opacity = '1';
+            }, 2000);
+          } else {
+            throw new Error(result.error || 'Scan failed');
+          }
+        } catch (error) {
+          console.error('Manual scan error:', error);
+          btn.innerHTML = '❌ Scan Failed';
+          setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+            btn.style.opacity = '1';
+          }, 2000);
+        }
       }
       
       function getDeviceIcon(type) {
