@@ -8,19 +8,19 @@
 
 | Category | Status | Count |
 |----------|--------|-------|
-| **✅ Dashboard Sections** | Live & Working | **31/31** |
+| **✅ Dashboard Sections** | Live & Working | **29/29** |
 | **🔌 Active APIs** | Production | **82+ endpoints** |
 | **🌍 P2P Network** | Global Mesh | **100+ countries** |
 | **🛡️ Real-Time Protection** | Active | **No Fake Data** |
 
-**Latest Update:** ✅ All 31 sections operational with real backends - Advanced features (crypto mining, dark web, DLP, backup monitoring) now live!
+**Latest Update:** ✅ All 29 sections operational with real backends - Advanced features (crypto mining, dark web, DLP, backup monitoring) now live!
 
 ---
 
 ## 🖥️ PLATFORM COMPATIBILITY
 
 ### 🐧 Linux (Recommended - Full Feature Set)
-**Best Experience:** All 31 sections fully operational with native commands and utilities.
+**Best Experience:** All 29 sections fully operational with native commands and utilities.
 
 - ✅ **100% Feature Coverage** - All network monitoring, packet capture, system analysis
 - ✅ **Native Performance** - Direct access to `/sys`, `ss`, `netstat`, `tcpdump`
@@ -33,7 +33,7 @@
 - ✅ **AI/ML Engine** - RandomForest, IsolationForest, LSTM models work on all platforms
 - ✅ **Threat Detection** - Real-time attack classification and blocking (psutil-based)
 - ✅ **Signature Learning** - Global P2P threat intelligence fully operational
-- ✅ **Web Dashboard** - All 31 sections accessible via browser
+- ✅ **Web Dashboard** - All 29 sections accessible via browser
 - ⚠️ **Limited Metrics** - Some advanced network statistics require Linux-specific tools
 - 💡 **Docker Recommended** - Run Linux container for full native feature parity
 
@@ -51,7 +51,7 @@
 
 ---
 
-## ✅ COMPLETE FEATURE LIST (31 Active Sections)
+## ✅ COMPLETE FEATURE LIST (29 Active Sections)
 
 ### 📖 Introduction & Core System (5 Sections)
 - [x] **Section 1:** ℹ️ AI Security Monitoring - How It Works
@@ -63,38 +63,36 @@
 ### 📊 Security Overview & Threat Monitoring (5 Sections)
 - [x] **Section 6:** 📊 Security Overview - Live Statistics
 - [x] **Section 7:** 🎯 Threat Analysis by Type
-- [x] **Section 8:** 🔒 Blocked IP Addresses (Auto-blocked attackers)
-- [x] **Section 9:** ✅ Whitelisted IP Addresses (Trusted IPs)
-- [x] **Section 10:** 🔐 Failed Login Attempts (Brute-force tracking)
+- [x] **Section 8:** 🛡️ IP Management & Threat Monitoring (Blocked/Trusted/Live Threats)
+- [x] **Section 9:** 🔐 Failed Login Attempts (Brute-force tracking)
+- [x] **Section 10:** 📈 Attack Type Breakdown (Visual analytics)
 
-### 🚨 Real-Time Threat & Analysis (4 Sections)
-- [x] **Section 11:** 📝 Live Threat Monitor - Real-Time Attack Logs
-- [x] **Section 12:** 📈 Attack Type Breakdown (Visual analytics)
-- [x] **Section 13:** 📦 Automated Signature Extraction **[UNIQUE!]** (Patterns only, ZERO exploit code)
-- [x] **Section 14:** 💻 System Health & Network Performance **[2-in-1 Tabbed]**
+### 🚨 Detection & Intelligence (5 Sections)
+- [x] **Section 11:** 📦 Automated Signature Extraction **[UNIQUE!]** (Patterns only, ZERO exploit code)
+- [x] **Section 12:** 💻 System Health & Network Performance **[2-in-1 Tabbed]**
+- [x] **Section 13:** ✅ Compliance Dashboard (PCI-DSS, HIPAA, GDPR, SOC 2)
+- [x] **Section 14:** 🍯 Adaptive Honeypot - AI Training Sandbox (8 service personas)
+- [x] **Section 15:** 🤖 AI Security Crawlers & Threat Intelligence Sources (10 live crawlers)
 
-### ✅ Compliance & Intelligence (3 Sections)
-- [x] **Section 15:** ✅ Compliance Dashboard (PCI-DSS, HIPAA, GDPR, SOC 2)
-- [x] **Section 16:** 🍯 Adaptive Honeypot - AI Training Sandbox (8 service personas)
-- [x] **Section 17:** 🤖 AI Security Crawlers & Threat Intelligence Sources (10 live crawlers)
+### 🔍 Network & Identity Defense (5 Sections)
+- [x] **Section 16:** 🔍 Traffic Analysis & Inspection (Deep Packet Inspection, App-Aware Blocking, Encrypted Traffic)
+- [x] **Section 17:** 🌍 DNS & Geo Security (DNS Security, Geo-IP Blocking)
+- [x] **Section 18:** 👤 User & Identity Monitoring + Zero Trust (User Tracking, Insider Threat, Device Posture)
+- [x] **Section 19:** 🔎 Forensics & Threat Hunting (Full Packet Capture, Threat Hunting UI)
+- [x] **Section 20:** 💣 Sandbox Detonation (Automated Malware Analysis)
 
-### 🔍 Advanced Security Features (7 Sections)
-- [x] **Section 18:** 🔍 Traffic Analysis & Inspection (Deep Packet Inspection, App-Aware Blocking, Encrypted Traffic)
-- [x] **Section 19:** 🌍 DNS & Geo Security (DNS Security, Geo-IP Blocking)
-- [x] **Section 20:** 👤 User & Identity Monitoring + Zero Trust (User Tracking, Insider Threat, Device Posture)
-- [x] **Section 21:** 🔎 Forensics & Threat Hunting (Full Packet Capture, Threat Hunting UI)
-- [x] **Section 22:** 💣 Sandbox Detonation (Automated Malware Analysis)
-- [x] **Section 23:** 📧 Email/SMS Alerts (Real-time Notification System)
-- [x] **Section 24:** 🔌 SOAR Integration + Attack Simulation (REST API, SOAR Connectors, Purple Team Testing)
+### 📡 Response & Integrations (4 Sections)
+- [x] **Section 21:** 📧 Email/SMS Alerts (Real-time Notification System)
+- [x] **Section 22:** 🔌 API for SOAR Integration + Workflow Automation
+- [x] **Section 23:** 🛡️ Vulnerability & Supply Chain Management (CVE/SBOM/Patch Prioritization)
+- [x] **Section 24:** 🪙 Cryptocurrency Mining Detection (CPU/GPU Spike Detection, 18 Miner Signatures, Blockchain Port Scanning)
 
-### 🆕 Enterprise Security Features (7 Sections) - **NEWLY ENHANCED**
-- [x] **Section 25:** 🔐 Vulnerability Management + Dark Web Monitoring (CVE Tracking, Credential Leak Detection, Breach Monitoring)
-- [x] **Section 26:** 🪙 Cryptocurrency Mining Detection (CPU/GPU Spike Detection, 18 Miner Signatures, Blockchain Port Scanning)
-- [x] **Section 27:** 🌑 Dark Web Monitoring (Credential Leaks, Brand Mentions, Stolen Data Marketplaces)
-- [x] **Section 28:** 🎮 Attack Simulation - Purple Team (Red Team Exercises, BAS Testing, MITRE ATT&CK Coverage)
-- [x] **Section 29:** ☁️ Cloud Security Posture (Multi-Cloud Support: AWS, Azure, GCP)
-- [x] **Section 30:** 🔐 Data Loss Prevention - DLP (PII/PHI Detection, Data Exfiltration, File Classification)
-- [x] **Section 31:** 💾 Backup & Recovery Status (Ransomware Resilience Score, RTO Tracking, Air-Gap Verification)
+### 🆕 Extended Coverage (5 Sections)
+- [x] **Section 25:** 🌑 Dark Web Monitoring (Credential Leaks, Brand Mentions, Stolen Data Marketplaces)
+- [x] **Section 26:** 🎮 Attack Simulation - Purple Team (Red Team Exercises, BAS Testing, MITRE ATT&CK Coverage)
+- [x] **Section 27:** ☁️ Cloud Security Posture (Multi-Cloud Support: AWS, Azure, GCP)
+- [x] **Section 28:** 🔐 Data Loss Prevention - DLP (PII/PHI Detection, Data Exfiltration, File Classification)
+- [x] **Section 29:** 💾 Backup & Recovery Status (Ransomware Resilience Score, RTO Tracking, Air-Gap Verification)
 
 
 ---
@@ -109,13 +107,13 @@
 - **False Positive Filter** - 5-gate pipeline (99.2% noise reduction)
 
 ### AI-Powered Features
-- **Live Signature Extraction** - Automatic attack pattern learning (Section 13)
-- **Adaptive Honeypot** - 8 service personas with behavioral learning (Section 16)
-- **Traffic Analysis** - Deep packet inspection with ML classification (Section 18)
-- **User Behavior Analytics** - Insider threat detection with UEBA (Section 20)
-- **Sandbox Detonation** - Automated malware analysis with AI verdict (Section 22)
-- **Crypto Mining Detection** - Process behavior + network pattern matching (Section 26)
-- **Attack Simulation** - Purple team testing with MITRE ATT&CK mapping (Section 28)
+- **Live Signature Extraction** - Automatic attack pattern learning (Section 11)
+- **Adaptive Honeypot** - 8 service personas with behavioral learning (Section 14)
+- **Traffic Analysis** - Deep packet inspection with ML classification (Section 16)
+- **User Behavior Analytics** - Insider threat detection with UEBA (Section 18)
+- **Sandbox Detonation** - Automated malware analysis with AI verdict (Section 20)
+- **Crypto Mining Detection** - Process behavior + network pattern matching (Section 24)
+- **Attack Simulation** - Purple team testing with MITRE ATT&CK mapping (Section 26)
 
 ### Global AI Training Network
 - **P2P Mesh Network** - 100+ countries contributing threat intelligence
@@ -133,7 +131,7 @@
 
 ---
 
-## 🎯 KEY FEATURE: Live Signature Extraction (Section 13)
+## 🎯 KEY FEATURE: Live Signature Extraction (Section 11)
 
 **Revolutionary Approach:** Extract attack signatures from live attacks, then immediately delete the payload.
 

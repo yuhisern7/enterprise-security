@@ -322,9 +322,6 @@ class DeviceScanner:
                 # Scan for open ports
                 open_ports = self._scan_ports(ip)
                 
-                # Detect VPN usage on this device
-                vpn_detected = self._detect_vpn_usage(ip, hostname, open_ports)
-                
                 devices[mac] = {
                     'ip': ip,
                     'mac': mac,
@@ -332,7 +329,6 @@ class DeviceScanner:
                     'vendor': vendor,
                     'hostname': hostname,
                     'open_ports': open_ports,
-                    'vpn_detected': vpn_detected,
                     'last_seen': datetime.now().isoformat(),
                     'first_seen': _connected_devices.get(mac, {}).get('first_seen', datetime.now().isoformat())
                 }
@@ -479,56 +475,19 @@ class DeviceScanner:
         # Last resort: just use IP suffix
         return f"Unknown-{ip_suffix}"
     
-    def _detect_vpn_usage(self, ip, hostname, open_ports):
-        """Detect if a device is using VPN by checking for VPN adapter patterns and ports"""
-        vpn_indicators = []
-        
-        # Check hostname for VPN adapter patterns
-        vpn_hostname_keywords = ['vpn', 'tunnel', 'tun0', 'tap0', 'wireguard', 'openvpn']
-        if hostname and hostname != 'Unknown':
-            hostname_lower = hostname.lower()
-            for keyword in vpn_hostname_keywords:
-                if keyword in hostname_lower:
-                    vpn_indicators.append(f"VPN in hostname: {keyword}")
-        
-        # Check for VPN-related open ports
-        vpn_port_map = {
-            1194: 'OpenVPN',
-            1723: 'PPTP VPN',
-            4500: 'IPSec VPN',
-            500: 'IKE VPN',
-            51820: 'WireGuard'
-        }
-        
-        for port_info in open_ports:
-            port = port_info['port'] if isinstance(port_info, dict) else port_info
-            if port in vpn_port_map:
-                vpn_indicators.append(f"VPN port {port} ({vpn_port_map[port]})")
-        
-        return {
-            'is_vpn': len(vpn_indicators) > 0,
-            'confidence': min(len(vpn_indicators) * 40, 100),
-            'indicators': vpn_indicators
-        }
-    
     def _scan_ports(self, ip, timeout=0.5):
         """Scan common ports on device (accurate scan with proper error checking)"""
-        # Reduced port list for faster scanning
+        # Reduced port list for faster scanning (removed VPN ports as they're not useful for local detection)
         common_ports = {
             22: 'SSH',
             80: 'HTTP',
             443: 'HTTPS',
             445: 'SMB',
-            500: 'IKE-VPN',
             554: 'RTSP',
-            1194: 'OpenVPN',
-            1723: 'PPTP',
             3389: 'RDP',
-            4500: 'IPSec',
             5900: 'VNC',
             8080: 'HTTP-Alt',
-            8443: 'HTTPS-Alt',
-            51820: 'WireGuard'
+            8443: 'HTTPS-Alt'
         }
         
         open_ports = []

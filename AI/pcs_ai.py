@@ -205,6 +205,10 @@ _blocked_ips: set[str] = set()
 _threat_log: List[Dict] = []  # Log of LOCAL security events (shown on dashboard)
 _peer_threats: List[Dict] = []  # Log of PEER threats (private, AI training only)
 
+# DPI Monitoring Configuration - Monitor all network devices
+_DPI_ENABLED = os.getenv('DPI_MONITORING_ENABLED', 'true').lower() == 'true'
+_BLOCK_INTERNAL_THREATS = os.getenv('BLOCK_INTERNAL_THREATS', 'false').lower() == 'true'  # Set to 'true' to block internal IPs
+
 # Advanced defensive tracking for VPN/Tor/Proxy detection
 _fingerprint_tracker: Dict[str, Dict] = {}  # Browser/client fingerprints
 _behavioral_signatures: Dict[str, List[Dict]] = defaultdict(list)  # Behavioral patterns
@@ -1956,6 +1960,28 @@ def assess_login_attempt(
             should_block=True,
             ip_address=ip_address,
         )
+    
+    # DPI Monitoring: Log internal network threats for Section 13 signature extraction
+    is_internal = ip_address in ['127.0.0.1', 'localhost'] or ip_address.startswith('192.168.') or ip_address.startswith('10.') or ip_address.startswith('172.')
+    if is_internal and _DPI_ENABLED:
+        # Always log internal threats for DPI analysis
+        _log_threat(
+            ip_address=ip_address,
+            threat_type=threat_type,
+            details=f"Internal network threat (DPI monitoring) - {details}",
+            severity="MEDIUM"
+        )
+        # Optionally block internal IPs if aggressive mode enabled
+        if _BLOCK_INTERNAL_THREATS and threat_level in [ThreatLevel.HIGH, ThreatLevel.CRITICAL]:
+            _block_ip(ip_address)
+            return SecurityAssessment(
+                level=ThreatLevel.CRITICAL,
+                threats=["Internal network threat - aggressive blocking enabled"],
+                should_block=True,
+                ip_address=ip_address,
+            )
+        # Otherwise just monitor without blocking
+        return assessment_result
     
     # Clean old records
     _clean_old_records(ip_address, _failed_login_tracker, minutes=30)

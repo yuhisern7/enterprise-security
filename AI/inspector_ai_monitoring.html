@@ -137,12 +137,12 @@
         <div>
           <h3 style="margin: 0; color: #5fe2ff; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
             <span id="featureRegistryIcon">▶️</span>
-            📊 FEATURE REGISTRY - All Available Features (31 Dashboard Sections)
+            📊 FEATURE REGISTRY - All Available Features (29 Dashboard Sections)
           </h3>
           <p style="margin: 0.25rem 0 0; color: #8a92b6; font-size: 0.8rem;">Click to expand/collapse • Hover over features to see API endpoints • 82+ API endpoints active</p>
         </div>
         <div style="display: flex; gap: 1rem; align-items: center;">
-          <span style="background: #2a7f3f; color: #5fff9f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">✅ 31 Sections</span>
+          <span style="background: #2a7f3f; color: #5fff9f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">✅ 29 Sections</span>
           <span style="background: #5f5f7f; color: #5fe2ff; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🆕 14 Enhanced</span>
           <span style="background: #7f7f2a; color: #ffff5f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🔌 82+ APIs</span>
         </div>
@@ -648,169 +648,73 @@
 
     <main>
       <!-- Information Panel -->
-      <!-- ========================================
-         SECTION 1: AI SECURITY MONITORING - HOW IT WORKS
-         Lines: ~622-780
-         Purpose: Educational section explaining AI monitoring concepts
-         ======================================== -->
     <section>
         <h2>📍 Section 1 | ℹ️ AI Security Monitoring - How It Works</h2>
-        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fff9f;">✅ <strong>CORE SYSTEM:</strong> Overview of AI-powered network security system</p>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fff9f;">✅ <strong>CORE SYSTEM:</strong> Continuous discover → inspect → learn → respond pipeline for the entire network</p>
         <div style="line-height: 1.8;">
           
-          <p class="muted"><strong>🔍 1. Network Device Discovery & Active Defense (Every 5 Minutes)</strong></p>
+          <p class="muted"><strong>🔍 1. Discover & baseline the network</strong></p>
           <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>📱 <strong>Comprehensive Device Scanning:</strong> ARP-based discovery identifies ALL network devices (phones, computers, cameras, routers, IoT)</li>
-            <li>🏷️ <strong>Smart Device Classification:</strong> Auto-identifies iOS/macOS, Android, Windows, Linux, Security Cameras (Hikvision), Routers (TP-Link), Raspberry Pi, IoT devices</li>
-            <li>🎯 <strong>MAC Vendor Database:</strong> 300+ vendor prefixes for accurate device type detection</li>
-            <li>🌐 <strong>Multi-Method Hostname Resolution:</strong> Uses DNS, NetBIOS, mDNS/Avahi, /etc/hosts, and DHCP leases to identify device names</li>
-            <li>📜 <strong>7-Day Connection History:</strong> Tracks all devices that connected in past week with auto-cleanup (Section 3)</li>
-            <li>🚫 <strong>ARP Spoofing Blocker:</strong> Active network defense using Man-in-the-Middle attack to block malicious/unwanted devices without router access</li>
-            <li>⚡ <strong>Instant Device Isolation:</strong> Blocked devices lose internet access via traffic interception (more powerful than router blocking)</li>
+            <li>📡 <strong>ARP discovery every 5 minutes:</strong> Enumerates phones, laptops, servers, cameras, routers, and IoT devices</li>
+            <li>🏷️ <strong>Smart identity:</strong> MAC vendor lookups plus DNS/NetBIOS/mDNS/DHCP hostname resolution to label each device</li>
+            <li>🕰️ <strong>7-day connection history:</strong> Tracks first/last seen, network movements, and auto-cleans stale entries</li>
+            <li>🛡️ <strong>Isolation on demand:</strong> ARP-based blocking to cut any device from the network without router credentials</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>📡 2. Real-Time Network Traffic Monitoring (Deep Packet Inspection - Section 18)</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>📡 2. Inspect traffic in real time</strong></p>
           <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>📊 <strong>Full Packet Capture:</strong> Monitors ALL TCP/UDP/ICMP/ARP/DNS traffic across entire network in real-time (psutil-based, cross-platform)</li>
-            <li>🛡️ <strong>Multi-Device Protection:</strong> Simultaneously analyzes traffic from all discovered devices (phones, computers, cameras, IoT)</li>
-            <li>⚡ <strong>Sub-Millisecond Analysis:</strong> Each packet analyzed in <5ms for immediate threat detection (ML inference speed)</li>
-            <li>🔍 <strong>Protocol Inspection:</strong> Deep inspection of HTTP/HTTPS headers, payloads, DNS queries, ARP packets (Section 18, 19)</li>
-            <li>📈 <strong>Traffic Pattern Analysis:</strong> Detects anomalies in connection rates, packet sizes, protocol usage</li>
-            <li>🪙 <strong>Crypto Mining Detection:</strong> Monitors 18+ mining signatures and blockchain ports (Section 26)</li>
+            <li>🧠 <strong>Deep packet inspection:</strong> TCP/UDP/ICMP/ARP/DNS parsing with sub-millisecond ML inference</li>
+            <li>📈 <strong>Behavioral analytics:</strong> Detects spikes, protocol misuse, and odd session shapes across all devices</li>
+            <li>🪙 <strong>Crypto-mining and tool fingerprints:</strong> Matches 18+ mining patterns and popular attacker tooling (nmap, sqlmap, metasploit, hydra)</li>
+            <li>🌐 <strong>Geo/TLS/DNS awareness:</strong> Flags suspicious destinations, poisoned DNS, and JA3/JA4 fingerprints</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🤖 3. Multi-Layer AI Threat Intelligence Engine (Section 5, 16, 17)</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🤖 3. Learn & adapt with layered intelligence</strong></p>
           <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>🧠 <strong>Triple ML Models:</strong> RandomForest (94%+ classification), IsolationForest (anomaly), LSTM (sequential patterns)</li>
-            <li>📋 <strong>Live Signature Extraction:</strong> Auto-extracts attack patterns from real attacks, deletes payloads - ZERO exploit code storage (Section 13)</li>
-            <li>🌍 <strong>Global Threat Intelligence:</strong> 10 live crawlers (MalwareBazaar, URLhaus, CVE Trends, AlienVault OTX, AttackerKB) - Section 17</li>
-            <li>🎯 <strong>Attack Tool Fingerprinting:</strong> Signature-based detection of nmap, masscan, sqlmap, nikto, burp, metasploit, hydra</li>
-            <li>🔓 <strong>VPN/Tor De-Anonymization:</strong> Military-grade IP revelation attempts (Section 4)</li>
-            <li>🕵️ <strong>User Behavior Analytics (UEBA):</strong> Insider threat detection, zero trust monitoring (Section 20, 30)</li>
-            <li>🌑 <strong>Dark Web Monitoring:</strong> Credential leak detection, brand mentions, stolen data marketplaces (Section 27)</li>
-            <li>🔐 <strong>Vulnerability Management:</strong> CVE tracking, CVSS scoring, patch prioritization, SBOM generation (Section 25)</li>
+            <li>🧠 <strong>Model stack:</strong> RandomForest (classification), IsolationForest (anomaly), LSTM (sequences) with time-decayed training</li>
+            <li>📋 <strong>Live signature extraction:</strong> Pulls attack patterns while scrubbing payloads to avoid storing exploit code</li>
+            <li>🌍 <strong>Global threat feeds:</strong> Ten crawlers plus VPN/Tor de-anonymization signals to enrich detections</li>
+            <li>🕵️ <strong>Identity and UEBA:</strong> Tracks user/device posture and insider-threat anomalies</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🍯 4. Adaptive Honeypot Network (Section 16 - AI Training Sandbox)</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>⚡ 4. Automate response & resilience</strong></p>
           <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>🔌 <strong>8 Service Personas:</strong> FTP, Telnet, SSH, SMB/NetBIOS, HTTP, HTTPS, SMTP, MySQL with behavioral learning</li>
-            <li>📟 <strong>Attack Capture:</strong> Logs brute force attempts, captures credentials, records attack commands</li>
-            <li>💾 <strong>Ransomware Bait:</strong> Windows file sharing honeypot attracts ransomware/lateral movement attacks</li>
-            <li>🌐 <strong>Web Decoys:</strong> Fake web servers with deliberate vulnerabilities to lure attackers</li>
-            <li>📊 <strong>Real Attack Learning:</strong> Every honeypot interaction fed to ML models for continuous training</li>
-            <li>⚙️ <strong>Configurable Services:</strong> Enable/disable individual fake services on custom ports</li>
+            <li>🚫 <strong>Immediate enforcement:</strong> Blocklists, throttling, and device isolation triggered from detections</li>
+            <li>🍯 <strong>Adaptive honeypots:</strong> Eight personas collect real attacker behavior to improve models</li>
+            <li>📝 <strong>Forensics-first logging:</strong> PCAP capture, payload metadata, geo, and action taken for every incident</li>
+            <li>🔔 <strong>Enterprise hooks:</strong> Email/SMS alerts, SIEM/SOAR export, cloud posture checks, attack simulation, and data protection coverage</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🎓 5. Continuous Self-Learning & Global Mesh Network (Section 2 - P2P AI Training)</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>⚡ <strong>Time-Weighted Training:</strong> Recent threats (<7 days) weighted 10x higher, exponential decay after 30 days</li>
-            <li>📅 <strong>90-Day Sliding Window:</strong> Auto-expires threats older than 90 days to prevent model staleness</li>
-            <li>🌍 <strong>Global Mesh Network:</strong> Star topology relay server - when one container detects attack, ALL containers learn instantly</li>
-            <li>🔐 <strong>Cryptographic Security:</strong> RSA-2048 signatures + HMAC-SHA256 authenticate all threat messages</li>
-            <li>🖥️ <strong>Node Fingerprinting:</strong> OS detection (Windows/Linux/Docker), compatibility scoring (0.0-1.0)</li>
-            <li>📊 <strong>Federated Normalization:</strong> Z-score normalization per node type prevents feature skew</li>
-            <li>🔄 <strong>Real-Time Peer Broadcasting:</strong> Relay broadcasts peer_joined/peer_left to all clients</li>
-            <li>🌐 <strong>100+ Countries:</strong> Global threat intelligence from worldwide deployments</li>
-            <li>🎯 <strong>Zero Human Input:</strong> Entire learning cycle fully automated - AI improves itself continuously</li>
-          </ul>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>⚡ 8. Automated Response & Active Defense</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>🚫 <strong>Instant IP Blocking:</strong> Malicious IPs added to iptables firewall blacklist in real-time</li>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>⚡ 6. Automated Response & Enterprise Integration (Section 23, 24, 29)</strong></p>
-          <ul class="muted" style="margin-left: 1.5rem; line-height: 2;">
-            <li>🚫 <strong>Instant IP Blocking:</strong> Malicious IPs added to firewall blacklist in real-time (iptables/Windows Firewall)</li>
-            <li>⏱️ <strong>Intelligent Rate Limiting:</strong> Suspicious IPs throttled with exponential backoff (1s → 2s → 4s → 8s)</li>
-            <li>🎯 <strong>ARP Spoofing Defense:</strong> Block entire devices from network access without router credentials</li>
-            <li>📝 <strong>Forensic Logging:</strong> PCAP capture with timestamp, geolocation, threat type, payload analysis (Section 21)</li>
-            <li>🔔 <strong>SIEM Integration:</strong> Export to Splunk, QRadar, ArcSight, Elastic SIEM (Section 24)</li>
-            <li>📧 <strong>Email/SMS Alerts:</strong> Real-time notifications for critical threats (Section 23)</li>
-            <li>☁️ <strong>Cloud Security:</strong> Multi-cloud posture management (AWS, Azure, GCP) - Section 29</li>
-            <li>🎮 <strong>Attack Simulation:</strong> Purple team testing, MITRE ATT&CK coverage (Section 28)</li>
-            <li>🔐 <strong>Data Loss Prevention:</strong> PII/PHI detection, exfiltration monitoring (Section 30)</li>
-            <li>💾 <strong>Backup Resilience:</strong> Ransomware protection, RTO tracking (Section 31)</li>
-            <li>📊 <strong>Live Dashboard:</strong> 31 sections with 82+ API endpoints, real-time updates</li>
-          </ul>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🛡️ Complete Threat Detection Coverage (31 Dashboard Sections):</strong></p>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1rem 1.5rem;">
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ff5f5f;">
-              <strong style="color: #ff5f5f;">💉 Injection Attacks (Sections 13, 18, 22)</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">SQL injection, XSS, LDAP, XML, Command injection with live signature extraction & sandbox detonation</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ffb85f;">
-              <strong style="color: #ffb85f;">🔍 Reconnaissance & Scanning (Sections 18, 21)</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Port scanning (nmap, masscan), vulnerability scanning (nikto), network enumeration with forensics</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ff5fff;">
-              <strong style="color: #ff5fff;">⚡ DDoS & Network Floods (Section 18)</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">SYN floods, UDP floods, HTTP floods, ICMP floods detected via traffic analysis</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #5fe2ff;">
-              <strong style="color: #5fe2ff;">🔓 Brute Force & Credential Attacks (Sections 10, 16, 20, 27)</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Failed login attempts, credential stuffing, dark web leak detection, honeypot capture</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #9f5fff;">
-              <strong style="color: #9f5fff;">🎭 Man-in-the-Middle Attacks (Sections 18, 19)</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">ARP spoofing, DNS poisoning, session hijacking, SSL stripping attempts</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #5fff9f;">
-              <strong style="color: #5fff9f;">🤖 Attack Tool Signatures (Sections 5, 13, 16)</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">nmap, sqlmap, nikto, burp, metasploit, hydra, gobuster detected by ML fingerprinting</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #ff9f5f;">
-              <strong style="color: #ff9f5f;">🦠 Malware & Ransomware (Sections 17, 22, 25, 31)</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Known malware hashes, exploit kits, RCE attempts, backup resilience monitoring</p>
-            </div>
-            <div style="background: #1a2135; padding: 1rem; border-radius: 6px; border-left: 4px solid #5fafff;">
-              <strong style="color: #5fafff;">🪙 Crypto Mining & Insider Threats (Sections 20, 26, 30)</strong>
-              <p style="font-size: 0.85rem; color: #8a92b6; margin: 0.5rem 0 0;">Mining detection, UEBA, zero trust, DLP, data exfiltration monitoring</p>
-            </div>
-          </div>
-          
-          <p class="muted" style="margin-top: 1.5rem;"><strong>📋 Forensic Data Captured Per Attack (Section 21):</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>📋 Forensic evidence captured per attack</strong></p>
           <ul class="muted" style="margin-left: 1.5rem;">
-            <li>🕐 Precise Timestamp (Asia/Kuala_Lumpur timezone with milliseconds)</li>
-            <li>🌐 Attacker IP + Full Geolocation (country, city, region, ISP, ASN, coordinates)</li>
-            <li>⚠️ Multi-Tier Classification (Threat type + Severity: CRITICAL/DANGEROUS/SUSPICIOUS/SAFE)</li>
-            <li>📝 Complete Attack Payload (HTTP headers, POST data, User-Agent, cookies)</li>
-            <li>🎯 Attack Tool Fingerprint (if detected: nmap version, sqlmap mode, etc.)</li>
-            <li>🔓 Anonymization Status (Direct connection / VPN provider / Tor exit node / Proxy type) - Section 4</li>
-            <li>🍯 Honeypot Interaction Log (if triggered: service type, commands executed, credentials attempted) - Section 16</li>
-            <li>🛡️ Action Taken (IP blocked / Rate limited / Dropped / Device isolated via ARP spoofing)</li>
-            <li>📊 ML Model Confidence (0-100% threat probability from anomaly detection) - Section 5</li>
+            <li>🕐 Timestamp with timezone and milliseconds</li>
+            <li>🌐 Source IP, geo, ASN, and anonymization status</li>
+            <li>⚠️ Threat type, severity, and model confidence</li>
+            <li>📝 Payload metadata (headers, POST data, user agent, cookies)</li>
+            <li>🍯 Honeypot interaction details when triggered</li>
+            <li>🛡️ Action taken (block, rate limit, isolate, drop)</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>🖥️ Platform Compatibility:</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🖥️ Platform compatibility</strong></p>
           <ul class="muted" style="margin-left: 1.5rem;">
-            <li>🐧 <strong>Linux (Recommended):</strong> 100% feature coverage with native tools (ss, tcpdump, /proc, /sys)</li>
-            <li>🪟 <strong>Windows:</strong> Full AI protection - ML models work perfectly, some metrics use cross-platform psutil</li>
-            <li>🍎 <strong>macOS:</strong> Full AI protection - ML models work perfectly, some metrics use cross-platform psutil</li>
-            <li>🐳 <strong>Docker Mode:</strong> Run Linux container on any OS for 100% feature parity</li>
-            <li>🛡️ <strong>AI Guarantee:</strong> RandomForest, IsolationForest, LSTM provide 94%+ accuracy on ALL platforms</li>
+            <li>🐧 <strong>Linux (recommended):</strong> Full telemetry via native tooling (ss, tcpdump, /proc, /sys)</li>
+            <li>🪟 <strong>Windows/macOS:</strong> Same AI engines; psutil-backed metrics fill platform gaps</li>
+            <li>🐳 <strong>Docker mode:</strong> Run the Linux stack anywhere for identical coverage</li>
           </ul>
           
-          <p class="muted" style="margin-top: 1.5rem;"><strong>⚙️ System Configuration & Management:</strong></p>
+          <p class="muted" style="margin-top: 1.5rem;"><strong>⚙️ System configuration & management</strong></p>
           <ul class="muted" style="margin-left: 1.5rem;">
-            <li>🧠 <strong>ML Model Management:</strong> View training status, force manual retrain, check last update time, see model accuracy (Section 5)</li>
-            <li>🌐 <strong>Threat Crawlers:</strong> 10 active crawlers collecting global threat intelligence every 6 hours (Section 17)</li>
-            <li>🍯 <strong>Honeypot Control:</strong> Enable/disable 8 service personas (FTP, Telnet, SSH, SMB, HTTP, HTTPS, SMTP, MySQL) on custom ports (Section 16)</li>
-            <li>🚫 <strong>IP Blocking Management:</strong> Auto-blocking toggle, manual add/remove IPs, view blocked list (Sections 8, 9, 10)</li>
-            <li>🎯 <strong>Device Management:</strong> Block/unblock devices via ARP spoofing, 7-day connection history (Section 3)</li>
-            <li>📊 <strong>Dashboard Refresh:</strong> Configurable auto-refresh (current: 5 minutes) for 31 live sections</li>
-            <li>☁️ <strong>Cloud Integration:</strong> Multi-cloud security posture (AWS, Azure, GCP) - Section 29</li>
-            <li>📧 <strong>Alert Configuration:</strong> Email/SMS notifications for critical threats (Section 23)</li>
+            <li>🧠 Manage model retrains, accuracy, and freshness windows</li>
+            <li>🌐 Control threat crawlers and intake cadence</li>
+            <li>🍯 Toggle honeypot personas and ports</li>
+            <li>🚫 Maintain block/allow policies for IPs and devices</li>
+            <li>📊 Set dashboard refresh intervals for all live sections</li>
+            <li>☁️ Configure alerting, SIEM/SOAR export, and cloud posture checks</li>
           </ul>
         </div>
       </section>
 
       <!-- AI Training Network Status -->
-      <!-- ========================================
-           SECTION 2: AI TRAINING NETWORK - SHARED ML
-           Lines: ~781-841
-           Purpose: P2P AI training network status & sync info
-           ======================================== -->
       <section id="p2p-network-status" style="background: linear-gradient(135deg, #1a2a3d, #1a1e2e); border: 2px solid #5fe2ff;">
         <h2>📍 Section 2 | 🤖 AI Training Network - Shared Machine Learning</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fe2ff;">✅ <strong>EXISTING FEATURE:</strong> Global P2P mesh for distributed AI training & real-time threat sharing</p>
@@ -872,11 +776,6 @@
       </section>
 
       <!-- Connected Devices Section - CONSOLIDATED -->
-      <!-- ========================================
-           SECTION 3: NETWORK DEVICES - LIVE + PORTS + HISTORY (3-IN-1)
-           Lines: ~850-1048
-           Purpose: Consolidated device monitoring with tabs
-           ======================================== -->
       <section style="background: linear-gradient(135deg, #1a3d2a, #1a2e1e); border: 2px solid #5fff9f;">
         <h2>📍 Section 3 | 🌐 Network Devices - Live Monitor, Ports & History</h2>
         <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE (CONSOLIDATED):</strong> 3-in-1 tabbed section - Live devices + Port scanning + 7-day history</p>
@@ -897,6 +796,9 @@
           </button>
           <button onclick="switchDeviceTab('topology')" id="tab-topology" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
             🗺️ Topology Map
+          </button>
+          <button onclick="switchDeviceTab('assets')" id="tab-assets" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            📦 Assets
           </button>
         </div>
 
@@ -1026,12 +928,11 @@
                   <th>IP Address</th>
                   <th>MAC Address</th>
                   <th>Open Ports</th>
-                  <th>🔓 VPN Status</th>
                   <th>Risk Level</th>
                 </tr>
               </thead>
               <tbody id="port-scan-table">
-                <tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading port scan data...</td></tr>
+                <tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading port scan data...</td></tr>
               </tbody>
             </table>
           </div>
@@ -1125,13 +1026,100 @@
             <div style="text-align: center; color: #8a92b6;">Loading topology...</div>
           </div>
         </div>
+
+        <!-- Assets Tab (SECTION 3 - TAB 5) -->
+        <div id="device-tab-assets" style="display: none;">
+          <p class="muted" style="margin-bottom: 1.5rem;">
+            📦 <strong>Network Device Asset Inventory:</strong> Software packages, services, and configurations detected on network devices
+          </p>
+          
+          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+            <div class="stat-card">
+              <div class="stat-label">📦 Total Assets</div>
+              <div class="stat-value" id="asset-total">--</div>
+              <div class="muted">Scanned packages</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #5fe2ff;">
+              <div class="stat-label">💻 Devices Scanned</div>
+              <div class="stat-value" id="asset-devices-scanned">--</div>
+              <div class="muted">Network devices</div>
+            </div>
+            <div class="stat-card warning">
+              <div class="stat-label">⚠️ EOL Software</div>
+              <div class="stat-value" id="asset-eol">--</div>
+              <div class="muted">End-of-life packages</div>
+            </div>
+            <div class="stat-card critical">
+              <div class="stat-label">🚨 Shadow IT</div>
+              <div class="stat-value" id="asset-shadow">--</div>
+              <div class="muted">Unauthorized software</div>
+            </div>
+          </div>
+          
+          <div style="margin: 1.5rem 0; display: flex; gap: 0.75rem;">
+            <button class="btn" style="background: linear-gradient(135deg, #9f5fff, #7f4fdd);" onclick="scanAssets()">🔄 Scan Assets Now</button>
+            <button class="btn" style="background: linear-gradient(135deg, #5fe2ff, #4fc9dd);" onclick="exportAssetReport()">📥 Export Report</button>
+          </div>
+          
+          <!-- Asset Detection Status -->
+          <div id="asset-scan-status" style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(95, 226, 255, 0.1); border-radius: 6px; border: 1px solid #5fe2ff; display: none;">
+            <p class="muted" style="margin: 0;">
+              <strong>🔄 Scanning network devices...</strong><br>
+              <span id="asset-scan-progress">Initializing asset discovery</span>
+            </p>
+          </div>
+          
+          <!-- Detected Software Packages -->
+          <div style="background: rgba(159, 95, 255, 0.1); padding: 1.25rem; border-radius: 8px; border: 1px solid #9f5fff;">
+            <h3 style="margin: 0 0 1rem; color: #9f5fff; font-size: 1.1rem;">📦 Detected Software Packages</h3>
+            <div id="asset-software-list" class="threat-log-container" style="max-height: 350px;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Package Name</th>
+                    <th>Version</th>
+                    <th>Device</th>
+                    <th>Status</th>
+                    <th>Risk Level</th>
+                  </tr>
+                </thead>
+                <tbody id="asset-software-table">
+                  <tr><td colspan="5" style="text-align: center; padding: 2rem; color: #8a92b6;">Click "Scan Assets Now" to discover software packages</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- EOL & Shadow IT Alerts -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+            <div style="background: rgba(255, 184, 95, 0.1); padding: 1.25rem; border-radius: 8px; border: 1px solid #ffb85f;">
+              <h4 style="margin: 0 0 0.75rem; color: #ffb85f; font-size: 1rem;">⚠️ End-of-Life Software</h4>
+              <div id="asset-eol-list" style="max-height: 200px; overflow-y: auto;">
+                <p style="color: #8a92b6; font-size: 0.85rem; margin: 0;">No EOL software detected</p>
+              </div>
+            </div>
+            <div style="background: rgba(255, 95, 95, 0.1); padding: 1.25rem; border-radius: 8px; border: 1px solid #ff5f5f;">
+              <h4 style="margin: 0 0 0.75rem; color: #ff5f5f; font-size: 1rem;">🚨 Shadow IT Detected</h4>
+              <div id="asset-shadowit-list" style="max-height: 200px; overflow-y: auto;">
+                <p style="color: #8a92b6; font-size: 0.85rem; margin: 0;">No unauthorized software detected</p>
+              </div>
+            </div>
+          </div>
+          
+          <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(95, 226, 255, 0.1); border-radius: 6px; border: 1px solid #5fe2ff;">
+            <p class="muted" style="margin: 0; line-height: 1.8;">
+              <strong>📦 Asset Inventory Features:</strong><br>
+              • <strong>Network Device Scanning:</strong> Discovers software on all detected devices via SSH/WMI/API<br>
+              • <strong>Package Detection:</strong> Linux (dpkg, rpm), macOS (brew), Windows (Get-Package)<br>
+              • <strong>EOL Tracking:</strong> Identifies end-of-life software requiring updates<br>
+              • <strong>Shadow IT:</strong> Detects unauthorized software not approved by policy<br>
+              • <strong>Compliance:</strong> Track software licenses and generate audit reports
+            </p>
+          </div>
+        </div>
       </section>
 
-      <!-- ========================================
-           SECTION 4: ATTACKERS VPN/TOR DE-ANONYMIZATION STATISTICS
-           Lines: ~1049-1108
-           Purpose: VPN/Tor detection & exit node tracking
-           ======================================== -->
+      
       <!-- VPN/Tor De-Anonymization Stats -->
       <section style="background: linear-gradient(135deg, #2a1a3d, #1a1a2e); border: 2px solid #ff5fff;">
         <h2>📍 Section 4 | 🔓 Attackers VPN/Tor De-Anonymization Statistics</h2>
@@ -1191,12 +1179,7 @@
         </div>
       </section>
 
-      <!-- ========================================
-           SECTION 5: REAL AI/ML MODELS - MACHINE LEARNING INTELLIGENCE
-           Lines: ~1109-1352
-           Purpose: 8 AI models (RandomForest, XGBoost, IsolationForest, etc.)
-           ======================================== -->
-      <!-- Real AI/ML Model Statistics -->
+       <!-- Real AI/ML Model Statistics -->
       <section style="background: linear-gradient(135deg, #1a3d2a, #1a2e1a); border: 2px solid #5fff9f;">
         <h2>📍 Section 5 | 🤖 Real AI/ML Models - Machine Learning Intelligence</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fe2ff;">✅ <strong>EXISTING FEATURE:</strong> ML models for threat detection & pattern recognition</p>
@@ -1312,10 +1295,10 @@
         </div>
         {% endif %}
         
-        <!-- SECTION 1: Performance Metrics -->
-        {% if ml_stats.performance_metrics %}
+        <!-- ML Performance Metrics - Always Show -->
         <div style="margin-top: 1.5rem; background: linear-gradient(135deg, #2a1a3d, #1a1a2e); padding: 1.5rem; border-radius: 8px; border: 2px solid #ff5fff;">
           <h3 style="margin: 0 0 1rem; color: #ff5fff; font-size: 1.2rem;">📊 ML Performance Metrics</h3>
+          {% if ml_stats.performance_metrics and ml_stats.performance_metrics.predictions_made > 0 %}
           <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
             <div class="stat-card" style="border-left-color: #5fff9f;">
               <div class="stat-label">ACCURACY</div>
@@ -1360,10 +1343,16 @@
               <div class="stat-value">{{ ml_stats.performance_metrics.predictions_made }}</div>
             </div>
           </div>
+          {% else %}
+          <div style="text-align: center; padding: 2rem; background: rgba(138, 146, 182, 0.1); border-radius: 6px; border: 1px dashed #8a92b6;">
+            <p style="margin: 0; color: #8a92b6; font-size: 1rem;">
+              <strong>⏳ Waiting for ML Activity</strong><br>
+              <span style="font-size: 0.85rem;">Performance metrics will appear once the ML models start making threat predictions</span>
+            </p>
+          </div>
+          {% endif %}
         </div>
-        {% endif %}
         
-        <!-- SECTION 2: Ensemble Voting Weights -->
         {% if ml_stats.ensemble_weights %}
         <div style="margin-top: 1.5rem; background: linear-gradient(135deg, #1a2e3d, #1a1a2e); padding: 1.5rem; border-radius: 8px; border: 2px solid #5fe2ff;">
           <h3 style="margin: 0 0 1rem; color: #5fe2ff; font-size: 1.2rem;">⚖️ Ensemble Voting Weights</h3>
@@ -1388,7 +1377,6 @@
         </div>
         {% endif %}
         
-        <!-- SECTION 3: Adaptive Thresholds -->
         {% if ml_stats.adaptive_thresholds %}
         <div style="margin-top: 1.5rem; background: linear-gradient(135deg, #3d2a1a, #2e1a1a); padding: 1.5rem; border-radius: 8px; border: 2px solid #ffb85f;">
           <h3 style="margin: 0 0 1rem; color: #ffb85f; font-size: 1.2rem;">🎯 Adaptive Thresholds (Self-Learning)</h3>
@@ -1425,35 +1413,6 @@
         </div>
         {% endif %}
         
-        <!-- SECTION 3 ENHANCEMENT: Asset Inventory -->
-        <div style="margin-top: 1.5rem; background: linear-gradient(135deg, #2a1a3d, #1a1a2e); padding: 1.5rem; border-radius: 8px; border: 2px solid #9f5fff;">
-          <h3 style="margin: 0 0 1rem; color: #9f5fff; font-size: 1.2rem;">📦 Asset Inventory & Management</h3>
-          <p class="muted" style="margin-bottom: 1rem;">Complete software asset discovery, EOL detection, and shadow IT identification</p>
-          
-          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
-            <div class="stat-card">
-              <div class="stat-label">📦 Total Assets</div>
-              <div class="stat-value" id="asset-total">--</div>
-            </div>
-            <div class="stat-card warning">
-              <div class="stat-label">⚠️ EOL Software</div>
-              <div class="stat-value" id="asset-eol">--</div>
-            </div>
-            <div class="stat-card critical">
-              <div class="stat-label">🚨 Shadow IT</div>
-              <div class="stat-value" id="asset-shadow">--</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">💰 License Issues</div>
-              <div class="stat-value" id="asset-license">--</div>
-            </div>
-          </div>
-          
-          <div style="margin-top: 1rem;">
-            <button class="btn" style="background: linear-gradient(135deg, #9f5fff, #7f4fdd);" onclick="scanAssets()">🔄 Scan Assets</button>
-            <button class="btn" style="background: linear-gradient(135deg, #5fe2ff, #4fc9dd); margin-left: 0.5rem;" onclick="viewAssetDetails()">📊 View Details</button>
-          </div>
-        </div>
         
         {% else %}
         <div style="padding: 1.5rem; background: rgba(255, 95, 95, 0.1); border-radius: 8px; border: 1px solid #ff5f5f;">
@@ -1466,11 +1425,7 @@
       </section>
 
       <!-- Overview Statistics -->
-      <!-- ========================================
-         SECTION 6: SECURITY OVERVIEW - LIVE STATISTICS
-         Lines: ~1339-1389
-         Purpose: Real-time security metrics dashboard
-         ======================================== -->
+      
     <section>
         <h2>📍 Section 6 | 📊 Security Overview - Live Statistics</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fff9f;">✅ <strong>EXISTING FEATURE:</strong> Real-time security metrics & threat counters</p>
@@ -1522,11 +1477,6 @@
       </section>
 
       <!-- Threat Breakdown by Type -->
-      <!-- ========================================
-         SECTION 7: THREAT ANALYSIS BY TYPE
-         Lines: ~1390-1409
-         Purpose: Attack categorization & type breakdown
-         ======================================== -->
     <section>
         <h2>📍 Section 7 | 🎯 Threat Analysis by Type</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ffb85f;">✅ <strong>EXISTING FEATURE:</strong> Categorized threat breakdown & analysis</p>
@@ -1547,76 +1497,210 @@
       </section>
 
       <!-- Blocked IP Addresses -->
-      <!-- ========================================
-         SECTION 8: BLOCKED IP ADDRESSES
-         Lines: ~1410-1434
-         Purpose: Blacklist management & IP blocking
-         ======================================== -->
     <section>
-        <h2>📍 Section 8 | 🔒 Blocked IP Addresses ({{ stats.blocked_ips_count }})</h2>
-        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Auto-blocked attackers - ARP-based network isolation with unblock controls</p>
+        <h2>📍 Section 8 | 🛡️ IP Management & Threat Monitoring</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem;">✅ <strong>CONSOLIDATED FEATURE:</strong> 3-in-1 IP & Threat Management - Blocked IPs, Whitelist, Live Attack Logs</p>
         <p class="muted" style="margin-bottom: 1rem;">
-          Select an action for each blocked IP: <strong>Unblock</strong> (remove from block list), <strong>Whitelist</strong> (permanently allow), or <strong>Keep Blocked</strong>
+          🔒 Manage blocked IPs | ✅ Control whitelist | 📝 Monitor live threats | 🌍 Geolocation tracking
         </p>
-        {% if blocked_ips %}
-          <div>
-            {% for ip in blocked_ips %}
-              <div class="ip-management-item" id="ip-item-{{ ip.replace('.', '-') }}">
-                <div class="ip-address">{{ ip }}</div>
-                <div class="ip-actions">
-                  <button class="btn-unblock" onclick="unblockIP('{{ ip }}')">🔓 Unblock</button>
-                  <button class="btn-whitelist" onclick="whitelistIP('{{ ip }}')">✅ Whitelist</button>
-                  <button class="btn-keep" onclick="keepBlocked('{{ ip }}')">🔒 Keep Blocked</button>
-                </div>
-              </div>
-            {% endfor %}
-          </div>
-        {% else %}
-          <p class="muted">No IP addresses are currently blocked.</p>
-        {% endif %}
-      </section>
+        
+        <!-- Tab Navigation -->
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #2a4a3d;">
+          <button onclick="switchIPTab('blocked')" id="ip-tab-blocked" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #ff5f5f, #ff8c42); color: white; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🔒 Blocked IPs ({{ stats.blocked_ips_count }})
+          </button>
+          <button onclick="switchIPTab('whitelist')" id="ip-tab-whitelist" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            ✅ Whitelist ({{ whitelisted_ips|length }})
+          </button>
+          <button onclick="switchIPTab('threats')" id="ip-tab-threats" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            📝 Live Threats
+          </button>
+        </div>
 
-      <!-- ========================================
-           SECTION 9: WHITELISTED IP ADDRESSES
-           Lines: ~1449-1475
-           Purpose: Whitelist management & trusted IPs
-           ======================================== -->
-      <!-- Whitelisted IP Addresses -->
-      <section style="background: linear-gradient(135deg, #1a3d2a, #1a2e1e); border: 2px solid #5fff9f;">
-        <h2>📍 Section 9 | ✅ Whitelisted IP Addresses ({{ whitelisted_ips|length }})</h2>
-        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fff9f;">✅ <strong>EXISTING FEATURE:</strong> Trusted IP management & exemption list</p>
-        <p class="muted" style="margin-bottom: 1rem;">
-          These IPs are <strong>permanently allowed</strong> and will never be blocked. Includes relay server, GitHub, and other trusted sources.
-        </p>
-        {% if whitelisted_ips %}
-          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem;">
-            {% for ip in whitelisted_ips %}
-              <div style="padding: 0.75rem; background: rgba(95, 255, 159, 0.1); border-radius: 6px; border: 1px solid #5fff9f; font-family: monospace; text-align: center;">
-                <div style="color: #5fff9f; font-weight: bold;">{{ ip }}</div>
-                {% if ip == '206.189.88.127' %}
-                  <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">🌐 Relay Server</div>
-                {% elif '127.0.0.1' in ip or 'localhost' in ip %}
-                  <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">🏠 Localhost</div>
-                {% elif '140.82' in ip %}
-                  <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">🐙 GitHub</div>
-                {% endif %}
-              </div>
-            {% endfor %}
-          </div>
-        {% else %}
-          <p class="muted">No whitelisted IPs (only default localhost).</p>
-        {% endif %}
+        <!-- Blocked IPs Tab -->
+        <div id="ip-content-blocked" style="display: block;">
+          <p class="muted" style="margin-bottom: 1rem;">
+            Select an action for each blocked IP: <strong>Unblock</strong> (remove from block list), <strong>Whitelist</strong> (permanently allow), or <strong>Keep Blocked</strong>
+          </p>
+          {% if blocked_ips %}
+            <div>
+              {% for ip in blocked_ips %}
+                <div class="ip-management-item" id="ip-item-{{ ip.replace('.', '-') }}">
+                  <div class="ip-address">{{ ip }}</div>
+                  <div class="ip-actions">
+                    <button class="btn-unblock" onclick="unblockIP('{{ ip }}')">🔓 Unblock</button>
+                    <button class="btn-whitelist" onclick="whitelistIP('{{ ip }}')">✅ Whitelist</button>
+                    <button class="btn-keep" onclick="keepBlocked('{{ ip }}')">🔒 Keep Blocked</button>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="muted">No IP addresses are currently blocked.</p>
+          {% endif %}
+        </div>
+
+        <!-- Whitelisted IPs Tab -->
+        <div id="ip-content-whitelist" style="display: none;">
+          <p class="muted" style="margin-bottom: 1rem;">
+            These IPs are <strong>permanently allowed</strong> and will never be blocked. Includes relay server, GitHub, and other trusted sources.
+          </p>
+          {% if whitelisted_ips %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem;">
+              {% for ip in whitelisted_ips %}
+                <div style="padding: 0.75rem; background: rgba(95, 255, 159, 0.1); border-radius: 6px; border: 1px solid #5fff9f; font-family: monospace; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                  <div>
+                    <div style="color: #5fff9f; font-weight: bold;">{{ ip }}</div>
+                    {% if ip == '206.189.88.127' %}
+                      <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">🌐 Relay Server</div>
+                    {% elif '127.0.0.1' in ip or 'localhost' in ip %}
+                      <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">🏠 Localhost</div>
+                    {% elif '140.82' in ip %}
+                      <div style="font-size: 0.75rem; color: #a9b3d4; margin-top: 0.25rem;">🐙 GitHub</div>
+                    {% endif %}
+                  </div>
+                  <button class="btn-unblock" style="min-width: 110px; padding: 0.4rem 0.6rem;" onclick="removeWhitelistedIP('{{ ip }}')">🗑️ Remove</button>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="muted">No whitelisted IPs (only default localhost).</p>
+          {% endif %}
+        </div>
+
+        <!-- Live Threats Tab -->
+        <div id="ip-content-threats" style="display: none;">
+          <p class="muted" style="margin-bottom: 1rem;">
+            🔴 Live monitoring of all security events | Auto-refreshes every 5 minutes | 
+            Showing latest 100 events sorted by timestamp (newest first) | 🌍 Geolocation tracking enabled for law enforcement
+          </p>
+          {% if threat_logs %}
+            <div class="threat-log-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>🕐 Timestamp (UTC)</th>
+                    <th>🌐 Attacker IP</th>
+                    <th>📍 Location</th>
+                    <th>🔓 VPN/Tor Detection</th>
+                    <th>⚠️ Threat Type</th>
+                    <th>📋 Attack Details</th>
+                    <th>🎯 Severity</th>
+                    <th>🛡️ Action Taken</th>
+                    <th>⚔️ Block</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for log in threat_logs %}
+                    <tr {% if log.action == 'BLOCKED' %}style="background: rgba(255, 95, 95, 0.05);"{% endif %}>
+                      <td style="font-size: 0.8rem; font-family: monospace; white-space: nowrap;">
+                        {{ log.timestamp[:19].replace('T', ' ') }}
+                      </td>
+                      <td style="font-family: monospace; color: #ff5f5f; font-weight: 600;">
+                        {{ log.ip_address }}
+                      </td>
+                      <td style="font-size: 0.75rem; line-height: 1.3;">
+                        {% if log.get('geolocation') %}
+                          <div style="color: #5fe2ff;">📍 {{ log.geolocation.city }}, {{ log.geolocation.region }}</div>
+                          <div style="color: #a9b3d4;">🌍 {{ log.geolocation.country }}</div>
+                          <div style="color: #8a92b6; font-size: 0.7rem;">🏢 {{ log.geolocation.isp }}</div>
+                        {% else %}
+                          <span class="muted">No geo data</span>
+                        {% endif %}
+                      </td>
+                      <td style="font-size: 0.75rem; line-height: 1.3;">
+                        {% if log.get('anonymization_detection') and log.anonymization_detection.get('is_anonymized') %}
+                          <div style="color: #ff5fff; font-weight: 600;">
+                            🚨 {{ log.anonymization_detection.anonymization_type.upper().replace('_', ' ') }}
+                          </div>
+                          <div style="color: #ffb85f; font-size: 0.7rem;">
+                            Confidence: {{ log.anonymization_detection.confidence }}%
+                          </div>
+                          {% if log.anonymization_detection.real_ip_revealed %}
+                            <div style="color: #5fff9f; font-weight: 600; font-size: 0.7rem;">
+                              🎯 Real IP: {{ log.anonymization_detection.real_ip_revealed }}
+                            </div>
+                          {% endif %}
+                          {% if log.anonymization_detection.correlated_ips %}
+                            <div style="color: #5fe2ff; font-size: 0.65rem;">
+                              🔗 Linked: {{ log.anonymization_detection.correlated_ips|length }} IPs
+                            </div>
+                          {% endif %}
+                        {% else %}
+                          <span style="color: #5fff9f;">✅ Direct</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <strong style="color: #ffb85f;">{{ log.threat_type }}</strong>
+                        {% if log.get('user_agent') and ('nmap' in log.user_agent.lower() or 'masscan' in log.user_agent.lower() or 'sqlmap' in log.user_agent.lower() or 'nikto' in log.user_agent.lower() or 'burp' in log.user_agent.lower() or 'metasploit' in log.user_agent.lower()) %}
+                          <div style="color: #ff5f5f; font-size: 0.7rem; margin-top: 0.25rem;">
+                            🛠️ Tool: {{ log.user_agent.split('/')[0] if '/' in log.user_agent else log.user_agent[:20] }}
+                          </div>
+                        {% elif 'Port Scanning' in log.threat_type %}
+                          <div style="color: #ff8c42; font-size: 0.7rem; margin-top: 0.25rem;">
+                            🛠️ Signature: Network Scanner
+                          </div>
+                        {% elif 'ARP Spoofing' in log.threat_type %}
+                          <div style="color: #ff8c42; font-size: 0.7rem; margin-top: 0.25rem;">
+                            🛠️ Signature: MITM Attack Tool
+                          </div>
+                        {% elif 'SQL' in log.threat_type %}
+                          <div style="color: #ff8c42; font-size: 0.7rem; margin-top: 0.25rem;">
+                            🛠️ Signature: SQLi Scanner
+                          </div>
+                        {% elif 'XSS' in log.threat_type %}
+                          <div style="color: #ff8c42; font-size: 0.7rem; margin-top: 0.25rem;">
+                            🛠️ Signature: XSS Exploit Kit
+                          </div>
+                        {% endif %}
+                      </td>
+                      <td class="muted" style="max-width: 400px; font-size: 0.85rem; line-height: 1.4;">
+                        {{ log.details }}
+                      </td>
+                      <td>
+                        {% if log.level == 'CRITICAL' %}
+                          <span class="badge badge-critical">🔴 CRITICAL</span>
+                        {% elif log.level == 'DANGEROUS' %}
+                          <span class="badge badge-dangerous">🟠 DANGEROUS</span>
+                        {% elif log.level == 'SUSPICIOUS' %}
+                          <span class="badge badge-suspicious">🟡 SUSPICIOUS</span>
+                        {% else %}
+                          <span class="badge badge-safe">🟢 SAFE</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if log.action == 'BLOCKED' or log.action == 'blocked' or log.action == 'dropped' %}
+                          <span class="badge badge-blocked">🚫 {{ log.action.upper() }}</span>
+                        {% else %}
+                          <span class="badge badge-monitored">👁️ {{ log.action.upper() }}</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <button onclick="blockThreatIP('{{ log.ip_address }}')" style="padding: 0.4rem 0.8rem; background: #ff5f5f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600;" title="Block this IP address">🚫 Block</button>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div style="padding: 2rem; text-align: center; background: rgba(255, 184, 95, 0.1); border-radius: 8px; border: 1px dashed #ffb85f;">
+              <p style="font-size: 1.1rem; margin: 0;">
+                ✅ No security threats detected yet
+              </p>
+              <p class="muted" style="margin: 0.5rem 0 0;">
+                AI monitoring is ACTIVE and scanning all incoming traffic in real-time. 
+                Any attacks will be logged here instantly with IP, timestamp, and full details.
+              </p>
+            </div>
+          {% endif %}
+        </div>
       </section>
 
       <!-- Failed Login Attempts -->
-      <!-- ========================================
-         SECTION 10: FAILED LOGIN ATTEMPTS (BRUTE-FORCE TRACKING)
-         Lines: ~1560-1602
-         Purpose: SSH/login attack monitoring (always visible)
-         ======================================== -->
     <section>
-        <h2>📍 Section 10 | 🔐 Failed Login Attempts (Monitored IPs)</h2>
-        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Brute-force tracking - SSH/RDP/Web login attack monitoring</p>
+        <h2>📍 Section 9 | 🔐 Failed Login Attempts (Battle-Hardened AI Server)</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Brute-force tracking - SSH/RDP/Web login attack monitoring on this server</p>
         {% if stats.failed_login_attempts %}
           <table>
             <thead>
@@ -1656,146 +1740,10 @@
         {% endif %}
       </section>
 
-      <!-- Recent Threat Log -->
-      <!-- ========================================
-         SECTION 11: LIVE THREAT MONITOR - REAL-TIME ATTACK LOGS
-         Lines: ~1603-1728
-         Purpose: Live-scrolling threat feed with attack details
-         ======================================== -->
-    <section>
-        <h2>📍 Section 11 | 📝 Live Threat Monitor - Real-Time Attack Logs</h2>
-        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">✅ <strong>EXISTING FEATURE:</strong> Real-time attack logging with IP geolocation & VPN/Tor detection</p>
-        <p class="muted" style="margin-bottom: 1rem;">
-          🔴 Live monitoring of all security events | Auto-refreshes every 5 minutes | 
-          Showing latest 100 events sorted by timestamp (newest first) | 🌍 Geolocation tracking enabled for law enforcement
-        </p>
-        {% if threat_logs %}
-          <div class="threat-log-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>🕐 Timestamp (UTC)</th>
-                  <th>🌐 Attacker IP</th>
-                  <th>📍 Location</th>
-                  <th>🔓 VPN/Tor Detection</th>
-                  <th>⚠️ Threat Type</th>
-                  <th>📋 Attack Details</th>
-                  <th>🎯 Severity</th>
-                  <th>🛡️ Action Taken</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for log in threat_logs %}
-                  <tr {% if log.action == 'BLOCKED' %}style="background: rgba(255, 95, 95, 0.05);"{% endif %}>
-                    <td style="font-size: 0.8rem; font-family: monospace; white-space: nowrap;">
-                      {{ log.timestamp[:19].replace('T', ' ') }}
-                    </td>
-                    <td style="font-family: monospace; color: #ff5f5f; font-weight: 600;">
-                      {{ log.ip_address }}
-                    </td>
-                    <td style="font-size: 0.75rem; line-height: 1.3;">
-                      {% if log.get('geolocation') %}
-                        <div style="color: #5fe2ff;">📍 {{ log.geolocation.city }}, {{ log.geolocation.region }}</div>
-                        <div style="color: #a9b3d4;">🌍 {{ log.geolocation.country }}</div>
-                        <div style="color: #8a92b6; font-size: 0.7rem;">🏢 {{ log.geolocation.isp }}</div>
-                      {% else %}
-                        <span class="muted">No geo data</span>
-                      {% endif %}
-                    </td>
-                    <td style="font-size: 0.75rem; line-height: 1.3;">
-                      {% if log.get('anonymization_detection') and log.anonymization_detection.get('is_anonymized') %}
-                        <div style="color: #ff5fff; font-weight: 600;">
-                          🚨 {{ log.anonymization_detection.anonymization_type.upper().replace('_', ' ') }}
-                        </div>
-                        <div style="color: #ffb85f; font-size: 0.7rem;">
-                          Confidence: {{ log.anonymization_detection.confidence }}%
-                        </div>
-                        {% if log.anonymization_detection.real_ip_revealed %}
-                          <div style="color: #5fff9f; font-weight: 600; font-size: 0.7rem;">
-                            🎯 Real IP: {{ log.anonymization_detection.real_ip_revealed }}
-                          </div>
-                        {% endif %}
-                        {% if log.anonymization_detection.correlated_ips %}
-                          <div style="color: #5fe2ff; font-size: 0.65rem;">
-                            🔗 Linked: {{ log.anonymization_detection.correlated_ips|length }} IPs
-                          </div>
-                        {% endif %}
-                      {% else %}
-                        <span style="color: #5fff9f;">✅ Direct</span>
-                      {% endif %}
-                    </td>
-                    <td>
-                      <strong style="color: #ffb85f;">{{ log.threat_type }}</strong>
-                      {% if log.get('user_agent') and ('nmap' in log.user_agent.lower() or 'masscan' in log.user_agent.lower() or 'sqlmap' in log.user_agent.lower() or 'nikto' in log.user_agent.lower() or 'burp' in log.user_agent.lower() or 'metasploit' in log.user_agent.lower()) %}
-                        <div style="color: #ff5f5f; font-size: 0.7rem; margin-top: 0.25rem;">
-                          🛠️ Tool: {{ log.user_agent.split('/')[0] if '/' in log.user_agent else log.user_agent[:20] }}
-                        </div>
-                      {% elif 'Port Scanning' in log.threat_type %}
-                        <div style="color: #ff8c42; font-size: 0.7rem; margin-top: 0.25rem;">
-                          🛠️ Signature: Network Scanner
-                        </div>
-                      {% elif 'ARP Spoofing' in log.threat_type %}
-                        <div style="color: #ff8c42; font-size: 0.7rem; margin-top: 0.25rem;">
-                          🛠️ Signature: MITM Attack Tool
-                        </div>
-                      {% elif 'SQL' in log.threat_type %}
-                        <div style="color: #ff8c42; font-size: 0.7rem; margin-top: 0.25rem;">
-                          🛠️ Signature: SQLi Scanner
-                        </div>
-                      {% elif 'XSS' in log.threat_type %}
-                        <div style="color: #ff8c42; font-size: 0.7rem; margin-top: 0.25rem;">
-                          🛠️ Signature: XSS Exploit Kit
-                        </div>
-                      {% endif %}
-                    </td>
-                    <td class="muted" style="max-width: 400px; font-size: 0.85rem; line-height: 1.4;">
-                      {{ log.details }}
-                    </td>
-                    <td>
-                      {% if log.level == 'CRITICAL' %}
-                        <span class="badge badge-critical">🔴 CRITICAL</span>
-                      {% elif log.level == 'DANGEROUS' %}
-                        <span class="badge badge-dangerous">🟠 DANGEROUS</span>
-                      {% elif log.level == 'SUSPICIOUS' %}
-                        <span class="badge badge-suspicious">🟡 SUSPICIOUS</span>
-                      {% else %}
-                        <span class="badge badge-safe">🟢 SAFE</span>
-                      {% endif %}
-                    </td>
-                    <td>
-                      {% if log.action == 'BLOCKED' or log.action == 'blocked' or log.action == 'dropped' %}
-                        <span class="badge badge-blocked">🚫 {{ log.action.upper() }}</span>
-                      {% else %}
-                        <span class="badge badge-monitored">👁️ {{ log.action.upper() }}</span>
-                      {% endif %}
-                    </td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        {% else %}
-          <div style="padding: 2rem; text-align: center; background: rgba(255, 184, 95, 0.1); border-radius: 8px; border: 1px dashed #ffb85f;">
-            <p style="font-size: 1.1rem; margin: 0;">
-              ✅ No security threats detected yet
-            </p>
-            <p class="muted" style="margin: 0.5rem 0 0;">
-              AI monitoring is ACTIVE and scanning all incoming traffic in real-time. 
-              Any attacks will be logged here instantly with IP, timestamp, and full details.
-            </p>
-          </div>
-        {% endif %}
-      </section>
-
       <!-- Attack Type Statistics -->
       {% if stats.get('attack_summary') %}
-      <!-- ========================================
-         SECTION 14: ATTACK TYPE BREAKDOWN
-         Lines: ~2001-2015
-         Purpose: Statistical attack type analysis
-         ======================================== -->
     <section>
-        <h2>📍 Section 12 | 📈 Attack Type Breakdown</h2>
+        <h2>📍 Section 10 | 📈 Attack Type Breakdown</h2>
         <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Visual analytics - Chart showing distribution of attack types</p>
         <div class="threat-breakdown">
           {% for attack_type, count in stats.attack_summary.items() %}
@@ -1808,14 +1756,9 @@
       </section>
       {% endif %}
 
-      <!-- ========================================
-           SECTION 17: AUTOMATED SIGNATURE EXTRACTION - ATTACK PATTERNS
-           Lines: ~2124-2220
-           Purpose: AI-generated YARA/Snort/Suricata signatures
-           ======================================== -->
       <!-- Automated Signature Extraction Dashboard (UNIQUE FEATURE) -->
       <section style="background: linear-gradient(135deg, #3d1a2a, #2e1a1e); border: 2px solid #ff9f5f;">
-        <h2>📍 Section 13 | 📦 Automated Signature Extraction - Attack Pattern Analysis</h2>
+        <h2>📍 Section 11 | 📦 Automated Signature Extraction - Attack Pattern Analysis</h2>
         <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE (UNIQUE!):</strong> Military-safe ML training - Extracts ONLY patterns, NEVER stores exploit payloads</p>
         <p class="muted">✅ <strong>Military/Police Safe:</strong> Extracts ONLY attack patterns (keywords, encodings, regex) - ZERO exploit code stored</p>
         
@@ -1876,14 +1819,9 @@
         </div>
       </section>
 
-      <!-- ========================================
-           SECTION 15: SYSTEM HEALTH & NETWORK PERFORMANCE (2-IN-1)
-           Lines: ~2035-2099
-           Purpose: CPU/RAM/disk + bandwidth monitoring
-           ======================================== -->
-      <!-- System Health & Network Performance - CONSOLIDATED -->
+       <!-- System Health & Network Performance - CONSOLIDATED -->
       <section style="background: linear-gradient(135deg, #1a3d2a, #1a2e1e); border: 2px solid #5fff9f;">
-        <h2>📍 Section 14 | 💻 System Health & Network Performance</h2>
+        <h2>📍 Section 12 | 💻 System Health & Network Performance</h2>
         <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE (CONSOLIDATED):</strong> 2-in-1 tabbed section - System resources + Network performance monitoring</p>
         <p class="muted">🏥 Real-time monitoring: System resources + Network metrics + Service health</p>
         
@@ -1928,17 +1866,26 @@
         <div id="health-content-network" style="display: none;">
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
             <div class="stat-card success">
-              <div class="stat-label">📡 Current Bandwidth</div>
+              <div class="stat-label">📡 Network Interface Speed</div>
               <div class="stat-value" id="bandwidth-metric">-- Mbps</div>
+              <div class="muted" style="font-size: 0.7rem; margin-top: 0.25rem;" id="bandwidth-note">Link capacity</div>
             </div>
             <div class="stat-card">
               <div class="stat-label">⚡ Network Latency</div>
               <div class="stat-value" id="latency-metric">-- ms</div>
+              <div class="muted" style="font-size: 0.7rem; margin-top: 0.25rem;">to 8.8.8.8</div>
             </div>
             <div class="stat-card">
               <div class="stat-label">📦 Packet Loss</div>
               <div class="stat-value" id="packetloss-metric">--%</div>
+              <div class="muted" style="font-size: 0.7rem; margin-top: 0.25rem;">Error rate</div>
             </div>
+          </div>
+          <div style="background: rgba(95, 255, 159, 0.05); padding: 1rem; border-radius: 8px; border: 1px solid #5fff9f; margin-bottom: 1rem;">
+            <p style="margin: 0; font-size: 0.85rem; color: #5fff9f;">
+              ℹ️ <strong>Note:</strong> Bandwidth shows your network interface link speed (e.g., 1000 Mbps for Gigabit Ethernet). 
+              For actual internet speed test, use speedtest.net or fast.com. Current network usage is typically much lower than link capacity.
+            </p>
           </div>
           <div style="background: #1a2135; padding: 1rem; border-radius: 8px;">
             <canvas id="performanceChart" style="max-height: 300px;"></canvas>
@@ -1947,13 +1894,8 @@
       </section>
 
       <!-- Compliance Dashboard -->
-      <!-- ========================================
-         SECTION 16: COMPLIANCE DASHBOARD
-         Lines: ~2081-2104
-         Purpose: GDPR/HIPAA/SOC2/ISO27001 compliance tracking
-         ======================================== -->
     <section>
-        <h2>📍 Section 15 | ✅ Compliance Dashboard</h2>
+        <h2>📍 Section 13 | ✅ Compliance Dashboard</h2>
         <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Regulatory compliance - PCI-DSS, HIPAA, GDPR, SOC 2 scoring</p>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
           <div class="stat-card success">
@@ -1975,14 +1917,9 @@
         </div>
       </section>
 
-      <!-- ========================================
-           SECTION 16: ADAPTIVE HONEYPOT - AI TRAINING SANDBOX
-           Lines: ~1476-1578
-           Purpose: Honeypot with AI learning from attacker behavior
-           ======================================== -->
-      <!-- Adaptive Honeypot -->
+       <!-- Adaptive Honeypot -->
       <section style="background: linear-gradient(135deg, #3d2a1a, #2e1e1a); border: 2px solid #ffb85f;">
-        <h2>📍 Section 16 | 🍯 Adaptive Honeypot - AI Training Sandbox</h2>
+        <h2>📍 Section 14 | 🍯 Adaptive Honeypot - AI Training Sandbox</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5fff;">✅ <strong>EXISTING FEATURE:</strong> 8 honeypot services for real attack capture & ML training</p>
         <p class="muted" style="margin-bottom: 1rem;">
           <strong>One honeypot, many disguises.</strong> Morphs into different services (FTP, SSH, HTTP, etc.) to attract attackers. All attacks are logged and <strong>fed into AI training</strong> to learn threat patterns. Safe, isolated sandbox environment.
@@ -2079,13 +2016,8 @@
       </section>
 
       <!-- AI Crawlers & Learning Sources -->
-      <!-- ========================================
-         SECTION 13: AI SECURITY CRAWLERS & THREAT INTELLIGENCE
-         Lines: ~1729-2000
-         Purpose: ExploitDB/CVE/dark web crawler status
-         ======================================== -->
       <section>
-        <h2>📍 Section 17 | 🤖 AI Security Crawlers & Threat Intelligence Sources</h2>
+        <h2>📍 Section 15 | 🤖 AI Security Crawlers & Threat Intelligence Sources</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fe2ff;">✅ <strong>EXISTING FEATURE:</strong> 10 automated crawlers for global threat intelligence gathering</p>
         <p class="muted" style="margin-bottom: 1rem;">
           Automated crawlers continuously monitor these security research sources to learn about latest exploits, malware, and attack patterns. Data is used to train ML models and update threat signatures.
@@ -2354,12 +2286,8 @@
         </div>
       </section>
 
-      <!-- ========================================
-         SECTION 18: TRAFFIC ANALYSIS & INSPECTION
-         Purpose: Deep packet inspection, application-aware blocking, encrypted traffic analysis
-         ======================================== -->
       <section>
-        <h2>📍 Section 18 | 🔍 Traffic Analysis & Inspection</h2>
+        <h2>📍 Section 16 | 🔍 Traffic Analysis & Inspection</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ffb85f;">🆕 <strong>NEW FEATURE:</strong> Advanced traffic inspection and analysis capabilities</p>
         
         <div class="grid grid-3">
@@ -2419,12 +2347,8 @@
         </ul>
       </section>
 
-      <!-- ========================================
-         SECTION 19: DNS & GEO SECURITY
-         Purpose: DNS security and geographic IP blocking
-         ======================================== -->
       <section>
-        <h2>📍 Section 19 | 🌍 DNS & Geo Security</h2>
+        <h2>📍 Section 17 | 🌍 DNS & Geo Security</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ffb85f;">🆕 <strong>NEW FEATURE:</strong> DNS protection and geographic access control</p>
         
         <div class="grid grid-2">
@@ -2477,12 +2401,8 @@
         </div>
       </section>
 
-      <!-- ========================================
-         SECTION 20: USER & IDENTITY MONITORING
-         Purpose: User tracking and insider threat detection
-         ======================================== -->
       <section>
-        <h2>📍 Section 20 | 👤 User & Identity Monitoring + Zero Trust</h2>
+        <h2>📍 Section 18 | 👤 User & Identity Monitoring + Zero Trust</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ffb85f;">🆕 <strong>ENHANCED:</strong> User behavior analytics, insider threat detection, and Zero Trust security</p>
         
         <div class="stats-grid">
@@ -2566,12 +2486,8 @@
         </div>
       </section>
 
-      <!-- ========================================
-         SECTION 21: FORENSICS & THREAT HUNTING
-         Purpose: Packet capture and threat hunting interface
-         ======================================== -->
       <section>
-        <h2>📍 Section 21 | 🔎 Forensics & Threat Hunting</h2>
+        <h2>📍 Section 19 | 🔎 Forensics & Threat Hunting</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ffb85f;">🆕 <strong>NEW FEATURE:</strong> Full packet capture and advanced threat hunting tools</p>
         
         <div class="grid grid-2">
@@ -2647,12 +2563,8 @@
         </div>
       </section>
 
-      <!-- ========================================
-         SECTION 22: SANDBOX DETONATION
-         Purpose: Malware analysis and file detonation
-         ======================================== -->
       <section>
-        <h2>📍 Section 22 | 💣 Sandbox Detonation</h2>
+        <h2>📍 Section 20 | 💣 Sandbox Detonation</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ffb85f;">🆕 <strong>NEW FEATURE:</strong> Automated malware analysis in isolated sandbox environment</p>
         
         <div class="stats-grid">
@@ -2705,12 +2617,8 @@
         </div>
       </section>
 
-      <!-- ========================================
-         SECTION 23: EMAIL/SMS ALERTS
-         Purpose: Real-time notification system
-         ======================================== -->
       <section>
-        <h2>📍 Section 23 | 📧 Email/SMS Alerts</h2>
+        <h2>📍 Section 21 | 📧 Email/SMS Alerts</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ffb85f;">🆕 <strong>NEW FEATURE:</strong> Real-time security event notifications</p>
         
         <div class="grid grid-2">
@@ -2809,12 +2717,8 @@
         </div>
       </section>
 
-      <!-- ========================================
-         SECTION 24: API FOR SOAR INTEGRATION
-         Purpose: REST API and SOAR platform integration
-         ======================================== -->
       <section>
-        <h2>📍 Section 24 | 🔌 API for SOAR Integration + Workflow Automation</h2>
+        <h2>📍 Section 22 | 🔌 API for SOAR Integration + Workflow Automation</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ffb85f;">🆕 <strong>ENHANCED:</strong> RESTful API + Automated incident response workflows and playbooks</p>
         
         <div class="stats-grid">
@@ -2958,12 +2862,8 @@
         </div>
       </section>
 
-      <!-- ========================================
-         SECTION 25: VULNERABILITY MANAGEMENT
-         Purpose: CVE tracking, patch management, SBOM
-         ======================================== -->
       <section>
-        <h2>📍 Section 25 | 🛡️ Vulnerability & Supply Chain Management</h2>
+        <h2>📍 Section 23 | 🛡️ Vulnerability & Supply Chain Management</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🆕 <strong>NEW SECTION:</strong> CVE tracking, patch management, dependency scanning, and SBOM generation</p>
         
         <div class="stats-grid">
@@ -3016,13 +2916,9 @@
         </div>
       </section>
 
-      <!-- ========================================
-         SECTION 26: CRYPTOCURRENCY MINING DETECTION  
-         Purpose: Enhanced Traffic Analysis - Crypto Mining Detection
-         ======================================== -->
       <section>
-        <h2>📍 Section 26 | 🪙 Cryptocurrency Mining Detection</h2>
-        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🔥 <strong>ENHANCED:</strong> Section 18 Traffic Analysis + Crypto Mining Detection</p>
+        <h2>📍 Section 24 | 🪙 Cryptocurrency Mining Detection</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🔥 <strong>ENHANCED:</strong> Traffic analysis plus crypto mining detection</p>
         
         <div class="stats-grid">
           <div class="stat-card critical">
@@ -3051,13 +2947,9 @@
         </div>
       </section>
 
-      <!-- ========================================
-         SECTION 27: DARK WEB MONITORING
-         Purpose: Enhanced Vulnerability Management - Dark Web Intelligence
-         ======================================== -->
       <section>
-        <h2>📍 Section 27 | 🌑 Dark Web Monitoring</h2>
-        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🔥 <strong>ENHANCED:</strong> Section 25 Vulnerability Management + Dark Web Intelligence</p>
+        <h2>📍 Section 25 | 🌑 Dark Web Monitoring</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🔥 <strong>ENHANCED:</strong> Vulnerability management plus dark web intelligence</p>
         
         <div class="stats-grid">
           <div class="stat-card critical">
@@ -3086,13 +2978,9 @@
         </div>
       </section>
 
-      <!-- ========================================
-         SECTION 28: ATTACK SIMULATION & PURPLE TEAM
-         Purpose: Enhanced SOAR - Attack Simulation & Security Testing
-         ======================================== -->
       <section>
-        <h2>📍 Section 28 | 🎮 Attack Simulation (Purple Team)</h2>
-        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🔥 <strong>ENHANCED:</strong> Section 24 SOAR + Red Team/BAS Testing</p>
+        <h2>📍 Section 26 | 🎮 Attack Simulation (Purple Team)</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🔥 <strong>ENHANCED:</strong> SOAR workflows plus red team/BAS testing</p>
         
         <div class="stats-grid">
           <div class="stat-card">
@@ -3121,12 +3009,8 @@
         </div>
       </section>
 
-      <!-- ========================================
-         SECTION 29: CLOUD SECURITY POSTURE MANAGEMENT
-         Purpose: Multi-cloud monitoring and misconfiguration detection
-         ======================================== -->
       <section>
-        <h2>📍 Section 29 | ☁️ Cloud Security Posture Management (CSPM)</h2>
+        <h2>📍 Section 27 | ☁️ Cloud Security Posture Management (CSPM)</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🆕 <strong>NEW SECTION:</strong> Multi-cloud monitoring (AWS/Azure/GCP), misconfiguration detection, IAM analysis</p>
         
         <div class="stats-grid">
@@ -3197,13 +3081,9 @@
         </div>
       </section>
 
-      <!-- ========================================
-         SECTION 30: DATA LOSS PREVENTION (DLP)
-         Purpose: Enhanced Zero Trust - Data Loss Prevention
-         ======================================== -->
       <section>
-        <h2>📍 Section 30 | 🔐 Data Loss Prevention (DLP)</h2>
-        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🔥 <strong>ENHANCED:</strong> Section 20 Zero Trust + DLP Monitoring</p>
+        <h2>📍 Section 28 | 🔐 Data Loss Prevention (DLP)</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🔥 <strong>ENHANCED:</strong> Zero Trust posture plus DLP monitoring</p>
         
         <div class="stats-grid">
           <div class="stat-card critical">
@@ -3239,12 +3119,8 @@
         </div>
       </section>
 
-      <!-- ========================================
-         SECTION 31: BACKUP & RECOVERY STATUS
-         Purpose: Ransomware resilience and backup monitoring
-         ======================================== -->
       <section>
-        <h2>📍 Section 31 | 💾 Backup & Recovery Status</h2>
+        <h2>📍 Section 29 | 💾 Backup & Recovery Status</h2>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5f5f;">🆕 <strong>NEW SECTION:</strong> Backup monitoring, ransomware resilience, RTO tracking</p>
         
         <div class="stats-grid">
@@ -3424,6 +3300,52 @@
           }
         } catch (error) {
           alert('❌ Network error: ' + error.message);
+        }
+      }
+
+      async function removeWhitelistedIP(ip) {
+        if (!confirm(`Remove IP ${ip} from whitelist?\n\nIt may be blocked again if detected as malicious.`)) {
+          return;
+        }
+        try {
+          const response = await fetch('/api/whitelist/remove', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ip_address: ip})
+          });
+          const result = await response.json();
+          if (result.success) {
+            alert(`🗑️ IP ${ip} removed from whitelist.`);
+            location.reload();
+          } else {
+            alert('❌ Error: ' + (result.message || 'Failed to remove IP'));
+          }
+        } catch (error) {
+          console.error('Error removing whitelisted IP:', error);
+          alert('❌ Error: ' + error.message);
+        }
+      }
+
+      async function blockThreatIP(ip) {
+        if (!confirm(`🚫 Block IP ${ip}?\n\nThis IP will be permanently blocked and unable to connect.`)) {
+          return;
+        }
+        try {
+          const response = await fetch('/api/threat/block-ip', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ip_address: ip})
+          });
+          const result = await response.json();
+          if (result.success) {
+            alert(`✅ IP ${ip} blocked successfully!`);
+            location.reload();
+          } else {
+            alert('❌ Error: ' + (result.error || 'Failed to block IP'));
+          }
+        } catch (error) {
+          console.error('Error blocking threat IP:', error);
+          alert('❌ Error: ' + error.message);
         }
       }
       
@@ -4303,6 +4225,7 @@
         document.getElementById('device-tab-ports').style.display = 'none';
         document.getElementById('device-tab-history').style.display = 'none';
         document.getElementById('device-tab-topology').style.display = 'none';
+        document.getElementById('device-tab-assets').style.display = 'none';
         
         // Reset all tab buttons
         document.getElementById('tab-live').style.background = '#1a2135';
@@ -4313,6 +4236,8 @@
         document.getElementById('tab-history').style.color = '#f5f7ff';
         document.getElementById('tab-topology').style.background = '#1a2135';
         document.getElementById('tab-topology').style.color = '#f5f7ff';
+        document.getElementById('tab-assets').style.background = '#1a2135';
+        document.getElementById('tab-assets').style.color = '#f5f7ff';
         
         // Show selected tab
         if (tab === 'live') {
@@ -4334,6 +4259,11 @@
           document.getElementById('tab-topology').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
           document.getElementById('tab-topology').style.color = '#0b1020';
           loadNetworkTopology(); // Refresh data when tab opened
+        } else if (tab === 'assets') {
+          document.getElementById('device-tab-assets').style.display = 'block';
+          document.getElementById('tab-assets').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
+          document.getElementById('tab-assets').style.color = '#0b1020';
+          loadAssetInventory(); // Load asset data when tab opened
         }
       }
       
@@ -4358,7 +4288,38 @@
           document.getElementById('health-content-network').style.display = 'block';
           document.getElementById('health-tab-network').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
           document.getElementById('health-tab-network').style.color = '#0b1020';
-          loadPerformanceMetrics(); // Refresh data when tab opened
+          loadEnterpriseMetrics(); // Refresh data when tab opened
+        }
+      }
+      
+      // IP Management tab switcher (Section 8)
+      function switchIPTab(tab) {
+        // Hide all tabs
+        document.getElementById('ip-content-blocked').style.display = 'none';
+        document.getElementById('ip-content-whitelist').style.display = 'none';
+        document.getElementById('ip-content-threats').style.display = 'none';
+        
+        // Reset all tab buttons
+        document.getElementById('ip-tab-blocked').style.background = '#1a2135';
+        document.getElementById('ip-tab-blocked').style.color = '#f5f7ff';
+        document.getElementById('ip-tab-whitelist').style.background = '#1a2135';
+        document.getElementById('ip-tab-whitelist').style.color = '#f5f7ff';
+        document.getElementById('ip-tab-threats').style.background = '#1a2135';
+        document.getElementById('ip-tab-threats').style.color = '#f5f7ff';
+        
+        // Show selected tab
+        if (tab === 'blocked') {
+          document.getElementById('ip-content-blocked').style.display = 'block';
+          document.getElementById('ip-tab-blocked').style.background = 'linear-gradient(135deg, #ff5f5f, #ff8c42)';
+          document.getElementById('ip-tab-blocked').style.color = 'white';
+        } else if (tab === 'whitelist') {
+          document.getElementById('ip-content-whitelist').style.display = 'block';
+          document.getElementById('ip-tab-whitelist').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
+          document.getElementById('ip-tab-whitelist').style.color = '#0b1020';
+        } else if (tab === 'threats') {
+          document.getElementById('ip-content-threats').style.display = 'block';
+          document.getElementById('ip-tab-threats').style.background = 'linear-gradient(135deg, #ff5f5f, #ff8c42)';
+          document.getElementById('ip-tab-threats').style.color = 'white';
         }
       }
       
@@ -4835,9 +4796,19 @@
           const data = await response.json();
           
           // Update metrics
-          document.getElementById('bandwidth-metric').textContent = (data.bandwidth || 0).toFixed(2) + ' Mbps';
+          document.getElementById('bandwidth-metric').textContent = (data.bandwidth || 0).toFixed(0) + ' Mbps';
           document.getElementById('latency-metric').textContent = (data.latency || 0).toFixed(1) + ' ms';
           document.getElementById('packetloss-metric').textContent = (data.packet_loss || 0).toFixed(2) + '%';
+          
+          // Update bandwidth note
+          const bandwidthNote = document.getElementById('bandwidth-note');
+          if (bandwidthNote) {
+            if (data.bandwidth_type === 'link_speed') {
+              bandwidthNote.textContent = 'Interface link speed';
+            } else {
+              bandwidthNote.textContent = 'Current usage: ' + (data.current_usage || 0).toFixed(2) + ' Mbps';
+            }
+          }
           
           // Initialize or update chart
           if (!performanceChart && document.getElementById('performanceChart')) {
@@ -5046,7 +5017,7 @@
           const tbody = document.getElementById('port-scan-table');
           
           if (devices.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #8a92b6;">No devices detected yet. Click "Scan Now" to discover devices.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #8a92b6;">No devices detected yet. Click "Scan Now" to discover devices.</td></tr>';
             document.getElementById('risky-ports-count').textContent = '0';
             document.getElementById('total-open-ports').textContent = '0';
             document.getElementById('devices-scanned').textContent = '0';
@@ -5085,19 +5056,12 @@
                 display;
             }).join(', ') : 'None';
             
-            // VPN detection display
-            const vpnData = device.vpn_detected || {};
-            const vpnDisplay = vpnData.is_vpn ? 
-              `<span class="badge badge-warning" title="${vpnData.indicators ? vpnData.indicators.join(', ') : 'VPN detected'}">🔒 VPN Active (${vpnData.confidence}%)</span>` : 
-              `<span class="badge badge-safe">✅ Direct</span>`;
-            
             return `
               <tr>
                 <td>${device.hostname || device.name || 'Unknown'}</td>
                 <td><code style="color: #5fe2ff;">${device.ip}</code></td>
                 <td style="font-family: monospace; font-size: 0.85rem;">${device.mac}</td>
                 <td style="font-family: monospace; font-size: 0.85rem;">${portsDisplay}</td>
-                <td>${vpnDisplay}</td>
                 <td><span class="badge badge-${riskLevel}">${riskText}</span></td>
               </tr>
             `;
@@ -5125,7 +5089,7 @@
         } catch (error) {
           console.error('Error loading port scan data:', error);
           document.getElementById('port-scan-table').innerHTML = `
-            <tr><td colspan="6" style="text-align: center; padding: 2rem; color: #ff5f5f;">
+            <tr><td colspan="5" style="text-align: center; padding: 2rem; color: #ff5f5f;">
               ❌ Error loading port scan data: ${error.message}
             </td></tr>
           `;
@@ -5700,32 +5664,99 @@
       }
       
       // ============================================================================
-      // SECTION 3 ENHANCEMENT: ASSET INVENTORY
+      // SECTION 3 ENHANCEMENT: ASSET INVENTORY (TAB 5)
       // ============================================================================
       
       async function loadAssetInventory() {
+        const statusBox = document.getElementById('asset-scan-status');
+        const progress = document.getElementById('asset-scan-progress');
+        if (statusBox) {
+          statusBox.style.display = 'block';
+          if (progress) progress.textContent = 'Fetching asset inventory from backend...';
+        }
         try {
           const response = await fetch('/api/assets/inventory');
           const data = await response.json();
           
-          if (!data.error) {
-            document.getElementById('asset-total').textContent = (data.total_assets || 0).toLocaleString();
-            document.getElementById('asset-eol').textContent = (data.eol_software || 0).toString();
-            document.getElementById('asset-shadow').textContent = (data.shadow_it || 0).toString();
-            document.getElementById('asset-license').textContent = (data.license_issues || 0).toString();
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          document.getElementById('asset-total').textContent = (data.total_assets || 0).toLocaleString();
+          document.getElementById('asset-eol').textContent = (data.eol_software || 0).toString();
+          document.getElementById('asset-shadow').textContent = (data.shadow_it || 0).toString();
+          document.getElementById('asset-devices-scanned').textContent = (data.devices_scanned || data.hardware_assets || 0).toString();
+
+          // Software table
+          const tableBody = document.getElementById('asset-software-table');
+          if (tableBody) {
+            const list = data.software_list || [];
+            if (list.length === 0) {
+              tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #8a92b6;">No software detected yet. Run a scan.</td></tr>';
+            } else {
+              tableBody.innerHTML = list.map(pkg => {
+                const status = (pkg.status || 'ok').toUpperCase();
+                const risk = pkg.risk || 'low';
+                const badgeColor = status === 'END_OF_LIFE' ? '#ff5f5f' : (status === 'SHADOW_IT' ? '#ff9f5f' : '#5fff9f');
+                return `
+                  <tr>
+                    <td>${pkg.name || 'unknown'}</td>
+                    <td>${pkg.version || 'unknown'}</td>
+                    <td>${pkg.device || 'localhost'}</td>
+                    <td><span style="background:${badgeColor}; color:#0b1020; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.78rem;">${status}</span></td>
+                    <td style="text-transform: capitalize;">${risk}</td>
+                  </tr>`;
+              }).join('');
+            }
+          }
+
+          // EOL list
+          const eolDiv = document.getElementById('asset-eol-list');
+          if (eolDiv) {
+            const eol = data.eol_list || [];
+            eolDiv.innerHTML = eol.length ? eol.map(item => `
+              <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid rgba(255,184,95,0.2);">
+                <span style="color: #f5f7ff; font-weight: 600;">${item.name || 'unknown'}</span>
+                <span style="color: #ffb85f;">${item.version || ''}</span>
+              </div>
+            `).join('') : '<p style="color: #8a92b6; font-size: 0.85rem; margin: 0;">No EOL software detected</p>';
+          }
+
+          // Shadow IT list
+          const shadowDiv = document.getElementById('asset-shadowit-list');
+          if (shadowDiv) {
+            const shadow = data.shadow_it_list || [];
+            shadowDiv.innerHTML = shadow.length ? shadow.map(item => `
+              <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid rgba(255,95,95,0.2);">
+                <span style="color: #f5f7ff; font-weight: 600;">${item.name || 'unknown'}</span>
+                <span style="color: #ff5f5f;">${item.version || ''}</span>
+              </div>
+            `).join('') : '<p style="color: #8a92b6; font-size: 0.85rem; margin: 0;">No unauthorized software detected</p>';
           }
         } catch (error) {
           console.error('Error loading asset inventory:', error);
+          const tableBody = document.getElementById('asset-software-table');
+          if (tableBody) {
+            tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #ff5f5f;">Failed to load assets: ${error.message}</td></tr>`;
+          }
+        } finally {
+          if (statusBox) statusBox.style.display = 'none';
         }
       }
       
       async function scanAssets() {
-        alert('🔄 Starting asset scan... This may take a few moments.');
+        const statusBox = document.getElementById('asset-scan-status');
+        const progress = document.getElementById('asset-scan-progress');
+        if (statusBox) statusBox.style.display = 'block';
+        if (progress) progress.textContent = 'Scanning devices and packages...';
         await loadAssetInventory();
-        alert('✅ Asset scan complete!');
+        if (progress) progress.textContent = 'Scan complete';
+        setTimeout(() => {
+          if (statusBox) statusBox.style.display = 'none';
+        }, 800);
       }
       
-      async function viewAssetDetails() {
+      async function exportAssetReport() {
         window.open('/api/assets/inventory', '_blank');
       }
       

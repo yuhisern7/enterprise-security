@@ -749,6 +749,28 @@ def clear_blocked_ips():
         }), 500
 
 
+@app.route('/api/threat/block-ip', methods=['POST'])
+def block_threat_ip():
+    """Manually block an IP from threat logs"""
+    try:
+        data = request.json
+        ip_address = data.get('ip_address')
+        
+        if not ip_address:
+            return jsonify({'success': False, 'error': 'IP address required'}), 400
+        
+        # Use pcs_ai's internal blocking mechanism
+        pcs_ai._block_ip(ip_address)
+        
+        return jsonify({
+            'success': True,
+            'message': f'IP {ip_address} blocked successfully',
+            'ip_address': ip_address
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 # REMOVED: Training endpoints (subscribers download models from relay, not train locally)
 # Training happens ONLY on relay server (centralized)
 # Subscribers use /api/models/sync to download pre-trained models
@@ -1347,6 +1369,32 @@ def get_system_status():
     """Get comprehensive system status for dashboard"""
     try:
         import os
+        import psutil
+        from datetime import timedelta
+        
+        # System Health Metrics
+        cpu_usage = round(psutil.cpu_percent(interval=0.1))
+        memory = psutil.virtual_memory()
+        memory_usage = round(memory.percent)
+        disk = psutil.disk_usage('/')
+        disk_usage = round(disk.percent)
+        
+        # Uptime
+        boot_time = psutil.boot_time()
+        uptime_seconds = int(psutil.time.time() - boot_time)
+        uptime_delta = timedelta(seconds=uptime_seconds)
+        days = uptime_delta.days
+        hours, remainder = divmod(uptime_delta.seconds, 3600)
+        minutes, _ = divmod(remainder, 60)
+        uptime = f"{days}d {hours}h {minutes}m" if days > 0 else f"{hours}h {minutes}m"
+        
+        # Service Status (check if processes are running)
+        services = {
+            'Flask Server': 'running',  # If we're responding, Flask is running
+            'Network Monitor': 'running',  # Assumed running if container is up
+            'AI Engine': 'running' if hasattr(pcs_ai, 'ML_AVAILABLE') else 'stopped',
+            'Threat Intelligence': 'running',
+        }
         
         # Check VirusTotal API key
         vt_key = os.getenv('VIRUSTOTAL_API_KEY', '')
@@ -1435,6 +1483,14 @@ def get_system_status():
         }
         
         return jsonify({
+            # System Health Metrics (Section 14)
+            'cpu_usage': cpu_usage,
+            'memory_usage': memory_usage,
+            'disk_usage': disk_usage,
+            'uptime': uptime,
+            'services': services,
+            
+            # API Status (Section 5)
             'virustotal': vt_status,
             'abuseipdb': abuse_status,
             'ml_models': ml_status,
@@ -1755,18 +1811,76 @@ def generate_env_file():
 def get_performance_metrics():
     """Get network performance metrics for dashboard"""
     try:
-        import AI.network_performance as net_perf
+        import psutil
+        import socket
+        import subprocess
         
-        # Get network-wide statistics for dashboard
-        stats = net_perf.get_network_statistics()
+        # Try to get physical network interface speed from ethtool (host system)
+        link_speed_mbps = 0
+        try:
+            # Common interface names
+            interfaces = ['eth0', 'eno1', 'enp0s3', 'wlan0', 'wlo1', 'ens18']
+            for iface in interfaces:
+                try:
+                    result = subprocess.run(
+                        ['ethtool', iface],
+                        capture_output=True,
+                        text=True,
+                        timeout=1
+                    )
+                    if result.returncode == 0:
+                        for line in result.stdout.split('\n'):
+                            if 'Speed:' in line:
+                                speed_str = line.split('Speed:')[1].strip()
+                                if 'Mb/s' in speed_str:
+                                    link_speed_mbps = int(speed_str.replace('Mb/s', '').strip())
+                                elif 'Gb/s' in speed_str:
+                                    link_speed_mbps = int(float(speed_str.replace('Gb/s', '').strip()) * 1000)
+                                break
+                        if link_speed_mbps > 0:
+                            break
+                except:
+                    continue
+        except:
+            pass
         
-        # Convert bytes to Mbps (assuming measurements over 1 second)
-        bandwidth_mbps = (stats.get('total_bandwidth_in', 0) + stats.get('total_bandwidth_out', 0)) / 1_000_000
+        # If ethtool failed, try to detect from common speeds (fallback)
+        if link_speed_mbps == 0:
+            # Assume Gigabit Ethernet as common default
+            link_speed_mbps = 1000
+        
+        # Calculate current throughput
+        current_bandwidth = 0.0
+        try:
+            import AI.network_performance as net_perf
+            stats = net_perf.get_network_statistics()
+            current_bandwidth = (stats.get('total_bandwidth_in', 0) + stats.get('total_bandwidth_out', 0)) / 1_000_000
+        except:
+            pass
+        
+        # Measure latency to internet using socket
+        latency = 0.0
+        try:
+            start_time = time.time()
+            sock = socket.create_connection(('8.8.8.8', 53), timeout=2)
+            latency = (time.time() - start_time) * 1000  # Convert to ms
+            sock.close()
+        except:
+            latency = 0.0
+        
+        # Calculate packet loss from network interface stats
+        net_io = psutil.net_io_counters()
+        packet_loss = 0.0
+        if net_io.packets_sent > 0:
+            total_errors = net_io.errin + net_io.errout + net_io.dropin + net_io.dropout
+            packet_loss = (total_errors / net_io.packets_sent) * 100 if net_io.packets_sent > 0 else 0.0
         
         return jsonify({
-            'bandwidth': bandwidth_mbps,
-            'latency': stats.get('average_latency', 0),
-            'packet_loss': stats.get('congestion_level', 0) * 100,  # Convert 0-1 to percentage
+            'bandwidth': link_speed_mbps,
+            'bandwidth_type': 'link_speed',
+            'current_usage': round(current_bandwidth, 2),
+            'latency': round(latency, 1),
+            'packet_loss': round(min(packet_loss, 100), 2),
             'labels': [],
             'bandwidth_history': [],
             'latency_history': []

@@ -6,6 +6,8 @@ NO FAKE DATA - Real system inventory.
 import os
 import json
 import subprocess
+import platform
+import shutil
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 from collections import defaultdict
@@ -37,6 +39,21 @@ class AssetInventory:
                 json.dump(self.assets, f, indent=2)
         except Exception as e:
             print(f"[ASSET] Save error: {e}")
+
+    def _load_connected_devices(self) -> List[Dict]:
+        """Load discovered hardware devices from connected_devices.json"""
+        try:
+            base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
+            connected_path = os.path.join(base_dir, 'json', 'connected_devices.json')
+            if not os.path.exists(connected_path):
+                return []
+            with open(connected_path, 'r') as f:
+                data = json.load(f)
+            devices = data.get('devices', {})
+            return list(devices.values()) if isinstance(devices, dict) else []
+        except Exception as e:
+            print(f"[ASSET] Connected devices load error: {e}")
+            return []
     
     def scan_software(self) -> List[Dict]:
         """Scan installed software packages (cross-platform)"""
@@ -57,6 +74,7 @@ class AssetInventory:
                                     'version': parts[2],
                                     'type': 'system_package',
                                     'package_manager': 'dpkg',
+                                    'device': platform.node(),
                                     'last_seen': datetime.now().isoformat()
                                 })
             except:
@@ -76,6 +94,7 @@ class AssetInventory:
                                     'version': parts[1],
                                     'type': 'system_package',
                                     'package_manager': 'brew',
+                                    'device': platform.node(),
                                     'last_seen': datetime.now().isoformat()
                                 })
             except:
@@ -100,6 +119,7 @@ class AssetInventory:
                                     'version': parts[1],
                                     'type': 'system_package',
                                     'package_manager': 'windows',
+                                    'device': platform.node(),
                                     'last_seen': datetime.now().isoformat()
                                 })
             except:
@@ -120,6 +140,7 @@ class AssetInventory:
                                     'version': parts[1],
                                     'type': 'python_package',
                                     'package_manager': pip_cmd,
+                                    'device': platform.node(),
                                     'last_seen': datetime.now().isoformat()
                                 })
             except:
@@ -127,8 +148,9 @@ class AssetInventory:
         
         return software[:100]  # Limit to 100 for performance
     
-    def detect_eol_software(self, software_list: List[Dict]) -> List[Dict]:
+    def detect_eol_software(self, software_list: Optional[List[Dict]] = None) -> List[Dict]:
         """Detect end-of-life software (simplified detection)"""
+        software_list = software_list if software_list is not None else self.scan_software()
         eol_software = []
         
         # Known EOL patterns (simplified - in production, use API)
@@ -153,8 +175,9 @@ class AssetInventory:
         
         return eol_software
     
-    def detect_shadow_it(self, software_list: List[Dict]) -> List[Dict]:
+    def detect_shadow_it(self, software_list: Optional[List[Dict]] = None) -> List[Dict]:
         """Detect unauthorized/shadow IT software"""
+        software_list = software_list if software_list is not None else self.scan_software()
         shadow_it = []
         
         # Unauthorized software patterns (example)
@@ -188,25 +211,54 @@ class AssetInventory:
             return 'low'
     
     def get_stats(self) -> Dict:
-        """Get asset inventory statistics"""
-        # Scan software
+        """Get asset inventory statistics including network devices"""
+        # Load hardware from network discovery
+        hardware_devices = self._load_connected_devices()
+        hardware_count = len(hardware_devices)
+        
+        # Scan local software (container/host)
         software = self.scan_software()
         eol_software = self.detect_eol_software(software)
         shadow_it = self.detect_shadow_it(software)
-        
-        # Get hardware count from device scanner
-        hardware_count = len(self.assets.get('hardware', []))
+
+        eol_names = {item.get('name', '').lower() for item in eol_software}
+        shadow_names = {item.get('name', '').lower() for item in shadow_it}
+
+        # Enrich software list with status and risk for UI
+        software_list = []
+        for pkg in software:
+            name_lower = pkg.get('name', '').lower()
+            status = 'ok'
+            risk = 'low'
+            if name_lower in eol_names:
+                status = 'end_of_life'
+                risk = 'high'
+            elif name_lower in shadow_names:
+                status = 'shadow_it'
+                risk = 'high'
+            software_list.append({
+                'name': pkg.get('name', 'unknown'),
+                'version': pkg.get('version', 'unknown'),
+                'device': pkg.get('device', 'localhost'),
+                'status': status,
+                'risk': risk,
+                'package_manager': pkg.get('package_manager', 'unknown'),
+                'last_seen': pkg.get('last_seen', datetime.now().isoformat())
+            })
         
         return {
             'total_assets': hardware_count + len(software),
             'hardware_assets': hardware_count,
             'software_packages': len(software),
+            'devices_scanned': hardware_count,
             'eol_software': len(eol_software),
             'shadow_it': len(shadow_it),
             'licenses_tracked': len(self.assets.get('licenses', [])),
-            'critical_assets': sum(1 for a in self.assets.get('hardware', []) if self.calculate_asset_criticality(a) == 'critical'),
-            'eol_list': eol_software[:10],  # Top 10 EOL items
-            'shadow_it_list': shadow_it[:10]  # Top 10 shadow IT items
+            'critical_assets': sum(1 for a in hardware_devices if self.calculate_asset_criticality(a) == 'critical'),
+            'eol_list': eol_software[:10],
+            'shadow_it_list': shadow_it[:10],
+            'software_list': software_list[:100],
+            'hardware_list': hardware_devices[:100]
         }
 
 # Global instance

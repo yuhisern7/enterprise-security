@@ -27,6 +27,7 @@
     "ip": "192.168.0.1",
     "mac": "28:f7:d6:af:62:01",
     "type": "Unknown Device",
+    "vendor": "Unknown",
     "hostname": "_gateway",
     "open_ports": [
       {
@@ -36,597 +37,119 @@
       {
         "port": 443,
         "service": "HTTPS"
-      },
-      {
-        "port": 500,
-        "service": "IKE-VPN"
-      },
-      {
-        "port": 554,
-        "service": "RTSP"
-      },
-      {
-        "port": 1194,
-        "service": "OpenVPN"
-      },
-      {
-        "port": 1723,
-        "service": "PPTP"
-      },
-      {
-        "port": 3389,
-        "service": "RDP"
-      },
-      {
-        "port": 4500,
-        "service": "IPSec"
-      },
-      {
-        "port": 5900,
-        "service": "VNC"
-      },
-      {
-        "port": 8080,
-        "service": "HTTP-Alt"
-      },
-      {
-        "port": 8443,
-        "service": "HTTPS-Alt"
-      },
-      {
-        "port": 51820,
-        "service": "WireGuard"
       }
     ],
-    "vpn_detected": {
-      "is_vpn": true,
-      "confidence": 100,
-      "indicators": [
-        "VPN port 500 (IKE VPN)",
-        "VPN port 1194 (OpenVPN)",
-        "VPN port 1723 (PPTP VPN)",
-        "VPN port 4500 (IPSec VPN)",
-        "VPN port 51820 (WireGuard)"
-      ]
-    },
-    "last_seen": "2026-01-02T01:14:51.921643",
+    "last_seen": "2026-01-02T03:18:04.993157",
     "first_seen": "2025-12-29T19:59:39.075591"
   },
   "e8:48:b8:2e:80:85": {
     "ip": "192.168.0.101",
     "mac": "e8:48:b8:2e:80:85",
     "type": "Router/Network",
+    "vendor": "Tplink",
     "hostname": "TP-Link-Router-101",
     "open_ports": [],
-    "vpn_detected": {
-      "is_vpn": false,
-      "confidence": 0,
-      "indicators": []
-    },
-    "last_seen": "2026-01-02T01:14:58.223145",
+    "last_seen": "2026-01-02T03:18:11.550040",
     "first_seen": "2026-01-01T05:31:32.869006"
   },
   "24:0f:9b:24:a0:4a": {
     "ip": "192.168.0.103",
     "mac": "24:0f:9b:24:a0:4a",
     "type": "Security Camera",
+    "vendor": "Hikvision",
     "hostname": "Hikvision-Camera-103",
     "open_ports": [
-      {
-        "port": 22,
-        "service": "SSH"
-      },
       {
         "port": 80,
         "service": "HTTP"
       },
       {
-        "port": 443,
-        "service": "HTTPS"
-      },
-      {
-        "port": 445,
-        "service": "SMB"
-      },
-      {
-        "port": 500,
-        "service": "IKE-VPN"
-      },
-      {
         "port": 554,
         "service": "RTSP"
-      },
-      {
-        "port": 1194,
-        "service": "OpenVPN"
-      },
-      {
-        "port": 1723,
-        "service": "PPTP"
-      },
-      {
-        "port": 3389,
-        "service": "RDP"
-      },
-      {
-        "port": 4500,
-        "service": "IPSec"
-      },
-      {
-        "port": 5900,
-        "service": "VNC"
-      },
-      {
-        "port": 8080,
-        "service": "HTTP-Alt"
-      },
-      {
-        "port": 8443,
-        "service": "HTTPS-Alt"
-      },
-      {
-        "port": 51820,
-        "service": "WireGuard"
       }
     ],
-    "vpn_detected": {
-      "is_vpn": true,
-      "confidence": 100,
-      "indicators": [
-        "VPN port 500 (IKE VPN)",
-        "VPN port 1194 (OpenVPN)",
-        "VPN port 1723 (PPTP VPN)",
-        "VPN port 4500 (IPSec VPN)",
-        "VPN port 51820 (WireGuard)"
-      ]
-    },
-    "last_seen": "2026-01-02T01:15:00.320199",
+    "last_seen": "2026-01-02T03:18:13.617563",
     "first_seen": "2026-01-01T05:31:34.929969"
   },
   "1c:86:9a:3f:61:3c": {
     "ip": "192.168.0.106",
     "mac": "1c:86:9a:3f:61:3c",
     "type": "Android Phone",
+    "vendor": "Samsung",
     "hostname": "Samsung-Phone-106",
     "open_ports": [],
-    "vpn_detected": {
-      "is_vpn": false,
-      "confidence": 0,
-      "indicators": []
-    },
-    "last_seen": "2026-01-02T01:15:06.537652",
-    "first_seen": "2026-01-01T05:31:39.647915"
+    "last_seen": "2026-01-02T03:18:20.132745",
+    "first_seen": "2026-01-02T02:29:38.562833"
   },
   "36:ce:45:73:56:3d": {
     "ip": "192.168.0.105",
     "mac": "36:ce:45:73:56:3d",
-    "type": "Unknown",
-    "hostname": "Device-105",
-    "open_ports": [
-      {
-        "port": 22,
-        "service": "SSH"
-      },
-      {
-        "port": 80,
-        "service": "HTTP"
-      },
-      {
-        "port": 443,
-        "service": "HTTPS"
-      },
-      {
-        "port": 445,
-        "service": "SMB"
-      },
-      {
-        "port": 554,
-        "service": "RTSP"
-      },
-      {
-        "port": 3389,
-        "service": "RDP"
-      },
-      {
-        "port": 5900,
-        "service": "VNC"
-      },
-      {
-        "port": 8080,
-        "service": "HTTP-Alt"
-      },
-      {
-        "port": 8443,
-        "service": "HTTPS-Alt"
-      }
-    ],
-    "last_seen": "2026-01-02T00:54:56.553935",
-    "first_seen": "2026-01-02T00:39:30.461980"
+    "type": "iPhone/iPad (Private MAC)",
+    "vendor": "Apple (Randomized)",
+    "hostname": "iPhone-105",
+    "open_ports": [],
+    "last_seen": "2026-01-02T02:39:16.385046",
+    "first_seen": "2026-01-02T02:35:06.208200"
   },
   "22:9c:c8:47:7d:23": {
     "ip": "192.168.0.107",
     "mac": "22:9c:c8:47:7d:23",
     "type": "iPhone/iPad (Private MAC)",
+    "vendor": "Apple (Randomized)",
     "hostname": "iPhone-107",
-    "open_ports": [
-      {
-        "port": 22,
-        "service": "SSH"
-      },
-      {
-        "port": 80,
-        "service": "HTTP"
-      },
-      {
-        "port": 443,
-        "service": "HTTPS"
-      },
-      {
-        "port": 445,
-        "service": "SMB"
-      },
-      {
-        "port": 500,
-        "service": "IKE-VPN"
-      },
-      {
-        "port": 554,
-        "service": "RTSP"
-      },
-      {
-        "port": 1194,
-        "service": "OpenVPN"
-      },
-      {
-        "port": 1723,
-        "service": "PPTP"
-      },
-      {
-        "port": 3389,
-        "service": "RDP"
-      },
-      {
-        "port": 4500,
-        "service": "IPSec"
-      },
-      {
-        "port": 5900,
-        "service": "VNC"
-      },
-      {
-        "port": 8080,
-        "service": "HTTP-Alt"
-      },
-      {
-        "port": 8443,
-        "service": "HTTPS-Alt"
-      },
-      {
-        "port": 51820,
-        "service": "WireGuard"
-      }
-    ],
-    "vpn_detected": {
-      "is_vpn": true,
-      "confidence": 100,
-      "indicators": [
-        "VPN port 500 (IKE VPN)",
-        "VPN port 1194 (OpenVPN)",
-        "VPN port 1723 (PPTP VPN)",
-        "VPN port 4500 (IPSec VPN)",
-        "VPN port 51820 (WireGuard)"
-      ]
-    },
-    "last_seen": "2026-01-02T01:15:17.614921",
-    "first_seen": "2026-01-01T23:52:57.305079"
+    "open_ports": [],
+    "last_seen": "2026-01-02T03:18:22.486672",
+    "first_seen": "2026-01-02T03:18:22.486689"
   },
   "40:ac:bf:3e:53:af": {
     "ip": "192.168.0.104",
     "mac": "40:ac:bf:3e:53:af",
     "type": "Security Camera",
+    "vendor": "Hikvision",
     "hostname": "Hikvision-Camera-104",
     "open_ports": [
       {
-        "port": 22,
-        "service": "SSH"
-      },
-      {
-        "port": 80,
-        "service": "HTTP"
-      },
-      {
-        "port": 443,
-        "service": "HTTPS"
-      },
-      {
-        "port": 445,
-        "service": "SMB"
-      },
-      {
-        "port": 500,
-        "service": "IKE-VPN"
-      },
-      {
-        "port": 554,
-        "service": "RTSP"
-      },
-      {
-        "port": 1194,
-        "service": "OpenVPN"
-      },
-      {
-        "port": 1723,
-        "service": "PPTP"
-      },
-      {
-        "port": 3389,
-        "service": "RDP"
-      },
-      {
-        "port": 4500,
-        "service": "IPSec"
-      },
-      {
-        "port": 5900,
-        "service": "VNC"
-      },
-      {
-        "port": 8080,
-        "service": "HTTP-Alt"
-      },
-      {
         "port": 8443,
         "service": "HTTPS-Alt"
-      },
-      {
-        "port": 51820,
-        "service": "WireGuard"
       }
     ],
-    "vpn_detected": {
-      "is_vpn": true,
-      "confidence": 100,
-      "indicators": [
-        "VPN port 500 (IKE VPN)",
-        "VPN port 1194 (OpenVPN)",
-        "VPN port 1723 (PPTP VPN)",
-        "VPN port 4500 (IPSec VPN)",
-        "VPN port 51820 (WireGuard)"
-      ]
-    },
-    "last_seen": "2026-01-02T01:15:15.415309",
-    "first_seen": "2026-01-02T00:39:16.909399"
+    "last_seen": "2026-01-02T02:42:19.486745",
+    "first_seen": "2026-01-02T02:25:04.346350"
   },
   "48:35:2b:cb:48:0a": {
     "ip": "192.168.0.109",
     "mac": "48:35:2b:cb:48:0a",
     "type": "Unknown Device",
+    "vendor": "Unknown",
     "hostname": "Unknown-109",
-    "open_ports": [
-      {
-        "port": 22,
-        "service": "SSH"
-      },
-      {
-        "port": 80,
-        "service": "HTTP"
-      },
-      {
-        "port": 443,
-        "service": "HTTPS"
-      },
-      {
-        "port": 445,
-        "service": "SMB"
-      },
-      {
-        "port": 500,
-        "service": "IKE-VPN"
-      },
-      {
-        "port": 554,
-        "service": "RTSP"
-      },
-      {
-        "port": 1194,
-        "service": "OpenVPN"
-      },
-      {
-        "port": 1723,
-        "service": "PPTP"
-      },
-      {
-        "port": 3389,
-        "service": "RDP"
-      },
-      {
-        "port": 4500,
-        "service": "IPSec"
-      },
-      {
-        "port": 5900,
-        "service": "VNC"
-      },
-      {
-        "port": 8080,
-        "service": "HTTP-Alt"
-      },
-      {
-        "port": 8443,
-        "service": "HTTPS-Alt"
-      },
-      {
-        "port": 51820,
-        "service": "WireGuard"
-      }
-    ],
-    "vpn_detected": {
-      "is_vpn": true,
-      "confidence": 100,
-      "indicators": [
-        "VPN port 500 (IKE VPN)",
-        "VPN port 1194 (OpenVPN)",
-        "VPN port 1723 (PPTP VPN)",
-        "VPN port 4500 (IPSec VPN)",
-        "VPN port 51820 (WireGuard)"
-      ]
-    },
-    "last_seen": "2026-01-02T01:15:13.258162",
-    "first_seen": "2026-01-02T00:17:42.161360"
+    "open_ports": [],
+    "last_seen": "2026-01-02T03:18:26.780543",
+    "first_seen": "2026-01-02T02:56:09.736709"
   },
   "40:ac:bf:37:d6:39": {
     "ip": "192.168.0.102",
     "mac": "40:ac:bf:37:d6:39",
     "type": "Security Camera",
+    "vendor": "Hikvision",
     "hostname": "Hikvision-Camera-102",
     "open_ports": [
       {
-        "port": 22,
-        "service": "SSH"
-      },
-      {
-        "port": 80,
-        "service": "HTTP"
-      },
-      {
-        "port": 443,
-        "service": "HTTPS"
-      },
-      {
-        "port": 445,
-        "service": "SMB"
-      },
-      {
-        "port": 500,
-        "service": "IKE-VPN"
-      },
-      {
-        "port": 554,
-        "service": "RTSP"
-      },
-      {
-        "port": 1194,
-        "service": "OpenVPN"
-      },
-      {
-        "port": 1723,
-        "service": "PPTP"
-      },
-      {
-        "port": 3389,
-        "service": "RDP"
-      },
-      {
-        "port": 4500,
-        "service": "IPSec"
-      },
-      {
-        "port": 5900,
-        "service": "VNC"
-      },
-      {
-        "port": 8080,
-        "service": "HTTP-Alt"
-      },
-      {
         "port": 8443,
         "service": "HTTPS-Alt"
-      },
-      {
-        "port": 51820,
-        "service": "WireGuard"
       }
     ],
-    "vpn_detected": {
-      "is_vpn": true,
-      "confidence": 100,
-      "indicators": [
-        "VPN port 500 (IKE VPN)",
-        "VPN port 1194 (OpenVPN)",
-        "VPN port 1723 (PPTP VPN)",
-        "VPN port 4500 (IPSec VPN)",
-        "VPN port 51820 (WireGuard)"
-      ]
-    },
-    "last_seen": "2026-01-02T01:15:10.838386",
-    "first_seen": "2026-01-01T22:56:13.157775"
+    "last_seen": "2026-01-02T03:12:52.429585",
+    "first_seen": "2026-01-02T02:38:56.132126"
   },
   "84:46:93:6d:3c:3f": {
     "ip": "192.168.0.100",
     "mac": "84:46:93:6d:3c:3f",
     "type": "Android Phone",
+    "vendor": "Xiaomi",
     "hostname": "Xiaomi-Phone-100",
-    "open_ports": [
-      {
-        "port": 22,
-        "service": "SSH"
-      },
-      {
-        "port": 80,
-        "service": "HTTP"
-      },
-      {
-        "port": 443,
-        "service": "HTTPS"
-      },
-      {
-        "port": 445,
-        "service": "SMB"
-      },
-      {
-        "port": 500,
-        "service": "IKE-VPN"
-      },
-      {
-        "port": 554,
-        "service": "RTSP"
-      },
-      {
-        "port": 1194,
-        "service": "OpenVPN"
-      },
-      {
-        "port": 1723,
-        "service": "PPTP"
-      },
-      {
-        "port": 3389,
-        "service": "RDP"
-      },
-      {
-        "port": 4500,
-        "service": "IPSec"
-      },
-      {
-        "port": 5900,
-        "service": "VNC"
-      },
-      {
-        "port": 8080,
-        "service": "HTTP-Alt"
-      },
-      {
-        "port": 8443,
-        "service": "HTTPS-Alt"
-      },
-      {
-        "port": 51820,
-        "service": "WireGuard"
-      }
-    ],
-    "vpn_detected": {
-      "is_vpn": true,
-      "confidence": 100,
-      "indicators": [
-        "VPN port 500 (IKE VPN)",
-        "VPN port 1194 (OpenVPN)",
-        "VPN port 1723 (PPTP VPN)",
-        "VPN port 4500 (IPSec VPN)",
-        "VPN port 51820 (WireGuard)"
-      ]
-    },
-    "last_seen": "2026-01-02T01:15:08.673884",
-    "first_seen": "2025-12-31T23:05:04.396236"
+    "open_ports": [],
+    "last_seen": "2026-01-02T03:18:24.602474",
+    "first_seen": "2026-01-02T02:16:27.562318"
   },
   "92:dc:0b:ea:17:30": {
     "ip": "192.168.0.112",
