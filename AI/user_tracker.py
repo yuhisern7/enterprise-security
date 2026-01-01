@@ -73,6 +73,18 @@ class UserTracker:
         users = self.get_arp_table()
         suspicious = self.detect_suspicious_activity(users)
         
+        # Count active sessions from netstat/ss
+        active_sessions = 0
+        try:
+            result = subprocess.run(['ss', '-tu'], capture_output=True, text=True)
+            if result.returncode == 0:
+                active_sessions = len([l for l in result.stdout.split('\n') if 'ESTAB' in l])
+        except:
+            pass
+        
+        # Insider threats are critical suspicious activities
+        insider_threats = len([a for a in self.suspicious_activities if 'blocked threat' in a.get('reason', '')])
+        
         # Save users to file
         try:
             with open(self.users_file, 'w') as f:
@@ -83,6 +95,8 @@ class UserTracker:
         return {
             'tracked_users': len(users),
             'suspicious_activities': suspicious,
+            'insider_threats': insider_threats,
+            'active_sessions': active_sessions,
             'users': users
         }
 

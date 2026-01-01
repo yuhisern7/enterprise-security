@@ -4751,8 +4751,12 @@
       
       async function loadDNSGeoSecurity() {
         try {
-          // DNS queries count
-          document.getElementById('dns-queries').textContent = '45.2K';
+          // DNS queries count - fetch from API
+          const dnsResponse = await fetch('/api/dns/stats');
+          const dnsData = await dnsResponse.json();
+          const queries = dnsData.total_queries || 0;
+          document.getElementById('dns-queries').textContent = queries > 1000 ? 
+            (queries / 1000).toFixed(1) + 'K' : queries.toString();
           
           // Load geographic data
           const response = await fetch('/api/visualization/geographic');
@@ -4802,9 +4806,9 @@
           } else {
             document.getElementById('tracked-users').textContent = (data.tracked_users || 0).toString();
             document.getElementById('suspicious-activities').textContent = (data.suspicious_activities || 0).toString();
+            document.getElementById('insider-threats').textContent = (data.insider_threats || 0).toString();
+            document.getElementById('active-sessions').textContent = (data.active_sessions || 0).toString();
           }
-          document.getElementById('insider-threats').textContent = '0';
-          document.getElementById('active-sessions').textContent = '12';
         } catch (error) {
           console.error('Error loading user identity monitoring:', error);
         }
@@ -5034,7 +5038,7 @@
           if (!data.error) {
             const total = (data.email_sent || 0) + (data.sms_sent || 0);
             document.getElementById('alerts-sent').textContent = total.toString();
-            document.getElementById('alert-subscribers').textContent = '0';  // Would come from config
+            document.getElementById('alert-subscribers').textContent = (data.subscribers || 0).toString();
           } else {
             document.getElementById('alerts-sent').textContent = '0';
             document.getElementById('alert-subscribers').textContent = '0';
@@ -5133,7 +5137,8 @@
             document.getElementById('api-calls').textContent = (data.total_requests || 0).toLocaleString();
             document.getElementById('api-integrations').textContent = (data.active_keys || 0).toString();
             document.getElementById('api-keys').textContent = (data.total_keys || 0).toString();
-            document.getElementById('api-latency').textContent = '< 10ms';  // Placeholder for now
+            const latency = data.avg_latency_ms || 0;
+            document.getElementById('api-latency').textContent = latency ? latency.toFixed(1) + 'ms' : 'N/A';
           } else {
             document.getElementById('api-calls').textContent = '0';
             document.getElementById('api-integrations').textContent = '0';

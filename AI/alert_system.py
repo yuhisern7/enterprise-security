@@ -132,7 +132,14 @@ class AlertSystem:
     
     def get_stats(self) -> Dict:
         """Get alert statistics"""
-        return self.stats
+        # Count total subscribers (email + SMS recipients)
+        email_count = len(self.config.get('email', {}).get('to_emails', []))
+        sms_count = len(self.config.get('sms', {}).get('to_numbers', []))
+        
+        return {
+            **self.stats,
+            'subscribers': email_count + sms_count
+        }
 
 # Global instance
 alert_system = AlertSystem()
