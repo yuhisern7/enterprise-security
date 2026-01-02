@@ -239,11 +239,6 @@ async def broadcast_message(message: dict, sender: WebSocketServerProtocol):
     message_str = json.dumps(message)
     stats["messages_relayed"] += 1
     
-    # Debug: Log message keys
-    logger.info(f"🔍 Message keys: {list(message.keys())}")
-    logger.info(f"🔍 Message type: {message.get('type')}")
-    logger.info(f"🔍 Has threat_type: {'threat_type' in message}")
-    
     # Count as threat if it contains threat data (check for both field names)
     if "threat_type" in message or "attack_type" in message or "threats" in message:
         stats["threats_shared"] += 1
@@ -260,7 +255,6 @@ async def broadcast_message(message: dict, sender: WebSocketServerProtocol):
         # Store complete attack to global_attacks.json
         if SIGNATURE_SYNC_ENABLED:
             try:
-                logger.info(f"💾 Storing attack to global_attacks.json...")
                 sync_service.store_global_attack(message)
             except Exception as e:
                 logger.error(f"Failed to store attack: {e}")
