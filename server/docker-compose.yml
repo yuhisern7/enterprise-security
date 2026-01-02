@@ -4,8 +4,25 @@ services:
       context: ..
       dockerfile: server/Dockerfile
     container_name: enterprise-security-ai
-    network_mode: host
-    privileged: true
+    network_mode: host   # Required for eBPF/XDP to see real traffic
+    pid: host            # Required for syscall ↔ process correlation
+    
+    # DEFENSE-GRADE: eBPF/XDP capabilities (observer-only mode)
+    # This enables kernel-level telemetry (MODULE A)
+    # SAFE: Observer-only, no packet modification
+    cap_add:
+      - SYS_ADMIN        # Required on some kernels for eBPF
+      - BPF              # Load eBPF programs
+      - PERFMON          # Read kernel events
+      - NET_ADMIN        # Attach to network hooks
+      - NET_RAW          # Raw socket access (scapy fallback)
+    
+    security_opt:
+      - apparmor=unconfined   # Allow BPF syscalls
+      - seccomp=unconfined    # BPF syscalls otherwise blocked
+    
+    # Note: NOT using --privileged (too broad, unnecessary)
+    # This is observer-only - no packet modification or drops
     
     # Volumes - persist data between restarts
     volumes:
@@ -27,6 +44,8 @@ services:
       - DASHBOARD_PORT=${DASHBOARD_PORT:-60000}
       - P2P_PORT=${P2P_PORT:-60001}
       - SIGNATURE_MODE=${SIGNATURE_MODE:-auto}  # auto, master, or client
+      - KERNEL_TELEMETRY_ENABLED=${KERNEL_TELEMETRY_ENABLED:-true}  # MODULE A: eBPF
+      - KERNEL_TELEMETRY_INTERFACE=${KERNEL_TELEMETRY_INTERFACE:-eth0}
     
     # Health check (uses configured dashboard port)
     healthcheck:

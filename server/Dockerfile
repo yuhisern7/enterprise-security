@@ -1,7 +1,7 @@
 # Home WiFi Security System - Docker Image
 FROM python:3.11-slim
 
-# Install system dependencies for network monitoring
+# Install system dependencies for network monitoring + eBPF (MODULE A)
 RUN apt-get update && apt-get install -y \
     tcpdump \
     libpcap-dev \
@@ -11,7 +11,17 @@ RUN apt-get update && apt-get install -y \
     samba-common-bin \
     avahi-utils \
     curl \
+    linux-headers-generic \
+    bpftool \
+    libbpf-dev \
+    clang \
+    llvm \
     && rm -rf /var/lib/apt/lists/*
+
+# Install BCC (BPF Compiler Collection) for Python eBPF support
+# Note: This will only work if Docker is run with proper capabilities
+# Graceful fallback to scapy if capabilities unavailable
+RUN pip install --no-cache-dir bcc || echo "BCC install failed - eBPF will fallback to userland"
 
 # Set working directory
 WORKDIR /app
