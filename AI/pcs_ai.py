@@ -2194,6 +2194,26 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
                   f"{len(signatures.get('encodings_detected', []))} encodings from attack")
         except Exception as e:
             print(f"[SIGNATURE EXTRACTOR] Warning: {e}")
+        
+        # 🌐 RELAY: Send threat to global relay server for P2P mesh sharing
+        if RELAY_AVAILABLE and os.getenv('RELAY_ENABLED', 'false').lower() == 'true':
+            try:
+                relay_threat({
+                    'ip_address': ip_address,
+                    'threat_type': threat_type,
+                    'details': details,
+                    'level': level.name if hasattr(level, 'name') else str(level),
+                    'timestamp': event['timestamp'],
+                    'action': action,
+                    'geolocation': geo_data,
+                    'anonymization': anonymization_data,
+                    'behavioral_metrics': behavioral_data,
+                    'attack_sequence': sequence_data,
+                    'extracted_signatures': event.get('extracted_signatures', {})
+                })
+                logger.info(f"[RELAY] ✅ Sent threat to relay: {threat_type} from {ip_address}")
+            except Exception as e:
+                logger.warning(f"[RELAY] Failed to send threat to relay: {e}")
     else:
         _peer_threats.append(event)  # Peer threats (AI training only)
         # Keep only last 500 peer events in memory
