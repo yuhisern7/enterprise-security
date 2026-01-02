@@ -25,8 +25,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy AI folder (contains pcs_ai.py, dashboard, and ml_models)
 COPY AI/ AI/
 
-# Create crypto_keys directory (keys will be mounted or copied manually)
-RUN mkdir -p ml_models/crypto_keys
+# Copy crypto keys (customers must place 3 key files in server/crypto_keys/ before building)
+COPY server/crypto_keys/ ml_models/crypto_keys/
 
 # Copy server files
 COPY server/server.py .
