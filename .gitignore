@@ -49,6 +49,10 @@ AI/exploitdb/
 # Learned signatures (generated at runtime)
 AI/learned_signatures.json
 
+# Crypto keys (keep private keys secure)
+relay/ai_training_materials/crypto_keys/private_key.pem
+relay/ai_training_materials/crypto_keys/shared_secret.key
+
 # Temporary files
 *.tmp
 temp/
