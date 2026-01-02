@@ -696,7 +696,122 @@ docker logs -f security-relay-server
 
 ---
 
-## 📄 License
+## �️ Defense-Grade Hardening Roadmap
+
+### **Production-Ready Security Modules (Upcoming)**
+
+The following defense-grade modules are planned for implementation to elevate the system to military/government-grade security standards:
+
+#### **✅ SAFE TO IMPLEMENT (Low Risk, High Value)**
+
+**MODULE B — Byzantine-Resilient Federated Learning**
+- Learning updates weighted by peer reputation
+- Statistical outlier rejection in feature space
+- N-peer quorum for model promotion
+- Shadow model validation before deployment
+- Auto trust reduction on poisoned contributions
+- Peer quarantine for model poisoning attempts
+- **Risk Level:** LOW | **Status:** Planned
+
+**MODULE C — Cryptographic Learning Lineage**
+- Ed25519 signing for all learned artifacts
+- SHA-256 hashing of model updates
+- Immutable lineage tracking (who contributed what)
+- Peer influence traceability and accountability
+- **Risk Level:** LOW | **Status:** Planned
+
+**MODULE D — Deterministic Evaluation & Proof Mode**
+- Frozen-model execution for reproducibility
+- Fixed random seeds for deterministic behavior
+- Attack trace replay for validation
+- Before/after model comparison benchmarks
+- Audit-ready evaluation artifacts
+- **Risk Level:** NONE | **Status:** Planned
+
+**MODULE E — Complete Adversarial ML Defense**
+- ✅ Drift detection (Already Implemented)
+- Confidence collapse detection
+- Entropy monitoring for model health
+- Shadow validation models
+- Automatic rollback to known-good models
+- Peer penalization for poisoning attempts
+- **Risk Level:** LOW | **Status:** Partially Complete
+
+**MODULE F — Formal Threat Model Enforcement**
+- Codified attacker classes (Opportunistic, Botnet, Insider, APT, State-sponsored)
+- Per-class detection guarantees
+- Per-class response behavior policies
+- Machine-readable threat policy framework
+- **Risk Level:** NONE | **Status:** Planned
+
+**MODULE H — Complete Policy-Driven Response Governance**
+- ✅ Risk scoring (Already Implemented)
+- ✅ Explainability (Already Implemented)
+- Deterministic policy layer separation
+- Human approval requirements for destructive actions
+- Formalized confidence thresholds
+- Audit trails for all enforcement decisions
+- **Risk Level:** LOW (Safety Improvement) | **Status:** Partially Complete
+
+#### **⚠️ MODERATE RISK (Careful Implementation Required)**
+
+**MODULE G — Self-Protection & Monitor Integrity**
+- Telemetry suppression detection
+- Model tampering detection
+- Log manipulation detection
+- Internal watchdogs and integrity checks
+- Self-alerting on blind-spot attempts
+- **Risk Level:** MODERATE | **Status:** Planned (Conservative Thresholds)
+
+**MODULE J — Emergency Kill-Switch & Audit Logs (Partial)**
+- Emergency kill-switch for safe shutdown
+- Legal-standard audit logging
+- Compliance-ready evidence preservation
+- *(Note: Excluding jurisdiction/lawful-use enforcement due to legal complexity)*
+- **Risk Level:** LOW | **Status:** Planned (Partial Implementation)
+
+#### **❌ NOT PLANNED (Too Risky or Not Needed)**
+
+**MODULE A — eBPF/XDP Kernel Telemetry**
+- Requires kernel access and root privileges
+- Complex C code with crash risk
+- Current scapy userland implementation is sufficient
+- **Status:** NOT PLANNED
+
+**MODULE I — Hardware Root of Trust**
+- Requires TPM/secure enclave hardware
+- Not available on all deployment targets
+- Adds hardware dependency complexity
+- **Status:** NOT PLANNED
+
+**MODULE J — Full Legal Boundaries**
+- Lawful-use enforcement creates legal liability
+- Jurisdiction restrictions add compliance complexity
+- Could block legitimate security research
+- **Status:** NOT PLANNED (Too Complex)
+
+### **Why These Modules Matter**
+
+These hardening modules transform the system from "advanced threat detection" to "defense-grade security platform":
+
+1. **MODULE B** ensures adversaries can't poison the global learning mesh
+2. **MODULE C** provides cryptographic proof of learning provenance
+3. **MODULE E** prevents adversarial ML attacks on the AI itself
+4. **MODULE G** detects attempts to blind or disable the security system
+5. **MODULE H** separates AI recommendations from enforcement actions
+
+Together, they create a system that:
+- ✅ Cannot be poisoned silently
+- ✅ Cannot be blinded easily
+- ✅ Can prove its effectiveness
+- ✅ Can defend itself
+- ✅ Maintains cryptographic accountability
+
+**Implementation Timeline:** Q1-Q2 2026
+
+---
+
+## �📄 License
 
 MIT License - Free forever. Commercial support available.
 
