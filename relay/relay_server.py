@@ -34,48 +34,33 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 # Check if crypto is enabled from environment variable
 CRYPTO_ENABLED = os.getenv('CRYPTO_ENABLED', 'true').lower() == 'true'
 
-# Load authorized customers registry (per-customer keys)
-AUTHORIZED_CUSTOMERS = {}
-AUTHORIZED_CUSTOMERS_FILE = "customer_keys/authorized_customers.json"
+# Simple shared key (all customers use same key)
+SHARED_SECRET = None
 
-def load_authorized_customers():
-    """Load per-customer crypto keys from registry"""
-    global AUTHORIZED_CUSTOMERS
+def load_shared_secret():
+    """Load shared HMAC secret (same for all customers)"""
+    global SHARED_SECRET
     try:
-        if os.path.exists(AUTHORIZED_CUSTOMERS_FILE):
-            with open(AUTHORIZED_CUSTOMERS_FILE, 'r') as f:
-                registry = json.load(f)
-                
-            # Load shared secret for each active customer
-            for customer_id, info in registry.items():
-                if info.get('status') != 'active':
-                    continue  # Skip revoked customers
-                    
-                key_file = f"customer_keys/{customer_id}/shared_secret.key"
-                if os.path.exists(key_file):
-                    with open(key_file, 'rb') as f:
-                        AUTHORIZED_CUSTOMERS[customer_id] = {
-                            'secret': f.read(),
-                            'company_name': info.get('company_name'),
-                            'created_at': info.get('created_at')
-                        }
-                    logger.info(f"✅ Loaded keys for customer: {customer_id} ({info.get('company_name')})")
-                else:
-                    logger.warning(f"⚠️  Key file missing for customer: {customer_id}")
-                    
-            logger.info(f"🔐 Loaded {len(AUTHORIZED_CUSTOMERS)} authorized customers")
+        secret_file = "ai_training_materials/crypto_keys/shared_secret.key"
+        if os.path.exists(secret_file):
+            with open(secret_file, 'rb') as f:
+                SHARED_SECRET = f.read()
+            logger.info("✅ Loaded shared HMAC secret for all customers")
         else:
-            logger.warning(f"⚠️  No customer registry found at {AUTHORIZED_CUSTOMERS_FILE}")
-            logger.info("   Run: relay/generate_customer_keys.py create <company_name>")
+            logger.warning(f"⚠️  Shared secret not found at {secret_file}")
     except Exception as e:
-        logger.error(f"❌ Failed to load customer keys: {e}")
+        logger.error(f"❌ Failed to load shared secret: {e}")
 
 if CRYPTO_ENABLED:
     try:
         import hmac
         import hashlib
-        load_authorized_customers()
-        logger.info("🔐 Per-customer cryptographic verification ENABLED")
+        load_shared_secret()
+        if SHARED_SECRET:
+            logger.info("🔐 Shared key HMAC verification ENABLED")
+        else:
+            CRYPTO_ENABLED = False
+            logger.warning("⚠️  No shared secret - crypto disabled")
     except Exception as e:
         CRYPTO_ENABLED = False
         logger.warning(f"⚠️  Crypto verification DISABLED (import failed): {e}")
@@ -84,44 +69,36 @@ else:
 
 def verify_customer_message(message: Dict[str, Any]) -> tuple[bool, str]:
     """
-    Verify message HMAC using customer-specific key
+    Verify message HMAC using shared secret
     
     Returns:
         (is_valid, reason)
     """
     try:
         # Check required fields
-        if 'customer_id' not in message:
-            return False, "Missing customer_id"
-        
         if 'hmac' not in message:
             return False, "Missing HMAC"
         
-        customer_id = message['customer_id']
+        # Verify HMAC using shared secret (same for all customers)
+        if not SHARED_SECRET:
+            return False, "No shared secret loaded"
         
-        # Check if customer is authorized
-        if customer_id not in AUTHORIZED_CUSTOMERS:
-            return False, f"Unknown or revoked customer: {customer_id}"
-        
-        # Get customer's shared secret
-        customer_secret = AUTHORIZED_CUSTOMERS[customer_id]['secret']
-        
-        # Verify HMAC
         msg_copy = message.copy()
         expected_hmac = msg_copy.pop('hmac')
         msg_copy.pop('signature', None)  # Remove signature if present
         
+        # Create canonical JSON (same format as customer signing)
         canonical_json = json.dumps(msg_copy, sort_keys=True, separators=(',', ':'))
         message_bytes = canonical_json.encode('utf-8')
         
         calculated_hmac = hmac.new(
-            customer_secret,
+            SHARED_SECRET,
             message_bytes,
             hashlib.sha256
         ).hexdigest()
         
         if not hmac.compare_digest(calculated_hmac, expected_hmac):
-            return False, f"HMAC validation failed for customer {customer_id}"
+            return False, "HMAC validation failed"
         
         return True, "OK"
         
