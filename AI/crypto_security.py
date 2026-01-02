@@ -37,6 +37,12 @@ class MessageSecurity:
         self.public_key_file = os.path.join(key_dir, "public_key.pem")
         self.shared_secret_file = os.path.join(key_dir, "shared_secret.key")
         
+        # Debug: log working directory and file paths
+        logger.info(f"[CRYPTO DEBUG] CWD: {os.getcwd()}")
+        logger.info(f"[CRYPTO DEBUG] key_dir: {key_dir}")
+        logger.info(f"[CRYPTO DEBUG] private_key exists: {os.path.exists(self.private_key_file)}")
+        logger.info(f"[CRYPTO DEBUG] public_key exists: {os.path.exists(self.public_key_file)}")
+        
         # Load or generate keys
         self.private_key, self.public_key = self._load_or_generate_keypair()
         self.shared_secret = self._load_or_generate_secret()
