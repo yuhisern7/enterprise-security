@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY AI/ AI/
 
 # Copy relay crypto keys (shared HMAC secret for all customers)
-COPY relay/ai_training_materials/crypto_keys/ AI/crypto_keys/
+COPY relay/ai_training_materials/crypto_keys/ AI/ml_models/crypto_keys/
 
 # Copy server files
 COPY server/server.py .
