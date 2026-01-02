@@ -1,0 +1,25 @@
+{
+  "fingerprint_hash": "888d46b9dd502ba6d2fa7fb30a22dcd286c924919095ac560b1729be20ef9e91",
+  "node_type": "generic-desktop",
+  "os_info": {
+    "system": "Linux",
+    "release": "6.8.0-90-generic",
+    "version": "#91~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Nov 20 15:20:45 UTC 2",
+    "machine": "x86_64"
+  },
+  "network_info": {
+    "type": "NAT",
+    "range": "192.168.0.0/24",
+    "interfaces": 5
+  },
+  "traffic_profile": "desktop",
+  "feature_stats": {
+    "feature_means": [],
+    "feature_stds": [],
+    "feature_mins": [],
+    "feature_maxs": [],
+    "sample_count": 0,
+    "last_updated": "2026-01-02T03:44:54.860680"
+  },
+  "created_at": "2026-01-02T03:44:54.860691"
+}

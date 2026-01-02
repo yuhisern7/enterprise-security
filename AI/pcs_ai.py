@@ -99,6 +99,17 @@ except ImportError as e:
     print(f"[WARNING] Enterprise features not available: {e}")
     print("[INFO] System will run in standard mode without external threat intelligence")
 
+# Advanced AI Modules (Phase 1A & 1B)
+try:
+    from AI.behavioral_heuristics import get_behavioral_heuristics, track_connection
+    from AI.sequence_analyzer import get_sequence_analyzer, observe_event
+    ADVANCED_AI_AVAILABLE = True
+    print("[ADVANCED-AI] Behavioral Heuristics and LSTM Sequence Analyzer loaded")
+except ImportError as e:
+    ADVANCED_AI_AVAILABLE = False
+    print(f"[WARNING] Advanced AI modules not available: {e}")
+    print("[INFO] Running without behavioral heuristics and sequence analysis")
+
 # Performance Monitoring and Visualization
 try:
     import AI.network_performance as network_performance
@@ -1665,6 +1676,72 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
     # Check if we've correlated this IP to other IPs (VPN hopping detection)
     correlated_ips = list(_real_ip_correlation.get(ip_address, set()))
     
+    # PHASE 1A: Get behavioral metrics for this entity
+    behavioral_data = {}
+    if ADVANCED_AI_AVAILABLE:
+        try:
+            behavioral_heuristics = get_behavioral_heuristics()
+            if behavioral_heuristics:
+                metrics = behavioral_heuristics.get_metrics(ip_address)
+                if metrics:
+                    behavioral_data = {
+                        "risk_score": metrics.risk_score,
+                        "connection_count_1min": metrics.connection_count_1min,
+                        "connection_count_5min": metrics.connection_count_5min,
+                        "port_entropy": metrics.port_entropy,
+                        "auth_failure_ratio": metrics.auth_failure_ratio,
+                        "fan_out": metrics.fan_out,
+                        "fan_in": metrics.fan_in,
+                        "retry_frequency": metrics.retry_frequency,
+                        "timing_variance": metrics.timing_variance
+                    }
+        except Exception as e:
+            logger.warning(f"[BEHAVIORAL] Failed to get metrics for {ip_address}: {e}")
+    
+    # PHASE 1B: Get attack state sequence prediction
+    sequence_data = {}
+    if ADVANCED_AI_AVAILABLE:
+        try:
+            sequence_analyzer = get_sequence_analyzer()
+            if sequence_analyzer:
+                # Calculate signature confidence from threat level
+                signature_confidence = {
+                    ThreatLevel.CRITICAL: 0.95,
+                    ThreatLevel.DANGEROUS: 0.85,
+                    ThreatLevel.SUSPICIOUS: 0.6,
+                    ThreatLevel.WARNING: 0.4,
+                    ThreatLevel.INFO: 0.2,
+                    ThreatLevel.SAFE: 0.0
+                }.get(level, 0.5)
+                
+                heuristic_score = behavioral_data.get('risk_score', 0.0)
+                
+                # Observe this event in sequence
+                state_event = observe_event(
+                    ip_address,
+                    signature_score=signature_confidence,
+                    heuristic_score=heuristic_score,
+                    behavioral_features=behavioral_data
+                )
+                
+                if state_event:
+                    sequence_data = {
+                        "current_state": state_event.state.value,
+                        "state_confidence": state_event.confidence,
+                        "attack_stage": state_event.attack_stage
+                    }
+                    
+                    # Get prediction if enough history
+                    prediction = sequence_analyzer.predict_sequence(ip_address)
+                    if prediction:
+                        sequence_data.update({
+                            "predicted_next_state": prediction.predicted_next_state.value,
+                            "next_state_probability": prediction.next_state_probability,
+                            "sequence_risk_score": prediction.sequence_risk_score
+                        })
+        except Exception as e:
+            logger.warning(f"[SEQUENCE] Failed to analyze sequence for {ip_address}: {e}")
+    
     event = {
         "timestamp": _get_current_time().isoformat(),
         "ip_address": ip_address,
@@ -1692,7 +1769,11 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
             "proxy_chain": anonymization_data.get('proxy_chain', []),
             "real_ip_revealed": real_ip_revealed,
             "correlated_ips": correlated_ips,  # Other IPs same attacker used
-        }
+        },
+        # PHASE 1A: Behavioral Heuristics (for AI learning)
+        "behavioral_metrics": behavioral_data if behavioral_data else None,
+        # PHASE 1B: Attack State Sequence (for AI learning)
+        "attack_sequence": sequence_data if sequence_data else None
     }
     
     # Log for law enforcement with full tracking data + VPN/proxy detection
@@ -1939,6 +2020,20 @@ def assess_login_attempt(
     """
     threats: list[str] = []
     
+    # PHASE 1A: Track connection in behavioral heuristics
+    if ADVANCED_AI_AVAILABLE:
+        try:
+            track_connection(
+                entity_id=ip_address,
+                dest_port=443,  # Assume HTTPS for login
+                protocol='tcp',
+                payload_size=len(username) + 50,  # Approximate
+                auth_attempt=True,
+                auth_success=success
+            )
+        except Exception as e:
+            logger.warning(f"[BEHAVIORAL] Failed to track login attempt: {e}")
+    
     # Create client fingerprint for cross-IP tracking
     if headers:
         fingerprint = _fingerprint_client(ip_address, user_agent, headers)
@@ -2110,6 +2205,20 @@ def assess_request_pattern(
     SecurityAssessment with threat level (AI-enhanced)
     """
     threats: list[str] = []
+    
+    # PHASE 1A: Track connection in behavioral heuristics
+    if ADVANCED_AI_AVAILABLE:
+        try:
+            # Determine port from endpoint or default to 80/443
+            port = 443 if 'https' in endpoint.lower() else 80
+            track_connection(
+                entity_id=ip_address,
+                dest_port=port,
+                protocol='tcp',
+                payload_size=len(endpoint) + len(method) + 100  # Approximate request size
+            )
+        except Exception as e:
+            logger.warning(f"[BEHAVIORAL] Failed to track request: {e}")
     
     # Create client fingerprint and detect VPN/Tor
     if headers is None:
@@ -3664,6 +3773,62 @@ def clear_all_monitoring_data() -> dict:
     _real_ip_correlation.clear()
     
     # Clear persistent storage files
+
+
+def save_all_ai_data() -> dict:
+    """
+    Save all AI learning data to disk for persistence.
+    Ensures behavioral metrics, attack sequences, and threat logs are persisted.
+    Returns status of save operations.
+    """
+    status = {
+        "timestamp": _get_current_time().isoformat(),
+        "threat_log_saved": False,
+        "behavioral_metrics_saved": False,
+        "attack_sequences_saved": False,
+        "training_triggered": False
+    }
+    
+    # Save threat log (already happens automatically in _log_threat)
+    try:
+        _save_threat_log()
+        status["threat_log_saved"] = True
+    except Exception as e:
+        logger.error(f"[PERSISTENCE] Failed to save threat log: {e}")
+    
+    # PHASE 1A: Save behavioral metrics
+    if ADVANCED_AI_AVAILABLE:
+        try:
+            behavioral_heuristics = get_behavioral_heuristics()
+            if behavioral_heuristics:
+                behavioral_heuristics.save_metrics()
+                status["behavioral_metrics_saved"] = True
+                logger.info("[PERSISTENCE] Behavioral metrics saved")
+        except Exception as e:
+            logger.error(f"[PERSISTENCE] Failed to save behavioral metrics: {e}")
+    
+    # PHASE 1B: Save attack sequences
+    if ADVANCED_AI_AVAILABLE:
+        try:
+            sequence_analyzer = get_sequence_analyzer()
+            if sequence_analyzer:
+                sequence_analyzer.save_sequences()
+                status["attack_sequences_saved"] = True
+                logger.info("[PERSISTENCE] Attack sequences saved")
+                
+                # Auto-train if enough samples collected
+                stats = sequence_analyzer.get_stats()
+                if stats.get('training_samples', 0) >= 100:  # Train every 100 samples
+                    logger.info("[AUTO-TRAIN] Triggering LSTM training (100+ samples)")
+                    result = sequence_analyzer.train_model(epochs=10, batch_size=32)
+                    if result.get('status') == 'success':
+                        sequence_analyzer.save_model()
+                        status["training_triggered"] = True
+                        logger.info("[AUTO-TRAIN] LSTM model trained and saved")
+        except Exception as e:
+            logger.error(f"[PERSISTENCE] Failed to save attack sequences: {e}")
+    
+    return status
     _save_threat_log()
     _save_blocked_ips()
     
