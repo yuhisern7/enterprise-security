@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-01-02T08:08:20.971121",
+  "generated_at": "2026-01-02T22:13:01.172058",
   "tool": "Battle-Hardened AI",
   "version": "1.0",
-  "component_count": 263,
+  "component_count": 292,
   "components": [
     {
       "name": "adduser",
