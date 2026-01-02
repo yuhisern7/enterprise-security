@@ -61,6 +61,7 @@ import pickle
 import warnings
 import ipaddress
 import logging
+import fcntl  # File locking for thread-safe JSON writes
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
@@ -338,11 +339,17 @@ _feature_importance_cache = {}
 
 
 def _save_threat_log() -> None:
-    """Save threat log to persistent storage."""
+    """Save threat log to persistent storage with file locking."""
     try:
         os.makedirs("data", exist_ok=True)
         with open(_THREAT_LOG_FILE, 'w') as f:
-            json.dump(_threat_log, f, indent=2)
+            # Acquire exclusive lock to prevent race conditions
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+            try:
+                json.dump(_threat_log, f, indent=2)
+            finally:
+                # Release lock
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
     except Exception as e:
         print(f"[WARNING] Failed to save threat log: {e}")
 
