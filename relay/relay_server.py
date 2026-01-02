@@ -244,8 +244,8 @@ async def broadcast_message(message: dict, sender: WebSocketServerProtocol):
     logger.info(f"🔍 Message type: {message.get('type')}")
     logger.info(f"🔍 Has threat_type: {'threat_type' in message}")
     
-    # Count as threat if it contains threat data
-    if "threat_type" in message or "threats" in message:
+    # Count as threat if it contains threat data (check for both field names)
+    if "threat_type" in message or "attack_type" in message or "threats" in message:
         stats["threats_shared"] += 1
         
         # Store signature to FILE (no database)
