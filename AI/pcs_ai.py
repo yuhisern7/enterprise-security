@@ -135,6 +135,19 @@ except ImportError as e:
     print(f"[WARNING] Graph intelligence not available: {e}")
     print("[INFO] Running without network graph analysis")
 
+# Meta Decision Engine (Phase 5)
+try:
+    from AI.meta_decision_engine import (
+        get_meta_engine, make_decision as ensemble_decision,
+        DetectionSignal, SignalType, ThreatLevel as MetaThreatLevel
+    )
+    META_ENGINE_AVAILABLE = True
+    print("[META-ENGINE] Ensemble decision engine loaded - 12 signal fusion")
+except ImportError as e:
+    META_ENGINE_AVAILABLE = False
+    print(f"[WARNING] Meta decision engine not available: {e}")
+    print("[INFO] Running without ensemble voting")
+
 # Performance Monitoring and Visualization
 try:
     import AI.network_performance as network_performance
@@ -2574,6 +2587,9 @@ def assess_request_pattern(
     """
     threats: list[str] = []
     
+    # PHASE 5: Initialize signal collection for meta decision engine
+    detection_signals = []
+    
     # PHASE 1A: Track connection in behavioral heuristics
     if ADVANCED_AI_AVAILABLE:
         try:
@@ -2637,6 +2653,17 @@ def assess_request_pattern(
                 if is_anomaly:
                     ml_threats.append(f"🤖 AI ANOMALY DETECTED (score: {anomaly_score:.3f})")
                     ai_confidence += 0.4
+                    
+                    # PHASE 5: Add signal to meta engine
+                    if META_ENGINE_AVAILABLE:
+                        detection_signals.append(DetectionSignal(
+                            signal_type=SignalType.ML_ANOMALY,
+                            is_threat=True,
+                            confidence=min(1.0, anomaly_score),
+                            threat_level=MetaThreatLevel.SUSPICIOUS,
+                            details=f"ML anomaly detected (score: {anomaly_score:.3f})",
+                            timestamp=datetime.utcnow().isoformat()
+                        ))
                 
                 # PHASE 2: Autoencoder Anomaly Detection (deep learning)
                 autoencoder = get_traffic_autoencoder()
@@ -2645,6 +2672,17 @@ def assess_request_pattern(
                     if ae_anomaly:
                         ml_threats.append(f"🧠 AUTOENCODER ANOMALY (error: {recon_error:.4f}, score: {ae_score:.2f})")
                         ai_confidence += ae_score * 0.3
+                        
+                        # PHASE 5: Add autoencoder signal
+                        if META_ENGINE_AVAILABLE:
+                            detection_signals.append(DetectionSignal(
+                                signal_type=SignalType.AUTOENCODER,
+                                is_threat=True,
+                                confidence=ae_score,
+                                threat_level=MetaThreatLevel.DANGEROUS,
+                                details=f"Autoencoder detected zero-day pattern (error: {recon_error:.4f})",
+                                timestamp=datetime.utcnow().isoformat()
+                            ))
                 else:
                     # Update baseline with SAFE traffic for drift detector
                     if ADVANCED_AI_AVAILABLE and not is_anomaly:
@@ -2659,6 +2697,17 @@ def assess_request_pattern(
                     if threat_conf > 0.7 and threat_type != 'safe':
                         ml_threats.append(f"🤖 AI CLASSIFIED: {threat_type.upper()} ({threat_conf*100:.1f}% confidence)")
                         ai_confidence += threat_conf * 0.3
+                        
+                        # PHASE 5: Add classification signal
+                        if META_ENGINE_AVAILABLE:
+                            detection_signals.append(DetectionSignal(
+                                signal_type=SignalType.ML_CLASSIFICATION,
+                                is_threat=True,
+                                confidence=threat_conf,
+                                threat_level=MetaThreatLevel.DANGEROUS,
+                                details=f"ML classified as {threat_type}",
+                                timestamp=datetime.utcnow().isoformat()
+                            ))
                 
                 # 3. IP Reputation Prediction
                 if hasattr(_ip_reputation_model, 'classes_'):
@@ -2666,6 +2715,17 @@ def assess_request_pattern(
                     if is_malicious:
                         ml_threats.append(f"🤖 AI REPUTATION: MALICIOUS ({reputation_score*100:.1f}% probability)")
                         ai_confidence += reputation_score * 0.3
+                        
+                        # PHASE 5: Add reputation signal
+                        if META_ENGINE_AVAILABLE:
+                            detection_signals.append(DetectionSignal(
+                                signal_type=SignalType.ML_REPUTATION,
+                                is_threat=True,
+                                confidence=reputation_score,
+                                threat_level=MetaThreatLevel.DANGEROUS,
+                                details=f"Malicious IP reputation",
+                                timestamp=datetime.utcnow().isoformat()
+                            ))
                 
                 # Store features for future training
                 _request_features[ip_address].append(features)
@@ -3059,6 +3119,17 @@ def assess_request_pattern(
                         threat_desc = f"🕸️ GRAPH THREAT: {threat['threat_type']} - {threat['description']}"
                         threats.append(threat_desc)
                         
+                        # PHASE 5: Add graph signal to meta engine
+                        if META_ENGINE_AVAILABLE:
+                            detection_signals.append(DetectionSignal(
+                                signal_type=SignalType.GRAPH,
+                                is_threat=True,
+                                confidence=threat.get('confidence', 0.85),
+                                threat_level=MetaThreatLevel.CRITICAL if threat['severity'] == 'CRITICAL' else MetaThreatLevel.DANGEROUS,
+                                details=threat['description'],
+                                timestamp=datetime.utcnow().isoformat()
+                            ))
+                        
                         # Log critical graph threats
                         if threat.get('severity') in ['HIGH', 'CRITICAL']:
                             _log_threat(
@@ -3071,6 +3142,33 @@ def assess_request_pattern(
                             )
         except Exception as e:
             logger.warning(f"[GRAPH] Failed to analyze graph threats: {e}")
+    
+    # PHASE 5: Use meta decision engine if available
+    if META_ENGINE_AVAILABLE and detection_signals:
+        try:
+            ensemble_result = ensemble_decision(detection_signals, ip_address, endpoint)
+            
+            # Override with ensemble decision if it has high confidence
+            if ensemble_result.confidence >= 0.75:
+                logger.info(f"[META-ENGINE] Using ensemble decision (confidence: {ensemble_result.confidence:.2%})")
+                
+                # Map meta threat level to pcs_ai threat level
+                level_map = {
+                    MetaThreatLevel.SAFE: ThreatLevel.SAFE,
+                    MetaThreatLevel.INFO: ThreatLevel.SAFE,
+                    MetaThreatLevel.SUSPICIOUS: ThreatLevel.SUSPICIOUS,
+                    MetaThreatLevel.DANGEROUS: ThreatLevel.DANGEROUS,
+                    MetaThreatLevel.CRITICAL: ThreatLevel.CRITICAL
+                }
+                
+                return SecurityAssessment(
+                    level=level_map.get(ensemble_result.threat_level, ThreatLevel.SUSPICIOUS),
+                    threats=ensemble_result.primary_threats if ensemble_result.is_threat else threats,
+                    should_block=ensemble_result.should_block,
+                    ip_address=ip_address
+                )
+        except Exception as e:
+            logger.warning(f"[META-ENGINE] Ensemble decision failed: {e}")
     
     return SecurityAssessment(
         level=ThreatLevel.SAFE,
