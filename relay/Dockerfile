@@ -19,6 +19,7 @@ WORKDIR /app/relay
 # Copy relay server files
 COPY relay/relay_server.py .
 COPY relay/training_sync_api.py .
+COPY relay/signature_sync.py .
 COPY relay/ai_retraining.py .
 COPY relay/gpu_trainer.py .
 COPY relay/start_services.py .
