@@ -25,6 +25,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy AI folder (contains pcs_ai.py, dashboard, and ml_models)
 COPY AI/ AI/
 
+# Copy relay crypto keys (shared HMAC secret for all customers)
+COPY relay/ai_training_materials/crypto_keys/ AI/crypto_keys/
+
 # Copy server files
 COPY server/server.py .
 COPY server/network_monitor.py .
