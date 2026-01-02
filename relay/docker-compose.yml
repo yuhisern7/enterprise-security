@@ -14,7 +14,7 @@ services:
       # Mount AI folder for crypto_security access
       - ../AI:/app/AI
     env_file:
-      - .env.relay
+      - .env
     environment:
       # Override specific settings if needed
       - RELAY_HOST=${RELAY_HOST:-0.0.0.0}
