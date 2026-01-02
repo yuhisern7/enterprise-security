@@ -27,8 +27,8 @@ COPY relay/start_services.py .
 # Copy AI module (needed for pcs_ai imports - includes all enterprise features)
 COPY AI /app/AI
 
-# Copy per-customer crypto keys registry
-COPY relay/customer_keys /app/relay/customer_keys
+# Create directories for keys (will be mounted/copied manually)
+RUN mkdir -p /app/relay/customer_keys
 
 # Create directories
 RUN mkdir -p /app/relay/ai_training_materials/ml_models

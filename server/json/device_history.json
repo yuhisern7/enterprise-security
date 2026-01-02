@@ -31,15 +31,11 @@
     "hostname": "_gateway",
     "open_ports": [
       {
-        "port": 80,
-        "service": "HTTP"
-      },
-      {
         "port": 443,
         "service": "HTTPS"
       }
     ],
-    "last_seen": "2026-01-03T01:22:30.445882",
+    "last_seen": "2026-01-03T03:27:56.024277",
     "first_seen": "2026-01-03T01:15:13.086454"
   },
   "e8:48:b8:2e:80:85": {
