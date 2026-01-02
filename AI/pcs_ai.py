@@ -85,6 +85,17 @@ except ImportError:
     print("[WARNING] ML libraries not installed. Run: pip install scikit-learn numpy joblib scipy")
     print("[WARNING] Falling back to rule-based security only")
 
+# Deep Learning imports (Phase 2: Autoencoder)
+try:
+    import tensorflow as tf
+    from tensorflow import keras
+    from tensorflow.keras import layers, Model
+    from tensorflow.keras.optimizers import Adam
+    TENSORFLOW_AVAILABLE = True
+except ImportError:
+    TENSORFLOW_AVAILABLE = False
+    logger.warning("[AUTOENCODER] TensorFlow not available - autoencoder disabled")
+
 # Enterprise Threat Intelligence Integration
 try:
     from AI.threat_intelligence import threat_intel, honeypot, start_threat_intelligence_engine
@@ -1245,10 +1256,339 @@ def get_ml_model_stats() -> dict:
             _feature_importance_cache['reputation'] = model_stats["feature_importance_top5"]
         stats["models"]["ip_reputation"] = model_stats
     
+    # PHASE 2: Autoencoder stats
+    autoencoder = get_traffic_autoencoder()
+    if autoencoder:
+        stats["models"]["autoencoder"] = autoencoder.get_stats()
+    
     # Check if retraining is needed
     stats["needs_retraining"] = _should_retrain_ml_models()
     
     return stats
+
+
+# =============================================================================
+# PHASE 2: AUTOENCODER ANOMALY DETECTION (Unsupervised Deep Learning)
+# =============================================================================
+
+class TrafficAutoencoder:
+    """
+    Autoencoder neural network for unsupervised anomaly detection.
+    
+    Learns normal traffic patterns without labels, detects anomalies based on
+    reconstruction error. Complements supervised models (IsolationForest, RandomForest).
+    
+    Architecture:
+    - Encoder: 15 → 32 → 16 → 8 (bottleneck)
+    - Decoder: 8 → 16 → 32 → 15
+    - Loss: Mean Squared Error (reconstruction error)
+    
+    Privacy: Model weights saved locally, can optionally share with relay.
+    """
+    
+    def __init__(self, storage_dir: str = None):
+        """Initialize autoencoder with persistent storage"""
+        # Storage paths
+        base_dir = '/app' if os.path.exists('/app') else os.path.join(
+            os.path.dirname(__file__), '..', 'server'
+        )
+        self.storage_dir = storage_dir or os.path.join(base_dir, 'json')
+        self.model_dir = os.path.join(os.path.dirname(__file__), 'ml_models')
+        os.makedirs(self.model_dir, exist_ok=True)
+        os.makedirs(self.storage_dir, exist_ok=True)
+        
+        self.model_path = os.path.join(self.model_dir, 'traffic_autoencoder.keras')
+        self.scaler_path = os.path.join(self.model_dir, 'autoencoder_scaler.pkl')
+        self.threshold_path = os.path.join(self.storage_dir, 'autoencoder_threshold.json')
+        
+        # Model configuration
+        self.input_dim = 15  # Feature vector size
+        self.encoding_dim = 8  # Bottleneck size
+        
+        # Components
+        self.autoencoder = None
+        self.encoder = None  # For feature extraction
+        self.scaler = StandardScaler() if ML_AVAILABLE else None
+        self.reconstruction_threshold = 0.05  # Default threshold
+        
+        # Training state
+        self.is_trained = False
+        self.last_trained = None
+        self.training_samples = 0
+        
+        # Statistics
+        self.total_predictions = 0
+        self.total_anomalies_detected = 0
+        
+        # Load existing model if available
+        self._load_model()
+        self._load_threshold()
+    
+    def _build_model(self):
+        """Build autoencoder architecture"""
+        if not TENSORFLOW_AVAILABLE:
+            logger.warning("[AUTOENCODER] TensorFlow not available")
+            return None
+        
+        # Encoder
+        input_layer = layers.Input(shape=(self.input_dim,))
+        encoded = layers.Dense(32, activation='relu')(input_layer)
+        encoded = layers.Dropout(0.2)(encoded)
+        encoded = layers.Dense(16, activation='relu')(encoded)
+        encoded = layers.Dropout(0.2)(encoded)
+        encoded = layers.Dense(self.encoding_dim, activation='relu', name='bottleneck')(encoded)
+        
+        # Decoder
+        decoded = layers.Dense(16, activation='relu')(encoded)
+        decoded = layers.Dropout(0.2)(decoded)
+        decoded = layers.Dense(32, activation='relu')(decoded)
+        decoded = layers.Dropout(0.2)(decoded)
+        decoded = layers.Dense(self.input_dim, activation='sigmoid')(decoded)
+        
+        # Full autoencoder
+        autoencoder = Model(input_layer, decoded, name='traffic_autoencoder')
+        autoencoder.compile(optimizer=Adam(learning_rate=0.001), loss='mse', metrics=['mae'])
+        
+        # Encoder model for feature extraction
+        encoder = Model(input_layer, encoded, name='encoder')
+        
+        logger.info("[AUTOENCODER] Built model architecture")
+        return autoencoder, encoder
+    
+    def _load_model(self):
+        """Load trained model from disk"""
+        if not TENSORFLOW_AVAILABLE:
+            return False
+        
+        try:
+            if os.path.exists(self.model_path):
+                from tensorflow.keras.models import load_model
+                self.autoencoder = load_model(self.model_path)
+                
+                # Rebuild encoder from loaded model
+                self.encoder = Model(
+                    inputs=self.autoencoder.input,
+                    outputs=self.autoencoder.get_layer('bottleneck').output,
+                    name='encoder'
+                )
+                
+                self.is_trained = True
+                logger.info(f"[AUTOENCODER] Loaded trained model from {self.model_path}")
+                
+                # Load scaler
+                if os.path.exists(self.scaler_path) and ML_AVAILABLE:
+                    self.scaler = joblib.load(self.scaler_path)
+                    logger.info("[AUTOENCODER] Loaded feature scaler")
+                
+                return True
+        except Exception as e:
+            logger.error(f"[AUTOENCODER] Failed to load model: {e}")
+        
+        return False
+    
+    def _load_threshold(self):
+        """Load anomaly threshold from disk"""
+        try:
+            if os.path.exists(self.threshold_path):
+                with open(self.threshold_path, 'r') as f:
+                    data = json.load(f)
+                    self.reconstruction_threshold = data.get('threshold', 0.05)
+                    self.last_trained = data.get('last_trained')
+                    self.training_samples = data.get('training_samples', 0)
+                    logger.info(f"[AUTOENCODER] Loaded threshold: {self.reconstruction_threshold:.4f}")
+        except Exception as e:
+            logger.error(f"[AUTOENCODER] Failed to load threshold: {e}")
+    
+    def _save_threshold(self):
+        """Save anomaly threshold to disk"""
+        try:
+            data = {
+                'threshold': float(self.reconstruction_threshold),
+                'last_trained': self.last_trained,
+                'training_samples': self.training_samples,
+                'updated': datetime.now().isoformat()
+            }
+            with open(self.threshold_path, 'w') as f:
+                json.dump(data, f, indent=2)
+            logger.info("[AUTOENCODER] Saved threshold configuration")
+            return True
+        except Exception as e:
+            logger.error(f"[AUTOENCODER] Failed to save threshold: {e}")
+            return False
+    
+    def train(self, normal_traffic_features: np.ndarray, epochs: int = 50, batch_size: int = 32) -> dict:
+        """
+        Train autoencoder on NORMAL traffic only (unsupervised).
+        
+        Args:
+            normal_traffic_features: Array of features from normal/safe traffic
+            epochs: Training epochs
+            batch_size: Batch size
+        
+        Returns:
+            Training statistics
+        """
+        if not TENSORFLOW_AVAILABLE:
+            return {'status': 'error', 'message': 'TensorFlow not available'}
+        
+        if not ML_AVAILABLE:
+            return {'status': 'error', 'message': 'scikit-learn not available'}
+        
+        if len(normal_traffic_features) < 100:
+            return {
+                'status': 'insufficient_data',
+                'required': 100,
+                'available': len(normal_traffic_features)
+            }
+        
+        try:
+            # Normalize features
+            X_scaled = self.scaler.fit_transform(normal_traffic_features)
+            
+            # Build or rebuild model
+            if self.autoencoder is None:
+                self.autoencoder, self.encoder = self._build_model()
+            
+            # Train
+            logger.info(f"[AUTOENCODER] Training on {len(X_scaled)} normal traffic samples...")
+            history = self.autoencoder.fit(
+                X_scaled, X_scaled,  # Input = Output (reconstruction)
+                epochs=epochs,
+                batch_size=batch_size,
+                validation_split=0.2,
+                verbose=0,
+                shuffle=True
+            )
+            
+            # Calculate reconstruction threshold (95th percentile of training errors)
+            reconstructions = self.autoencoder.predict(X_scaled, verbose=0)
+            mse = np.mean(np.power(X_scaled - reconstructions, 2), axis=1)
+            self.reconstruction_threshold = float(np.percentile(mse, 95))
+            
+            # Update state
+            self.is_trained = True
+            self.last_trained = datetime.now().isoformat()
+            self.training_samples = len(normal_traffic_features)
+            
+            # Save model
+            self.autoencoder.save(self.model_path)
+            if ML_AVAILABLE:
+                joblib.dump(self.scaler, self.scaler_path)
+            self._save_threshold()
+            
+            logger.info(f"[AUTOENCODER] Training complete. Threshold: {self.reconstruction_threshold:.4f}")
+            
+            return {
+                'status': 'success',
+                'samples': len(normal_traffic_features),
+                'epochs': epochs,
+                'final_loss': float(history.history['loss'][-1]),
+                'val_loss': float(history.history['val_loss'][-1]),
+                'threshold': float(self.reconstruction_threshold),
+                'trained_at': self.last_trained
+            }
+        
+        except Exception as e:
+            logger.error(f"[AUTOENCODER] Training failed: {e}")
+            return {'status': 'error', 'message': str(e)}
+    
+    def detect_anomaly(self, features: np.ndarray) -> Tuple[bool, float, float]:
+        """
+        Detect if traffic is anomalous based on reconstruction error.
+        
+        Args:
+            features: Feature vector (15 dimensions)
+        
+        Returns:
+            (is_anomaly, reconstruction_error, anomaly_score)
+            - is_anomaly: True if reconstruction error > threshold
+            - reconstruction_error: MSE between input and reconstruction
+            - anomaly_score: Normalized score 0-1 (higher = more anomalous)
+        """
+        if not self.is_trained or self.autoencoder is None:
+            return False, 0.0, 0.0
+        
+        try:
+            # Reshape and scale
+            features_2d = features.reshape(1, -1)
+            if ML_AVAILABLE and hasattr(self.scaler, 'mean_'):
+                features_scaled = self.scaler.transform(features_2d)
+            else:
+                features_scaled = features_2d
+            
+            # Reconstruct
+            reconstruction = self.autoencoder.predict(features_scaled, verbose=0)
+            
+            # Calculate reconstruction error
+            mse = np.mean(np.power(features_scaled - reconstruction, 2))
+            
+            # Determine if anomaly
+            is_anomaly = mse > self.reconstruction_threshold
+            
+            # Normalize score (0-1, capped at 5x threshold)
+            anomaly_score = min(mse / (self.reconstruction_threshold * 5), 1.0)
+            
+            # Update stats
+            self.total_predictions += 1
+            if is_anomaly:
+                self.total_anomalies_detected += 1
+            
+            return bool(is_anomaly), float(mse), float(anomaly_score)
+        
+        except Exception as e:
+            logger.error(f"[AUTOENCODER] Detection failed: {e}")
+            return False, 0.0, 0.0
+    
+    def get_encoded_features(self, features: np.ndarray) -> Optional[np.ndarray]:
+        """Extract compressed features from bottleneck layer"""
+        if not self.is_trained or self.encoder is None:
+            return None
+        
+        try:
+            features_2d = features.reshape(1, -1)
+            if ML_AVAILABLE and hasattr(self.scaler, 'mean_'):
+                features_scaled = self.scaler.transform(features_2d)
+            else:
+                features_scaled = features_2d
+            
+            encoded = self.encoder.predict(features_scaled, verbose=0)
+            return encoded[0]
+        except Exception as e:
+            logger.error(f"[AUTOENCODER] Feature extraction failed: {e}")
+            return None
+    
+    def get_stats(self) -> dict:
+        """Get autoencoder statistics"""
+        return {
+            'tensorflow_available': TENSORFLOW_AVAILABLE,
+            'is_trained': self.is_trained,
+            'last_trained': self.last_trained,
+            'training_samples': self.training_samples,
+            'reconstruction_threshold': float(self.reconstruction_threshold),
+            'total_predictions': self.total_predictions,
+            'anomalies_detected': self.total_anomalies_detected,
+            'anomaly_rate': (self.total_anomalies_detected / self.total_predictions 
+                           if self.total_predictions > 0 else 0.0),
+            'model_path': self.model_path
+        }
+
+
+# Global autoencoder instance
+_traffic_autoencoder = None
+
+
+def get_traffic_autoencoder() -> Optional[TrafficAutoencoder]:
+    """Get or create global traffic autoencoder instance"""
+    global _traffic_autoencoder
+    if _traffic_autoencoder is None and TENSORFLOW_AVAILABLE:
+        _traffic_autoencoder = TrafficAutoencoder()
+    return _traffic_autoencoder
+
+
+# Continuation of get_ml_model_stats (orphaned code needs reorganization)
+def _finalize_ml_stats():
+    """Helper function - orphaned code, will be removed"""
+    pass
 
 
 def retrain_ml_models_now() -> dict:
@@ -2234,11 +2574,19 @@ def assess_request_pattern(
             features = _extract_features_from_request(ip_address, endpoint, user_agent, headers, method)
             
             if len(features) > 0:
-                # 1. Anomaly Detection (unsupervised learning)
+                # 1. Anomaly Detection (unsupervised learning - IsolationForest)
                 is_anomaly, anomaly_score = _ml_predict_anomaly(features)
                 if is_anomaly:
                     ml_threats.append(f"🤖 AI ANOMALY DETECTED (score: {anomaly_score:.3f})")
                     ai_confidence += 0.4
+                
+                # PHASE 2: Autoencoder Anomaly Detection (deep learning)
+                autoencoder = get_traffic_autoencoder()
+                if autoencoder and autoencoder.is_trained:
+                    ae_anomaly, recon_error, ae_score = autoencoder.detect_anomaly(features)
+                    if ae_anomaly:
+                        ml_threats.append(f"🧠 AUTOENCODER ANOMALY (error: {recon_error:.4f}, score: {ae_score:.2f})")
+                        ai_confidence += ae_score * 0.3
                 
                 # 2. Threat Classification (supervised learning)
                 if hasattr(_threat_classifier, 'classes_'):
@@ -3786,6 +4134,7 @@ def save_all_ai_data() -> dict:
         "threat_log_saved": False,
         "behavioral_metrics_saved": False,
         "attack_sequences_saved": False,
+        "autoencoder_trained": False,
         "training_triggered": False
     }
     
@@ -3827,6 +4176,31 @@ def save_all_ai_data() -> dict:
                         logger.info("[AUTO-TRAIN] LSTM model trained and saved")
         except Exception as e:
             logger.error(f"[PERSISTENCE] Failed to save attack sequences: {e}")
+    
+    # PHASE 2: Auto-train Autoencoder on NORMAL traffic
+    if TENSORFLOW_AVAILABLE and len(_threat_log) >= 200:
+        try:
+            autoencoder = get_traffic_autoencoder()
+            if autoencoder:
+                # Extract features from SAFE/INFO level traffic (normal traffic)
+                normal_features = []
+                for log in _threat_log[-500:]:  # Last 500 events
+                    if log.get('level') in ['SAFE', 'INFO']:
+                        ip = log.get('ip_address', '127.0.0.1')
+                        endpoint = log.get('details', '')[:100]
+                        features = _extract_features_from_request(ip, endpoint, '', {}, 'GET')
+                        if len(features) > 0:
+                            normal_features.append(features)
+                
+                # Train if enough normal samples
+                if len(normal_features) >= 100:
+                    logger.info(f"[AUTO-TRAIN] Training autoencoder on {len(normal_features)} normal traffic samples")
+                    result = autoencoder.train(np.array(normal_features), epochs=30, batch_size=32)
+                    if result.get('status') == 'success':
+                        status["autoencoder_trained"] = True
+                        logger.info(f"[AUTO-TRAIN] Autoencoder trained. Threshold: {result.get('threshold', 0):.4f}")
+        except Exception as e:
+            logger.error(f"[PERSISTENCE] Failed to train autoencoder: {e}")
     
     return status
     _save_threat_log()
