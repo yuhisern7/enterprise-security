@@ -1,0 +1,302 @@
+[
+  {
+    "timestamp": "2026-01-03T05:49:48.569864",
+    "feature_index": 0,
+    "feature_name": "endpoint_length",
+    "drift_detected": true,
+    "drift_score": 0.5029970465146327,
+    "test_statistic": 0.095,
+    "p_value": 0.450009844951224,
+    "recommendation": "monitor"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.570699",
+    "feature_index": 1,
+    "feature_name": "special_char_ratio",
+    "drift_detected": true,
+    "drift_score": 0.4035650127552606,
+    "test_statistic": 0.1025,
+    "p_value": 0.3560563378469856,
+    "recommendation": "ok"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.571468",
+    "feature_index": 2,
+    "feature_name": "sql_keyword_count",
+    "drift_detected": true,
+    "drift_score": 0.3672356193740271,
+    "test_statistic": 0.1,
+    "p_value": 0.3859028138209439,
+    "recommendation": "ok"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.572264",
+    "feature_index": 3,
+    "feature_name": "request_rate",
+    "drift_detected": true,
+    "drift_score": 0.3556897936693272,
+    "test_statistic": 0.0775,
+    "p_value": 0.7056414896982005,
+    "recommendation": "ok"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.573005",
+    "feature_index": 4,
+    "feature_name": "failed_auth_ratio",
+    "drift_detected": false,
+    "drift_score": 0.33965111473902626,
+    "test_statistic": 0.1225,
+    "p_value": 0.17255145389369228,
+    "recommendation": "ok"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.573683",
+    "feature_index": 5,
+    "feature_name": "port_entropy",
+    "drift_detected": false,
+    "drift_score": 0.4354084977975715,
+    "test_statistic": 0.135,
+    "p_value": 0.1024585109234996,
+    "recommendation": "ok"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.574318",
+    "feature_index": 6,
+    "feature_name": "payload_size",
+    "drift_detected": true,
+    "drift_score": 0.5023399743273027,
+    "test_statistic": 0.1475,
+    "p_value": 0.057797655317758295,
+    "recommendation": "monitor"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.574982",
+    "feature_index": 7,
+    "feature_name": "header_count",
+    "drift_detected": false,
+    "drift_score": 0.3512073531250916,
+    "test_statistic": 0.115,
+    "p_value": 0.23010277988371586,
+    "recommendation": "ok"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.575588",
+    "feature_index": 8,
+    "feature_name": "param_count",
+    "drift_detected": false,
+    "drift_score": 0.3361004646966041,
+    "test_statistic": 0.105,
+    "p_value": 0.3277501698262138,
+    "recommendation": "ok"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.576216",
+    "feature_index": 9,
+    "feature_name": "numeric_ratio",
+    "drift_detected": true,
+    "drift_score": 0.5337977700213243,
+    "test_statistic": 0.115,
+    "p_value": 0.23010277988371586,
+    "recommendation": "monitor"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.576814",
+    "feature_index": 10,
+    "feature_name": "uppercase_ratio",
+    "drift_detected": false,
+    "drift_score": 0.1896566539727813,
+    "test_statistic": 0.08,
+    "p_value": 0.6680388163468287,
+    "recommendation": "ok"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.577396",
+    "feature_index": 11,
+    "feature_name": "path_depth",
+    "drift_detected": true,
+    "drift_score": 0.4225884403737651,
+    "test_statistic": 0.12,
+    "p_value": 0.190325962303546,
+    "recommendation": "ok"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.577977",
+    "feature_index": 12,
+    "feature_name": "query_complexity",
+    "drift_detected": false,
+    "drift_score": 0.1409614796987243,
+    "test_statistic": 0.0675,
+    "p_value": 0.8455840063098947,
+    "recommendation": "ok"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.578549",
+    "feature_index": 13,
+    "feature_name": "entropy",
+    "drift_detected": true,
+    "drift_score": 0.5187985801405661,
+    "test_statistic": 0.105,
+    "p_value": 0.3277501698262138,
+    "recommendation": "monitor"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.579178",
+    "feature_index": 14,
+    "feature_name": "timing_variance",
+    "drift_detected": true,
+    "drift_score": 0.4683085475253821,
+    "test_statistic": 0.0875,
+    "p_value": 0.5556381749153929,
+    "recommendation": "ok"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.582960",
+    "feature_index": 0,
+    "feature_name": "endpoint_length",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.583710",
+    "feature_index": 1,
+    "feature_name": "special_char_ratio",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.584398",
+    "feature_index": 2,
+    "feature_name": "sql_keyword_count",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.585157",
+    "feature_index": 3,
+    "feature_name": "request_rate",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.586103",
+    "feature_index": 4,
+    "feature_name": "failed_auth_ratio",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.587051",
+    "feature_index": 5,
+    "feature_name": "port_entropy",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.587911",
+    "feature_index": 6,
+    "feature_name": "payload_size",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.588704",
+    "feature_index": 7,
+    "feature_name": "header_count",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.589375",
+    "feature_index": 8,
+    "feature_name": "param_count",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.589995",
+    "feature_index": 9,
+    "feature_name": "numeric_ratio",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.590646",
+    "feature_index": 10,
+    "feature_name": "uppercase_ratio",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.591537",
+    "feature_index": 11,
+    "feature_name": "path_depth",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.592434",
+    "feature_index": 12,
+    "feature_name": "query_complexity",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.593307",
+    "feature_index": 13,
+    "feature_name": "entropy",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  },
+  {
+    "timestamp": "2026-01-03T05:49:48.594198",
+    "feature_index": 14,
+    "feature_name": "timing_variance",
+    "drift_detected": true,
+    "drift_score": 1.0,
+    "test_statistic": 1.0,
+    "p_value": 9.795786091743983e-108,
+    "recommendation": "retrain"
+  }
+]

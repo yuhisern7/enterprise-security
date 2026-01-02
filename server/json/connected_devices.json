@@ -16,8 +16,8 @@
           "service": "HTTPS"
         }
       ],
-      "last_seen": "2026-01-03T05:11:09.338640",
-      "first_seen": "2026-01-03T05:04:40.013645"
+      "last_seen": "2026-01-03T05:48:19.977179",
+      "first_seen": "2026-01-03T05:48:19.977189"
     },
     "e8:48:b8:2e:80:85": {
       "ip": "192.168.0.101",
@@ -26,8 +26,8 @@
       "vendor": "Tplink",
       "hostname": "TP-Link-Router-101",
       "open_ports": [],
-      "last_seen": "2026-01-03T05:11:15.942024",
-      "first_seen": "2026-01-03T05:04:49.390332"
+      "last_seen": "2026-01-03T05:48:29.750783",
+      "first_seen": "2026-01-03T05:48:29.750800"
     },
     "24:0f:9b:24:a0:4a": {
       "ip": "192.168.0.103",
@@ -45,8 +45,18 @@
           "service": "RTSP"
         }
       ],
-      "last_seen": "2026-01-03T05:11:18.006975",
-      "first_seen": "2026-01-03T05:04:51.464408"
+      "last_seen": "2026-01-03T05:48:31.812189",
+      "first_seen": "2026-01-03T05:48:31.812205"
+    },
+    "84:46:93:6d:3c:3f": {
+      "ip": "192.168.0.100",
+      "mac": "84:46:93:6d:3c:3f",
+      "type": "Android Phone",
+      "vendor": "Xiaomi",
+      "hostname": "Xiaomi-Phone-100",
+      "open_ports": [],
+      "last_seen": "2026-01-03T05:48:33.912813",
+      "first_seen": "2026-01-03T05:48:33.912826"
     },
     "1c:86:9a:3f:61:3c": {
       "ip": "192.168.0.106",
@@ -55,7 +65,7 @@
       "vendor": "Samsung",
       "hostname": "Samsung-Phone-106",
       "open_ports": [],
-      "last_seen": "2026-01-03T05:11:24.536452",
+      "last_seen": "2026-01-03T05:48:40.430447",
       "first_seen": "2026-01-03T05:04:57.981423"
     },
     "40:ac:bf:3e:53:af": {
@@ -70,18 +80,8 @@
           "service": "HTTPS-Alt"
         }
       ],
-      "last_seen": "2026-01-03T05:11:26.621478",
+      "last_seen": "2026-01-03T05:48:42.520051",
       "first_seen": "2026-01-03T05:05:00.091670"
-    },
-    "48:35:2b:cb:48:0a": {
-      "ip": "192.168.0.109",
-      "mac": "48:35:2b:cb:48:0a",
-      "type": "Unknown Device",
-      "vendor": "Unknown",
-      "hostname": "Unknown-109",
-      "open_ports": [],
-      "last_seen": "2026-01-03T05:11:33.140451",
-      "first_seen": "2026-01-03T05:11:33.140467"
     },
     "40:ac:bf:37:d6:39": {
       "ip": "192.168.0.102",
@@ -95,29 +95,19 @@
           "service": "HTTPS-Alt"
         }
       ],
-      "last_seen": "2026-01-03T05:11:35.241979",
-      "first_seen": "2026-01-03T05:05:02.164620"
+      "last_seen": "2026-01-03T05:48:44.602866",
+      "first_seen": "2026-01-03T05:48:44.602878"
     },
-    "84:46:93:6d:3c:3f": {
-      "ip": "192.168.0.100",
-      "mac": "84:46:93:6d:3c:3f",
-      "type": "Android Phone",
-      "vendor": "Xiaomi",
-      "hostname": "Xiaomi-Phone-100",
+    "48:35:2b:cb:48:0a": {
+      "ip": "192.168.0.109",
+      "mac": "48:35:2b:cb:48:0a",
+      "type": "Unknown Device",
+      "vendor": "Unknown",
+      "hostname": "Unknown-109",
       "open_ports": [],
-      "last_seen": "2026-01-03T05:11:37.849474",
-      "first_seen": "2026-01-03T05:05:04.263672"
-    },
-    "22:9c:c8:47:7d:23": {
-      "ip": "192.168.0.107",
-      "mac": "22:9c:c8:47:7d:23",
-      "type": "iPhone/iPad (Private MAC)",
-      "vendor": "Apple (Randomized)",
-      "hostname": "iPhone-107",
-      "open_ports": [],
-      "last_seen": "2026-01-03T05:11:39.958973",
-      "first_seen": "2026-01-03T05:05:06.771441"
+      "last_seen": "2026-01-03T05:48:50.734605",
+      "first_seen": "2026-01-03T05:48:50.734625"
     }
   },
-  "last_scan_time": "2026-01-03T05:11:39.958995"
+  "last_scan_time": "2026-01-03T05:48:50.734634"
 }
