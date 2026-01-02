@@ -34,18 +34,101 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 # Check if crypto is enabled from environment variable
 CRYPTO_ENABLED = os.getenv('CRYPTO_ENABLED', 'true').lower() == 'true'
 
+# Load authorized customers registry (per-customer keys)
+AUTHORIZED_CUSTOMERS = {}
+AUTHORIZED_CUSTOMERS_FILE = "customer_keys/authorized_customers.json"
+
+def load_authorized_customers():
+    """Load per-customer crypto keys from registry"""
+    global AUTHORIZED_CUSTOMERS
+    try:
+        if os.path.exists(AUTHORIZED_CUSTOMERS_FILE):
+            with open(AUTHORIZED_CUSTOMERS_FILE, 'r') as f:
+                registry = json.load(f)
+                
+            # Load shared secret for each active customer
+            for customer_id, info in registry.items():
+                if info.get('status') != 'active':
+                    continue  # Skip revoked customers
+                    
+                key_file = f"customer_keys/{customer_id}/shared_secret.key"
+                if os.path.exists(key_file):
+                    with open(key_file, 'rb') as f:
+                        AUTHORIZED_CUSTOMERS[customer_id] = {
+                            'secret': f.read(),
+                            'company_name': info.get('company_name'),
+                            'created_at': info.get('created_at')
+                        }
+                    logger.info(f"✅ Loaded keys for customer: {customer_id} ({info.get('company_name')})")
+                else:
+                    logger.warning(f"⚠️  Key file missing for customer: {customer_id}")
+                    
+            logger.info(f"🔐 Loaded {len(AUTHORIZED_CUSTOMERS)} authorized customers")
+        else:
+            logger.warning(f"⚠️  No customer registry found at {AUTHORIZED_CUSTOMERS_FILE}")
+            logger.info("   Run: relay/generate_customer_keys.py create <company_name>")
+    except Exception as e:
+        logger.error(f"❌ Failed to load customer keys: {e}")
+
 if CRYPTO_ENABLED:
     try:
-        from AI.crypto_security import MessageSecurity
-        message_security = MessageSecurity(key_dir="ai_training_materials/crypto_keys")
-        logger.info("🔐 Cryptographic message verification ENABLED")
+        import hmac
+        import hashlib
+        load_authorized_customers()
+        logger.info("🔐 Per-customer cryptographic verification ENABLED")
     except Exception as e:
         CRYPTO_ENABLED = False
-        message_security = None
         logger.warning(f"⚠️  Crypto verification DISABLED (import failed): {e}")
 else:
-    message_security = None
     logger.info("ℹ️  Crypto verification DISABLED via environment variable")
+
+def verify_customer_message(message: Dict[str, Any]) -> tuple[bool, str]:
+    """
+    Verify message HMAC using customer-specific key
+    
+    Returns:
+        (is_valid, reason)
+    """
+    try:
+        # Check required fields
+        if 'customer_id' not in message:
+            return False, "Missing customer_id"
+        
+        if 'hmac' not in message:
+            return False, "Missing HMAC"
+        
+        customer_id = message['customer_id']
+        
+        # Check if customer is authorized
+        if customer_id not in AUTHORIZED_CUSTOMERS:
+            return False, f"Unknown or revoked customer: {customer_id}"
+        
+        # Get customer's shared secret
+        customer_secret = AUTHORIZED_CUSTOMERS[customer_id]['secret']
+        
+        # Verify HMAC
+        msg_copy = message.copy()
+        expected_hmac = msg_copy.pop('hmac')
+        msg_copy.pop('signature', None)  # Remove signature if present
+        
+        canonical_json = json.dumps(msg_copy, sort_keys=True, separators=(',', ':'))
+        message_bytes = canonical_json.encode('utf-8')
+        
+        calculated_hmac = hmac.new(
+            customer_secret,
+            message_bytes,
+            hashlib.sha256
+        ).hexdigest()
+        
+        if not hmac.compare_digest(calculated_hmac, expected_hmac):
+            return False, f"HMAC validation failed for customer {customer_id}"
+        
+        return True, "OK"
+        
+    except Exception as e:
+        logger.error(f"[CRYPTO] Verification error: {e}")
+        return False, f"Verification failed: {e}"
+
 
 # Import file-based signature sync (no database needed)
 try:
@@ -300,7 +383,7 @@ async def handle_client(websocket: WebSocketServerProtocol):
                 
                 # CRYPTOGRAPHIC VERIFICATION (if enabled)
                 if CRYPTO_ENABLED and data.get("type") not in ["heartbeat", "stats"]:
-                    is_valid, reason = message_security.verify_message(data)
+                    is_valid, reason = verify_customer_message(data)
                     
                     if not is_valid:
                         stats["messages_rejected"] += 1
@@ -316,10 +399,11 @@ async def handle_client(websocket: WebSocketServerProtocol):
                         continue  # Skip processing this message
                     
                     # Track authenticated peer
-                    peer_id = data.get("peer_id")
-                    if peer_id:
-                        authenticated_peers[websocket] = peer_id
-                        logger.debug(f"✅ Verified message from peer: {peer_id}")
+                    customer_id = data.get("customer_id")
+                    if customer_id:
+                        authenticated_peers[websocket] = customer_id
+                        company_name = AUTHORIZED_CUSTOMERS[customer_id]['company_name']
+                        logger.debug(f"✅ Verified message from: {company_name} ({customer_id})")
                 
                 # Handle different message types
                 if data.get("type") == "heartbeat":

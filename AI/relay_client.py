@@ -45,6 +45,7 @@ class RelayClient:
         self.relay_url = os.getenv('RELAY_URL', '')  # e.g., wss://relay.yourdomain.com:60001
         self.enabled = os.getenv('RELAY_ENABLED', 'false').lower() == 'true'
         self.peer_name = os.getenv('PEER_NAME', f'peer-{os.getpid()}')
+        self.customer_id = os.getenv('CUSTOMER_ID', '')  # Unique customer identifier
         self.reconnect_delay = int(os.getenv('RELAY_RECONNECT_DELAY', '5'))
         
         # State
@@ -73,6 +74,10 @@ class RelayClient:
         if self.enabled and self.relay_url:
             logger.info(f"🌐 Relay client initialized: {self.relay_url}")
             logger.info(f"📡 Peer name: {self.peer_name}")
+            if self.customer_id:
+                logger.info(f"🔑 Customer ID: {self.customer_id}")
+            else:
+                logger.warning("⚠️  No CUSTOMER_ID configured - crypto verification will fail")
         elif self.enabled:
             logger.warning("⚠️  Relay enabled but RELAY_URL not configured")
     
@@ -113,6 +118,7 @@ class RelayClient:
             'type': 'threat',
             'threat_id': f"{self.peer_name}-{int(time.time() * 1000)}",
             'source_peer': self.peer_name,
+            'customer_id': self.customer_id,  # Include customer ID for per-customer crypto
             'attack_type': threat.get('attack_type', 'unknown'),
             'severity': threat.get('severity', 'medium'),
             'src_ip': threat.get('src_ip', ''),

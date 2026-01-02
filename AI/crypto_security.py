@@ -36,7 +36,9 @@ class MessageSecurity:
         self.private_key_file = os.path.join(key_dir, "private_key.pem")
         self.public_key_file = os.path.join(key_dir, "public_key.pem")
         self.shared_secret_file = os.path.join(key_dir, "shared_secret.key")
-
+        
+        # Get customer ID from environment (unique per installation)
+        self.customer_id = os.getenv('CUSTOMER_ID', 'demo-customer-0000')
         
         # Load or generate keys
         self.private_key, self.public_key = self._load_or_generate_keypair()
@@ -144,6 +146,7 @@ class MessageSecurity:
         message['timestamp'] = datetime.utcnow().isoformat() + 'Z'
         message['nonce'] = secrets.token_hex(16)  # 128-bit nonce
         message['peer_id'] = self._get_public_key_fingerprint()[:32]
+        message['customer_id'] = self.customer_id  # Per-customer identification
         
         # Convert to canonical JSON (deterministic)
         canonical_json = json.dumps(message, sort_keys=True, separators=(',', ':'))
