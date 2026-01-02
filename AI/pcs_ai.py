@@ -110,16 +110,30 @@ except ImportError as e:
     print(f"[WARNING] Enterprise features not available: {e}")
     print("[INFO] System will run in standard mode without external threat intelligence")
 
-# Advanced AI Modules (Phase 1A & 1B)
+# Advanced AI Modules (Phase 1A, 1B, Phase 3)
 try:
     from AI.behavioral_heuristics import get_behavioral_heuristics, track_connection
     from AI.sequence_analyzer import get_sequence_analyzer, observe_event
+    from AI.drift_detector import get_drift_detector, update_baseline, track_features
     ADVANCED_AI_AVAILABLE = True
-    print("[ADVANCED-AI] Behavioral Heuristics and LSTM Sequence Analyzer loaded")
+    print("[ADVANCED-AI] Behavioral Heuristics, LSTM Sequence Analyzer, and Drift Detector loaded")
 except ImportError as e:
     ADVANCED_AI_AVAILABLE = False
     print(f"[WARNING] Advanced AI modules not available: {e}")
-    print("[INFO] Running without behavioral heuristics and sequence analysis")
+    print("[INFO] Running without behavioral heuristics, sequence analysis, and drift detection")
+
+# Graph Intelligence Module (Phase 4)
+try:
+    from AI.graph_intelligence import (
+        get_graph_intelligence, track_connection as graph_track_connection,
+        analyze_lateral_movement, save_graph_data
+    )
+    GRAPH_INTELLIGENCE_AVAILABLE = True
+    print("[GRAPH-AI] Network topology graph intelligence loaded")
+except ImportError as e:
+    GRAPH_INTELLIGENCE_AVAILABLE = False
+    print(f"[WARNING] Graph intelligence not available: {e}")
+    print("[INFO] Running without network graph analysis")
 
 # Performance Monitoring and Visualization
 try:
@@ -1260,6 +1274,20 @@ def get_ml_model_stats() -> dict:
     autoencoder = get_traffic_autoencoder()
     if autoencoder:
         stats["models"]["autoencoder"] = autoencoder.get_stats()
+    
+    # PHASE 3: Drift detector stats
+    if ADVANCED_AI_AVAILABLE:
+        try:
+            drift_detector = get_drift_detector()
+            if drift_detector:
+                stats["models"]["drift_detector"] = drift_detector.get_stats()
+                
+                # Add recent drift reports
+                recent_reports = drift_detector.get_recent_reports(limit=5)
+                if recent_reports:
+                    stats["models"]["drift_detector"]["recent_drift_reports"] = recent_reports
+        except Exception as e:
+            logger.debug(f"[DRIFT] Failed to get drift stats: {e}")
     
     # Check if retraining is needed
     stats["needs_retraining"] = _should_retrain_ml_models()
@@ -2560,6 +2588,29 @@ def assess_request_pattern(
         except Exception as e:
             logger.warning(f"[BEHAVIORAL] Failed to track request: {e}")
     
+    # PHASE 4: Track connection in network graph
+    if GRAPH_INTELLIGENCE_AVAILABLE:
+        try:
+            # Determine destination IP (assume server's internal IP for now)
+            # In production, this would be the actual server IP from socket
+            server_ip = "10.0.0.1"  # Placeholder - should be actual server IP
+            port = 443 if 'https' in endpoint.lower() else 80
+            protocol = "TCP"
+            bytes_transferred = len(endpoint) + len(method) + len(user_agent) + 100
+            
+            # Use the correct function signature
+            from AI.graph_intelligence import get_graph_intelligence
+            graph = get_graph_intelligence()
+            graph.add_connection(
+                source=ip_address,
+                destination=server_ip,
+                port=port,
+                protocol=protocol,
+                byte_count=bytes_transferred
+            )
+        except Exception as e:
+            logger.warning(f"[GRAPH] Failed to track connection: {e}")
+    
     # Create client fingerprint and detect VPN/Tor
     if headers is None:
         headers = {}
@@ -2574,6 +2625,13 @@ def assess_request_pattern(
             features = _extract_features_from_request(ip_address, endpoint, user_agent, headers, method)
             
             if len(features) > 0:
+                # PHASE 3: Track features for drift detection
+                if ADVANCED_AI_AVAILABLE:
+                    try:
+                        track_features(features)
+                    except Exception as e:
+                        logger.debug(f"[DRIFT] Failed to track features: {e}")
+                
                 # 1. Anomaly Detection (unsupervised learning - IsolationForest)
                 is_anomaly, anomaly_score = _ml_predict_anomaly(features)
                 if is_anomaly:
@@ -2587,6 +2645,13 @@ def assess_request_pattern(
                     if ae_anomaly:
                         ml_threats.append(f"🧠 AUTOENCODER ANOMALY (error: {recon_error:.4f}, score: {ae_score:.2f})")
                         ai_confidence += ae_score * 0.3
+                else:
+                    # Update baseline with SAFE traffic for drift detector
+                    if ADVANCED_AI_AVAILABLE and not is_anomaly:
+                        try:
+                            update_baseline(features)
+                        except Exception as e:
+                            logger.debug(f"[DRIFT] Failed to update baseline: {e}")
                 
                 # 2. Threat Classification (supervised learning)
                 if hasattr(_threat_classifier, 'classes_'):
@@ -2982,9 +3047,34 @@ def assess_request_pattern(
             ip_address=ip_address,
         )
     
+    # PHASE 4: Check for graph-based threats (lateral movement, C2, exfiltration)
+    if GRAPH_INTELLIGENCE_AVAILABLE:
+        try:
+            graph_threats = analyze_lateral_movement()
+            
+            if graph_threats:
+                # Check if this IP is involved in any graph-based threats
+                for threat in graph_threats:
+                    if threat['source_ip'] == ip_address or ip_address in threat.get('hop_chain', []):
+                        threat_desc = f"🕸️ GRAPH THREAT: {threat['threat_type']} - {threat['description']}"
+                        threats.append(threat_desc)
+                        
+                        # Log critical graph threats
+                        if threat.get('severity') in ['HIGH', 'CRITICAL']:
+                            _log_threat(
+                                ip_address=ip_address,
+                                threat_type=f"Graph Analysis: {threat['threat_type']}",
+                                details=threat['description'],
+                                level=ThreatLevel.CRITICAL if threat['severity'] == 'CRITICAL' else ThreatLevel.DANGEROUS,
+                                action="MONITORED",
+                                headers=headers
+                            )
+        except Exception as e:
+            logger.warning(f"[GRAPH] Failed to analyze graph threats: {e}")
+    
     return SecurityAssessment(
         level=ThreatLevel.SAFE,
-        threats=[],
+        threats=threats if threats else [],  # Include graph threats if any
         should_block=False,
         ip_address=ip_address,
     )
@@ -4135,7 +4225,9 @@ def save_all_ai_data() -> dict:
         "behavioral_metrics_saved": False,
         "attack_sequences_saved": False,
         "autoencoder_trained": False,
-        "training_triggered": False
+        "training_triggered": False,
+        "drift_check_performed": False,
+        "requires_retraining": False
     }
     
     # Save threat log (already happens automatically in _log_threat)
@@ -4201,6 +4293,37 @@ def save_all_ai_data() -> dict:
                         logger.info(f"[AUTO-TRAIN] Autoencoder trained. Threshold: {result.get('threshold', 0):.4f}")
         except Exception as e:
             logger.error(f"[PERSISTENCE] Failed to train autoencoder: {e}")
+    
+    # PHASE 3: Check for drift every 500 samples
+    if ADVANCED_AI_AVAILABLE and len(_threat_log) >= 500:
+        try:
+            drift_detector = get_drift_detector()
+            if drift_detector:
+                drift_stats = drift_detector.check_drift()
+                if drift_stats:
+                    status["drift_check_performed"] = True
+                    status["requires_retraining"] = drift_stats.requires_retraining
+                    
+                    if drift_stats.requires_retraining:
+                        logger.warning(f"[DRIFT] Model retraining recommended: {drift_stats.features_drifted}/{drift_stats.total_features} features drifted")
+                        
+                        # Update baseline after retraining
+                        drift_detector.update_baseline_from_current()
+                    
+                    # Save drift statistics
+                    drift_detector._save_baseline()
+                    drift_detector._save_reports()
+        except Exception as e:
+            logger.error(f"[PERSISTENCE] Failed to check drift: {e}")
+    
+    # PHASE 4: Save network graph data
+    if GRAPH_INTELLIGENCE_AVAILABLE:
+        try:
+            save_graph_data()
+            status["graph_data_saved"] = True
+            logger.info("[PERSISTENCE] Network graph data saved")
+        except Exception as e:
+            logger.error(f"[PERSISTENCE] Failed to save graph data: {e}")
     
     return status
     _save_threat_log()

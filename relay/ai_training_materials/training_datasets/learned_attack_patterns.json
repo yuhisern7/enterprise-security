@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "total_patterns": 1,
+    "total_encodings_detected": 0,
+    "total_keywords": 60,
+    "last_updated": "2026-01-02T06:56:19.993497",
+    "architecture": "DEFENSIVE - Patterns only, NO exploit code"
+  },
+  "encodings_used": {},
+  "attack_keywords": {
+    "../": 30,
+    "/etc/passwd": 30
+  },
+  "regex_patterns": [],
+  "encoding_chains": [],
+  "attack_vectors": {
+    "Directory Traversal Attack": [
+      {
+        "hash": "119cf58e250f04a2",
+        "keywords": [
+          "../",
+          "/etc/passwd"
+        ],
+        "encodings": [],
+        "regex_patterns": [],
+        "first_seen": "2026-01-02T14:56:19.791074+08:00"
+      }
+    ]
+  }
+}

@@ -14,18 +14,24 @@ ai_training_materials/
 ├── ai_signatures/           # Attack signature patterns (910 KB)
 │   ├── learned_signatures.json
 │   └── README.md
-├── trained_models/          # Pre-trained ML models (280 KB, distributed)
+├── trained_models/          # Pre-trained ML models (distributed)
 │   ├── anomaly_detector.pkl
 │   ├── threat_classifier.pkl
 │   ├── ip_reputation.pkl
 │   ├── feature_scaler.pkl
+│   ├── node_fingerprint.json
+│   ├── traffic_autoencoder.keras  # Phase 2: Deep learning autoencoder
+│   ├── sequence_lstm.keras        # Phase 1B: Attack sequence predictor
 │   └── README.md
 ├── threat_intelligence/     # Crawled threat intel data
 │   ├── threat_intelligence_crawled.json
 │   ├── crawled_YYYYMMDD.json
 │   └── README.md
-├── training_datasets/       # CSV training data (relay only)
+├── training_datasets/       # CSV training data + behavioral metrics
 │   ├── sample_dataset.csv
+│   ├── learned_attack_patterns.json
+│   ├── behavioral_metrics.json     # Phase 1A: Behavioral heuristics
+│   ├── attack_sequences.json       # Phase 1B: Attack state sequences
 │   └── README.md
 ├── exploitdb/               # ExploitDB database (824 MB, relay only)
 │   ├── exploits/            # 50,000+ exploit scripts
@@ -50,18 +56,27 @@ ai_training_materials/
 **Process:**
 1. Load all training materials from THIS folder (LOCAL loading, no downloads)
 2. Merge ExploitDB + global_attacks + learned_signatures into unified dataset
-3. Train 4 ML models:
-   - `anomaly_detector.pkl` - Detects unusual traffic patterns
-   - `threat_classifier.pkl` - Classifies attack types (SQL injection, XSS, etc.)
-   - `ip_reputation.pkl` - Scores IP addresses by history
-   - `feature_scaler.pkl` - Normalizes feature data
-4. Save trained models to `ml_models/` folder
+3. Train 7 ML/DL models:
+   - `anomaly_detector.pkl` - IsolationForest for unsupervised anomaly detection
+   - `threat_classifier.pkl` - RandomForest for attack type classification
+   - `ip_reputation.pkl` - GradientBoosting for IP reputation scoring
+   - `feature_scaler.pkl` - StandardScaler for feature normalization
+   - `traffic_autoencoder.keras` - Deep learning autoencoder (Phase 2)
+   - `sequence_lstm.keras` - LSTM for attack sequence prediction (Phase 1B)
+   - Drift baselines updated automatically (Phase 3)
+4. Save trained models to `trained_models/` folder
+
+**Advanced AI Components:**
+- **Phase 1A**: Behavioral heuristics (15+ metrics, risk scoring)
+- **Phase 1B**: LSTM sequence analyzer (7-state attack progression)
+- **Phase 2**: Traffic autoencoder (unsupervised deep learning)
+- **Phase 3**: Drift detector (K-S test, PSI metrics, auto-retraining)
 
 ### 3. Model Distribution (HTTP API)
 **Endpoint:** `http://relay-server:60002/models/<model_name>`
-**Subscribers download ONLY:**
-- 4 `.pkl` files (280 KB total)
-- Updated every 6 hours
+**Subscribers download:**
+- 7 model files (.pkl + .keras)
+- Updated every 6 hours or when drift detected
 - NO access to raw training data
 
 ---

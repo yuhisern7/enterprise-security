@@ -1,0 +1,22 @@
+{
+  "graph_stats": {
+    "node_count": 7,
+    "connection_count": 4,
+    "average_degree": 0.5714285714285714,
+    "max_degree": 1,
+    "alert_count": 0,
+    "zones_configured": 0,
+    "last_update": "2026-01-02T07:49:38.063850"
+  },
+  "centrality_scores": {
+    "192.168.1.2": 0.0,
+    "192.168.1.11": 0.0,
+    "192.168.1.10": 0.0,
+    "10.0.0.1": 0.0,
+    "192.168.1.12": 0.0,
+    "203.0.113.50": 0.0,
+    "192.168.1.1": 0.0
+  },
+  "lateral_movement_patterns": [],
+  "timestamp": "2026-01-02T07:49:38.063949"
+}

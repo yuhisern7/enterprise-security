@@ -1,46 +1,58 @@
-# ML Training Datasets
+# Training Datasets
 
-CSV datasets used for model training on the relay server.
+**⚠️ RELAY SERVER ONLY - Subscribers do NOT download raw training data**
 
-## Current Datasets:
+This folder contains training datasets used to train ML models on the relay server.
+
+## Files
 
 ### sample_dataset.csv
-- **Size:** Variable (grows with confirmed attacks)
-- **Purpose:** Train ML models on confirmed threat patterns
-- **Columns:** 
-  - IP address (hashed)
-  - Attack type
-  - Feature vector (protocol, timing, behavior metrics)
-  - Label (benign/malicious)
-  - Timestamp
-- **Source:** Aggregated from subscriber nodes (patterns only, no payloads)
+- **Size:** Example dataset for supervised learning
+- **Format:** CSV with labeled attack samples
+- **Columns:** src_ip, attack_type, severity, threat_score, protocol, port, payload_size, country, is_malicious
+- **Usage:** Training threat_classifier and ip_reputation models
 
-## Future Datasets (Planned):
+### learned_attack_patterns.json
+- **Purpose:** Attack patterns extracted from real threats
+- **Source:** Automatic extraction from blocked attacks
+- **Format:** JSON with attack signatures, keywords, encodings
+- **Usage:** Signature-based detection and pattern matching
 
-### behavioral_features.csv
-- Connection patterns, retry rates, port entropy
-- Extracted from behavioral heuristics engine
-- Local network baselines NOT included (privacy)
+### behavioral_metrics.json - Phase 1A
+- **Purpose:** Behavioral heuristics tracking data
+- **Metrics:** 15+ per entity (connection rate, port entropy, auth failures, fan-out/in, timing variance, etc.)
+- **Windows:** 1min, 5min, 15min rolling averages
+- **Usage:** Training behavioral anomaly detection models
+- **Privacy:** Aggregated metrics only, no raw traffic
 
-### sequence_training.csv
-- State transition sequences for LSTM training
-- Attack progression patterns (scan → exploit → lateral movement)
+### attack_sequences.json - Phase 1B
+- **Purpose:** Attack state transition sequences
+- **States:** NORMAL → SCANNING → AUTH_ABUSE → PRIV_ESC → LATERAL_MOVEMENT → EXFILTRATION → COMMAND_CONTROL
+- **Format:** Observed event sequences with timestamps
+- **Usage:** Training LSTM sequence predictor (sequence_lstm.keras)
+- **Detection:** Predict next attack state for early warning
 
-### graph_features.csv
-- Graph-based features (node centrality, edge weights)
-- Lateral movement patterns
-- Beaconing behavior signatures
+## Privacy & Security
 
-## Privacy & Safety:
-✅ **Included:** Abstract features, statistical patterns, hashed identifiers
-❌ **NOT Included:** Raw payloads, exploit code, IP addresses, device details
+🔒 **These files NEVER leave the relay server**
+- Contains aggregated attack data from all subscribers
+- Used ONLY for centralized model training
+- Individual subscriber data not stored
+- Models trained on collective patterns, not individual networks
 
-## Access:
-- **Relay Server:** Uses for model training
-- **Subscriber Nodes:** Do NOT download datasets (only trained models)
-- **Training Frequency:** Models retrained every 6 hours using this data
+## Advanced AI Components
 
-## Data Retention:
-- Keep last 90 days of training data
-- Older data archived/deleted to prevent staleness
-- Confirmed attacks only (false positives excluded)
+### Phase 1A: Behavioral Heuristics
+- Tracks connection patterns, authentication behavior, network scanning
+- Risk scoring based on multiple behavioral signals
+- Data stored in `behavioral_metrics.json`
+
+### Phase 1B: LSTM Sequence Analyzer
+- Learns attack progression patterns from observed sequences
+- 7-state model for attack lifecycle tracking
+- Data stored in `attack_sequences.json`
+
+### Phase 3: Drift Detection
+- Monitors distribution changes in model inputs
+- Triggers retraining when drift exceeds thresholds
+- Baseline data stored in server/json/drift_baseline.json
