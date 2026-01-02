@@ -7,7 +7,7 @@ Data Flow:
 1. Node detects attack → Extracts signature (keywords, encodings, patterns)
 2. Node DELETES attack payload (exploit code)
 3. Node sends ONLY signature hash + features to relay
-4. Relay stores signature DIRECTLY to ai_training_materials/learned_signatures.json
+4. Relay stores signature DIRECTLY to ai_training_materials/ai_signatures/learned_signatures.json
 5. AI training reads from files (no database needed)
 6. Relay distributes updated models back to all nodes
 
@@ -43,11 +43,12 @@ class SignatureSyncService:
         
         # File paths
         self.training_materials_dir = training_materials_dir
-        self.signatures_file = os.path.join(training_materials_dir, "learned_signatures.json")
+        self.signatures_file = os.path.join(training_materials_dir, "ai_signatures", "learned_signatures.json")
         self.global_attacks_file = os.path.join(training_materials_dir, "global_attacks.json")
         
         # Ensure directory exists
         os.makedirs(training_materials_dir, exist_ok=True)
+        os.makedirs(os.path.join(training_materials_dir, "ai_signatures"), exist_ok=True)
         
         # Initialize files if they don't exist
         self._initialize_files()

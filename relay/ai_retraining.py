@@ -180,7 +180,7 @@ class RelayAITrainer:
                 training_data["global_attacks"] = json.load(f)
         
         # Load learned signatures
-        sig_path = os.path.join(self.training_materials_dir, "learned_signatures.json")
+        sig_path = os.path.join(self.training_materials_dir, "ai_signatures", "learned_signatures.json")
         if os.path.exists(sig_path):
             with open(sig_path, 'r') as f:
                 training_data["learned_signatures"] = json.load(f)

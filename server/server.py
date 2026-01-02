@@ -40,7 +40,7 @@ pcs_ai._load_threat_data()
 
 @app.route('/')
 def dashboard():
-    """Main dashboard - Complete Feature Set with 24 Sections"""
+    """Main dashboard"""
     return render_template('inspector_ai_monitoring.html',
                          stats=pcs_ai.get_threat_statistics(),
                          blocked_ips=pcs_ai.get_blocked_ips(),
@@ -794,10 +794,6 @@ def get_gpu_info():
     })
 
 
-# ============================================================================
-# SECTION 13: AUTOMATED SIGNATURE EXTRACTION
-# ============================================================================
-
 @app.route('/api/signatures/extracted', methods=['GET'])
 def get_extracted_signatures():
     """Get automatically extracted attack signatures (DEFENSIVE - no exploit code)"""
@@ -1002,10 +998,6 @@ def check_login():
     })
 
 
-# ============================================================================
-# SECTION 6, 11: CORE STATISTICS & THREAT MONITORING
-# ============================================================================
-
 @app.route('/api/stats')
 def api_stats():
     """Get statistics as JSON"""
@@ -1016,8 +1008,6 @@ def api_stats():
         'vpn_stats': pcs_ai.get_vpn_tor_statistics()
     })
 
-
-# SECTION 11: Live Threat Monitor
 @app.route('/api/threat_log')
 def api_threat_log():
     """Get threat log data for new dashboard"""
@@ -1029,11 +1019,6 @@ def api_threat_log():
     })
 
 
-# ============================================================================
-# SECTION 8 & 9: IP MANAGEMENT (BLOCKED & WHITELISTED IPS)
-# ============================================================================
-
-# SECTION 8: Blocked IP Addresses
 @app.route('/api/unblock/<ip_address>', methods=['POST'])
 def unblock_ip(ip_address):
     """Unblock an IP address"""
@@ -1090,10 +1075,6 @@ def remove_from_whitelist():
         'message': f'IP {ip_address} removed from whitelist' if success else f'IP {ip_address} not in whitelist or cannot be removed'
     })
 
-
-# ============================================================================
-# SECTION 2: AI TRAINING NETWORK - SHARED MACHINE LEARNING
-# ============================================================================
 
 @app.route('/api/p2p/status', methods=['GET'])
 def get_p2p_status():
@@ -1483,14 +1464,14 @@ def get_system_status():
         }
         
         return jsonify({
-            # System Health Metrics (Section 14)
+            # System health metrics
             'cpu_usage': cpu_usage,
             'memory_usage': memory_usage,
             'disk_usage': disk_usage,
             'uptime': uptime,
             'services': services,
             
-            # API Status (Section 5)
+            # API status
             'virustotal': vt_status,
             'abuseipdb': abuse_status,
             'ml_models': ml_status,
@@ -1803,10 +1784,6 @@ def generate_env_file():
 # NEW API ENDPOINTS - Performance, Compliance, Visualization
 # ============================================================================
 
-# ============================================================================
-# SECTION 14: SYSTEM HEALTH & NETWORK PERFORMANCE
-# ============================================================================
-
 @app.route('/api/performance/metrics', methods=['GET'])
 def get_performance_metrics():
     """Get network performance metrics for dashboard"""
@@ -1911,10 +1888,6 @@ def get_performance_anomalies():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
-# ============================================================================
-# SECTION 15: COMPLIANCE DASHBOARD
-# ============================================================================
-
 @app.route('/api/compliance/report/<report_type>', methods=['GET'])
 def get_compliance_report(report_type):
     """Generate compliance report (pci_dss, hipaa, gdpr, soc2)"""
@@ -1965,11 +1938,6 @@ def get_compliance_summary():
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
-# ============================================================================
-# SECTION 3: NETWORK TOPOLOGY (Part of Network Devices)
-# ============================================================================
-
-# SECTION 3: Network Topology Visualization (part of Network Devices)
 @app.route('/api/visualization/topology', methods=['GET'])
 def get_network_topology():
     """Get network topology map"""
@@ -2030,10 +1998,6 @@ def get_all_visualizations():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
-
-# ============================================================================
-# SECTION 3: NETWORK DEVICES - LIVE MONITOR, PORTS & HISTORY (3-IN-1)
-# ============================================================================
 
 @app.route('/api/connected-devices', methods=['GET'])
 def get_connected_devices_api():
@@ -2150,8 +2114,6 @@ def manual_scan_devices():
 
 
 # API endpoints for Adaptive Honeypot
-# ============================================================================
-# SECTION 16: ADAPTIVE HONEYPOT - AI TRAINING SANDBOX
 # ============================================================================
 
 @app.route('/api/adaptive_honeypot/status', methods=['GET'])
@@ -2272,7 +2234,7 @@ def get_honeypot_status():
 
 
 # ============================================================================
-# API ENDPOINTS FOR NEW SECTIONS 18-24 - REAL IMPLEMENTATIONS
+# Advanced feature endpoints (traffic analysis, DNS, user monitoring, forensics)
 # ============================================================================
 
 # Import real implementation modules
@@ -2288,7 +2250,6 @@ except ImportError as e:
     print(f"[WARNING] Advanced features modules not loaded: {e}")
     ADVANCED_FEATURES_AVAILABLE = False
 
-# Section 18: Traffic Analysis & Deep Packet Inspection
 @app.route('/api/traffic/analysis', methods=['GET'])
 def get_traffic_analysis():
     """Real-time traffic analysis with DPI"""
@@ -2301,7 +2262,6 @@ def get_traffic_analysis():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Section 19: DNS & Geo Security
 @app.route('/api/dns/stats', methods=['GET'])
 def get_dns_stats():
     """Get DNS query statistics"""
@@ -2327,7 +2287,6 @@ def get_dns_stats():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Section 20: User & Identity Monitoring
 @app.route('/api/users/tracking', methods=['GET'])
 def get_user_tracking():
     """Get tracked users on network"""
@@ -2340,7 +2299,6 @@ def get_user_tracking():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Section 21: Forensics & Threat Hunting
 @app.route('/api/threat-hunt', methods=['POST'])
 def threat_hunt():
     """Real threat hunting via PCAP search"""
@@ -2404,7 +2362,6 @@ def download_pcap():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Section 22: Sandbox Detonation & File Analysis
 @app.route('/api/sandbox/detonate', methods=['POST'])
 def sandbox_detonate():
     """Real file analysis (hash-based threat detection)"""
@@ -2445,7 +2402,6 @@ def get_sandbox_stats():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Section 23: Email/SMS Alerts
 @app.route('/api/alerts/email/config', methods=['POST'])
 def save_email_config():
     """Save real email alert configuration"""
@@ -2489,7 +2445,6 @@ def get_alert_stats():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Section 24: SOAR API Integration
 @app.route('/api/soar/generate-key', methods=['POST'])
 def generate_api_key():
     """Generate real API key with storage"""
@@ -2544,7 +2499,7 @@ def get_soar_stats():
 
 @app.route('/api/openapi.json', methods=['GET'])
 def get_openapi_spec():
-    """Section 24: Download OpenAPI specification"""
+    """Download OpenAPI specification"""
     return jsonify({
         'openapi': '3.0.0',
         'info': {
@@ -2560,13 +2515,9 @@ def get_openapi_spec():
         }
     })
 
-# ============================================================================
-# SECTION 3 ENHANCEMENT: ASSET INVENTORY
-# ============================================================================
-
 @app.route('/api/assets/inventory', methods=['GET'])
 def get_asset_inventory():
-    """Enhanced Section 3: Get complete asset inventory"""
+    """Get complete asset inventory"""
     try:
         from AI.asset_inventory import asset_inventory
         return jsonify(asset_inventory.get_stats())
@@ -2575,7 +2526,7 @@ def get_asset_inventory():
 
 @app.route('/api/assets/eol', methods=['GET'])
 def get_eol_software():
-    """Enhanced Section 3: Get end-of-life software"""
+    """Get end-of-life software"""
     try:
         from AI.asset_inventory import asset_inventory
         eol = asset_inventory.detect_eol_software()
@@ -2585,7 +2536,7 @@ def get_eol_software():
 
 @app.route('/api/assets/shadow-it', methods=['GET'])
 def get_shadow_it():
-    """Enhanced Section 3: Detect shadow IT"""
+    """Detect shadow IT"""
     try:
         from AI.asset_inventory import asset_inventory
         shadow_it = asset_inventory.detect_shadow_it()
@@ -2593,13 +2544,9 @@ def get_shadow_it():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
-# SECTION 20 ENHANCEMENT: ZERO TRUST MONITORING
-# ============================================================================
-
 @app.route('/api/zero-trust/scores', methods=['GET'])
 def get_zero_trust_scores():
-    """Enhanced Section 20: Get device trust scores"""
+    """Get device trust scores"""
     try:
         from AI.zero_trust import zero_trust
         return jsonify(zero_trust.get_stats())
@@ -2608,7 +2555,7 @@ def get_zero_trust_scores():
 
 @app.route('/api/zero-trust/policies', methods=['GET'])
 def get_conditional_access_policies():
-    """Enhanced Section 20: Get conditional access policies"""
+    """Get conditional access policies"""
     try:
         from AI.zero_trust import zero_trust
         policies = zero_trust.get_conditional_access_policies()
@@ -2618,7 +2565,7 @@ def get_conditional_access_policies():
 
 @app.route('/api/zero-trust/violations', methods=['GET'])
 def get_privilege_violations():
-    """Enhanced Section 20: Get least privilege violations"""
+    """Get least privilege violations"""
     try:
         from AI.zero_trust import zero_trust
         violations = zero_trust.check_least_privilege_violations()
@@ -2626,13 +2573,9 @@ def get_privilege_violations():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
-# SECTION 24 ENHANCEMENT: SOAR WORKFLOWS
-# ============================================================================
-
 @app.route('/api/soar/workflows', methods=['GET'])
 def get_soar_workflows():
-    """Enhanced Section 24: Get SOAR workflows"""
+    """Get SOAR workflows"""
     try:
         from AI.soar_workflows import soar_workflows
         return jsonify(soar_workflows.get_stats())
@@ -2641,7 +2584,7 @@ def get_soar_workflows():
 
 @app.route('/api/soar/incidents', methods=['GET'])
 def get_soar_incidents():
-    """Enhanced Section 24: Get all incidents"""
+    """Get all incidents"""
     try:
         from AI.soar_workflows import soar_workflows
         return jsonify({'incidents': soar_workflows.incidents})
@@ -2650,7 +2593,7 @@ def get_soar_incidents():
 
 @app.route('/api/soar/incidents', methods=['POST'])
 def create_soar_incident():
-    """Enhanced Section 24: Create new incident"""
+    """Create new incident"""
     try:
         from AI.soar_workflows import soar_workflows
         data = request.get_json()
@@ -2665,7 +2608,7 @@ def create_soar_incident():
 
 @app.route('/api/soar/playbooks', methods=['GET'])
 def get_soar_playbooks():
-    """Enhanced Section 24: Get automated playbooks"""
+    """Get automated playbooks"""
     try:
         from AI.soar_workflows import soar_workflows
         return jsonify({'playbooks': soar_workflows.playbooks})
@@ -2674,7 +2617,7 @@ def get_soar_playbooks():
 
 @app.route('/api/soar/playbooks/<playbook_id>/execute', methods=['POST'])
 def execute_soar_playbook(playbook_id):
-    """Enhanced Section 24: Execute playbook"""
+    """Execute playbook"""
     try:
         from AI.soar_workflows import soar_workflows
         data = request.get_json() or {}
@@ -2683,13 +2626,9 @@ def execute_soar_playbook(playbook_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
-# SECTION 25: VULNERABILITY MANAGEMENT
-# ============================================================================
-
 @app.route('/api/vulnerabilities/scan', methods=['GET'])
 def scan_vulnerabilities():
-    """Section 25: Scan system for vulnerabilities"""
+    """Scan system for vulnerabilities"""
     try:
         from AI.vulnerability_manager import vulnerability_manager
         return jsonify(vulnerability_manager.get_stats())
@@ -2698,7 +2637,7 @@ def scan_vulnerabilities():
 
 @app.route('/api/vulnerabilities/cves', methods=['GET'])
 def get_cves():
-    """Section 25: Get CVE vulnerabilities"""
+    """Get CVE vulnerabilities"""
     try:
         from AI.vulnerability_manager import vulnerability_manager
         vulns = vulnerability_manager.scan_system_vulnerabilities()
@@ -2708,7 +2647,7 @@ def get_cves():
 
 @app.route('/api/vulnerabilities/patches', methods=['GET'])
 def get_patches():
-    """Section 25: Get prioritized patches"""
+    """Get prioritized patches"""
     try:
         from AI.vulnerability_manager import vulnerability_manager
         patches = vulnerability_manager.prioritize_patches()
@@ -2718,7 +2657,7 @@ def get_patches():
 
 @app.route('/api/vulnerabilities/sbom', methods=['GET'])
 def get_sbom():
-    """Section 25: Get Software Bill of Materials"""
+    """Get Software Bill of Materials"""
     try:
         from AI.vulnerability_manager import vulnerability_manager
         sbom = vulnerability_manager.generate_sbom()
@@ -2728,7 +2667,7 @@ def get_sbom():
 
 @app.route('/api/vulnerabilities/dependencies', methods=['GET'])
 def get_vulnerable_dependencies():
-    """Section 25: Get vulnerable dependencies"""
+    """Get vulnerable dependencies"""
     try:
         from AI.vulnerability_manager import vulnerability_manager
         deps = vulnerability_manager.scan_dependencies()
@@ -2736,13 +2675,9 @@ def get_vulnerable_dependencies():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
-# SECTION 29: CLOUD SECURITY POSTURE MANAGEMENT
-# ============================================================================
-
 @app.route('/api/cloud/posture', methods=['GET'])
 def get_cloud_posture():
-    """Section 29: Get cloud security posture"""
+    """Get cloud security posture"""
     try:
         from AI.cloud_security import cloud_security
         return jsonify(cloud_security.get_stats())
@@ -2751,7 +2686,7 @@ def get_cloud_posture():
 
 @app.route('/api/cloud/misconfigurations', methods=['GET'])
 def get_cloud_misconfigurations():
-    """Section 29: Get cloud misconfigurations"""
+    """Get cloud misconfigurations"""
     try:
         from AI.cloud_security import cloud_security
         aws = cloud_security.detect_aws_misconfigurations()
@@ -2768,7 +2703,7 @@ def get_cloud_misconfigurations():
 
 @app.route('/api/cloud/iam', methods=['GET'])
 def get_cloud_iam_issues():
-    """Section 29: Get IAM policy issues"""
+    """Get IAM policy issues"""
     try:
         from AI.cloud_security import cloud_security
         issues = cloud_security.analyze_iam_policies()
@@ -2778,7 +2713,7 @@ def get_cloud_iam_issues():
 
 @app.route('/api/cloud/compliance', methods=['GET'])
 def get_cloud_compliance():
-    """Section 29: Get cloud compliance status"""
+    """Get cloud compliance status"""
     try:
         from AI.cloud_security import cloud_security
         compliance = cloud_security.get_compliance_status()
@@ -2786,13 +2721,9 @@ def get_cloud_compliance():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
-# SECTION 18 ENHANCEMENT: CRYPTOCURRENCY MINING DETECTION
-# ============================================================================
-
 @app.route('/api/traffic/crypto-mining', methods=['GET'])
 def get_crypto_mining_detection():
-    """Enhanced Section 18: Get cryptocurrency mining detection stats"""
+    """Get cryptocurrency mining detection stats"""
     try:
         from AI.traffic_analyzer import traffic_analyzer
         stats = traffic_analyzer.get_crypto_mining_stats()
@@ -2800,13 +2731,9 @@ def get_crypto_mining_detection():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
-# SECTION 25 ENHANCEMENT: DARK WEB MONITORING
-# ============================================================================
-
 @app.route('/api/vulnerabilities/darkweb', methods=['GET'])
 def get_darkweb_monitoring():
-    """Enhanced Section 25: Get dark web monitoring stats"""
+    """Get dark web monitoring stats"""
     try:
         from AI.vulnerability_manager import vulnerability_manager
         stats = vulnerability_manager.get_darkweb_stats()
@@ -2816,7 +2743,7 @@ def get_darkweb_monitoring():
 
 @app.route('/api/vulnerabilities/credential-leaks', methods=['GET'])
 def get_credential_leaks():
-    """Enhanced Section 25: Check for credential leaks"""
+    """Check for credential leaks"""
     try:
         from AI.vulnerability_manager import vulnerability_manager
         domain = request.args.get('domain', 'example.com')
@@ -2825,13 +2752,9 @@ def get_credential_leaks():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
-# SECTION 24 ENHANCEMENT: ATTACK SIMULATION (PURPLE TEAM)
-# ============================================================================
-
 @app.route('/api/soar/attack-simulation', methods=['GET'])
 def get_attack_simulation_stats():
-    """Enhanced Section 24: Get attack simulation statistics"""
+    """Get attack simulation statistics"""
     try:
         from AI.soar_workflows import soar_workflows
         stats = soar_workflows.get_attack_simulation_stats()
@@ -2841,7 +2764,7 @@ def get_attack_simulation_stats():
 
 @app.route('/api/soar/mitre-coverage', methods=['GET'])
 def get_mitre_coverage():
-    """Enhanced Section 24: Get MITRE ATT&CK coverage heatmap"""
+    """Get MITRE ATT&CK coverage heatmap"""
     try:
         from AI.soar_workflows import soar_workflows
         return jsonify({'coverage': soar_workflows.mitre_coverage})
@@ -2850,7 +2773,7 @@ def get_mitre_coverage():
 
 @app.route('/api/soar/red-team/schedule', methods=['POST'])
 def schedule_red_team():
-    """Enhanced Section 24: Schedule red team exercise"""
+    """Schedule red team exercise"""
     try:
         from AI.soar_workflows import soar_workflows
         data = request.get_json()
@@ -2862,13 +2785,9 @@ def schedule_red_team():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
-# SECTION 20 ENHANCEMENT: DATA LOSS PREVENTION (DLP)
-# ============================================================================
-
 @app.route('/api/zero-trust/dlp', methods=['GET'])
 def get_dlp_stats():
-    """Enhanced Section 20: Get DLP statistics"""
+    """Get DLP statistics"""
     try:
         from AI.zero_trust import zero_trust
         stats = zero_trust.get_dlp_stats()
@@ -2878,7 +2797,7 @@ def get_dlp_stats():
 
 @app.route('/api/zero-trust/data-classification', methods=['GET'])
 def get_data_classification():
-    """Enhanced Section 20: Get data classification status"""
+    """Get data classification status"""
     try:
         from AI.zero_trust import zero_trust
         classification = zero_trust.get_data_classification_status()
@@ -2886,13 +2805,9 @@ def get_data_classification():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ============================================================================
-# SECTION 31: BACKUP & RECOVERY STATUS
-# ============================================================================
-
 @app.route('/api/backup/status', methods=['GET'])
 def get_backup_status():
-    """Section 31: Get backup status"""
+    """Get backup status"""
     try:
         from AI.backup_recovery import backup_recovery
         return jsonify(backup_recovery.get_stats())
@@ -2901,7 +2816,7 @@ def get_backup_status():
 
 @app.route('/api/backup/resilience', methods=['GET'])
 def get_ransomware_resilience():
-    """Section 31: Get ransomware resilience score"""
+    """Get ransomware resilience score"""
     try:
         from AI.backup_recovery import backup_recovery
         score = backup_recovery.calculate_ransomware_resilience_score()
@@ -2911,7 +2826,7 @@ def get_ransomware_resilience():
 
 @app.route('/api/backup/test-restore', methods=['POST'])
 def test_backup_restore():
-    """Section 31: Test backup restore"""
+    """Test backup restore"""
     try:
         from AI.backup_recovery import backup_recovery
         data = request.get_json()

@@ -6,6 +6,7 @@ NO FAKE DATA - Actual network forensics.
 import os
 import subprocess
 import json
+import shutil
 from datetime import datetime
 from typing import List, Dict, Optional
 

@@ -4,7 +4,7 @@ WebSocket Relay Server for Enterprise Security Mesh
 Relays threat intelligence between unlimited security containers worldwide
 
 FILE-BASED STORAGE (No Database Required):
-- Stores attack signatures DIRECTLY to ai_training_materials/learned_signatures.json
+- Stores attack signatures DIRECTLY to ai_training_materials/ai_signatures/learned_signatures.json
 - Stores complete attacks to ai_training_materials/global_attacks.json
 - AI reads from these files for training (simple, fast, no credentials needed)
 - NO exploit code stored (deleted immediately at source)

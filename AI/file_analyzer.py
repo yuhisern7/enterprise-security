@@ -7,6 +7,9 @@ import os
 import hashlib
 import subprocess
 import json
+import mimetypes
+import platform
+import shutil
 from datetime import datetime
 from typing import Dict, Optional
 
@@ -136,7 +139,7 @@ class FileAnalyzer:
         """Check if hash is known malicious (checks local threat intel)"""
         try:
             # Check if hash exists in threat log
-            sig_file = os.path.join(os.path.dirname(__file__), 'learned_signatures.json')
+            sig_file = os.path.join(os.path.dirname(__file__), '..', 'relay', 'ai_training_materials', 'ai_signatures', 'learned_signatures.json')
             if os.path.exists(sig_file):
                 with open(sig_file, 'r') as f:
                     data = json.load(f)

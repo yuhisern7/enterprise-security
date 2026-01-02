@@ -7,24 +7,32 @@ This folder contains curated datasets for training ML security models on the rel
 
 ---
 
-## 📂 Folder Structure
+## 📂 Folder Structure (Organized)
 
 ```
 ai_training_materials/
-├── exploitdb/               # ExploitDB database (824 MB)
+├── ai_signatures/           # Attack signature patterns (910 KB)
+│   ├── learned_signatures.json
+│   └── README.md
+├── trained_models/          # Pre-trained ML models (280 KB, distributed)
+│   ├── anomaly_detector.pkl
+│   ├── threat_classifier.pkl
+│   ├── ip_reputation.pkl
+│   ├── feature_scaler.pkl
+│   └── README.md
+├── threat_intelligence/     # Crawled threat intel data
+│   ├── threat_intelligence_crawled.json
+│   ├── crawled_YYYYMMDD.json
+│   └── README.md
+├── training_datasets/       # CSV training data (relay only)
+│   ├── sample_dataset.csv
+│   └── README.md
+├── exploitdb/               # ExploitDB database (824 MB, relay only)
 │   ├── exploits/            # 50,000+ exploit scripts
 │   ├── shellcodes/          # Shellcode database
 │   ├── files_exploits.csv   # Exploit metadata
 │   └── files_shellcodes.csv
-├── global_attacks.json      # Real attacks from subscribers worldwide
-├── learned_signatures.json  # Learned attack patterns
-├── malware_hashes.json      # Known malware signatures
-├── ml_models/               # Trained models (distributed to subscribers)
-│   ├── anomaly_detector.pkl
-│   ├── threat_classifier.pkl
-│   ├── ip_reputation.pkl
-│   └── feature_scaler.pkl
-└── crawlers/                # Web scrapers for threat intelligence
+└── learned_signatures.json  # Symlink → ai_signatures/learned_signatures.json
 ```
 
 ---

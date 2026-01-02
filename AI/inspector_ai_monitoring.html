@@ -3409,10 +3409,6 @@
         }
       });
       
-      // ============================================================================
-      // SECTION 6: SECURITY OVERVIEW - LIVE STATISTICS
-      // ============================================================================
-      
       // Load system status
       async function loadSystemStatus() {
         try {
@@ -3765,10 +3761,6 @@
         }, 3000);
       }
       
-      // ============================================================================
-      // SECTION 2: AI TRAINING NETWORK - SHARED MACHINE LEARNING
-      // ============================================================================
-      
       // P2P Mesh Network Status
       async function loadP2PStatus() {
         try {
@@ -3967,11 +3959,7 @@
         loadP2PStatus(); // Redirect to P2P status
       }
       
-      // ============================================================================
-      // SECTION 3: NETWORK DEVICES
-      // ============================================================================
-      
-      // Connected Devices Monitoring
+      // Connected Devices Table
       async function loadConnectedDevices() {
         try {
           const response = await fetch('/api/connected-devices');
@@ -4404,10 +4392,6 @@
       // ADAPTIVE HONEYPOT FUNCTIONS
       // ========================================
       
-      // ============================================================================
-      // SECTION 10: ADAPTIVE HONEYPOT
-      // ============================================================================
-      
       // Load available honeypot personas
       async function loadHoneypotPersonas() {
         try {
@@ -4605,7 +4589,7 @@
         loadDeviceHistory();
         loadSystemHealth();
         
-        // Load sections 18-24
+        // Load deep inspection sections
         loadTrafficAnalysis();
         loadDNSGeoSecurity();
         loadUserIdentityMonitoring();
@@ -4615,16 +4599,16 @@
         loadAPIStats();
         
         // Load new/enhanced sections
-        loadAssetInventory();             // Section 3 Enhancement
-        loadZeroTrust();                  // Section 20 Enhancement + DLP
-        loadSOARWorkflows();              // Section 24 Enhancement + Attack Simulation
-        loadVulnerabilityManagement();    // Section 25 Enhancement + Dark Web
-        loadCryptoMiningDetection();      // Section 26 NEW
-        loadDarkWebMonitoring();          // Section 27 NEW
-        loadAttackSimulation();           // Section 28 NEW
-        loadCloudSecurityPosture();       // Section 29 NEW
-        loadDataLossPrevention();         // Section 30 NEW
-        loadBackupRecovery();             // Section 31 NEW
+        loadAssetInventory();
+        loadZeroTrust();
+        loadSOARWorkflows();
+        loadVulnerabilityManagement();
+        loadCryptoMiningDetection();
+        loadDarkWebMonitoring();
+        loadAttackSimulation();
+        loadCloudSecurityPosture();
+        loadDataLossPrevention();
+        loadBackupRecovery();
         
         // Refresh honeypot status every 30 seconds
         setInterval(loadHoneypotStatus, 30000);
@@ -4660,10 +4644,7 @@
         setInterval(loadBackupRecovery, 30000);
       });
 
-      // ============================================================================
-      // SECTION 3: NETWORK TOPOLOGY VISUALIZATION (Part of Network Devices Tab)
-      // ============================================================================
-
+      
       function layoutTopology(nodes) {
         const width = 720;
         const height = 420;
@@ -4858,9 +4839,6 @@
         }
       }
       
-      // ============================================================================
-      // SECTION 15: COMPLIANCE DASHBOARD
-      // ============================================================================
       
       async function loadComplianceData() {
         try {
@@ -4938,10 +4916,6 @@
       // SIGNATURE EXTRACTION DASHBOARD
       // ========================================
       
-      // ============================================================================
-      // SECTION 13: SIGNATURE EXTRACTION
-      // ============================================================================
-      
       async function loadSignatureExtractionData() {
         try {
           const response = await fetch('/api/signatures/extracted');
@@ -5002,7 +4976,7 @@
       // PORT SCANNING RESULTS
       // ========================================
       
-      // SECTION 3: Port Scan Data (Network Devices)
+      // Port Scan Data (Network Devices)
       async function loadPortScanData() {
         try {
           const response = await fetch('/api/connected-devices');
@@ -5100,7 +5074,7 @@
       // DEVICE CONNECTION HISTORY
       // ========================================
       
-      // SECTION 3: Device History (Network Devices)
+      // Device History (Network Devices)
       async function clearDeviceHistory() {
         if (!confirm('⚠️ Are you sure you want to clear ALL device history?\n\nThis will permanently delete all 7-day connection records.')) {
           return;
@@ -5178,10 +5152,6 @@
       // SYSTEM HEALTH DASHBOARD
       // ========================================
       
-      // ============================================================================
-      // SECTION 14: SYSTEM HEALTH
-      // ============================================================================
-      
       async function loadSystemHealth() {
         try {
           const response = await fetch('/api/system-status');
@@ -5227,9 +5197,6 @@
         }
       }
       
-      // ============================================================================
-      // SECTION 18: TRAFFIC ANALYSIS & INSPECTION
-      // ============================================================================
       
       async function loadTrafficAnalysis() {
         try {
@@ -5258,9 +5225,6 @@
         }
       }
       
-      // ============================================================================
-      // SECTION 19: DNS & GEO SECURITY
-      // ============================================================================
       
       async function loadDNSGeoSecurity() {
         try {
@@ -5304,9 +5268,6 @@
         }
       }
       
-      // ============================================================================
-      // SECTION 20: USER & IDENTITY MONITORING
-      // ============================================================================
       
       async function loadUserIdentityMonitoring() {
         try {
@@ -5327,9 +5288,6 @@
         }
       }
       
-      // ============================================================================
-      // SECTION 21: FORENSICS & THREAT HUNTING
-      // ============================================================================
       
       async function runThreatHunt() {
         const query = document.getElementById('hunt-query').value;
@@ -5398,9 +5356,6 @@
         }
       }
       
-      // ============================================================================
-      // SECTION 22: SANDBOX DETONATION
-      // ============================================================================
       
       async function detonatefile() {
         const fileInput = document.getElementById('sandbox-file');
@@ -5487,10 +5442,7 @@
         }
       }
       
-      // ============================================================================
-      // SECTION 23: EMAIL/SMS ALERTS
-      // ============================================================================
-      
+      // Alert delivery (email/SMS)
       async function saveEmailConfig() {
         const config = {
           smtp_server: document.getElementById('smtp-server').value,
@@ -5561,10 +5513,7 @@
         }
       }
       
-      // ============================================================================
-      // SECTION 24: API FOR SOAR INTEGRATION
-      // ============================================================================
-      
+      // SOAR API integration
       async function generateAPIKey() {
         try {
           const response = await fetch('/api/soar/generate-key', {
@@ -5663,10 +5612,7 @@
         }
       }
       
-      // ============================================================================
-      // SECTION 3 ENHANCEMENT: ASSET INVENTORY (TAB 5)
-      // ============================================================================
-      
+      // Asset inventory (Tab 5)
       async function loadAssetInventory() {
         const statusBox = document.getElementById('asset-scan-status');
         const progress = document.getElementById('asset-scan-progress');
@@ -5760,10 +5706,7 @@
         window.open('/api/assets/inventory', '_blank');
       }
       
-      // ============================================================================
-      // SECTION 20 ENHANCEMENT: ZERO TRUST
-      // ============================================================================
-      
+      // Zero Trust enhancements
       async function loadZeroTrust() {
         try {
           const response = await fetch('/api/zero-trust/scores');
@@ -5801,10 +5744,7 @@
         window.open('/api/zero-trust/violations', '_blank');
       }
       
-      // ============================================================================
-      // SECTION 24 ENHANCEMENT: SOAR WORKFLOWS
-      // ============================================================================
-      
+      // SOAR workflows
       async function loadSOARWorkflows() {
         try {
           const response = await fetch('/api/soar/workflows');
@@ -5897,10 +5837,7 @@
         }
       }
       
-      // ============================================================================
-      // SECTION 25: VULNERABILITY MANAGEMENT
-      // ============================================================================
-      
+      // Vulnerability management
       async function loadVulnerabilityManagement() {
         try {
           const response = await fetch('/api/vulnerabilities/scan');
@@ -5962,10 +5899,7 @@
         alert('✅ Dependency scan complete!');
       }
       
-      // ============================================================================
-      // SECTION 29: CLOUD SECURITY POSTURE MANAGEMENT
-      // ============================================================================
-      
+      // Cloud security posture management
       async function loadCloudSecurityPosture() {
         try {
           const response = await fetch('/api/cloud/posture');
@@ -6026,7 +5960,7 @@
         }
       }
       
-      // SECTION 26: CRYPTOCURRENCY MINING DETECTION
+      // Cryptocurrency mining detection
       async function loadCryptoMiningDetection() {
         try {
           const response = await fetch('/api/traffic/crypto-mining');
@@ -6078,7 +6012,7 @@
         }
       }
       
-      // SECTION 27: DARK WEB MONITORING
+      // Dark web monitoring
       async function loadDarkWebMonitoring() {
         try {
           const response = await fetch('/api/vulnerabilities/darkweb');
@@ -6121,7 +6055,7 @@
         }
       }
       
-      // SECTION 28: ATTACK SIMULATION
+      // Attack simulation
       async function loadAttackSimulation() {
         try {
           const response = await fetch('/api/soar/attack-simulation');
@@ -6159,7 +6093,7 @@
         }
       }
       
-      // SECTION 30: DATA LOSS PREVENTION
+      // Data loss prevention
       async function loadDataLossPrevention() {
         try {
           const response = await fetch('/api/zero-trust/dlp');
@@ -6211,7 +6145,7 @@
         }
       }
       
-      // SECTION 33: BACKUP & RECOVERY
+      // Backup and recovery
       async function loadBackupRecovery() {
         try {
           const response = await fetch('/api/backup/status');

@@ -13,7 +13,6 @@ import re
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 from collections import defaultdict
-import psutil
 
 class ZeroTrustMonitor:
     """Zero Trust security monitoring, device trust scoring, and Data Loss Prevention"""

@@ -11,7 +11,11 @@ import shutil
 from datetime import datetime
 from collections import defaultdict
 from typing import Dict, List
-import psutil
+
+try:
+    import psutil  # type: ignore
+except ImportError:
+    psutil = None
 
 class UserTracker:
     """Track users on the network using real system data"""
@@ -113,11 +117,12 @@ class UserTracker:
         
         # Count active sessions using psutil (cross-platform)
         active_sessions = 0
-        try:
-            connections = psutil.net_connections(kind='inet')
-            active_sessions = len([c for c in connections if c.status == 'ESTABLISHED'])
-        except:
-            pass
+        if psutil is not None:
+            try:
+                connections = psutil.net_connections(kind='inet')
+                active_sessions = len([c for c in connections if c.status == 'ESTABLISHED'])
+            except:
+                pass
         
         # Insider threats are critical suspicious activities
         insider_threats = len([a for a in self.suspicious_activities if 'blocked threat' in a.get('reason', '')])

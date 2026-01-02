@@ -10,7 +10,11 @@ import platform
 import shutil
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-import psutil
+
+try:
+    import psutil  # type: ignore
+except ImportError:
+    psutil = None
 
 class BackupRecoveryMonitor:
     """Monitor backup status and ransomware resilience"""
@@ -56,6 +60,10 @@ class BackupRecoveryMonitor:
         """Check status of backup jobs (cross-platform)"""
         backup_status = []
         system = platform.system()
+
+        # psutil is required for disk usage checks
+        if psutil is None:
+            return backup_status
         
         # Platform-specific backup directories
         backup_locations = []
@@ -85,14 +93,14 @@ class BackupRecoveryMonitor:
                     stat = os.stat(location)
                     last_backup = datetime.fromtimestamp(stat.st_mtime)
                     hours_since = (datetime.now() - last_backup).total_seconds() / 3600
-                        
-                        backup_status.append({
-                            'location': location,
-                            'size': size,
-                            'last_backup': last_backup.isoformat(),
-                            'hours_since_backup': round(hours_since, 1),
-                            'status': 'success' if hours_since < 24 else 'warning'
-                        })
+                    
+                    backup_status.append({
+                        'location': location,
+                        'size': size,
+                        'last_backup': last_backup.isoformat(),
+                        'hours_since_backup': round(hours_since, 1),
+                        'status': 'success' if hours_since < 24 else 'warning'
+                    })
                 except Exception as e:
                     print(f"[BACKUP] Check error for {location}: {e}")
         

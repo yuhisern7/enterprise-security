@@ -12,7 +12,11 @@ import shutil
 from datetime import datetime
 from collections import defaultdict
 from typing import Dict, List, Optional
-import psutil
+
+try:
+    import psutil  # type: ignore
+except ImportError:
+    psutil = None
 
 class TrafficAnalyzer:
     """Real-time traffic analysis using system network tools"""
@@ -50,6 +54,9 @@ class TrafficAnalyzer:
         
     def get_interface(self) -> Optional[str]:
         """Get the primary network interface (cross-platform)"""
+        if psutil is None:
+            return 'Ethernet' if platform.system() == 'Windows' else ('en0' if platform.system() == 'Darwin' else 'eth0')
+
         try:
             # Use psutil to get default interface (works on all platforms)
             net_if_stats = psutil.net_if_stats()
@@ -73,6 +80,9 @@ class TrafficAnalyzer:
     
     def count_packets(self) -> int:
         """Count total packets processed on interface (cross-platform)"""
+        if psutil is None:
+            return 0
+
         try:
             interface = self.get_interface()
             # Use psutil instead of /sys/class/net (works on all platforms)
@@ -88,6 +98,15 @@ class TrafficAnalyzer:
         protocols = defaultdict(int)
         encrypted = 0
         total = 0
+
+        if psutil is None:
+            return {
+                'total_packets': 0,
+                'protocols': {},
+                'encrypted_percent': 0,
+                'blocked_apps': {},
+                'total_connections': 0
+            }
         
         try:
             # Get active connections using psutil (cross-platform)
@@ -106,10 +125,19 @@ class TrafficAnalyzer:
                 elif conn.type == 2:  # SOCK_DGRAM = UDP
                     protocols['UDP'] += 1
                     
-                    # Identify application-aware blocking targets
-                    if 'tor' in line.lower():
+                    # Identify application-aware blocking targets using process + ports
+                    proc_name = ''
+                    if conn.pid:
+                        try:
+                            proc_name = psutil.Process(conn.pid).name().lower()
+                        except (psutil.NoSuchProcess, psutil.AccessDenied):
+                            proc_name = ''
+                    rport = conn.raddr.port if conn.raddr else None
+                    lport = conn.laddr.port if conn.laddr else None
+                    
+                    if proc_name and 'tor' in proc_name:
                         self.blocked_apps['Tor'] += 1
-                    elif ':6881' in line or ':6889' in line:  # BitTorrent
+                    elif rport in (6881, 6889) or lport in (6881, 6889):  # BitTorrent
                         self.blocked_apps['BitTorrent'] += 1
         except Exception as e:
             print(f"[TRAFFIC] Error analyzing connections: {e}")
@@ -127,6 +155,8 @@ class TrafficAnalyzer:
     def detect_cpu_gpu_spikes(self) -> List[Dict]:
         """Detect unusual CPU/GPU usage indicating mining"""
         spikes = []
+        if psutil is None:
+            return spikes
         try:
             # Check CPU usage per process
             for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_percent']):
@@ -157,6 +187,8 @@ class TrafficAnalyzer:
     def detect_mining_network_traffic(self) -> List[Dict]:
         """Detect mining pool connections and blockchain traffic (cross-platform)"""
         mining_traffic = []
+        if psutil is None:
+            return mining_traffic
         
         try:
             # Use psutil instead of ss (cross-platform)
@@ -186,6 +218,8 @@ class TrafficAnalyzer:
     def scan_for_miner_processes(self) -> List[Dict]:
         """Scan running processes for known miner signatures"""
         detected_miners = []
+        if psutil is None:
+            return detected_miners
         
         try:
             for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'cpu_percent']):
