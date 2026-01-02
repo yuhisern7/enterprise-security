@@ -15,20 +15,33 @@ import asyncio
 import json
 import logging
 import os
+import sys
 from datetime import datetime
 from typing import Set, Dict, Any
 import websockets
 from websockets.server import WebSocketServerProtocol
 
+# Import cryptographic security (CRITICAL: Message verification)
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+try:
+    from AI.crypto_security import MessageSecurity
+    message_security = MessageSecurity(key_dir="ai_training_materials/crypto_keys")
+    CRYPTO_ENABLED = True
+    logger_temp = logging.getLogger(__name__)
+    logger_temp.info("🔐 Cryptographic message verification ENABLED")
+except Exception as e:
+    CRYPTO_ENABLED = False
+    message_security = None
+    logger_temp = logging.getLogger(__name__)
+    logger_temp.warning(f"⚠️  Crypto verification DISABLED: {e}")
+
 # Import file-based signature sync (no database needed)
 try:
     from signature_sync import handle_signature_upload, sync_service
     SIGNATURE_SYNC_ENABLED = True
-    logger_temp = logging.getLogger(__name__)
     logger_temp.info("✅ File-based signature storage enabled")
 except Exception as e:
     SIGNATURE_SYNC_ENABLED = False
-    logger_temp = logging.getLogger(__name__)
     logger_temp.warning(f"⚠️  Signature sync not available: {e}")
 
 logging.basicConfig(
@@ -39,6 +52,10 @@ logger = logging.getLogger(__name__)
 
 # Connected clients (all security containers worldwide)
 connected_clients: Set[WebSocketServerProtocol] = set()
+
+# Peer authentication tracking
+peer_public_keys: Dict[str, str] = {}  # peer_id -> public_key_pem
+authenticated_peers: Dict[WebSocketServerProtocol, str] = {}  # websocket -> peer_id
 
 # Centralized Attack Database (stored in ai_training_materials)
 ATTACK_DB_PATH = "ai_training_materials/global_attacks.json"
@@ -51,6 +68,8 @@ stats = {
     "messages_relayed": 0,
     "threats_shared": 0,
     "attacks_logged": 0,
+    "messages_rejected": 0,  # NEW: Track rejected messages
+    "authentication_failures": 0,  # NEW: Track auth failures
     "start_time": datetime.utcnow().isoformat()
 }
 
@@ -92,6 +111,12 @@ async def register_client(websocket: WebSocketServerProtocol):
 async def unregister_client(websocket: WebSocketServerProtocol):
     """Unregister a disconnected security container"""
     connected_clients.discard(websocket)
+    
+    # Remove from authenticated peers
+    if websocket in authenticated_peers:
+        peer_id = authenticated_peers.pop(websocket)
+        logger.debug(f"Removed authenticated peer: {peer_id}")
+    
     stats["active_connections"] = len(connected_clients)
     
     client_info = f"{websocket.remote_address[0]}:{websocket.remote_address[1]}"
@@ -266,6 +291,29 @@ async def handle_client(websocket: WebSocketServerProtocol):
         async for message in websocket:
             try:
                 data = json.loads(message)
+                
+                # CRYPTOGRAPHIC VERIFICATION (if enabled)
+                if CRYPTO_ENABLED and data.get("type") not in ["heartbeat", "stats"]:
+                    is_valid, reason = message_security.verify_message(data)
+                    
+                    if not is_valid:
+                        stats["messages_rejected"] += 1
+                        stats["authentication_failures"] += 1
+                        logger.warning(f"🚫 REJECTED message from {websocket.remote_address[0]}: {reason}")
+                        
+                        # Send rejection notification
+                        await websocket.send(json.dumps({
+                            "type": "error",
+                            "error": "Message verification failed",
+                            "reason": reason
+                        }))
+                        continue  # Skip processing this message
+                    
+                    # Track authenticated peer
+                    peer_id = data.get("peer_id")
+                    if peer_id:
+                        authenticated_peers[websocket] = peer_id
+                        logger.debug(f"✅ Verified message from peer: {peer_id}")
                 
                 # Handle different message types
                 if data.get("type") == "heartbeat":
