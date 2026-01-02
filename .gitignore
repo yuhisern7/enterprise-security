@@ -1,5 +1,6 @@
 # Environment variables (contains API keys)
 .env
+relay/.env
 
 # Python cache
 __pycache__/
