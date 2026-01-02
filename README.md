@@ -395,12 +395,11 @@ python test_phase5_integration.py      # Ensemble decision tests ✅
 - **Documentation:** Full guides in `/docs` folder
 
 ### Commercial & Premium
-- **Premium Relay:** $25/month - Global mesh updates, 6-hour model refresh, priority support
+- **Premium Relay:** $50 USD each month - Global mesh updates, 6-hour model refresh, priority support, the secret mesh server uses GPU to power the AI maximum capabilities.
 - **Enterprise Support:** Custom SLAs, dedicated deployment assistance, private relay option
 - **Contact:** 
   - WhatsApp: +60172791717
   - Email: yuhisern@protonmail.com
-  - Security Disclosures: yuhis.ern@protonmail.com (PGP available)
 
 ---
 
