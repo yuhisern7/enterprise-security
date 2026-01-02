@@ -21,40 +21,40 @@ from typing import Set, Dict, Any
 import websockets
 from websockets.server import WebSocketServerProtocol
 
-# Import cryptographic security (CRITICAL: Message verification)
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-# Check if crypto is enabled from environment variable
-CRYPTO_ENABLED = os.getenv('CRYPTO_ENABLED', 'true').lower() == 'true'
-logger_temp = logging.getLogger(__name__)
-
-if CRYPTO_ENABLED:
-    try:
-        from AI.crypto_security import MessageSecurity
-        message_security = MessageSecurity(key_dir="ai_training_materials/crypto_keys")
-        logger_temp.info("🔐 Cryptographic message verification ENABLED")
-    except Exception as e:
-        CRYPTO_ENABLED = False
-        message_security = None
-        logger_temp.warning(f"⚠️  Crypto verification DISABLED (import failed): {e}")
-else:
-    message_security = None
-    logger_temp.info("ℹ️  Crypto verification DISABLED via environment variable")
-
-# Import file-based signature sync (no database needed)
-try:
-    from signature_sync import handle_signature_upload, sync_service
-    SIGNATURE_SYNC_ENABLED = True
-    logger_temp.info("✅ File-based signature storage enabled")
-except Exception as e:
-    SIGNATURE_SYNC_ENABLED = False
-    logger_temp.warning(f"⚠️  Signature sync not available: {e}")
-
+# Configure logging FIRST (before any log messages)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Import cryptographic security (CRITICAL: Message verification)
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+# Check if crypto is enabled from environment variable
+CRYPTO_ENABLED = os.getenv('CRYPTO_ENABLED', 'true').lower() == 'true'
+
+if CRYPTO_ENABLED:
+    try:
+        from AI.crypto_security import MessageSecurity
+        message_security = MessageSecurity(key_dir="ai_training_materials/crypto_keys")
+        logger.info("🔐 Cryptographic message verification ENABLED")
+    except Exception as e:
+        CRYPTO_ENABLED = False
+        message_security = None
+        logger.warning(f"⚠️  Crypto verification DISABLED (import failed): {e}")
+else:
+    message_security = None
+    logger.info("ℹ️  Crypto verification DISABLED via environment variable")
+
+# Import file-based signature sync (no database needed)
+try:
+    from signature_sync import handle_signature_upload, sync_service
+    SIGNATURE_SYNC_ENABLED = True
+    logger.info("✅ File-based signature storage enabled")
+except Exception as e:
+    SIGNATURE_SYNC_ENABLED = False
+    logger.warning(f"⚠️  Signature sync not available: {e}")
 
 # Connected clients (all security containers worldwide)
 connected_clients: Set[WebSocketServerProtocol] = set()
