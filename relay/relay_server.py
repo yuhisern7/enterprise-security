@@ -255,6 +255,7 @@ async def broadcast_message(message: dict, sender: WebSocketServerProtocol):
         # Store complete attack to global_attacks.json
         if SIGNATURE_SYNC_ENABLED:
             try:
+                logger.info(f"💾 Storing attack to global_attacks.json...")
                 sync_service.store_global_attack(message)
             except Exception as e:
                 logger.error(f"Failed to store attack: {e}")

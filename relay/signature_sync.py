@@ -329,7 +329,7 @@ class SignatureSyncService:
             with open(self.global_attacks_file, 'w') as f:
                 json.dump(attacks, f, indent=2)
             
-            logger.debug(f"📝 Saved attack to {self.global_attacks_file} (Total: {len(attacks)})")
+            logger.info(f"📝 Saved attack to {self.global_attacks_file} (Total: {len(attacks)})")
             
         except Exception as e:
             logger.error(f"Failed to store attack to file: {e}")
