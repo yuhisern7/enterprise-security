@@ -2063,7 +2063,7 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
         try:
             behavioral_heuristics = get_behavioral_heuristics()
             if behavioral_heuristics:
-                metrics = behavioral_heuristics.get_metrics(ip_address)
+                metrics = behavioral_heuristics.get_entity_metrics(ip_address)
                 if metrics:
                     behavioral_data = {
                         "risk_score": metrics.risk_score,

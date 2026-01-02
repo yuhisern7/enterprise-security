@@ -465,9 +465,21 @@ def save_performance_metrics() -> None:
         os.makedirs(os.path.dirname(_PERFORMANCE_METRICS_FILE), exist_ok=True)
         
         # Convert to serializable format
+        def serialize_metrics(obj):
+            """Convert datetime objects to ISO format strings."""
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            elif isinstance(obj, dict):
+                return {k: serialize_metrics(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [serialize_metrics(item) for item in obj]
+            elif isinstance(obj, tuple):
+                return tuple(serialize_metrics(item) for item in obj)
+            return obj
+        
         data = {
-            'metrics': dict(_performance_metrics),
-            'network_stats': _network_stats,
+            'metrics': serialize_metrics(dict(_performance_metrics)),
+            'network_stats': serialize_metrics(_network_stats),
             'last_updated': _get_current_time().isoformat()
         }
         
