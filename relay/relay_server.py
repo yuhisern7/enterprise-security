@@ -23,17 +23,23 @@ from websockets.server import WebSocketServerProtocol
 
 # Import cryptographic security (CRITICAL: Message verification)
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-try:
-    from AI.crypto_security import MessageSecurity
-    message_security = MessageSecurity(key_dir="ai_training_materials/crypto_keys")
-    CRYPTO_ENABLED = True
-    logger_temp = logging.getLogger(__name__)
-    logger_temp.info("🔐 Cryptographic message verification ENABLED")
-except Exception as e:
-    CRYPTO_ENABLED = False
+
+# Check if crypto is enabled from environment variable
+CRYPTO_ENABLED = os.getenv('CRYPTO_ENABLED', 'true').lower() == 'true'
+logger_temp = logging.getLogger(__name__)
+
+if CRYPTO_ENABLED:
+    try:
+        from AI.crypto_security import MessageSecurity
+        message_security = MessageSecurity(key_dir="ai_training_materials/crypto_keys")
+        logger_temp.info("🔐 Cryptographic message verification ENABLED")
+    except Exception as e:
+        CRYPTO_ENABLED = False
+        message_security = None
+        logger_temp.warning(f"⚠️  Crypto verification DISABLED (import failed): {e}")
+else:
     message_security = None
-    logger_temp = logging.getLogger(__name__)
-    logger_temp.warning(f"⚠️  Crypto verification DISABLED: {e}")
+    logger_temp.info("ℹ️  Crypto verification DISABLED via environment variable")
 
 # Import file-based signature sync (no database needed)
 try:
