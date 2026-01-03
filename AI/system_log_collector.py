@@ -63,61 +63,86 @@ class SystemLogCollector:
         }
         
         try:
-            # 1. System crashes and kernel panics (dmesg)
+            # 1. System crashes and kernel panics (dmesg) - works in containers
             try:
                 result = subprocess.run(['dmesg', '-T'], capture_output=True, text=True, timeout=5)
                 if result.returncode == 0:
+                    crash_keywords = ['panic', 'oops', 'bug', 'crash', 'segfault', 'killed', 'exception', 'error']
                     for line in result.stdout.splitlines()[-self.max_entries:]:
-                        if any(keyword in line.lower() for keyword in ['panic', 'oops', 'bug', 'crash', 'segfault']):
-                            logs["crashes"].append({
+                        line_lower = line.lower()
+                        if any(keyword in line_lower for keyword in crash_keywords):
+                            logs["errors"].append({
                                 "timestamp": self._extract_timestamp(line),
-                                "message": line,
-                                "severity": "critical"
+                                "message": line[:300],
+                                "severity": "critical" if 'panic' in line_lower or 'oops' in line_lower else "error"
                             })
             except Exception as e:
                 logger.debug(f"[LINUX_LOGS] dmesg not available: {e}")
             
-            # 2. journalctl for systemd logs
-            try:
-                since_time = f"{hours}h ago"
-                result = subprocess.run(
-                    ['journalctl', '--since', since_time, '--no-pager', '-n', str(self.max_entries)],
-                    capture_output=True, text=True, timeout=10
-                )
-                if result.returncode == 0:
-                    for line in result.stdout.splitlines():
-                        if 'Failed' in line or 'failed' in line:
-                            logs["services"].append({
-                                "timestamp": self._extract_timestamp(line),
-                                "message": line.strip(),
-                                "severity": "error"
-                            })
-                        elif any(keyword in line.lower() for keyword in ['error', 'critical', 'alert', 'emergency']):
-                            logs["errors"].append({
-                                "timestamp": self._extract_timestamp(line),
-                                "message": line.strip(),
-                                "severity": "error"
-                            })
-            except Exception as e:
-                logger.debug(f"[LINUX_LOGS] journalctl not available: {e}")
+            # 2. Check if running in Docker - collect container-specific logs
+            in_container = os.path.exists('/.dockerenv') or os.path.exists('/app')
             
-            # 3. Authentication logs
-            auth_files = ['/var/log/auth.log', '/var/log/secure']
-            for auth_file in auth_files:
-                if os.path.exists(auth_file):
-                    try:
-                        with open(auth_file, 'r') as f:
-                            lines = f.readlines()[-self.max_entries:]
-                            for line in lines:
-                                if any(keyword in line.lower() for keyword in ['failed', 'authentication failure', 'invalid user']):
-                                    logs["authentication"].append({
+            if in_container:
+                # Container mode - collect Python app logs and Docker-visible errors
+                logs["errors"].append({
+                    "timestamp": datetime.now().isoformat(),
+                    "message": "Running in Docker container - showing container-level logs and kernel messages from dmesg",
+                    "severity": "info"
+                })
+                
+                # Check for recent Python errors in current process
+                try:
+                    log_file = '/app/server/logs/app.log' if os.path.exists('/app/server/logs') else None
+                    if log_file and os.path.exists(log_file):
+                        with open(log_file, 'r') as f:
+                            for line in f.readlines()[-100:]:
+                                if 'ERROR' in line or 'CRITICAL' in line or 'Exception' in line:
+                                    logs["errors"].append({
                                         "timestamp": self._extract_timestamp(line),
-                                        "message": line.strip(),
-                                        "severity": "warning"
+                                        "message": line.strip()[:300],
+                                        "severity": "error"
                                     })
-                    except PermissionError:
-                        logger.debug(f"[LINUX_LOGS] No permission to read {auth_file}")
-                    break
+                except Exception as e:
+                    logger.debug(f"[LINUX_LOGS] Cannot read app logs: {e}")
+            
+            else:
+                # Host mode - full system log access
+                # 2. journalctl for systemd logs (host only)
+                try:
+                    since_time = f"{hours}h ago"
+                    result = subprocess.run(
+                        ['journalctl', '--since', since_time, '--no-pager', '-n', str(self.max_entries)],
+                        capture_output=True, text=True, timeout=10
+                    )
+                    if result.returncode == 0:
+                        for line in result.stdout.splitlines():
+                            line_lower = line.lower()
+                            if 'failed' in line_lower or 'error' in line_lower:
+                                logs["services"].append({
+                                    "timestamp": self._extract_timestamp(line),
+                                    "message": line.strip()[:300],
+                                    "severity": "error"
+                                })
+                except Exception as e:
+                    logger.debug(f"[LINUX_LOGS] journalctl not available: {e}")
+                
+                # 3. Authentication logs (host only)
+                auth_files = ['/var/log/auth.log', '/var/log/secure']
+                for auth_file in auth_files:
+                    if os.path.exists(auth_file):
+                        try:
+                            with open(auth_file, 'r') as f:
+                                lines = f.readlines()[-self.max_entries:]
+                                for line in lines:
+                                    if any(keyword in line.lower() for keyword in ['failed', 'authentication failure', 'invalid user']):
+                                        logs["authentication"].append({
+                                            "timestamp": self._extract_timestamp(line),
+                                            "message": line.strip()[:300],
+                                            "severity": "warning"
+                                        })
+                        except PermissionError:
+                            logger.debug(f"[LINUX_LOGS] No permission to read {auth_file}")
+                        break
             
             # Calculate total count
             logs["total_count"] = sum(len(logs[key]) for key in logs if key != "total_count")

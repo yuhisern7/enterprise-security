@@ -5469,8 +5469,8 @@
             } else {
               eventsList.innerHTML = `
                 <div style="text-align: center; padding: 2rem; color: #8a92b6;">
-                  <p style="margin: 0; font-size: 1.1rem;">✅ No ${osType.toUpperCase()} system errors in last 7 days</p>
-                  <p style="margin: 0.5rem 0 0; font-size: 0.85rem;">System is running smoothly</p>
+                  <p style="margin: 0; font-size: 1.1rem;">ℹ️ Running in Docker - Limited System Log Access</p>
+                  <p style="margin: 0.5rem 0 0; font-size: 0.85rem;">Container can see kernel messages (dmesg) but not full host system logs (journalctl, /var/log).<br>For complete ${osType.toUpperCase()} logs, run the collector on the host machine.</p>
                 </div>
               `;
             }
