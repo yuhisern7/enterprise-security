@@ -172,7 +172,7 @@ open https://localhost:60000
 
 **Open Source:** MIT License - Free forever
 
-**Professional Support:** $500/month per node (deployment + SLA)
+**Professional Support:** $50/month per node (deployment + SLA)
 
 **Enterprise:** Custom pricing (private relay, integrations)
 
