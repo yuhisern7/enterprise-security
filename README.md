@@ -52,20 +52,47 @@
 ---
 
 ## 📊 32-Section Real-Time Dashboard
+**🤖 AI has 18 detection abilities • Dashboard has 32 monitoring sections**
 
-**Threat Detection (7):** Live feed, attack stats, blocked IPs, AI status, false positive filter, incident timeline, threat intel feeds
+### **🧠 Core AI Intelligence (5 sections)**
+- **Section 1:** Complete AI feature overview (18 detection abilities)
+- **Section 5:** ML Models (4 tabs: Models/Training, Byzantine Defense, Model Lineage, Deterministic Testing)
+- **Section 11:** Automated signature extraction
+- **Section 14:** Attack chain visualization (Graph Intelligence)
+- **Section 15:** Decision explainability engine
 
-**Advanced AI (7):** Behavioral analysis, LSTM sequences, autoencoder, drift detection, network topology 3D, meta decision engine, attack chain graphs, explainability
+### **🌐 Network & Devices (4 sections)**
+- **Section 3:** Live device monitoring + port scanning
+- **Section 12:** System health (3 tabs: Resources, Network, Integrity)
+- **Section 18:** Traffic analysis & DPI
+- **Section 19:** DNS & geo security
 
-**ML Intelligence (4 tabs):** Models/training, Byzantine defense, model lineage, deterministic testing
+### **🎯 Threat Detection & Analysis (8 sections)**
+- **Section 2:** AI training network (P2P federated learning)
+- **Section 4:** VPN/Tor de-anonymization
+- **Section 6-8:** Security overview, threat analysis, IP management
+- **Section 10:** Attack type breakdown
+- **Section 17:** AI crawlers & threat intelligence
+- **Section 26:** Cryptocurrency mining detection
+- **Section 27:** Dark web monitoring
 
-**Deep Analysis (6):** ExploitDB library, traffic DPI, DNS/geo security, UEBA, forensics/hunting, sandbox detonation
+### **🛡️ Defense & Response (5 sections)**
+- **Section 9:** Failed login attempts monitoring
+- **Section 16:** Adaptive honeypot (AI learning sandbox)
+- **Section 21:** Forensics & threat hunting
+- **Section 22:** Sandbox detonation
+- **Section 28:** Attack simulation (Purple Team)
 
-**Enterprise (9):** Alerts, SOAR integration, vulnerability management, crypto mining detection, dark web monitoring, red team simulation, cloud security (CSPM), DLP, backup/recovery
-
-**System & Compliance (4):** System health (3 tabs: resources, network, integrity), compliance (3 tabs: PCI/HIPAA/GDPR/SOC2, threat model, audit summary)
-
-**Governance (NEW):** Emergency kill-switch (4 modes), policy approvals, audit logs (7-day), integrity monitoring
+### **🔐 Identity, Compliance & Enterprise (10 sections)**
+- **Section 13:** Compliance & governance (3 tabs: PCI/HIPAA/GDPR/SOC2, Threat Model, Audit Summary)
+- **Section 20:** User monitoring + Zero Trust
+- **Section 23:** Email/SMS alerts
+- **Section 24:** API & SOAR integration
+- **Section 25:** Vulnerability & supply chain management
+- **Section 29:** Cloud security posture (CSPM)
+- **Section 30:** Data loss prevention (DLP)
+- **Section 31:** Backup & recovery status
+- **Section 32:** Governance & emergency controls (Kill-switch, Policy Approvals, Audit Logs, System Logs)
 
 ---
 
