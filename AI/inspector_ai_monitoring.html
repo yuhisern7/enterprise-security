@@ -1224,10 +1224,29 @@
        <!-- Real AI/ML Model Statistics -->
       <section style="background: linear-gradient(135deg, #1a3d2a, #1a2e1a); border: 2px solid #5fff9f;">
         <h2>📍 Section 5 | 🤖 Real AI/ML Models - Machine Learning Intelligence</h2>
-        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fe2ff;">✅ <strong>EXISTING FEATURE:</strong> ML models for threat detection & pattern recognition</p>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #5fe2ff;">✅ <strong>ENHANCED SECTION:</strong> ML models + Byzantine defense + Model lineage + Deterministic testing (Modules B, C, D)</p>
         <p class="muted" style="margin-bottom: 1rem;">
           ⚡ <strong>Production ML Models Active</strong> - Real scikit-learn models detecting zero-day attacks + pattern classification
         </p>
+        
+        <!-- Tab Navigation -->
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #2a4a3d;">
+          <button onclick="switchMLTab('models')" id="ml-tab-models" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #5fff9f, #5fe2ff); color: #0b1020; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🤖 ML Models
+          </button>
+          <button onclick="switchMLTab('byzantine')" id="ml-tab-byzantine" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🛡️ Byzantine Defense <span style="background: #ff9f5f; color: #0b1020; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.7rem; margin-left: 0.25rem;">Module B</span>
+          </button>
+          <button onclick="switchMLTab('lineage')" id="ml-tab-lineage" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🔗 Model Lineage <span style="background: #5fe2ff; color: #0b1020; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.7rem; margin-left: 0.25rem;">Module C</span>
+          </button>
+          <button onclick="switchMLTab('deterministic')" id="ml-tab-deterministic" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🔬 Testing <span style="background: #9f5fff; color: #0b1020; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.7rem; margin-left: 0.25rem;">Module D</span>
+          </button>
+        </div>
+        
+        <!-- ML Models Tab (Existing Content) -->
+        <div id="ml-content-models" style="display: block;">
         
         {% if ml_stats and ml_stats.ml_enabled %}
         <div class="stats-grid">
@@ -1553,6 +1572,135 @@
           <p class="muted" style="margin: 0.5rem 0 0;">Falling back to rule-based security only. ML features disabled.</p>
         </div>
         {% endif %}
+        </div>
+        <!-- End ML Models Tab -->
+        
+        <!-- Byzantine Defense Tab (Module B) -->
+        <div id="ml-content-byzantine" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="stat-card success">
+              <div class="stat-label">🛡️ AGGREGATION METHOD</div>
+              <div class="stat-value" id="byzantine-method" style="font-size: 1rem;">KRUM</div>
+              <div class="muted">Byzantine-resilient</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">🌐 TOTAL PEERS</div>
+              <div class="stat-value" id="byzantine-total-peers">0</div>
+              <div class="muted">Connected nodes</div>
+            </div>
+            <div class="stat-card warning">
+              <div class="stat-label">⚠️ REJECTED UPDATES</div>
+              <div class="stat-value" id="byzantine-rejected">0</div>
+              <div class="muted">Malicious detected</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">✅ ACCEPTED UPDATES</div>
+              <div class="stat-value" id="byzantine-accepted">0</div>
+              <div class="muted">Trusted updates</div>
+            </div>
+          </div>
+          
+          <div style="background: rgba(255, 184, 95, 0.1); padding: 1.25rem; border-radius: 8px; border: 1px solid #ffb85f; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0 0 0.75rem; color: #ffb85f; font-size: 1rem;">🛡️ What Byzantine Defense Does</h3>
+            <div style="color: #a9b3d4; font-size: 0.9rem; line-height: 1.7;">
+              <strong>Defends Against Poisoned Models:</strong> Prevents malicious peers from corrupting ML models<br>
+              <strong>4 Aggregation Methods:</strong> Krum, Trimmed Mean, Median, Multi-Krum (Byzantine-resilient)<br>
+              <strong>Peer Reputation System:</strong> Tracks trustworthiness over time<br>
+              <strong>Automatic Rejection:</strong> Identifies and blocks suspicious model updates<br>
+              <strong>Use Case:</strong> Prevents attackers from manipulating federated learning
+            </div>
+          </div>
+          
+          <h3 style="color: #ffb85f; font-size: 1rem; margin-bottom: 0.75rem;">📊 Peer Reputation Scores</h3>
+          <div id="byzantine-peer-list" style="background: #1a2135; padding: 1.25rem; border-radius: 8px; border: 1px solid #2a3548; min-height: 200px;">
+            <div class="loading-spinner">Loading peer reputation data...</div>
+          </div>
+        </div>
+        
+        <!-- Model Lineage Tab (Module C) -->
+        <div id="ml-content-lineage" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="stat-card success">
+              <div class="stat-label">🔗 CHAIN INTEGRITY</div>
+              <div class="stat-value" id="lineage-integrity" style="font-size: 1.1rem;">VERIFIED</div>
+              <div class="muted">Blockchain valid</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">📦 TOTAL CHECKPOINTS</div>
+              <div class="stat-value" id="lineage-checkpoints">0</div>
+              <div class="muted">Model versions</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">🔐 SIGNATURES</div>
+              <div class="stat-value" id="lineage-signatures">0</div>
+              <div class="muted">Ed25519 signed</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">⏱️ LAST CHECKPOINT</div>
+              <div class="stat-value" id="lineage-last" style="font-size: 0.9rem;">--</div>
+              <div class="muted">Latest update</div>
+            </div>
+          </div>
+          
+          <div style="background: rgba(95, 226, 255, 0.1); padding: 1.25rem; border-radius: 8px; border: 1px solid #5fe2ff; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0 0 0.75rem; color: #5fe2ff; font-size: 1rem;">🔗 What Model Lineage Does</h3>
+            <div style="color: #a9b3d4; font-size: 0.9rem; line-height: 1.7;">
+              <strong>Immutable Audit Trail:</strong> Blockchain-style tracking of ML model evolution<br>
+              <strong>SHA-256 Hashing:</strong> Cryptographically verifies model integrity<br>
+              <strong>Ed25519 Signatures:</strong> Digital signatures prove authenticity<br>
+              <strong>Provenance Tracking:</strong> Trace any model back to genesis checkpoint<br>
+              <strong>Use Case:</strong> Regulatory compliance, forensic investigation, trust verification
+            </div>
+          </div>
+          
+          <h3 style="color: #5fe2ff; font-size: 1rem; margin-bottom: 0.75rem;">📜 Model Checkpoint History</h3>
+          <div id="lineage-checkpoint-list" style="background: #1a2135; padding: 1.25rem; border-radius: 8px; border: 1px solid #2a3548; min-height: 250px;">
+            <div class="loading-spinner">Loading checkpoint history...</div>
+          </div>
+        </div>
+        
+        <!-- Deterministic Testing Tab (Module D) -->
+        <div id="ml-content-deterministic" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="stat-card success">
+              <div class="stat-label">✅ REPRODUCIBILITY</div>
+              <div class="stat-value" id="deterministic-reproducible" style="font-size: 1rem;">100%</div>
+              <div class="muted">Deterministic mode</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">🧪 TEST RUNS</div>
+              <div class="stat-value" id="deterministic-runs">0</div>
+              <div class="muted">Validation tests</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">📜 PROOF CERTIFICATES</div>
+              <div class="stat-value" id="deterministic-proofs">0</div>
+              <div class="muted">Generated proofs</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-label">🎯 CONSISTENCY</div>
+              <div class="stat-value" id="deterministic-consistency">--</div>
+              <div class="muted">Run-to-run match</div>
+            </div>
+          </div>
+          
+          <div style="background: rgba(159, 95, 255, 0.1); padding: 1.25rem; border-radius: 8px; border: 1px solid #9f5fff; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0 0 0.75rem; color: #9f5fff; font-size: 1rem;">🔬 What Deterministic Testing Does</h3>
+            <div style="color: #a9b3d4; font-size: 0.9rem; line-height: 1.7;">
+              <strong>Reproducible ML Testing:</strong> Fixed random seeds ensure identical results<br>
+              <strong>Cryptographic Proof Certificates:</strong> SHA-256 proofs for scientific validation<br>
+              <strong>Compliance-Ready:</strong> GDPR, HIPAA, SOC 2 regulatory audit support<br>
+              <strong>Test-Only Mode:</strong> Doesn't affect production (pure validation)<br>
+              <strong>Use Case:</strong> Scientific papers, regulatory approval, model verification
+            </div>
+          </div>
+          
+          <h3 style="color: #9f5fff; font-size: 1rem; margin-bottom: 0.75rem;">📊 Recent Test Results</h3>
+          <div id="deterministic-test-list" style="background: #1a2135; padding: 1.25rem; border-radius: 8px; border: 1px solid #2a3548; min-height: 200px;">
+            <div class="loading-spinner">Loading test results...</div>
+          </div>
+        </div>
+        
       </section>
 
       <!-- Overview Statistics -->
@@ -4982,6 +5130,47 @@
         }
       }
       
+      function switchMLTab(tab) {
+        // Hide all tabs
+        document.getElementById('ml-content-models').style.display = 'none';
+        document.getElementById('ml-content-byzantine').style.display = 'none';
+        document.getElementById('ml-content-lineage').style.display = 'none';
+        document.getElementById('ml-content-deterministic').style.display = 'none';
+        
+        // Reset all tab buttons
+        document.getElementById('ml-tab-models').style.background = '#1a2135';
+        document.getElementById('ml-tab-models').style.color = '#f5f7ff';
+        document.getElementById('ml-tab-byzantine').style.background = '#1a2135';
+        document.getElementById('ml-tab-byzantine').style.color = '#f5f7ff';
+        document.getElementById('ml-tab-lineage').style.background = '#1a2135';
+        document.getElementById('ml-tab-lineage').style.color = '#f5f7ff';
+        document.getElementById('ml-tab-deterministic').style.background = '#1a2135';
+        document.getElementById('ml-tab-deterministic').style.color = '#f5f7ff';
+        
+        // Show selected tab
+        if (tab === 'models') {
+          document.getElementById('ml-content-models').style.display = 'block';
+          document.getElementById('ml-tab-models').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
+          document.getElementById('ml-tab-models').style.color = '#0b1020';
+          // No refresh needed - Jinja template renders this
+        } else if (tab === 'byzantine') {
+          document.getElementById('ml-content-byzantine').style.display = 'block';
+          document.getElementById('ml-tab-byzantine').style.background = 'linear-gradient(135deg, #ffb85f, #ff9f5f)';
+          document.getElementById('ml-tab-byzantine').style.color = '#0b1020';
+          loadByzantineDefenseData();
+        } else if (tab === 'lineage') {
+          document.getElementById('ml-content-lineage').style.display = 'block';
+          document.getElementById('ml-tab-lineage').style.background = 'linear-gradient(135deg, #5fe2ff, #5f9fff)';
+          document.getElementById('ml-tab-lineage').style.color = '#0b1020';
+          loadModelLineageData();
+        } else if (tab === 'deterministic') {
+          document.getElementById('ml-content-deterministic').style.display = 'block';
+          document.getElementById('ml-tab-deterministic').style.background = 'linear-gradient(135deg, #9f5fff, #ff5fff)';
+          document.getElementById('ml-tab-deterministic').style.color = '#0b1020';
+          loadDeterministicTestingData();
+        }
+      }
+      
       // IP Management tab switcher (Section 8)
       function switchIPTab(tab) {
         // Hide all tabs
@@ -7470,6 +7659,137 @@
           }
         } catch (error) {
           console.error('Error loading audit summary data:', error);
+        }
+      }
+      
+      // Load Byzantine defense data for Section 5 Tab 2
+      async function loadByzantineDefenseData() {
+        try {
+          const response = await fetch('/api/byzantine-defense/stats');
+          if (response.ok) {
+            const data = await response.json();
+            
+            document.getElementById('byzantine-method').textContent = (data.aggregation_method || 'KRUM').toUpperCase();
+            document.getElementById('byzantine-total-peers').textContent = data.total_peers || 0;
+            document.getElementById('byzantine-rejected').textContent = data.rejected_updates || 0;
+            document.getElementById('byzantine-accepted').textContent = data.accepted_updates || 0;
+            
+            // Display peer reputation list
+            const peerList = document.getElementById('byzantine-peer-list');
+            if (data.peer_reputation && data.peer_reputation.length > 0) {
+              peerList.innerHTML = data.peer_reputation.map(peer => {
+                const scoreColor = peer.trust_score >= 0.8 ? '#5fff9f' : peer.trust_score >= 0.5 ? '#ffb85f' : '#ff5f5f';
+                return `
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: rgba(95, 226, 255, 0.05); border-radius: 6px; border-left: 3px solid ${scoreColor}; margin-bottom: 0.5rem;">
+                    <div>
+                      <div style="font-weight: 600; color: #f5f7ff; font-size: 0.9rem;">${peer.peer_id}</div>
+                      <div style="color: #8a92b6; font-size: 0.8rem;">Updates: ${peer.updates_contributed || 0}</div>
+                    </div>
+                    <div style="text-align: right;">
+                      <div style="font-weight: 600; color: ${scoreColor}; font-size: 1.1rem;">${(peer.trust_score * 100).toFixed(0)}%</div>
+                      <div style="color: #8a92b6; font-size: 0.75rem;">Trust Score</div>
+                    </div>
+                  </div>
+                `;
+              }).join('');
+            } else {
+              peerList.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #8a92b6;">
+                  <p style="margin: 0; font-size: 1rem;">No peer data available yet</p>
+                  <p style="margin: 0.5rem 0 0; font-size: 0.85rem;">Connect to federated learning peers to see reputation scores</p>
+                </div>
+              `;
+            }
+          }
+        } catch (error) {
+          console.error('Error loading Byzantine defense data:', error);
+        }
+      }
+      
+      // Load model lineage data for Section 5 Tab 3
+      async function loadModelLineageData() {
+        try {
+          const response = await fetch('/api/model-lineage/stats');
+          if (response.ok) {
+            const data = await response.json();
+            
+            const integrity = data.chain_integrity || {};
+            document.getElementById('lineage-integrity').textContent = integrity.is_valid ? '✅ VERIFIED' : '🚨 BROKEN';
+            document.getElementById('lineage-checkpoints').textContent = data.total_checkpoints || 0;
+            document.getElementById('lineage-signatures').textContent = data.total_signatures || 0;
+            document.getElementById('lineage-last').textContent = data.last_checkpoint_time 
+              ? new Date(data.last_checkpoint_time).toLocaleString().substring(0, 10)
+              : '--';
+            
+            // Display checkpoint history
+            const checkpointList = document.getElementById('lineage-checkpoint-list');
+            if (data.checkpoint_history && data.checkpoint_history.length > 0) {
+              checkpointList.innerHTML = data.checkpoint_history.slice(0, 10).map((checkpoint, idx) => `
+                <div style="background: rgba(95, 226, 255, 0.05); padding: 0.75rem; border-radius: 6px; border-left: 3px solid #5fe2ff; margin-bottom: 0.5rem;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                    <span style="font-weight: 600; color: #5fe2ff;">Checkpoint #${checkpoint.checkpoint_id || idx + 1}</span>
+                    <span style="color: #8a92b6; font-size: 0.8rem;">${new Date(checkpoint.timestamp).toLocaleString()}</span>
+                  </div>
+                  <div style="color: #a9b3d4; font-size: 0.85rem;">
+                    <div>Hash: <span style="font-family: monospace; font-size: 0.75rem; color: #5fff9f;">${checkpoint.model_hash?.substring(0, 16)}...</span></div>
+                    <div>Signature: <span style="color: ${checkpoint.signature_valid ? '#5fff9f' : '#ff5f5f'};">${checkpoint.signature_valid ? '✅ Valid' : '❌ Invalid'}</span></div>
+                  </div>
+                </div>
+              `).join('');
+            } else {
+              checkpointList.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #8a92b6;">
+                  <p style="margin: 0; font-size: 1rem;">No checkpoints recorded yet</p>
+                  <p style="margin: 0.5rem 0 0; font-size: 0.85rem;">Checkpoints will appear when models are trained</p>
+                </div>
+              `;
+            }
+          }
+        } catch (error) {
+          console.error('Error loading model lineage data:', error);
+        }
+      }
+      
+      // Load deterministic testing data for Section 5 Tab 4
+      async function loadDeterministicTestingData() {
+        try {
+          const response = await fetch('/api/deterministic-eval/stats');
+          if (response.ok) {
+            const data = await response.json();
+            
+            document.getElementById('deterministic-reproducible').textContent = 
+              data.reproducibility_rate ? (data.reproducibility_rate * 100).toFixed(0) + '%' : '100%';
+            document.getElementById('deterministic-runs').textContent = data.total_test_runs || 0;
+            document.getElementById('deterministic-proofs').textContent = data.proof_certificates_generated || 0;
+            document.getElementById('deterministic-consistency').textContent = 
+              data.consistency_score ? (data.consistency_score * 100).toFixed(1) + '%' : '--';
+            
+            // Display test results
+            const testList = document.getElementById('deterministic-test-list');
+            if (data.recent_tests && data.recent_tests.length > 0) {
+              testList.innerHTML = data.recent_tests.slice(0, 10).map(test => `
+                <div style="background: rgba(159, 95, 255, 0.05); padding: 0.75rem; border-radius: 6px; border-left: 3px solid ${test.passed ? '#5fff9f' : '#ff5f5f'}; margin-bottom: 0.5rem;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                    <span style="font-weight: 600; color: ${test.passed ? '#5fff9f' : '#ff5f5f'};">${test.passed ? '✅' : '❌'} ${test.test_name || 'Test'}</span>
+                    <span style="color: #8a92b6; font-size: 0.8rem;">${new Date(test.timestamp).toLocaleString()}</span>
+                  </div>
+                  <div style="color: #a9b3d4; font-size: 0.85rem;">
+                    <div>Seed: ${test.random_seed || 'N/A'} | Accuracy: ${test.accuracy ? (test.accuracy * 100).toFixed(1) + '%' : 'N/A'}</div>
+                    ${test.proof_hash ? `<div>Proof: <span style="font-family: monospace; font-size: 0.75rem; color: #9f5fff;">${test.proof_hash.substring(0, 16)}...</span></div>` : ''}
+                  </div>
+                </div>
+              `).join('');
+            } else {
+              testList.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #8a92b6;">
+                  <p style="margin: 0; font-size: 1rem;">No test results yet</p>
+                  <p style="margin: 0.5rem 0 0; font-size: 0.85rem;">Run deterministic tests to see results here</p>
+                </div>
+              `;
+            }
+          }
+        } catch (error) {
+          console.error('Error loading deterministic testing data:', error);
         }
       }
 </script></body></html>
