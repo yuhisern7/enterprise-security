@@ -30,6 +30,16 @@ class ModelUpdate:
     metadata: Dict
 
 
+@dataclass
+class PeerReputation:
+    """Track reputation score for a federated learning peer."""
+    peer_id: str
+    trust_score: float = 1.0  # 0-1 scale
+    successful_aggregations: int = 0
+    failed_aggregations: int = 0
+    last_update: datetime = None
+
+
 class ByzantineDefender:
     """
     Byzantine-resilient federated learning aggregator.
@@ -57,6 +67,7 @@ class ByzantineDefender:
         self.byzantine_tolerance = byzantine_tolerance
         self.update_history = []
         self.rejected_updates = []
+        self.peer_reputation = {}  # Track peer reputation scores
         self.aggregation_stats = {
             "total_updates": 0,
             "rejected_byzantine": 0,
@@ -105,10 +116,38 @@ class ByzantineDefender:
         self.aggregation_stats["rejected_byzantine"] += stats["rejected_count"]
         self.aggregation_stats["accepted_updates"] += stats["accepted_count"]
         
+        # Update peer reputation based on acceptance/rejection
+        self._update_peer_reputation(updates, stats.get("rejected_indices", []))
+        
         logger.info(f"[BYZANTINE] Aggregated {len(updates)} updates using {method}")
         logger.info(f"[BYZANTINE] Rejected {stats['rejected_count']} suspicious updates")
         
         return result, stats
+    
+    def _update_peer_reputation(self, updates: List[ModelUpdate], rejected_indices: List[int]):
+        """Update peer reputation scores based on aggregation results."""
+        for idx, update in enumerate(updates):
+            peer_id = update.peer_id
+            
+            # Initialize peer if not seen before
+            if peer_id not in self.peer_reputation:
+                self.peer_reputation[peer_id] = PeerReputation(
+                    peer_id=peer_id,
+                    last_update=update.timestamp
+                )
+            
+            peer = self.peer_reputation[peer_id]
+            peer.last_update = update.timestamp
+            
+            # Update reputation based on acceptance/rejection
+            if idx in rejected_indices:
+                peer.failed_aggregations += 1
+                # Decrease trust score (minimum 0.1)
+                peer.trust_score = max(0.1, peer.trust_score * 0.8)
+            else:
+                peer.successful_aggregations += 1
+                # Increase trust score (maximum 1.0)
+                peer.trust_score = min(1.0, peer.trust_score * 1.05)
     
     def _krum(
         self, 
@@ -160,6 +199,7 @@ class ByzantineDefender:
         stats = {
             "rejected_count": len(rejected),
             "accepted_count": 1,
+            "rejected_indices": rejected,
             "selected_peer": updates[selected_idx].peer_id,
             "krum_score": scores[selected_idx]
         }

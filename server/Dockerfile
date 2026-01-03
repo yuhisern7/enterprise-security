@@ -66,8 +66,8 @@ ENV PYTHONUNBUFFERED=1
 USER root
 
 # Health check (uses HTTPS on 60000)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -k https://localhost:60000/ > /dev/null 2>&1 || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -kf https://localhost:60000/ || exit 1
 
 # Start the server with HTTPS entrypoint
 ENTRYPOINT ["/app/entrypoint.sh"]

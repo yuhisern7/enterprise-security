@@ -1435,6 +1435,32 @@ def get_audit_stats():
         return jsonify({'error': str(e), 'enabled': False}), 500
 
 
+@app.route('/api/system-logs/<os_type>', methods=['GET'])
+def get_system_logs(os_type):
+    """Get system logs for Linux/Windows/macOS."""
+    try:
+        from AI.system_log_collector import get_system_log_collector
+        collector = get_system_log_collector()
+        
+        hours = int(request.args.get('hours', 168))  # Default 7 days
+        
+        if os_type.lower() == 'linux':
+            logs = collector.collect_linux_logs(hours)
+        elif os_type.lower() == 'windows':
+            logs = collector.collect_windows_logs(hours)
+        elif os_type.lower() == 'macos':
+            logs = collector.collect_macos_logs(hours)
+        else:
+            return jsonify({'error': 'Invalid OS type'}), 400
+        
+        logs['os_type'] = os_type
+        logs['collection_time'] = datetime.now().isoformat()
+        return jsonify(logs)
+    except Exception as e:
+        logger.error(f"[API] System logs error: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/central-sync/register', methods=['POST'])
 def register_with_central():
     """DEPRECATED: No central server needed in P2P architecture"""
