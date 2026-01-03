@@ -149,6 +149,46 @@ except ImportError as e:
     print(f"[WARNING] Meta decision engine not available: {e}")
     print("[INFO] Running without ensemble voting")
 
+# Reputation Tracker (Phase 6)
+try:
+    from AI.reputation_tracker import get_reputation_tracker
+    REPUTATION_TRACKER_AVAILABLE = True
+    print("[REPUTATION] IP reputation tracking loaded")
+except ImportError as e:
+    REPUTATION_TRACKER_AVAILABLE = False
+    print(f"[WARNING] Reputation tracker not available: {e}")
+    print("[INFO] Running without IP reputation scoring")
+
+# Explainability Engine (Phase 7)
+try:
+    from AI.explainability_engine import get_explainability_engine, create_explanation
+    EXPLAINABILITY_AVAILABLE = True
+    print("[EXPLAINABILITY] Decision explanation engine loaded")
+except ImportError as e:
+    EXPLAINABILITY_AVAILABLE = False
+    print(f"[WARNING] Explainability engine not available: {e}")
+    print("[INFO] Running without AI decision explanations")
+
+# Advanced Orchestration (Phase 8)
+try:
+    from AI.advanced_orchestration import get_orchestrator
+    ORCHESTRATION_AVAILABLE = True
+    print("[ORCHESTRATION] Advanced workflow orchestration loaded")
+except ImportError as e:
+    ORCHESTRATION_AVAILABLE = False
+    print(f"[WARNING] Orchestration not available: {e}")
+    print("[INFO] Running without advanced orchestration")
+
+# Kernel Telemetry (Module A)
+try:
+    from AI.kernel_telemetry import get_kernel_telemetry
+    KERNEL_TELEMETRY_AVAILABLE = True
+    print("[KERNEL-TELEMETRY] Deep packet inspection loaded")
+except ImportError as e:
+    KERNEL_TELEMETRY_AVAILABLE = False
+    print(f"[WARNING] Kernel telemetry not available: {e}")
+    print("[INFO] Running without kernel-level telemetry")
+
 # Performance Monitoring and Visualization
 try:
     import AI.network_performance as network_performance
@@ -1296,6 +1336,83 @@ def get_ml_model_stats() -> dict:
         stats["models"]["autoencoder"] = autoencoder.get_stats()
     
     # PHASE 3: Drift detector stats
+    if ADVANCED_AI_AVAILABLE:
+        try:
+            drift_detector = get_drift_detector()
+            if drift_detector:
+                drift_stats = drift_detector.get_stats()
+                stats["drift_detector"] = {
+                    "baseline_size": drift_stats.get("baseline_size", 0),
+                    "drift_percent": drift_stats.get("drift_percent", 0.0),
+                    "status": drift_stats.get("status", "stable")
+                }
+                
+                # Add recent drift reports
+                recent_reports = drift_detector.get_recent_reports(limit=5)
+                if recent_reports:
+                    stats["drift_detector"]["recent_reports"] = recent_reports
+        except Exception as e:
+            logger.debug(f"[DRIFT] Failed to get drift stats: {e}")
+    
+    # PHASE 5: Meta decision engine stats
+    if META_ENGINE_AVAILABLE:
+        try:
+            meta_engine = get_meta_engine()
+            if meta_engine:
+                meta_stats = meta_engine.get_stats()
+                stats["meta_decision"] = {
+                    "confidence": meta_stats.get("average_confidence", 0.0),
+                    "models_count": meta_stats.get("active_signals", 0),
+                    "agreement": meta_stats.get("agreement_rate", 0.0),
+                    "total_decisions": meta_stats.get("total_decisions", 0)
+                }
+        except Exception as e:
+            logger.debug(f"[META] Failed to get meta engine stats: {e}")
+    
+    # PHASE 6: Reputation tracker stats
+    if REPUTATION_TRACKER_AVAILABLE:
+        try:
+            reputation_tracker = get_reputation_tracker()
+            if reputation_tracker:
+                rep_stats = reputation_tracker.get_stats()
+                stats["reputation_tracker"] = {
+                    "total_ips": rep_stats.get("total_ips", 0),
+                    "high_risk_ips": rep_stats.get("high_risk_count", 0),
+                    "trusted_ips": rep_stats.get("trusted_count", 0),
+                    "avg_score": rep_stats.get("average_score", 0.0)
+                }
+        except Exception as e:
+            logger.debug(f"[REPUTATION] Failed to get reputation stats: {e}")
+    
+    # PHASE 8: Orchestration stats
+    if ORCHESTRATION_AVAILABLE:
+        try:
+            orchestrator = get_orchestrator()
+            if orchestrator:
+                orch_stats = orchestrator.get_stats()
+                stats["orchestration_stats"] = {
+                    "active_workflows": orch_stats.get("active_workflows", 0),
+                    "auto_actions_taken": orch_stats.get("actions_taken", 0),
+                    "workflow_success_rate": orch_stats.get("success_rate", 0.0)
+                }
+        except Exception as e:
+            logger.debug(f"[ORCHESTRATION] Failed to get orchestration stats: {e}")
+    
+    # MODULE A: Kernel telemetry stats
+    if KERNEL_TELEMETRY_AVAILABLE:
+        try:
+            kernel_telemetry = get_kernel_telemetry()
+            if kernel_telemetry:
+                tel_stats = kernel_telemetry.get_stats()
+                stats["kernel_telemetry"] = {
+                    "mode": tel_stats.get("mode", "Scapy"),
+                    "packets_observed": tel_stats.get("packets_observed", 0),
+                    "inspection_depth": tel_stats.get("inspection_depth", "userland")
+                }
+        except Exception as e:
+            logger.debug(f"[TELEMETRY] Failed to get kernel telemetry stats: {e}")
+    
+    # Add to models dict for backward compatibility
     if ADVANCED_AI_AVAILABLE:
         try:
             drift_detector = get_drift_detector()
@@ -4503,6 +4620,87 @@ def add_global_threat_to_learning(global_threat: Dict) -> None:
     if ML_AVAILABLE and len(_threat_log) % 10 == 0:  # Retrain every 10 global threats
         _train_ml_models_from_history()
         print(f"[CENTRAL] 🎓 Learned from global threat network ({len(_threat_log)} total events)")
+
+
+# =============================================================================
+# PHASE 4: ATTACK CHAIN VISUALIZATION API
+# =============================================================================
+
+def get_attack_chains() -> dict:
+    """Get attack chain data for graph visualization (Phase 4)."""
+    if not GRAPH_INTELLIGENCE_AVAILABLE:
+        return {
+            "error": "Graph intelligence not available",
+            "total_chains": 0,
+            "lateral_movement_count": 0,
+            "total_nodes": 0,
+            "total_edges": 0,
+            "attack_chains": []
+        }
+    
+    try:
+        from AI.graph_intelligence import get_attack_chains as get_chains
+        graph_data = get_chains()
+        
+        return {
+            "total_chains": graph_data.get("total_chains", 0),
+            "lateral_movement_count": graph_data.get("lateral_movement_count", 0),
+            "total_nodes": graph_data.get("total_nodes", 0),
+            "total_edges": graph_data.get("total_edges", 0),
+            "attack_chains": graph_data.get("attack_chains", []),
+            "graph_data": graph_data.get("graph_visualization", None)
+        }
+    except Exception as e:
+        logger.error(f"[GRAPH-API] Failed to get attack chains: {e}")
+        return {
+            "error": str(e),
+            "total_chains": 0,
+            "lateral_movement_count": 0,
+            "total_nodes": 0,
+            "total_edges": 0,
+            "attack_chains": []
+        }
+
+
+# =============================================================================
+# PHASE 7: DECISION EXPLAINABILITY API
+# =============================================================================
+
+def get_explainability_decisions() -> dict:
+    """Get AI decision explanations (Phase 7)."""
+    if not EXPLAINABILITY_AVAILABLE:
+        return {
+            "error": "Explainability engine not available",
+            "total_decisions": 0,
+            "high_confidence_count": 0,
+            "low_confidence_count": 0,
+            "average_confidence": 0.0,
+            "decisions": []
+        }
+    
+    try:
+        from AI.explainability_engine import get_recent_explanations, get_explanation_stats
+        
+        stats = get_explanation_stats()
+        decisions = get_recent_explanations(limit=15)
+        
+        return {
+            "total_decisions": stats.get("total_decisions", 0),
+            "high_confidence_count": stats.get("high_confidence_count", 0),
+            "low_confidence_count": stats.get("low_confidence_count", 0),
+            "average_confidence": stats.get("average_confidence", 0.0),
+            "decisions": decisions
+        }
+    except Exception as e:
+        logger.error(f"[EXPLAINABILITY-API] Failed to get decisions: {e}")
+        return {
+            "error": str(e),
+            "total_decisions": 0,
+            "high_confidence_count": 0,
+            "low_confidence_count": 0,
+            "average_confidence": 0.0,
+            "decisions": []
+        }
 
 
 # Load persistent threat data on module import

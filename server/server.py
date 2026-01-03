@@ -1307,6 +1307,42 @@ def sync_signatures():
         }), 500
 
 
+@app.route('/api/graph-intelligence/attack-chains', methods=['GET'])
+def get_attack_chains():
+    """Get attack chain visualization data (Phase 4)."""
+    try:
+        from AI.pcs_ai import get_attack_chains as get_chains
+        return jsonify(get_chains())
+    except Exception as e:
+        logger.error(f"[API] Attack chains error: {e}")
+        return jsonify({
+            'error': str(e),
+            'total_chains': 0,
+            'lateral_movement_count': 0,
+            'total_nodes': 0,
+            'total_edges': 0,
+            'attack_chains': []
+        }), 500
+
+
+@app.route('/api/explainability/decisions', methods=['GET'])
+def get_explainability_decisions():
+    """Get AI decision explanations (Phase 7)."""
+    try:
+        from AI.pcs_ai import get_explainability_decisions as get_decisions
+        return jsonify(get_decisions())
+    except Exception as e:
+        logger.error(f"[API] Explainability error: {e}")
+        return jsonify({
+            'error': str(e),
+            'total_decisions': 0,
+            'high_confidence_count': 0,
+            'low_confidence_count': 0,
+            'average_confidence': 0.0,
+            'decisions': []
+        }), 500
+
+
 @app.route('/api/central-sync/register', methods=['POST'])
 def register_with_central():
     """DEPRECATED: No central server needed in P2P architecture"""
