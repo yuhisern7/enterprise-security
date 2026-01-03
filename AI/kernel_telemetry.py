@@ -48,6 +48,13 @@ class KernelTelemetry:
         
         Args:
             fallback_to_userland: Use scapy if eBPF unavailable (default: True)
+        
+        Note:
+            eBPF requires BCC (BPF Compiler Collection) at SYSTEM level, not pip.
+            The pip package 'bcc' is DIFFERENT (pytest-bcc testing framework).
+            
+            For eBPF: Install system packages (Ubuntu: python3-bpfcc bpfcc-tools)
+            Without eBPF: System uses scapy userland monitoring (98%+ detection)
         """
         self.fallback_to_userland = fallback_to_userland
         self.bpf_available = False

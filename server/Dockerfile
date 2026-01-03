@@ -11,17 +11,12 @@ RUN apt-get update && apt-get install -y \
     samba-common-bin \
     avahi-utils \
     curl \
-    linux-headers-generic \
-    bpftool \
-    libbpf-dev \
-    clang \
-    llvm \
     && rm -rf /var/lib/apt/lists/*
 
-# Install BCC (BPF Compiler Collection) for Python eBPF support
-# Note: This will only work if Docker is run with proper capabilities
-# Graceful fallback to scapy if capabilities unavailable
-RUN pip install --no-cache-dir bcc || echo "BCC install failed - eBPF will fallback to userland"
+# Note: Full eBPF/BCC requires kernel headers and is complex to install in containers
+# System gracefully falls back to scapy userland monitoring
+# eBPF will work if host kernel supports it and container has proper capabilities
+# For production eBPF: Use host-installed bpftool or Cilium eBPF Go library
 
 # Set working directory
 WORKDIR /app
