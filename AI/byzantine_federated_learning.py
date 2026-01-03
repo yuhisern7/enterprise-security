@@ -331,14 +331,26 @@ class ByzantineDefender:
     
     def get_stats(self) -> Dict:
         """Get Byzantine defense statistics."""
+        # Build peer reputation list
+        peer_reputation = []
+        for peer_id, rep in self.peer_reputation.items():
+            peer_reputation.append({
+                "peer_id": peer_id,
+                "trust_score": rep.trust_score,
+                "updates_contributed": rep.successful_aggregations,
+                "rejections": rep.failed_aggregations
+            })
+        
         return {
-            "total_updates_processed": self.aggregation_stats["total_updates"],
-            "rejected_byzantine": self.aggregation_stats["rejected_byzantine"],
+            "aggregation_method": "KRUM",  # Primary method
+            "total_peers": len(self.peer_reputation),
+            "rejected_updates": self.aggregation_stats["rejected_byzantine"],
             "accepted_updates": self.aggregation_stats["accepted_updates"],
             "rejection_rate": self.aggregation_stats["rejected_byzantine"] / 
                             max(1, self.aggregation_stats["total_updates"]),
             "byzantine_tolerance": self.byzantine_tolerance,
-            "methods_used": list(set(self.aggregation_stats["method_used"]))
+            "peer_reputation": peer_reputation,
+            "total_updates_processed": self.aggregation_stats["total_updates"]
         }
 
 

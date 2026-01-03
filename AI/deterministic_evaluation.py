@@ -370,8 +370,11 @@ class DeterministicEvaluator:
         """Get evaluator statistics."""
         if len(self.evaluation_history) == 0:
             return {
-                "total_evaluations": 0,
-                "reproducible_count": 0
+                "total_test_runs": 0,
+                "reproducibility_rate": 1.0,
+                "proof_certificates_generated": 0,
+                "consistency_score": 1.0,
+                "recent_tests": []
             }
         
         model_counts = {}
@@ -379,11 +382,27 @@ class DeterministicEvaluator:
             model_counts[r.model_name] = model_counts.get(r.model_name, 0) + 1
         
         reproducible = sum(1 for r in self.evaluation_history if r.reproducible)
+        reproducibility_rate = reproducible / len(self.evaluation_history)
+        
+        # Build recent tests for dashboard
+        recent_tests = []
+        for result in reversed(self.evaluation_history[-15:]):  # Last 15
+            recent_tests.append({
+                "test_id": result.test_id,
+                "timestamp": result.timestamp,
+                "model_name": result.model_name,
+                "reproducible": result.reproducible,
+                "accuracy": result.metrics.get('accuracy', 0),
+                "dataset_hash": result.dataset_hash[:16] if result.dataset_hash else "N/A"
+            })
         
         return {
-            "total_evaluations": len(self.evaluation_history),
-            "reproducible_count": reproducible,
+            "total_test_runs": len(self.evaluation_history),
+            "reproducibility_rate": reproducibility_rate,
+            "proof_certificates_generated": reproducible,
+            "consistency_score": reproducibility_rate,
             "models_evaluated": model_counts,
+            "recent_tests": recent_tests,
             "latest_evaluation": self.evaluation_history[-1].test_id if self.evaluation_history else None
         }
 

@@ -24,8 +24,8 @@ WORKDIR /app
 # Copy requirements first (for better caching)
 COPY server/requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies with increased timeout and retries for large packages
+RUN pip install --no-cache-dir --default-timeout=1000 --retries 5 -r requirements.txt
 
 # Copy AI folder (contains pcs_ai.py, dashboard, and ml_models)
 COPY AI/ AI/

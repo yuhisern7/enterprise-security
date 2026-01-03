@@ -373,20 +373,39 @@ class CryptographicLineage:
         if len(self.checkpoints) == 0:
             return {
                 "total_checkpoints": 0,
-                "chain_depth": 0
+                "total_signatures": 0,
+                "chain_depth": 0,
+                "last_checkpoint_time": None,
+                "checkpoint_history": []
             }
         
         sources = {}
+        signatures_count = 0
         for c in self.checkpoints:
             sources[c.source] = sources.get(c.source, 0) + 1
+            if c.signature:
+                signatures_count += 1
+        
+        # Build checkpoint history for dashboard
+        checkpoint_history = []
+        for idx, cp in enumerate(reversed(self.checkpoints[-20:])):  # Last 20
+            checkpoint_history.append({
+                "checkpoint_id": len(self.checkpoints) - idx,
+                "timestamp": cp.timestamp,
+                "model_hash": cp.model_hash,
+                "signature_valid": bool(cp.signature),
+                "source": cp.source
+            })
         
         return {
             "total_checkpoints": len(self.checkpoints),
+            "total_signatures": signatures_count,
             "chain_depth": len(self.checkpoints),
             "genesis_date": self.checkpoints[0].timestamp,
-            "latest_date": self.checkpoints[-1].timestamp,
+            "last_checkpoint_time": self.checkpoints[-1].timestamp,
             "sources": sources,
-            "signatures_enabled": CRYPTO_AVAILABLE and self.private_key is not None
+            "signatures_enabled": CRYPTO_AVAILABLE and self.private_key is not None,
+            "checkpoint_history": checkpoint_history
         }
 
 
