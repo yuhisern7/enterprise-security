@@ -1343,6 +1343,98 @@ def get_explainability_decisions():
         }), 500
 
 
+# ============================================================================
+# NEW MODULES B, C, D, F, G, H, J - API ENDPOINTS
+# ============================================================================
+
+@app.route('/api/byzantine-defense/stats', methods=['GET'])
+def get_byzantine_stats():
+    """Get Byzantine-resilient federated learning statistics."""
+    try:
+        from AI.pcs_ai import get_byzantine_defense_stats
+        return jsonify(get_byzantine_defense_stats())
+    except Exception as e:
+        logger.error(f"[API] Byzantine defense error: {e}")
+        return jsonify({'error': str(e), 'enabled': False}), 500
+
+
+@app.route('/api/model-lineage/stats', methods=['GET'])
+def get_lineage_stats():
+    """Get cryptographic model lineage statistics."""
+    try:
+        from AI.pcs_ai import get_model_lineage_stats
+        return jsonify(get_model_lineage_stats())
+    except Exception as e:
+        logger.error(f"[API] Model lineage error: {e}")
+        return jsonify({'error': str(e), 'enabled': False}), 500
+
+
+@app.route('/api/deterministic-eval/stats', methods=['GET'])
+def get_deterministic_stats():
+    """Get deterministic evaluation statistics."""
+    try:
+        from AI.pcs_ai import get_deterministic_eval_stats
+        return jsonify(get_deterministic_eval_stats())
+    except Exception as e:
+        logger.error(f"[API] Deterministic evaluation error: {e}")
+        return jsonify({'error': str(e), 'enabled': False}), 500
+
+
+@app.route('/api/threat-model/stats', methods=['GET'])
+def get_threat_model_stats():
+    """Get formal threat model statistics."""
+    try:
+        from AI.pcs_ai import get_threat_model_stats
+        return jsonify(get_threat_model_stats())
+    except Exception as e:
+        logger.error(f"[API] Threat model error: {e}")
+        return jsonify({'error': str(e), 'enabled': False}), 500
+
+
+@app.route('/api/self-protection/stats', methods=['GET'])
+def get_protection_stats():
+    """Get self-protection and integrity monitoring statistics."""
+    try:
+        from AI.pcs_ai import get_self_protection_stats
+        return jsonify(get_self_protection_stats())
+    except Exception as e:
+        logger.error(f"[API] Self-protection error: {e}")
+        return jsonify({'error': str(e), 'enabled': False}), 500
+
+
+@app.route('/api/governance/stats', methods=['GET'])
+def get_governance_stats():
+    """Get policy governance and approval queue statistics."""
+    try:
+        from AI.pcs_ai import get_policy_governance_stats
+        return jsonify(get_policy_governance_stats())
+    except Exception as e:
+        logger.error(f"[API] Governance error: {e}")
+        return jsonify({'error': str(e), 'enabled': False}), 500
+
+
+@app.route('/api/killswitch/status', methods=['GET'])
+def get_killswitch():
+    """Get emergency kill-switch status."""
+    try:
+        from AI.pcs_ai import get_killswitch_status
+        return jsonify(get_killswitch_status())
+    except Exception as e:
+        logger.error(f"[API] Kill-switch error: {e}")
+        return jsonify({'error': str(e), 'enabled': False}), 500
+
+
+@app.route('/api/audit-log/stats', methods=['GET'])
+def get_audit_stats():
+    """Get comprehensive audit log statistics."""
+    try:
+        from AI.pcs_ai import get_audit_log_stats
+        return jsonify(get_audit_log_stats())
+    except Exception as e:
+        logger.error(f"[API] Audit log error: {e}")
+        return jsonify({'error': str(e), 'enabled': False}), 500
+
+
 @app.route('/api/central-sync/register', methods=['POST'])
 def register_with_central():
     """DEPRECATED: No central server needed in P2P architecture"""

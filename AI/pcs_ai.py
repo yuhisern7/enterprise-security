@@ -4703,6 +4703,131 @@ def get_explainability_decisions() -> dict:
         }
 
 
+# ============================================================================
+# NEW MODULES B, C, D, F, G, H, J - API INTEGRATION FUNCTIONS
+# ============================================================================
+
+def get_byzantine_defense_stats() -> Dict:
+    """Get Byzantine-resilient federated learning statistics."""
+    try:
+        from byzantine_federated_learning import get_byzantine_defender
+        defender = get_byzantine_defender()
+        return defender.get_stats()
+    except Exception as e:
+        return {"error": str(e), "enabled": False}
+
+
+def get_model_lineage_stats() -> Dict:
+    """Get cryptographic model lineage statistics."""
+    try:
+        from cryptographic_lineage import get_lineage_tracker
+        tracker = get_lineage_tracker()
+        stats = tracker.get_stats()
+        
+        # Add integrity check
+        integrity = tracker.verify_chain_integrity()
+        stats['chain_integrity'] = integrity
+        
+        return stats
+    except Exception as e:
+        return {"error": str(e), "enabled": False}
+
+
+def get_deterministic_eval_stats() -> Dict:
+    """Get deterministic evaluation statistics."""
+    try:
+        from deterministic_evaluation import get_deterministic_evaluator
+        evaluator = get_deterministic_evaluator()
+        return evaluator.get_stats()
+    except Exception as e:
+        return {"error": str(e), "enabled": False}
+
+
+def get_threat_model_stats() -> Dict:
+    """Get formal threat model statistics."""
+    try:
+        from formal_threat_model import get_threat_model
+        model = get_threat_model()
+        stats = model.get_stats()
+        
+        # Add threat coverage
+        coverage = model.get_threat_coverage()
+        stats['threat_coverage'] = coverage
+        
+        return stats
+    except Exception as e:
+        return {"error": str(e), "enabled": False}
+
+
+def get_self_protection_stats() -> Dict:
+    """Get self-protection and integrity monitoring statistics."""
+    try:
+        from self_protection import get_self_protection
+        protection = get_self_protection()
+        stats = protection.get_stats()
+        
+        # Add recent violations summary
+        violations = protection.get_violation_summary(time_window_hours=24)
+        stats['violations_24h'] = violations
+        
+        return stats
+    except Exception as e:
+        return {"error": str(e), "enabled": False}
+
+
+def get_policy_governance_stats() -> Dict:
+    """Get policy governance and approval queue statistics."""
+    try:
+        from policy_governance import get_policy_governance
+        governance = get_policy_governance()
+        stats = governance.get_stats()
+        
+        # Add pending requests
+        pending = governance.get_pending_requests()
+        stats['pending_requests'] = [
+            {
+                "request_id": r.request_id,
+                "proposed_action": r.proposed_action,
+                "target": r.target,
+                "risk_level": r.risk_level.value,
+                "confidence": r.confidence,
+                "timestamp": r.timestamp,
+                "expires_at": r.expires_at
+            }
+            for r in pending[:10]  # Limit to 10 most recent
+        ]
+        
+        return stats
+    except Exception as e:
+        return {"error": str(e), "enabled": False}
+
+
+def get_killswitch_status() -> Dict:
+    """Get emergency kill-switch status."""
+    try:
+        from emergency_killswitch import get_kill_switch
+        killswitch = get_kill_switch()
+        return killswitch.get_status()
+    except Exception as e:
+        return {"error": str(e), "enabled": False}
+
+
+def get_audit_log_stats() -> Dict:
+    """Get comprehensive audit log statistics."""
+    try:
+        from emergency_killswitch import get_audit_log
+        audit = get_audit_log()
+        stats = audit.get_stats()
+        
+        # Add compliance report
+        compliance = audit.get_compliance_report(days=7)
+        stats['compliance_report_7d'] = compliance
+        
+        return stats
+    except Exception as e:
+        return {"error": str(e), "enabled": False}
+
+
 # Load persistent threat data on module import
 _load_threat_data()
 
