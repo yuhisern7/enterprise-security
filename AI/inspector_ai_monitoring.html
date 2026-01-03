@@ -137,14 +137,14 @@
         <div>
           <h3 style="margin: 0; color: #5fe2ff; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
             <span id="featureRegistryIcon">▶️</span>
-            📊 FEATURE REGISTRY - All Available Features (31 Dashboard Sections)
+            📊 FEATURE REGISTRY - All Available Features (32 Dashboard Sections)
           </h3>
-          <p style="margin: 0.25rem 0 0; color: #8a92b6; font-size: 0.8rem;">Click to expand/collapse • Hover over features to see API endpoints • 82+ API endpoints active</p>
+          <p style="margin: 0.25rem 0 0; color: #8a92b6; font-size: 0.8rem;">Click to expand/collapse • Hover over features to see API endpoints • 90+ API endpoints active</p>
         </div>
         <div style="display: flex; gap: 1rem; align-items: center;">
-          <span style="background: #2a7f3f; color: #5fff9f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">✅ 31 Sections</span>
-          <span style="background: #5f5f7f; color: #5fe2ff; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🆕 16 Enhanced</span>
-          <span style="background: #7f7f2a; color: #ffff5f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🔌 82+ APIs</span>
+          <span style="background: #2a7f3f; color: #5fff9f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">✅ 32 Sections</span>
+          <span style="background: #5f5f7f; color: #5fe2ff; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🆕 23 Enhanced</span>
+          <span style="background: #7f7f2a; color: #ffff5f; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">🔌 90+ APIs</span>
         </div>
       </div>
       
@@ -3495,6 +3495,159 @@
         </div>
       </section>
 
+      <!-- Section 32: Governance & Emergency Controls -->
+      <section>
+        <h2>📍 Section 32 | 🚨 Governance & Emergency Controls</h2>
+        <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff9f5f;">🆕 <strong>NEW SECTION:</strong> Emergency kill-switch, approval queue, policy governance (Modules H & J)</p>
+        
+        <!-- Emergency Kill-Switch Status -->
+        <div style="background: linear-gradient(135deg, #3d1a1a, #2e1515); padding: 2rem; border-radius: 12px; border: 3px solid #ff5f5f; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="margin: 0; color: #ff5f5f; font-size: 1.4rem;">🚨 EMERGENCY KILL-SWITCH</h3>
+            <div id="killswitch-mode-badge" style="background: #2a7f3f; color: #5fff9f; padding: 0.5rem 1.5rem; border-radius: 8px; font-size: 1.2rem; font-weight: 700;">ACTIVE</div>
+          </div>
+          
+          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div class="stat-card" style="border-left-color: #ff5f5f;">
+              <div class="stat-label">CURRENT MODE</div>
+              <div class="stat-value" id="killswitch-mode">ACTIVE</div>
+              <div class="muted">Full operation</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #ffb85f;">
+              <div class="stat-label">MODE CHANGES</div>
+              <div class="stat-value" id="killswitch-mode-changes">--</div>
+              <div class="muted">Total switches</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #5fe2ff;">
+              <div class="stat-label">LAST CHANGED BY</div>
+              <div class="stat-value" style="font-size: 1rem;" id="killswitch-changed-by">--</div>
+              <div class="muted">Administrator</div>
+            </div>
+          </div>
+          
+          <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 95, 95, 0.1); border-radius: 8px; border: 1px solid #ff5f5f;">
+            <p style="margin: 0; color: #ff5f5f; font-size: 0.95rem;">
+              <strong>⚡ Available Modes:</strong><br>
+              • <strong>ACTIVE:</strong> Full operation (normal mode)<br>
+              • <strong>MONITORING_ONLY:</strong> Observe and log but don't block anything (safe testing)<br>
+              • <strong>SAFE_MODE:</strong> Only critical defensive actions allowed<br>
+              • <strong>DISABLED:</strong> System completely disabled
+            </p>
+          </div>
+        </div>
+        
+        <!-- Approval Queue & Policy Governance -->
+        <div style="background: linear-gradient(135deg, #1a2e3d, #1a1a2e); padding: 2rem; border-radius: 12px; border: 2px solid #5fe2ff; margin-bottom: 2rem;">
+          <h3 style="margin: 0 0 1.5rem; color: #5fe2ff; font-size: 1.3rem;">⚖️ POLICY GOVERNANCE & APPROVAL QUEUE</h3>
+          
+          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+            <div class="stat-card warning">
+              <div class="stat-label">⏳ PENDING APPROVALS</div>
+              <div class="stat-value" id="governance-pending">--</div>
+              <div class="muted">Awaiting human review</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-label">✅ APPROVED</div>
+              <div class="stat-value" id="governance-approved">--</div>
+              <div class="muted">Total approved</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #ff5f5f;">
+              <div class="stat-label">❌ REJECTED</div>
+              <div class="stat-value" id="governance-rejected">--</div>
+              <div class="muted">Total rejected</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #9f5fff;">
+              <div class="stat-label">🤖 AUTO-APPROVED</div>
+              <div class="stat-value" id="governance-auto-approved">--</div>
+              <div class="muted">System auto-approved</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #5fe2ff;">
+              <div class="stat-label">AUTO-APPROVAL RATE</div>
+              <div class="stat-value" id="governance-auto-rate">--</div>
+              <div class="muted">Percentage</div>
+            </div>
+          </div>
+          
+          <!-- Pending Requests Table -->
+          <p class="muted" style="margin-top: 1.5rem;"><strong>⏳ Pending Approval Requests</strong></p>
+          <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
+            <div id="pending-approvals-list" style="max-height: 400px; overflow-y: auto;">
+              <div class="loading-spinner">Loading pending approvals...</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Audit Log Summary -->
+        <div style="background: linear-gradient(135deg, #2a1a3d, #1a1a2e); padding: 2rem; border-radius: 12px; border: 2px solid #ff5fff; margin-bottom: 2rem;">
+          <h3 style="margin: 0 0 1.5rem; color: #ff5fff; font-size: 1.3rem;">📋 COMPREHENSIVE AUDIT LOG (Last 7 Days)</h3>
+          
+          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+            <div class="stat-card" style="border-left-color: #ff5fff;">
+              <div class="stat-label">📊 TOTAL EVENTS</div>
+              <div class="stat-value" id="audit-total-events">--</div>
+              <div class="muted">All audited events</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #ff5f5f;">
+              <div class="stat-label">🚨 CRITICAL EVENTS</div>
+              <div class="stat-value" id="audit-critical-events">--</div>
+              <div class="muted">Severity: Critical</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #5fff9f;">
+              <div class="stat-label">✅ ACTIONS TAKEN</div>
+              <div class="stat-value" id="audit-actions-taken">--</div>
+              <div class="muted">Defensive actions</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #ffb85f;">
+              <div class="stat-label">🛡️ THREATS DETECTED</div>
+              <div class="stat-value" id="audit-threats">--</div>
+              <div class="muted">Security incidents</div>
+            </div>
+          </div>
+          
+          <!-- Recent Critical Events -->
+          <p class="muted" style="margin-top: 1.5rem;"><strong>🚨 Recent Critical Events (Last 10)</strong></p>
+          <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
+            <div id="critical-events-list" style="max-height: 300px; overflow-y: auto;">
+              <div class="loading-spinner">Loading critical events...</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Self-Protection & Integrity Status -->
+        <div style="background: linear-gradient(135deg, #3d2a1a, #2e1a1a); padding: 2rem; border-radius: 12px; border: 2px solid #ffb85f; margin-bottom: 2rem;">
+          <h3 style="margin: 0 0 1.5rem; color: #ffb85f; font-size: 1.3rem;">🛡️ SELF-PROTECTION & INTEGRITY MONITOR</h3>
+          
+          <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div class="stat-card" id="integrity-status-card" style="border-left-color: #5fff9f;">
+              <div class="stat-label">INTEGRITY STATUS</div>
+              <div class="stat-value" id="integrity-status">✅ INTACT</div>
+              <div class="muted">No violations detected</div>
+            </div>
+            <div class="stat-card warning">
+              <div class="stat-label">VIOLATIONS (24H)</div>
+              <div class="stat-value" id="integrity-violations">--</div>
+              <div class="muted">Last 24 hours</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #5fe2ff;">
+              <div class="stat-label">MONITORED COMPONENTS</div>
+              <div class="stat-value" id="integrity-components">--</div>
+              <div class="muted">Files tracked</div>
+            </div>
+            <div class="stat-card" style="border-left-color: #9f5fff;">
+              <div class="stat-label">TELEMETRY SOURCES</div>
+              <div class="stat-value" id="integrity-telemetry">--</div>
+              <div class="muted">Active monitors</div>
+            </div>
+          </div>
+          
+          <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 184, 95, 0.1); border-radius: 8px; border: 1px solid #ffb85f;">
+            <p style="margin: 0; color: #ffb85f; font-size: 0.95rem;">
+              <strong>🔍 Monitoring:</strong> Model tampering • Telemetry suppression • Log deletion • Config changes • Rootkit behavior • Monitor blinding
+            </p>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <div class="refresh-indicator">
@@ -4952,6 +5105,9 @@
         loadAttackChainVisualization();
         loadDecisionExplainability();
         
+        // Load Section 32: Governance & Emergency Controls (Modules B, C, D, F, G, H, J)
+        loadGovernanceControls();
+        
         // Refresh honeypot status every 30 seconds
         setInterval(loadHoneypotStatus, 30000);
         // Refresh enterprise metrics every 10 seconds
@@ -4987,6 +5143,8 @@
         // Refresh Phase 4 & Phase 7 every 15 seconds
         setInterval(loadAttackChainVisualization, 15000);
         setInterval(loadDecisionExplainability, 15000);
+        // Refresh Section 32: Governance every 10 seconds
+        setInterval(loadGovernanceControls, 10000);
       });
 
       
@@ -6818,3 +6976,175 @@
           console.error('Error loading decision explainability:', error);
         }
       }
+      
+      // ========================================================================
+      // Section 32: Governance & Emergency Controls (Modules B, C, D, F, G, H, J)
+      // ========================================================================
+      
+      async function loadGovernanceControls() {
+        try {
+          // Load kill-switch status
+          const killswitchResponse = await fetch('/api/killswitch/status');
+          if (killswitchResponse.ok) {
+            const killswitch = await killswitchResponse.json();
+            
+            // Update kill-switch display
+            const mode = killswitch.current_mode || 'active';
+            document.getElementById('killswitch-mode').textContent = mode.toUpperCase();
+            document.getElementById('killswitch-mode-changes').textContent = killswitch.mode_changes || 0;
+            document.getElementById('killswitch-changed-by').textContent = killswitch.disabled_by || 'system';
+            
+            // Update badge and card styling based on mode
+            const badge = document.getElementById('killswitch-mode-badge');
+            
+            if (mode === 'active') {
+              badge.style.background = '#2a7f3f';
+              badge.style.color = '#5fff9f';
+              badge.textContent = 'ACTIVE';
+            } else if (mode === 'monitoring_only') {
+              badge.style.background = '#7f7f2a';
+              badge.style.color = '#ffff5f';
+              badge.textContent = 'MONITORING ONLY';
+            } else if (mode === 'safe_mode') {
+              badge.style.background = '#7f5f2a';
+              badge.style.color = '#ffb85f';
+              badge.textContent = 'SAFE MODE';
+            } else if (mode === 'disabled') {
+              badge.style.background = '#7f2a2a';
+              badge.style.color = '#ff5f5f';
+              badge.textContent = 'DISABLED';
+            }
+          }
+          
+          // Load governance & approval stats
+          const govResponse = await fetch('/api/governance/stats');
+          if (govResponse.ok) {
+            const gov = await govResponse.json();
+            
+            document.getElementById('governance-pending').textContent = gov.pending_requests || 0;
+            document.getElementById('governance-approved').textContent = gov.approved_requests || 0;
+            document.getElementById('governance-rejected').textContent = gov.rejected_requests || 0;
+            document.getElementById('governance-auto-approved').textContent = gov.auto_approved_requests || 0;
+            document.getElementById('governance-auto-rate').textContent = 
+              gov.auto_approval_rate ? (gov.auto_approval_rate * 100).toFixed(0) + '%' : '0%';
+            
+            // Display pending approval requests
+            const pendingList = document.getElementById('pending-approvals-list');
+            if (gov.pending_requests && gov.pending_requests.length > 0) {
+              pendingList.innerHTML = gov.pending_requests.map(req => `
+                <div style="background: rgba(255, 184, 95, 0.1); padding: 1rem; border-radius: 6px; border-left: 4px solid ${
+                  req.risk_level === 'critical' ? '#ff5f5f' : 
+                  req.risk_level === 'high' ? '#ffb85f' : 
+                  req.risk_level === 'medium' ? '#ffff5f' : '#5fe2ff'
+                }; margin-bottom: 0.75rem;">
+                  <div style="display: flex; justify-between; align-items: start; margin-bottom: 0.5rem;">
+                    <div>
+                      <div style="font-weight: 600; color: #f5f7ff; font-size: 1rem; margin-bottom: 0.25rem;">
+                        ${req.proposed_action}
+                      </div>
+                      <div style="color: #a9b3d4; font-size: 0.85rem;">Target: ${req.target}</div>
+                    </div>
+                    <span style="background: ${
+                      req.risk_level === 'critical' ? 'rgba(255, 95, 95, 0.2)' : 
+                      req.risk_level === 'high' ? 'rgba(255, 184, 95, 0.2)' : 
+                      req.risk_level === 'medium' ? 'rgba(255, 255, 95, 0.2)' : 'rgba(95, 226, 255, 0.2)'
+                    }; color: ${
+                      req.risk_level === 'critical' ? '#ff5f5f' : 
+                      req.risk_level === 'high' ? '#ffb85f' : 
+                      req.risk_level === 'medium' ? '#ffff5f' : '#5fe2ff'
+                    }; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">
+                      ${req.risk_level.toUpperCase()}
+                    </span>
+                  </div>
+                  <div style="color: #8a92b6; font-size: 0.8rem; line-height: 1.6;">
+                    <div>Confidence: <span style="color: ${req.confidence >= 0.8 ? '#5fff9f' : '#ffb85f'}; font-weight: 600;">${(req.confidence * 100).toFixed(0)}%</span></div>
+                    <div>Requested: ${new Date(req.timestamp).toLocaleString()}</div>
+                    <div>Expires: ${new Date(req.expires_at).toLocaleString()}</div>
+                  </div>
+                </div>
+              `).join('');
+            } else {
+              pendingList.innerHTML = `
+                <div style="text-align: center; padding: 1.5rem; background: rgba(95, 255, 159, 0.05); border-radius: 6px; border: 1px dashed #5fff9f;">
+                  <p style="margin: 0; color: #5fff9f;">✅ No pending approvals</p>
+                </div>
+              `;
+            }
+          }
+          
+          // Load audit log stats
+          const auditResponse = await fetch('/api/audit-log/stats');
+          if (auditResponse.ok) {
+            const audit = await auditResponse.json();
+            const compliance = audit.compliance_report_7d || {};
+            
+            document.getElementById('audit-total-events').textContent = compliance.total_events || 0;
+            document.getElementById('audit-critical-events').textContent = compliance.critical_events_count || 0;
+            document.getElementById('audit-actions-taken').textContent = 
+              compliance.events_by_type?.action_taken || 0;
+            document.getElementById('audit-threats').textContent = 
+              compliance.events_by_type?.threat_detected || 0;
+            
+            // Display recent critical events
+            const criticalList = document.getElementById('critical-events-list');
+            if (compliance.critical_events && compliance.critical_events.length > 0) {
+              criticalList.innerHTML = compliance.critical_events.map(event => `
+                <div style="background: rgba(255, 95, 95, 0.1); padding: 0.75rem; border-radius: 6px; border-left: 3px solid #ff5f5f; margin-bottom: 0.5rem;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                    <span style="font-weight: 600; color: #ff5f5f; font-size: 0.9rem;">${event.event_type}</span>
+                    <span style="color: #8a92b6; font-size: 0.75rem;">${new Date(event.timestamp).toLocaleString()}</span>
+                  </div>
+                  <div style="color: #a9b3d4; font-size: 0.8rem;">
+                    <div>Actor: ${event.actor}</div>
+                    <div>Action: ${event.action}</div>
+                    <div>Outcome: <span style="color: ${event.outcome === 'success' ? '#5fff9f' : '#ff5f5f'};">${event.outcome}</span></div>
+                  </div>
+                </div>
+              `).join('');
+            } else {
+              criticalList.innerHTML = `
+                <div style="text-align: center; padding: 1.5rem; background: rgba(95, 255, 159, 0.05); border-radius: 6px; border: 1px dashed #5fff9f;">
+                  <p style="margin: 0; color: #5fff9f;">✅ No critical events in last 7 days</p>
+                </div>
+              `;
+            }
+          }
+          
+          // Load self-protection & integrity stats
+          const protectionResponse = await fetch('/api/self-protection/stats');
+          if (protectionResponse.ok) {
+            const protection = await protectionResponse.json();
+            const violations = protection.violations_24h || {};
+            
+            document.getElementById('integrity-violations').textContent = violations.total_violations || 0;
+            document.getElementById('integrity-components').textContent = protection.monitored_components || 0;
+            document.getElementById('integrity-telemetry').textContent = protection.telemetry_sources || 0;
+            
+            // Update integrity status
+            const statusCard = document.getElementById('integrity-status-card');
+            const statusText = document.getElementById('integrity-status');
+            const statusMuted = statusCard.querySelector('.muted');
+            
+            if (violations.total_violations > 0 && violations.should_alert) {
+              statusCard.className = 'stat-card';
+              statusCard.style.borderLeftColor = '#ff5f5f';
+              statusText.textContent = '🚨 VIOLATIONS';
+              statusText.style.color = '#ff5f5f';
+              statusMuted.textContent = violations.critical_violations + ' critical';
+            } else if (violations.total_violations > 0) {
+              statusCard.className = 'stat-card warning';
+              statusText.textContent = '⚠️ MINOR ISSUES';
+              statusMuted.textContent = 'Low severity';
+            } else {
+              statusCard.className = 'stat-card success';
+              statusCard.style.borderLeftColor = '#5fff9f';
+              statusText.textContent = '✅ INTACT';
+              statusMuted.textContent = 'No violations detected';
+            }
+          }
+          
+        } catch (error) {
+          console.error('Error loading governance controls:', error);
+        }
+      }
+</script></body></html>
