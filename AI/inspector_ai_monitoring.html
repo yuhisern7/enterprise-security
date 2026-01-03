@@ -2031,6 +2031,9 @@
           <button onclick="switchHealthTab('network')" id="health-tab-network" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
             📡 Network Performance
           </button>
+          <button onclick="switchHealthTab('integrity')" id="health-tab-integrity" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🛡️ Self-Protection <span style="background: #ff9f5f; color: #0b1020; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.7rem; margin-left: 0.25rem;">Module G</span>
+          </button>
         </div>
 
         <!-- System Health Tab -->
@@ -2089,28 +2092,195 @@
             <canvas id="performanceChart" style="max-height: 300px;"></canvas>
           </div>
         </div>
+        
+        <!-- Self-Protection & Integrity Tab (Module G) -->
+        <div id="health-content-integrity" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="stat-card success" id="integrity-health-status">
+              <div class="stat-label">🛡️ INTEGRITY STATUS</div>
+              <div class="stat-value" id="integrity-health-value">✅ INTACT</div>
+              <div class="muted">No violations</div>
+            </div>
+            <div class="stat-card warning">
+              <div class="stat-label">⚠️ VIOLATIONS (24H)</div>
+              <div class="stat-value" id="integrity-health-violations">0</div>
+              <div class="muted">Last 24 hours</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">📁 MONITORED FILES</div>
+              <div class="stat-value" id="integrity-health-components">0</div>
+              <div class="muted">Components tracked</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">📡 TELEMETRY SOURCES</div>
+              <div class="stat-value" id="integrity-health-telemetry">0</div>
+              <div class="muted">Active monitors</div>
+            </div>
+          </div>
+          
+          <h3 style="color: #ffb85f; font-size: 1rem; margin: 1.5rem 0 0.75rem;">🔍 What Self-Protection Monitors</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: rgba(255, 95, 95, 0.1); padding: 1rem; border-radius: 6px; border-left: 3px solid #ff5f5f;">
+              <div style="font-weight: 600; color: #ff5f5f; margin-bottom: 0.5rem;">🎯 Model Tampering Detection</div>
+              <div style="color: #a9b3d4; font-size: 0.85rem;">SHA-256 hashing verifies ML model files haven't been modified by attackers</div>
+            </div>
+            <div style="background: rgba(255, 184, 95, 0.1); padding: 1rem; border-radius: 6px; border-left: 3px solid #ffb85f;">
+              <div style="font-weight: 600; color: #ffb85f; margin-bottom: 0.5rem;">📡 Telemetry Suppression</div>
+              <div style="color: #a9b3d4; font-size: 0.85rem;">Detects if eBPF programs are unloaded or packet capture is stopped (60s threshold)</div>
+            </div>
+            <div style="background: rgba(255, 95, 159, 0.1); padding: 1rem; border-radius: 6px; border-left: 3px solid #ff5f9f;">
+              <div style="font-weight: 600; color: #ff5f9f; margin-bottom: 0.5rem;">🗑️ Log Deletion</div>
+              <div style="color: #a9b3d4; font-size: 0.85rem;">Alerts on suspicious log reductions >50% (attacker cover-up attempts)</div>
+            </div>
+            <div style="background: rgba(95, 255, 255, 0.1); padding: 1rem; border-radius: 6px; border-left: 3px solid #5fffff;">
+              <div style="font-weight: 600; color: #5fffff; margin-bottom: 0.5rem;">⚙️ Config Tampering</div>
+              <div style="color: #a9b3d4; font-size: 0.85rem;">Monitors critical configuration files for unauthorized modifications</div>
+            </div>
+            <div style="background: rgba(159, 95, 255, 0.1); padding: 1rem; border-radius: 6px; border-left: 3px solid #9f5fff;">
+              <div style="font-weight: 600; color: #9f5fff; margin-bottom: 0.5rem;">👻 Rootkit Detection</div>
+              <div style="color: #a9b3d4; font-size: 0.85rem;">Compares kernel vs userland packet counts (>30% discrepancy = rootkit)</div>
+            </div>
+            <div style="background: rgba(255, 95, 95, 0.1); padding: 1rem; border-radius: 6px; border-left: 3px solid #ff5f5f;">
+              <div style="font-weight: 600; color: #ff5f5f; margin-bottom: 0.5rem;">🕶️ Monitor Blinding</div>
+              <div style="color: #a9b3d4; font-size: 0.85rem;">Detects coordinated attacks on multiple telemetry sources simultaneously</div>
+            </div>
+          </div>
+          
+          <div style="background: rgba(255, 184, 95, 0.1); padding: 1rem; border-radius: 8px; border: 1px solid #ffb85f;">
+            <p style="margin: 0; font-size: 0.9rem; color: #ffb85f; line-height: 1.6;">
+              <strong>🛡️ Conservative Mode Enabled:</strong><br>
+              • 60-second telemetry silence threshold (very conservative)<br>
+              • Requires 3 violations before alerting (prevents false positives)<br>
+              • 5-minute grace period for model changes during retraining<br>
+              • Only alerts on >50% log reduction (significant tampering only)<br>
+              • Multiple telemetry sources must fail for blinding alert
+            </p>
+          </div>
+        </div>
       </section>
 
       <!-- Compliance Dashboard -->
     <section>
-        <h2>📍 Section 13 | ✅ Compliance Dashboard</h2>
-        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>EXISTING FEATURE:</strong> Regulatory compliance - PCI-DSS, HIPAA, GDPR, SOC 2 scoring</p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-          <div class="stat-card success">
-            <div class="stat-label">🏦 PCI-DSS v4.0</div>
-            <div class="stat-value" id="pci-score">--%</div>
+        <h2>📍 Section 13 | ✅ Compliance & Threat Governance</h2>
+        <p class="muted" style="font-size: 0.8rem; margin-top: -0.5rem;">✅ <strong>ENHANCED SECTION:</strong> Regulatory compliance + Threat model policies + Audit summaries (Modules F & J)</p>
+        
+        <!-- Tab Navigation -->
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #2a4a3d;">
+          <button onclick="switchComplianceTab('compliance')" id="compliance-tab-compliance" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #5fff9f, #5fe2ff); color: #0b1020; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🏦 Compliance
+          </button>
+          <button onclick="switchComplianceTab('threat-model')" id="compliance-tab-threat-model" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            🎯 Threat Model <span style="background: #ff9f5f; color: #0b1020; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.7rem; margin-left: 0.25rem;">Module F</span>
+          </button>
+          <button onclick="switchComplianceTab('audit')" id="compliance-tab-audit" style="padding: 0.75rem 1.5rem; background: #1a2135; color: #f5f7ff; border: none; border-radius: 8px 8px 0 0; font-weight: 600; cursor: pointer; font-size: 0.9rem;">
+            📋 Audit Summary <span style="background: #ff5fff; color: #0b1020; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.7rem; margin-left: 0.25rem;">Module J</span>
+          </button>
+        </div>
+        
+        <!-- Compliance Tab -->
+        <div id="compliance-content-compliance" style="display: block;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div class="stat-card success">
+              <div class="stat-label">🏦 PCI-DSS v4.0</div>
+              <div class="stat-value" id="pci-score">--%</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-label">🏥 HIPAA</div>
+              <div class="stat-value" id="hipaa-score">--%</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-label">🌍 GDPR</div>
+              <div class="stat-value" id="gdpr-score">--%</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-label">🔒 SOC 2</div>
+              <div class="stat-value" id="soc2-score">--%</div>
+            </div>
           </div>
-          <div class="stat-card success">
-            <div class="stat-label">🏥 HIPAA</div>
-            <div class="stat-value" id="hipaa-score">--%</div>
+        </div>
+        
+        <!-- Threat Model Tab (Module F) -->
+        <div id="compliance-content-threat-model" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="stat-card success">
+              <div class="stat-label">📜 TOTAL POLICIES</div>
+              <div class="stat-value" id="threat-model-policies">0</div>
+              <div class="muted">Active threat rules</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">🎯 THREAT COVERAGE</div>
+              <div class="stat-value" id="threat-model-coverage">0%</div>
+              <div class="muted">Attack types covered</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">✅ ENFORCED ACTIONS</div>
+              <div class="stat-value" id="threat-model-enforced">0</div>
+              <div class="muted">Policy enforcements</div>
+            </div>
+            <div class="stat-card warning">
+              <div class="stat-label">🚫 BLOCKED ACTIONS</div>
+              <div class="stat-value" id="threat-model-blocked">0</div>
+              <div class="muted">Policy violations</div>
+            </div>
           </div>
-          <div class="stat-card success">
-            <div class="stat-label">🌍 GDPR</div>
-            <div class="stat-value" id="gdpr-score">--%</div>
+          
+          <div style="background: rgba(95, 226, 255, 0.1); padding: 1.25rem; border-radius: 8px; border: 1px solid #5fe2ff; margin-bottom: 1rem;">
+            <h3 style="margin: 0 0 0.75rem; color: #5fe2ff; font-size: 1rem;">🎯 What Threat Model Does</h3>
+            <div style="color: #a9b3d4; font-size: 0.9rem; line-height: 1.7;">
+              <strong>Policy-Based Security:</strong> Defines allowed vs prohibited actions per threat type<br>
+              <strong>Confidence Thresholds:</strong> Minimum certainty required for automated actions<br>
+              <strong>Human-in-the-Loop:</strong> Specifies which actions need approval<br>
+              <strong>Threat Coverage Matrix:</strong> Maps all threat categories to response policies<br>
+              <strong>Formal Guarantees:</strong> Codified attacker classes with per-class detection rules
+            </div>
           </div>
-          <div class="stat-card success">
-            <div class="stat-label">🔒 SOC 2</div>
-            <div class="stat-value" id="soc2-score">--%</div>
+          
+          <div id="threat-model-details" style="background: #1a2135; padding: 1rem; border-radius: 8px; min-height: 150px;">
+            <div class="loading-spinner">Loading threat model policies...</div>
+          </div>
+        </div>
+        
+        <!-- Audit Summary Tab (Module J) -->
+        <div id="compliance-content-audit" style="display: none;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="stat-card">
+              <div class="stat-label">📊 TOTAL EVENTS (7D)</div>
+              <div class="stat-value" id="audit-summary-total">0</div>
+              <div class="muted">All audited events</div>
+            </div>
+            <div class="stat-card critical">
+              <div class="stat-label">🚨 CRITICAL EVENTS</div>
+              <div class="stat-value" id="audit-summary-critical">0</div>
+              <div class="muted">High severity</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-label">✅ ACTIONS TAKEN</div>
+              <div class="stat-value" id="audit-summary-actions">0</div>
+              <div class="muted">Defensive responses</div>
+            </div>
+            <div class="stat-card warning">
+              <div class="stat-label">🛡️ THREATS DETECTED</div>
+              <div class="stat-value" id="audit-summary-threats">0</div>
+              <div class="muted">Security incidents</div>
+            </div>
+          </div>
+          
+          <div style="background: rgba(255, 95, 255, 0.1); padding: 1.25rem; border-radius: 8px; border: 1px solid #ff5fff; margin-bottom: 1rem;">
+            <h3 style="margin: 0 0 0.75rem; color: #ff5fff; font-size: 1rem;">📋 Audit Log Capabilities</h3>
+            <div style="color: #a9b3d4; font-size: 0.9rem; line-height: 1.7;">
+              <strong>Immutable Logging:</strong> Append-only audit trail with automatic rotation<br>
+              <strong>Compliance Reports:</strong> GDPR, HIPAA, PCI-DSS, SOC 2 ready<br>
+              <strong>Event Tracking:</strong> Threats, actions, approvals, model changes, config changes<br>
+              <strong>Search & Filter:</strong> Fast queries by event type, actor, time range, risk level<br>
+              <strong>Critical Flushing:</strong> Immediate disk write for high-severity events
+            </div>
+          </div>
+          
+          <div style="background: #1a2135; padding: 1.25rem; border-radius: 8px; border: 1px solid #2a3548;">
+            <h3 style="margin: 0 0 0.75rem; color: #f5f7ff; font-size: 1rem;">📈 Event Breakdown (Last 7 Days)</h3>
+            <div id="audit-event-breakdown" style="min-height: 100px;">
+              <div class="loading-spinner">Loading audit event breakdown...</div>
+            </div>
           </div>
         </div>
       </section>
@@ -4750,12 +4920,15 @@
         // Hide all tabs
         document.getElementById('health-content-system').style.display = 'none';
         document.getElementById('health-content-network').style.display = 'none';
+        document.getElementById('health-content-integrity').style.display = 'none';
         
         // Reset all tab buttons
         document.getElementById('health-tab-system').style.background = '#1a2135';
         document.getElementById('health-tab-system').style.color = '#f5f7ff';
         document.getElementById('health-tab-network').style.background = '#1a2135';
         document.getElementById('health-tab-network').style.color = '#f5f7ff';
+        document.getElementById('health-tab-integrity').style.background = '#1a2135';
+        document.getElementById('health-tab-integrity').style.color = '#f5f7ff';
         
         // Show selected tab
         if (tab === 'system') {
@@ -4768,6 +4941,44 @@
           document.getElementById('health-tab-network').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
           document.getElementById('health-tab-network').style.color = '#0b1020';
           loadEnterpriseMetrics(); // Refresh data when tab opened
+        } else if (tab === 'integrity') {
+          document.getElementById('health-content-integrity').style.display = 'block';
+          document.getElementById('health-tab-integrity').style.background = 'linear-gradient(135deg, #ffb85f, #ff9f5f)';
+          document.getElementById('health-tab-integrity').style.color = '#0b1020';
+          loadIntegrityData(); // Refresh data when tab opened
+        }
+      }
+      
+      function switchComplianceTab(tab) {
+        // Hide all tabs
+        document.getElementById('compliance-content-compliance').style.display = 'none';
+        document.getElementById('compliance-content-threat-model').style.display = 'none';
+        document.getElementById('compliance-content-audit').style.display = 'none';
+        
+        // Reset all tab buttons
+        document.getElementById('compliance-tab-compliance').style.background = '#1a2135';
+        document.getElementById('compliance-tab-compliance').style.color = '#f5f7ff';
+        document.getElementById('compliance-tab-threat-model').style.background = '#1a2135';
+        document.getElementById('compliance-tab-threat-model').style.color = '#f5f7ff';
+        document.getElementById('compliance-tab-audit').style.background = '#1a2135';
+        document.getElementById('compliance-tab-audit').style.color = '#f5f7ff';
+        
+        // Show selected tab
+        if (tab === 'compliance') {
+          document.getElementById('compliance-content-compliance').style.display = 'block';
+          document.getElementById('compliance-tab-compliance').style.background = 'linear-gradient(135deg, #5fff9f, #5fe2ff)';
+          document.getElementById('compliance-tab-compliance').style.color = '#0b1020';
+          loadComplianceData(); // Refresh data when tab opened
+        } else if (tab === 'threat-model') {
+          document.getElementById('compliance-content-threat-model').style.display = 'block';
+          document.getElementById('compliance-tab-threat-model').style.background = 'linear-gradient(135deg, #ffb85f, #ff9f5f)';
+          document.getElementById('compliance-tab-threat-model').style.color = '#0b1020';
+          loadThreatModelData(); // Refresh data when tab opened
+        } else if (tab === 'audit') {
+          document.getElementById('compliance-content-audit').style.display = 'block';
+          document.getElementById('compliance-tab-audit').style.background = 'linear-gradient(135deg, #ff5fff, #ff9f5f)';
+          document.getElementById('compliance-tab-audit').style.color = '#0b1020';
+          loadAuditSummaryData(); // Refresh data when tab opened
         }
       }
       
@@ -7145,6 +7356,120 @@
           
         } catch (error) {
           console.error('Error loading governance controls:', error);
+        }
+      }
+      
+      // Load integrity data for Section 12 Tab 3
+      async function loadIntegrityData() {
+        try {
+          const protectionResponse = await fetch('/api/self-protection/stats');
+          if (protectionResponse.ok) {
+            const protection = await protectionResponse.json();
+            const violations = protection.violations_24h || {};
+            
+            document.getElementById('integrity-health-violations').textContent = violations.total_violations || 0;
+            document.getElementById('integrity-health-components').textContent = protection.monitored_components || 0;
+            document.getElementById('integrity-health-telemetry').textContent = protection.telemetry_sources || 0;
+            
+            // Update integrity status
+            const statusCard = document.getElementById('integrity-health-status');
+            const statusText = document.getElementById('integrity-health-value');
+            const statusMuted = statusCard.querySelector('.muted');
+            
+            if (violations.total_violations > 0 && violations.should_alert) {
+              statusCard.className = 'stat-card';
+              statusCard.style.borderLeftColor = '#ff5f5f';
+              statusText.textContent = '🚨 VIOLATIONS';
+              statusText.style.color = '#ff5f5f';
+              statusMuted.textContent = violations.critical_violations + ' critical';
+            } else if (violations.total_violations > 0) {
+              statusCard.className = 'stat-card warning';
+              statusText.textContent = '⚠️ MINOR ISSUES';
+              statusMuted.textContent = 'Low severity';
+            } else {
+              statusCard.className = 'stat-card success';
+              statusCard.style.borderLeftColor = '#5fff9f';
+              statusText.textContent = '✅ INTACT';
+              statusMuted.textContent = 'No violations';
+            }
+          }
+        } catch (error) {
+          console.error('Error loading integrity data:', error);
+        }
+      }
+      
+      // Load threat model data for Section 13 Tab 2
+      async function loadThreatModelData() {
+        try {
+          const response = await fetch('/api/threat-model/stats');
+          if (response.ok) {
+            const data = await response.json();
+            
+            document.getElementById('threat-model-policies').textContent = data.total_policies || 0;
+            document.getElementById('threat-model-coverage').textContent = 
+              data.threat_coverage ? (data.threat_coverage.coverage_percentage * 100).toFixed(0) + '%' : '0%';
+            document.getElementById('threat-model-enforced').textContent = data.enforced_actions || 0;
+            document.getElementById('threat-model-blocked').textContent = data.blocked_actions || 0;
+            
+            // Display policy details
+            const detailsDiv = document.getElementById('threat-model-details');
+            if (data.policy_summary && data.policy_summary.length > 0) {
+              detailsDiv.innerHTML = data.policy_summary.map(policy => `
+                <div style="background: rgba(95, 226, 255, 0.05); padding: 0.75rem; border-radius: 6px; border-left: 3px solid #5fe2ff; margin-bottom: 0.5rem;">
+                  <div style="font-weight: 600; color: #5fe2ff; margin-bottom: 0.25rem;">${policy.threat_type}</div>
+                  <div style="color: #a9b3d4; font-size: 0.85rem;">
+                    Action: ${policy.allowed_action} | Min Confidence: ${(policy.min_confidence * 100).toFixed(0)}%
+                  </div>
+                </div>
+              `).join('');
+            } else {
+              detailsDiv.innerHTML = `
+                <div style="text-align: center; padding: 1.5rem; color: #8a92b6;">
+                  <p style="margin: 0;">No threat model policies configured yet</p>
+                </div>
+              `;
+            }
+          }
+        } catch (error) {
+          console.error('Error loading threat model data:', error);
+        }
+      }
+      
+      // Load audit summary data for Section 13 Tab 3
+      async function loadAuditSummaryData() {
+        try {
+          const response = await fetch('/api/audit-log/stats');
+          if (response.ok) {
+            const data = await response.json();
+            const compliance = data.compliance_report_7d || {};
+            
+            document.getElementById('audit-summary-total').textContent = compliance.total_events || 0;
+            document.getElementById('audit-summary-critical').textContent = compliance.critical_events_count || 0;
+            document.getElementById('audit-summary-actions').textContent = 
+              compliance.events_by_type?.action_taken || 0;
+            document.getElementById('audit-summary-threats').textContent = 
+              compliance.events_by_type?.threat_detected || 0;
+            
+            // Display event breakdown
+            const breakdownDiv = document.getElementById('audit-event-breakdown');
+            if (compliance.events_by_type && Object.keys(compliance.events_by_type).length > 0) {
+              breakdownDiv.innerHTML = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.75rem;">' +
+                Object.entries(compliance.events_by_type).map(([type, count]) => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: rgba(95, 226, 255, 0.05); border-radius: 4px;">
+                    <span style="color: #a9b3d4; font-size: 0.9rem;">${type.replace(/_/g, ' ').toUpperCase()}</span>
+                    <span style="color: #5fe2ff; font-weight: 600;">${count}</span>
+                  </div>
+                `).join('') + '</div>';
+            } else {
+              breakdownDiv.innerHTML = `
+                <div style="text-align: center; padding: 1rem; color: #8a92b6;">
+                  <p style="margin: 0;">No audit events in last 7 days</p>
+                </div>
+              `;
+            }
+          }
+        } catch (error) {
+          console.error('Error loading audit summary data:', error);
         }
       }
 </script></body></html>
