@@ -21,6 +21,9 @@ from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, asdict
 from collections import defaultdict
 import hashlib
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
