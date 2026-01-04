@@ -20,6 +20,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Feature flag for lineage tracking and optional disk persistence
+LINEAGE_ENABLED = os.getenv("LINEAGE_ENABLED", "true").lower() == "true"
+
 # Try to import cryptography for Ed25519 signatures
 try:
     from cryptography.hazmat.primitives.asymmetric import ed25519
@@ -79,12 +82,15 @@ class CryptographicLineage:
         # Signing key for authenticity
         self.private_key = None
         self.public_key = None
+        self.enabled = LINEAGE_ENABLED
         
         # Load existing lineage
         self._load_lineage()
         self._load_or_generate_keys()
         
-        logger.info(f"[LINEAGE] Initialized with {len(self.checkpoints)} checkpoints")
+        logger.info(
+            f"[LINEAGE] Initialized with {len(self.checkpoints)} checkpoints (enabled={self.enabled}, storage_dir={self.storage_dir})"
+        )
     
     def _load_or_generate_keys(self):
         """Load or generate Ed25519 signing keys."""
@@ -128,9 +134,12 @@ class CryptographicLineage:
     
     def _hash_model_weights(self, weights) -> str:
         """Compute SHA-256 hash of model weights."""
-        import numpy as np
-        
-        if isinstance(weights, np.ndarray):
+        try:
+            import numpy as np
+        except ImportError:
+            np = None  # type: ignore
+
+        if np is not None and isinstance(weights, np.ndarray):
             data = weights.tobytes()
         elif isinstance(weights, list):
             # Convert list to bytes
@@ -345,8 +354,11 @@ class CryptographicLineage:
             "last_updated": datetime.now().isoformat()
         }
         
-        with open(self.lineage_file, 'w') as f:
-            json.dump(lineage_data, f, indent=2)
+        try:
+            with open(self.lineage_file, 'w') as f:
+                json.dump(lineage_data, f, indent=2)
+        except Exception as e:
+            logger.error(f"[LINEAGE] Failed to save lineage to {self.lineage_file}: {e}")
     
     def _load_lineage(self):
         """Load lineage from disk."""
@@ -376,7 +388,9 @@ class CryptographicLineage:
                 "total_signatures": 0,
                 "chain_depth": 0,
                 "last_checkpoint_time": None,
-                "checkpoint_history": []
+                "checkpoint_history": [],
+                "enabled": self.enabled,
+                "storage_dir": self.storage_dir,
             }
         
         sources = {}
@@ -405,7 +419,9 @@ class CryptographicLineage:
             "last_checkpoint_time": self.checkpoints[-1].timestamp,
             "sources": sources,
             "signatures_enabled": CRYPTO_AVAILABLE and self.private_key is not None,
-            "checkpoint_history": checkpoint_history
+            "checkpoint_history": checkpoint_history,
+            "enabled": self.enabled,
+            "storage_dir": self.storage_dir,
         }
 
 

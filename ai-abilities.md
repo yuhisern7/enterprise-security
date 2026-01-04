@@ -74,8 +74,8 @@ Suggested improvement order (next targets first):
 
 ## Cryptography & Lineage
 
-- [ ] AI/crypto_security.py — Cryptographic hardening and key handling
-- [ ] AI/cryptographic_lineage.py — Model lineage, signing, and provenance
+- [x] AI/crypto_security.py — Cryptographic hardening and key handling
+- [x] AI/cryptographic_lineage.py — Model lineage, signing, and provenance
 
 ## Federated Learning & P2P
 

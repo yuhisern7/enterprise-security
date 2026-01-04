@@ -19,6 +19,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Feature flags and tunables for message security
+MESSAGE_SECURITY_ENABLED = os.getenv("MESSAGE_SECURITY_ENABLED", "true").lower() == "true"
+MESSAGE_SECURITY_MAX_NONCES = int(os.getenv("MESSAGE_SECURITY_MAX_NONCES", "10000"))
+MESSAGE_SECURITY_KEY_DIR = os.getenv("MESSAGE_SECURITY_KEY_DIR")  # Optional override
+
 
 class MessageSecurity:
     """Handles cryptographic operations for secure mesh communication"""
@@ -30,7 +35,11 @@ class MessageSecurity:
         Args:
             key_dir: Directory to store cryptographic keys
         """
-        self.key_dir = key_dir
+        # Allow environment override for key directory, but keep existing default
+        if MESSAGE_SECURITY_KEY_DIR:
+            self.key_dir = MESSAGE_SECURITY_KEY_DIR
+        else:
+            self.key_dir = key_dir
         os.makedirs(key_dir, exist_ok=True)
         
         self.private_key_file = os.path.join(key_dir, "private_key.pem")
@@ -48,8 +57,12 @@ class MessageSecurity:
         self.nonce_cache = set()  # Track used nonces
         self.nonce_expiry = {}  # Nonce -> expiry timestamp
         self.message_window_seconds = 300  # Accept messages within 5 minutes
-        
-        logger.info("[CRYPTO] Message security initialized")
+        self.enabled = MESSAGE_SECURITY_ENABLED
+        self.max_nonces = max(1000, MESSAGE_SECURITY_MAX_NONCES)
+
+        logger.info(
+            f"[CRYPTO] Message security initialized (enabled={self.enabled}, key_dir={self.key_dir})"
+        )
         logger.info(f"[CRYPTO] Public key fingerprint: {self._get_public_key_fingerprint()[:16]}...")
     
     def _load_or_generate_keypair(self) -> Tuple[rsa.RSAPrivateKey, rsa.RSAPublicKey]:
@@ -63,16 +76,16 @@ class MessageSecurity:
                         password=None,
                         backend=default_backend()
                     )
-                
+
                 with open(self.public_key_file, 'rb') as f:
                     public_key = serialization.load_pem_public_key(
                         f.read(),
                         backend=default_backend()
                     )
-                
+
                 logger.info("[CRYPTO] Loaded existing RSA keypair")
                 return private_key, public_key
-            
+
             except Exception as e:
                 logger.warning(f"[CRYPTO] Failed to load keys: {e}, generating new keypair")
         
@@ -86,19 +99,27 @@ class MessageSecurity:
         public_key = private_key.public_key()
         
         # Save keys
-        with open(self.private_key_file, 'wb') as f:
-            f.write(private_key.private_bytes(
-                encoding=serialization.Encoding.PEM,
-                format=serialization.PrivateFormat.PKCS8,
-                encryption_algorithm=serialization.NoEncryption()
-            ))
-        
-        with open(self.public_key_file, 'wb') as f:
-            f.write(public_key.public_bytes(
-                encoding=serialization.Encoding.PEM,
-                format=serialization.PublicFormat.SubjectPublicKeyInfo
-            ))
-        
+        try:
+            with open(self.private_key_file, 'wb') as f:
+                f.write(private_key.private_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PrivateFormat.PKCS8,
+                    encryption_algorithm=serialization.NoEncryption()
+                ))
+            # Restrict private key permissions
+            try:
+                os.chmod(self.private_key_file, 0o600)
+            except Exception:
+                pass
+
+            with open(self.public_key_file, 'wb') as f:
+                f.write(public_key.public_bytes(
+                    encoding=serialization.Encoding.PEM,
+                    format=serialization.PublicFormat.SubjectPublicKeyInfo
+                ))
+        except Exception as e:
+            logger.error(f"[CRYPTO] Failed to save RSA keypair: {e}")
+
         logger.info("[CRYPTO] RSA keypair generated and saved")
         return private_key, public_key
     
@@ -116,10 +137,17 @@ class MessageSecurity:
         # Generate new 256-bit secret
         logger.info("[CRYPTO] Generating new 256-bit shared secret...")
         secret = secrets.token_bytes(32)
-        
-        with open(self.shared_secret_file, 'wb') as f:
-            f.write(secret)
-        
+
+        try:
+            with open(self.shared_secret_file, 'wb') as f:
+                f.write(secret)
+            try:
+                os.chmod(self.shared_secret_file, 0o600)
+            except Exception:
+                pass
+        except Exception as e:
+            logger.error(f"[CRYPTO] Failed to save shared secret: {e}")
+
         logger.info("[CRYPTO] Shared secret generated and saved")
         return secret
     
@@ -231,10 +259,10 @@ class MessageSecurity:
             # Accept message - add nonce to cache
             self.nonce_cache.add(nonce)
             self.nonce_expiry[nonce] = datetime.utcnow() + timedelta(seconds=self.message_window_seconds * 2)
-            
-            # Clean up expired nonces
+
+            # Clean up expired/non-needed nonces
             self._cleanup_nonces()
-            
+
             return True, "OK"
         
         except Exception as e:
@@ -252,6 +280,19 @@ class MessageSecurity:
         
         if expired:
             logger.debug(f"[CRYPTO] Cleaned up {len(expired)} expired nonces")
+
+        # Bound nonce cache size to avoid unbounded memory growth
+        if len(self.nonce_cache) > self.max_nonces:
+            overflow = len(self.nonce_cache) - self.max_nonces
+            # Drop oldest by expiry time
+            ordered = sorted(self.nonce_expiry.items(), key=lambda x: x[1])
+            to_drop = [n for n, _ in ordered[:overflow]]
+            for n in to_drop:
+                self.nonce_cache.discard(n)
+                self.nonce_expiry.pop(n, None)
+            logger.warning(
+                f"[CRYPTO] Nonce cache truncated by {overflow} entries (max={self.max_nonces})"
+            )
     
     def get_public_key_pem(self) -> str:
         """Get public key in PEM format for distribution"""
@@ -263,13 +304,15 @@ class MessageSecurity:
     def get_stats(self) -> Dict[str, Any]:
         """Get security statistics"""
         return {
-            "enabled": True,
+            "enabled": self.enabled,
             "key_fingerprint": self._get_public_key_fingerprint()[:32],
             "nonce_cache_size": len(self.nonce_cache),
             "message_window_seconds": self.message_window_seconds,
             "hmac_algorithm": "HMAC-SHA256",
             "signature_algorithm": "RSA-PSS-SHA256",
-            "key_size": 2048
+            "key_size": 2048,
+            "key_dir": self.key_dir,
+            "max_nonces": self.max_nonces,
         }
 
 
