@@ -34,6 +34,9 @@ except ImportError:
     SCIPY_AVAILABLE = False
     logger.warning("[DRIFT] scipy not available - drift detection disabled")
 
+# Feature flag to allow operators to disable drift detection without code changes
+DRIFT_ENABLED = os.getenv('DRIFT_ENABLED', 'true').lower() == 'true'
+
 
 @dataclass
 class DriftReport:
@@ -134,6 +137,7 @@ class DriftDetector:
         # Drift detection state
         self.drift_reports: List[DriftReport] = []
         self.last_check: Optional[datetime] = None
+        self.last_statistics: Optional[DriftStatistics] = None
         self.samples_processed = 0
         self.retraining_triggered = 0
         
@@ -208,7 +212,7 @@ class DriftDetector:
         Call this with NORMAL/SAFE traffic to establish baseline.
         
         Args:
-            features: Feature vector (15 dimensions)
+            features: Feature vector (1D numpy array)
         """
         if not SCIPY_AVAILABLE:
             return
@@ -249,7 +253,7 @@ class DriftDetector:
         Call this with ALL traffic (both normal and suspicious).
         
         Args:
-            features: Feature vector (15 dimensions)
+            features: Feature vector (1D numpy array)
         """
         if not SCIPY_AVAILABLE:
             return
@@ -347,6 +351,7 @@ class DriftDetector:
         # Store reports
         self.drift_reports.extend(drift_reports)
         self.last_check = datetime.now()
+        self.last_statistics = statistics
         
         # Save to disk
         self._save_reports()
@@ -475,8 +480,9 @@ class DriftDetector:
     
     def get_stats(self) -> dict:
         """Get drift detector statistics"""
-        return {
+        stats = {
             'scipy_available': SCIPY_AVAILABLE,
+            'enabled': bool(SCIPY_AVAILABLE and DRIFT_ENABLED),
             'baseline_samples': len(self.baseline_features),
             'current_samples': len(self.current_features),
             'samples_processed': self.samples_processed,
@@ -487,6 +493,12 @@ class DriftDetector:
             'psi_threshold': self.psi_threshold,
             'baseline_file': self.baseline_file
         }
+
+        # Attach the most recent overall drift statistics snapshot if available
+        if self.last_statistics is not None:
+            stats['last_drift_statistics'] = self.last_statistics.to_dict()
+        
+        return stats
     
     def get_recent_reports(self, limit: int = 10) -> List[Dict]:
         """Get recent drift reports"""
@@ -501,7 +513,7 @@ _drift_detector = None
 def get_drift_detector() -> Optional[DriftDetector]:
     """Get or create global drift detector instance"""
     global _drift_detector
-    if _drift_detector is None and SCIPY_AVAILABLE:
+    if _drift_detector is None and SCIPY_AVAILABLE and DRIFT_ENABLED:
         _drift_detector = DriftDetector()
     return _drift_detector
 

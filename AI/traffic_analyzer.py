@@ -253,7 +253,7 @@ class TrafficAnalyzer:
         network_traffic = self.detect_mining_network_traffic()
         miner_processes = self.scan_for_miner_processes()
         
-        return {
+        stats = {
             'total_detections': len(cpu_spikes) + len(network_traffic) + len(miner_processes),
             'cpu_spikes': len(cpu_spikes),
             'mining_connections': len(network_traffic),
@@ -263,6 +263,25 @@ class TrafficAnalyzer:
             'detected_miners': miner_processes,
             'risk_level': 'high' if miner_processes else ('medium' if network_traffic else 'low')
         }
+
+        # Persist non-empty detection snapshots for dashboard/forensics (bounded history)
+        if stats['total_detections'] > 0:
+            snapshot = {
+                'timestamp': datetime.now().isoformat(),
+                'stats': stats
+            }
+            self.crypto_detections.append(snapshot)
+            # Keep only the most recent 100 records to bound file size
+            if len(self.crypto_detections) > 100:
+                self.crypto_detections = self.crypto_detections[-100:]
+            try:
+                os.makedirs(os.path.dirname(self.crypto_detections_file), exist_ok=True)
+                with open(self.crypto_detections_file, 'w') as f:
+                    json.dump(self.crypto_detections, f, indent=2)
+            except Exception as e:
+                print(f"[CRYPTO] Failed to persist mining detections: {e}")
+
+        return stats
     
     def get_stats(self) -> Dict:
         """Get current traffic analysis statistics"""

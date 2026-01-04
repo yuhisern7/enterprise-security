@@ -249,6 +249,8 @@ except ImportError as e:
 
 class ThreatLevel(str, Enum):
     SAFE = "SAFE"
+    INFO = "INFO"
+    WARNING = "WARNING"
     SUSPICIOUS = "SUSPICIOUS"
     DANGEROUS = "DANGEROUS"
     CRITICAL = "CRITICAL"
@@ -298,6 +300,7 @@ _peer_threats: List[Dict] = []  # Log of PEER threats (private, AI training only
 # DPI Monitoring Configuration - Monitor all network devices
 _DPI_ENABLED = os.getenv('DPI_MONITORING_ENABLED', 'true').lower() == 'true'
 _BLOCK_INTERNAL_THREATS = os.getenv('BLOCK_INTERNAL_THREATS', 'false').lower() == 'true'  # Set to 'true' to block internal IPs
+_GEOLOCATION_ENABLED = os.getenv('GEOLOCATION_ENABLED', 'true').lower() == 'true'
 
 # Advanced defensive tracking for VPN/Tor/Proxy detection
 _fingerprint_tracker: Dict[str, Dict] = {}  # Browser/client fingerprints
@@ -2114,7 +2117,7 @@ def _get_geolocation(ip_address: str) -> dict:
     Uses ip-api.com free API with maximum detail for attacker identification.
     Returns location data including: country, region, city, lat/lon, ISP, org.
     """
-    # Skip for localhost/private IPs
+    # Skip for localhost/private IPs (no external lookup needed)
     if ip_address in ['127.0.0.1', 'localhost'] or ip_address.startswith('192.168.') or ip_address.startswith('10.'):
         return {
             "country": "Local",
@@ -2126,6 +2129,20 @@ def _get_geolocation(ip_address: str) -> dict:
             "lon": 0.0,
             "timezone": "UTC",
             "as": "Private",
+            "query": ip_address
+        }
+    
+    # Optional privacy/safety control: disable external geolocation
+    if not _GEOLOCATION_ENABLED:
+        return {
+            "country": "Disabled",
+            "city": "Disabled",
+            "isp": "Disabled",
+            "org": "Disabled",
+            "lat": 0.0,
+            "lon": 0.0,
+            "timezone": "UTC",
+            "as": "Disabled",
             "query": ip_address
         }
     

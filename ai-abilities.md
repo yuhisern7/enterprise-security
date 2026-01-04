@@ -45,12 +45,12 @@ Suggested improvement order (next targets first):
 
 ## Core AI Orchestration
 
-- [ ] AI/pcs_ai.py — Core AI engine, threat scoring, ensemble integration
+- [x] AI/pcs_ai.py — Core AI engine, threat scoring, ensemble integration
 - [x] AI/meta_decision_engine.py — Phase 5 meta decision engine (ensemble of signals, authoritative-signal boosting)
 - [x] AI/false_positive_filter.py — 5-gate false-positive reduction pipeline (HONEYPOT-aware, improved)
-- [ ] AI/sequence_analyzer.py — LSTM sequence analysis (kill chain modeling)
-- [ ] AI/traffic_analyzer.py — Traffic autoencoder and anomaly detection
-- [ ] AI/drift_detector.py — Model drift tracking and feature distribution monitoring
+- [x] AI/sequence_analyzer.py — LSTM sequence analysis (kill chain modeling)
+- [x] AI/traffic_analyzer.py — Traffic autoencoder and anomaly detection
+- [x] AI/drift_detector.py — Model drift tracking and feature-distribution monitoring
 - [ ] AI/graph_intelligence.py — Lateral movement and network-graph based threats
 - [ ] AI/kernel_telemetry.py — eBPF/XDP kernel telemetry processing
 
