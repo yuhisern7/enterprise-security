@@ -13,12 +13,16 @@ import requests
 import json
 import time
 import hashlib
+import csv
+import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from collections import defaultdict
 import threading
 import os
 import sys
+
+logger = logging.getLogger(__name__)
 
 # Add AI directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
@@ -29,7 +33,7 @@ try:
     SCRAPER_AVAILABLE = True
 except ImportError as e:
     SCRAPER_AVAILABLE = False
-    print(f"[WARNING] ExploitDB scraper not available: {e}")
+    logger.warning(f"[ThreatIntel] ExploitDB scraper not available: {e}")
 
 # Import Threat Crawlers
 try:
@@ -44,23 +48,48 @@ try:
     CRAWLER_AVAILABLE = True
 except ImportError as e:
     CRAWLER_AVAILABLE = False
-    print(f"[WARNING] Threat crawlers not available: {e}")
+    logger.warning(f"[ThreatIntel] Threat crawlers not available: {e}")
 
 # Configuration - Load from environment variables
 VIRUSTOTAL_API_KEY = os.getenv("VIRUSTOTAL_API_KEY", "")  # REQUIRED: Get free key from https://www.virustotal.com/gui/join-us
 ABUSEIPDB_API_KEY = os.getenv("ABUSEIPDB_API_KEY", "")  # Optional: Get free key from https://www.abuseipdb.com/
-EXPLOITDB_UPDATE_INTERVAL = 86400  # 24 hours
+
+# Feature flags to control heavy OSINT / crawler behavior
+THREAT_INTEL_ENABLED = os.getenv("THREAT_INTEL_ENABLED", "true").lower() == "true"
+THREAT_CRAWLERS_ENABLED = os.getenv("THREAT_CRAWLERS_ENABLED", "true").lower() == "true"
+
+# Intervals (seconds) – overridable via environment
+EXPLOITDB_UPDATE_INTERVAL = int(os.getenv("EXPLOITDB_UPDATE_INTERVAL", "86400"))  # default 24h
+THREAT_CRAWLER_INTERVAL = int(os.getenv("THREAT_CRAWLER_INTERVAL", "21600"))  # default 6h
+
 VIRUSTOTAL_RATE_LIMIT = 4  # requests per minute (free tier)
 
 # Cache for API results (avoid duplicate queries)
-_vt_cache = {}  # IP -> {result, timestamp}
-_abuseipdb_cache = {}
-_exploitdb_signatures = []  # List of exploit patterns
-_threat_intel_log = []  # Log of threat intelligence findings
+_vt_cache: Dict[str, Dict[str, Any]] = {}  # IP -> {result, timestamp}
+_abuseipdb_cache: Dict[str, Dict[str, Any]] = {}
+_exploitdb_signatures: List[Dict[str, Any]] = []  # List of exploit patterns
+_threat_intel_log: List[Dict[str, Any]] = []  # Log of threat intelligence findings
 
 # Rate limiting
-_vt_request_times = []
-_abuseipdb_request_times = []
+_vt_request_times: List[float] = []
+_abuseipdb_request_times: List[float] = []
+
+# Bounded sizes to avoid unbounded memory growth (override via env if needed)
+VT_CACHE_MAX_ENTRIES = int(os.getenv("VT_CACHE_MAX_ENTRIES", "1000"))
+ABUSEIPDB_CACHE_MAX_ENTRIES = int(os.getenv("ABUSEIPDB_CACHE_MAX_ENTRIES", "1000"))
+EXPLOITDB_SIGNATURE_MAX = int(os.getenv("EXPLOITDB_SIGNATURE_MAX", "5000"))
+THREAT_INTEL_LOG_MAX = int(os.getenv("THREAT_INTEL_LOG_MAX", "10000"))
+
+
+def _bounded_cache_put(cache: Dict[str, Any], key: str, value: Any, max_entries: int) -> None:
+    """Insert into a dict cache, evicting an arbitrary oldest key when full."""
+    if key not in cache and len(cache) >= max_entries:
+        try:
+            oldest_key = next(iter(cache))
+            cache.pop(oldest_key, None)
+        except StopIteration:
+            pass
+    cache[key] = value
 
 
 class ThreatIntelligence:
@@ -118,8 +147,10 @@ class ThreatIntelligence:
         # Cap threat score at 100
         result["threat_score"] = min(result["threat_score"], 100)
         
-        # Log for ML training
+        # Log for ML training (bounded history)
         _threat_intel_log.append(result)
+        if len(_threat_intel_log) > THREAT_INTEL_LOG_MAX:
+            del _threat_intel_log[: len(_threat_intel_log) - THREAT_INTEL_LOG_MAX]
         
         return result
     
@@ -180,13 +211,17 @@ class ThreatIntelligence:
                     suspicious_ratio = suspicious / total_vendors
                     result["threat_contribution"] += int(suspicious_ratio * 30)
                 
-                # Cache result
-                _vt_cache[cache_key] = {
-                    "data": result,
-                    "timestamp": datetime.utcnow()
-                }
+                # Cache result (bounded)
+                _bounded_cache_put(
+                    _vt_cache,
+                    cache_key,
+                    {"data": result, "timestamp": datetime.utcnow()},
+                    VT_CACHE_MAX_ENTRIES,
+                )
                 
-                print(f"[ThreatIntel] VirusTotal: {ip_address} flagged by {malicious}/{total_vendors} vendors")
+                logger.info(
+                    f"[ThreatIntel] VirusTotal: {ip_address} flagged by {malicious}/{total_vendors} vendors"
+                )
                 return result
             
             elif response.status_code == 404:
@@ -198,11 +233,11 @@ class ThreatIntelligence:
                     "note": "IP not found in VirusTotal database"
                 }
             else:
-                print(f"[ThreatIntel] VirusTotal API error: {response.status_code}")
+                logger.warning(f"[ThreatIntel] VirusTotal API error: {response.status_code}")
                 return None
                 
         except Exception as e:
-            print(f"[ThreatIntel] VirusTotal query failed: {e}")
+            logger.error(f"[ThreatIntel] VirusTotal query failed: {e}")
             return None
     
     def _check_abuseipdb(self, ip_address: str) -> Optional[Dict[str, Any]]:
@@ -256,20 +291,24 @@ class ThreatIntelligence:
                 confidence = data.get("abuseConfidenceScore", 0)
                 result["threat_contribution"] = int(confidence * 0.4)
                 
-                # Cache result
-                _abuseipdb_cache[cache_key] = {
-                    "data": result,
-                    "timestamp": datetime.utcnow()
-                }
+                # Cache result (bounded)
+                _bounded_cache_put(
+                    _abuseipdb_cache,
+                    cache_key,
+                    {"data": result, "timestamp": datetime.utcnow()},
+                    ABUSEIPDB_CACHE_MAX_ENTRIES,
+                )
                 
-                print(f"[ThreatIntel] AbuseIPDB: {ip_address} confidence={confidence}%, reports={result['total_reports']}")
+                logger.info(
+                    f"[ThreatIntel] AbuseIPDB: {ip_address} confidence={confidence}%, reports={result['total_reports']}"
+                )
                 return result
             else:
-                print(f"[ThreatIntel] AbuseIPDB API error: {response.status_code}")
+                logger.warning(f"[ThreatIntel] AbuseIPDB API error: {response.status_code}")
                 return None
                 
         except Exception as e:
-            print(f"[ThreatIntel] AbuseIPDB query failed: {e}")
+            logger.error(f"[ThreatIntel] AbuseIPDB query failed: {e}")
             return None
     
     def _check_rate_limit(self, request_times: List[float], max_requests: int, time_window: int) -> bool:
@@ -287,52 +326,59 @@ class ThreatIntelligence:
         Returns number of new signatures added.
         """
         try:
-            print("[ThreatIntel] Scraping ExploitDB for exploit signatures...")
+            logger.info("[ThreatIntel] Scraping ExploitDB for exploit signatures...")
             
             # ExploitDB CSV feed (updated daily)
             url = "https://gitlab.com/exploit-database/exploitdb/-/raw/main/files_exploits.csv"
             
             response = requests.get(url, timeout=30)
             if response.status_code != 200:
-                print(f"[ThreatIntel] ExploitDB scrape failed: HTTP {response.status_code}")
+                logger.warning(f"[ThreatIntel] ExploitDB scrape failed: HTTP {response.status_code}")
                 return 0
             
-            # Parse CSV (id,file,description,date,author,type,platform,port)
-            lines = response.text.split('\n')[1:]  # Skip header
+            # Parse CSV using csv module (id,file,description,date,author,type,platform,port)
             new_signatures = 0
+            reader = csv.reader(response.text.splitlines())
+            # Skip header
+            next(reader, None)
             
-            for line in lines[:1000]:  # Limit to latest 1000 exploits
-                if not line.strip():
+            for idx, row in enumerate(reader):
+                if idx >= 1000:  # Limit to latest 1000 exploits
+                    break
+                if not row or len(row) < 3:
                     continue
                 
                 try:
-                    parts = line.split(',')
-                    if len(parts) >= 3:
-                        exploit_id = parts[0]
-                        description = parts[2].lower()
-                        exploit_type = parts[5] if len(parts) > 5 else "unknown"
-                        
-                        # Extract attack patterns from description
-                        signature = {
-                            "id": f"exploitdb-{exploit_id}",
-                            "description": description,
-                            "type": exploit_type,
-                            "patterns": self._extract_attack_patterns(description)
-                        }
-                        
-                        # Add if not duplicate
-                        if not any(sig["id"] == signature["id"] for sig in _exploitdb_signatures):
-                            _exploitdb_signatures.append(signature)
-                            new_signatures += 1
-                
-                except Exception as e:
+                    exploit_id = row[0].strip()
+                    description = (row[2] or "").lower()
+                    exploit_type = row[5].strip() if len(row) > 5 and row[5] else "unknown"
+                    
+                    signature = {
+                        "id": f"exploitdb-{exploit_id}",
+                        "description": description,
+                        "type": exploit_type,
+                        "patterns": self._extract_attack_patterns(description),
+                    }
+                    
+                    # Add if not duplicate, respecting max size
+                    if not any(sig["id"] == signature["id"] for sig in _exploitdb_signatures):
+                        _exploitdb_signatures.append(signature)
+                        if len(_exploitdb_signatures) > EXPLOITDB_SIGNATURE_MAX:
+                            del _exploitdb_signatures[
+                                : len(_exploitdb_signatures) - EXPLOITDB_SIGNATURE_MAX
+                            ]
+                        new_signatures += 1
+                except Exception:
+                    # Skip malformed rows but continue processing
                     continue
             
-            print(f"[ThreatIntel] ExploitDB: Added {new_signatures} new signatures (Total: {len(_exploitdb_signatures)})")
+            logger.info(
+                f"[ThreatIntel] ExploitDB: Added {new_signatures} new signatures (Total: {len(_exploitdb_signatures)})"
+            )
             return new_signatures
             
         except Exception as e:
-            print(f"[ThreatIntel] ExploitDB scrape error: {e}")
+            logger.error(f"[ThreatIntel] ExploitDB scrape error: {e}")
             return 0
     
     def _extract_attack_patterns(self, description: str) -> List[str]:
@@ -606,17 +652,23 @@ def _background_exploitdb_updater():
 
 def start_threat_intelligence_engine():
     """Start background threat intelligence services"""
-    print("[ThreatIntel] Starting threat intelligence engine...")
+    logger.info("[ThreatIntel] Starting threat intelligence engine...")
+
+    # Allow disabling heavy OSINT / crawler activity (e.g., on edge nodes)
+    if not THREAT_INTEL_ENABLED:
+        logger.info("[ThreatIntel] Threat intelligence disabled via THREAT_INTEL_ENABLED=false - deploying honeypots only")
+        honeypot.deploy_honeypots()
+        return
     
     # Start ExploitDB scraper (comprehensive learning mode)
     if SCRAPER_AVAILABLE:
         # Check if local ExploitDB exists
         exploitdb_path = os.path.join(os.path.dirname(__file__), "exploitdb")
         if os.path.exists(exploitdb_path):
-            print(f"[ThreatIntel] Using local ExploitDB at {exploitdb_path}")
+            logger.info(f"[ThreatIntel] Using local ExploitDB at {exploitdb_path}")
             start_exploitdb_scraper(exploitdb_path=exploitdb_path, continuous=True)
         else:
-            print("[ThreatIntel] No local ExploitDB found, using web scraping")
+            logger.info("[ThreatIntel] No local ExploitDB found, using web scraping")
             start_exploitdb_scraper(exploitdb_path="exploitdb", continuous=True)
     else:
         # Fallback to simple scraping
@@ -627,8 +679,8 @@ def start_threat_intelligence_engine():
         updater_thread.start()
     
     # Start Threat Crawlers (for continuous intelligence gathering)
-    if CRAWLER_AVAILABLE:
-        print("[ThreatIntel] Starting threat intelligence crawlers...")
+    if CRAWLER_AVAILABLE and THREAT_CRAWLERS_ENABLED:
+        logger.info("[ThreatIntel] Starting threat intelligence crawlers...")
         crawler_manager = ThreatCrawlerManager()
         
         # ✅ ACTIONABLE CRAWLERS ONLY (hashes, URLs, scores - NOT English text)
@@ -649,30 +701,38 @@ def start_threat_intelligence_engine():
         def run_crawlers():
             while True:
                 try:
-                    print("[ThreatIntel] Running threat intelligence crawlers...")
+                    logger.info("[ThreatIntel] Running threat intelligence crawlers...")
                     threats = crawler_manager.crawl_all()
-                    print(f"[ThreatIntel] Collected {len(threats)} threat indicators from crawlers")
+                    logger.info(
+                        f"[ThreatIntel] Collected {len(threats)} threat indicators from crawlers"
+                    )
                     
                     # Feed to ML models for training
                     global _threat_intel_log
                     _threat_intel_log.extend(threats)
                     
-                    # Sleep for 6 hours
-                    time.sleep(21600)
+                    # Sleep for configured interval
+                    time.sleep(max(60, THREAT_CRAWLER_INTERVAL))
                 except Exception as e:
-                    print(f"[ThreatIntel] Crawler error: {e}")
-                    time.sleep(3600)  # Retry in 1 hour
+                    logger.error(f"[ThreatIntel] Crawler error: {e}")
+                    # Retry after a shorter backoff (1h or half interval, whichever is smaller)
+                    backoff = min(3600, max(300, THREAT_CRAWLER_INTERVAL // 2))
+                    time.sleep(backoff)
         
         crawler_thread = threading.Thread(target=run_crawlers, daemon=True)
         crawler_thread.start()
-        print("[ThreatIntel] ✅ Threat crawlers started (running every 6 hours)")
+        logger.info(
+            f"[ThreatIntel] ✅ Threat crawlers started (interval={THREAT_CRAWLER_INTERVAL}s, enabled={THREAT_CRAWLERS_ENABLED})"
+        )
+    elif not CRAWLER_AVAILABLE:
+        logger.warning("[ThreatIntel] ⚠️ Threat crawlers not available - install crawler dependencies")
     else:
-        print("[ThreatIntel] ⚠️ Threat crawlers not available - install requests library")
+        logger.info("[ThreatIntel] Threat crawlers disabled via THREAT_CRAWLERS_ENABLED=false")
     
     # Deploy honeypots
     honeypot.deploy_honeypots()
     
-    print("[ThreatIntel] ✅ Threat intelligence engine started")
+    logger.info("[ThreatIntel] ✅ Threat intelligence engine started")
 
 
 if __name__ == "__main__":
@@ -682,5 +742,5 @@ if __name__ == "__main__":
     # Test IP check
     test_ip = "208.95.112.1"
     result = threat_intel.check_ip_reputation(test_ip)
-    print(f"\n[TEST] Threat Intelligence Report for {test_ip}:")
+    logger.info(f"\n[TEST] Threat Intelligence Report for {test_ip}:")
     print(json.dumps(result, indent=2))

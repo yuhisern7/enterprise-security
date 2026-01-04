@@ -57,7 +57,7 @@ Suggested improvement order (next targets first):
 ## Deception & Honeypots
 
 - [x] AI/adaptive_honeypot.py — Adaptive multi-persona honeypot, persistence, and dashboard integration (COMPLETED)
-- [ ] AI/threat_intelligence.py — Legacy honeypot crawler and ExploitDB integration
+- [x] AI/threat_intelligence.py — Legacy honeypot crawler and ExploitDB integration
 
 ## Reputation & History
 
@@ -85,7 +85,7 @@ Suggested improvement order (next targets first):
 
 ## Threat Intelligence & Signatures
 
-- [ ] AI/threat_intelligence.py — Threat intel ingestion, crawlers, and signatures
+- [x] AI/threat_intelligence.py — Threat intel ingestion, crawlers, and signatures
 - [ ] AI/signature_extractor.py — Automated extraction of signatures from traffic/logs
 - [ ] AI/signature_distribution.py — Distribution of learned signatures
 - [ ] AI/signature_uploader.py — Uploading signatures to relay/central services

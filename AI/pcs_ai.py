@@ -2147,8 +2147,8 @@ def _get_geolocation(ip_address: str) -> dict:
         }
     
     try:
-        # Use ip-api.com with fields for maximum tracking detail
-        url = f"http://ip-api.com/json/{ip_address}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,query"
+        # Use ip-api.com with fields for maximum tracking detail (HTTPS)
+        url = f"https://ip-api.com/json/{ip_address}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,query"
         
         with urllib.request.urlopen(url, timeout=3) as response:
             data = json.loads(response.read().decode())
