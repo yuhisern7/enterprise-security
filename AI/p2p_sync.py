@@ -21,11 +21,17 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 import ssl
 
-# Disable SSL warnings for self-signed certificates
+# Disable SSL warnings for self-signed certificates only when explicitly allowed
 import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
+
+P2P_SYNC_ENABLED = os.getenv("P2P_SYNC_ENABLED", "false").lower() == "true"
+P2P_SYNC_DISABLE_SSL_VERIFY = os.getenv("P2P_SYNC_DISABLE_SSL_VERIFY", "false").lower() == "true"
+P2P_SYNC_MAX_QUEUE = int(os.getenv("P2P_SYNC_MAX_QUEUE", "10000"))
+
+if P2P_SYNC_DISABLE_SSL_VERIFY:
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class P2PSync:
@@ -48,7 +54,7 @@ class P2PSync:
                 self.peer_urls.append(url)
         
         # Configuration
-        self.enabled = os.getenv('P2P_SYNC_ENABLED', 'false').lower() == 'true'
+        self.enabled = P2P_SYNC_ENABLED
         self.sync_interval = int(os.getenv('P2P_SYNC_INTERVAL', '180'))  # 3 minutes
         self.my_peer_name = os.getenv('PEER_NAME', f'peer-{os.getpid()}')
         
@@ -66,7 +72,9 @@ class P2PSync:
         self.threats_received = 0
         self.sync_errors = 0
         
-        logger.info(f"P2P Sync initialized: {len(self.peer_urls)} peers configured")
+        logger.info(
+            f"P2P Sync initialized: {len(self.peer_urls)} peers configured (enabled={self.enabled})"
+        )
         if self.peer_urls:
             logger.info(f"Peers: {', '.join(self.peer_urls)}")
     
@@ -124,6 +132,13 @@ class P2PSync:
         
         with self.lock:
             self.threat_queue.append(safe_threat)
+            # Bound queue size to avoid unbounded memory growth
+            if len(self.threat_queue) > P2P_SYNC_MAX_QUEUE:
+                overflow = len(self.threat_queue) - P2P_SYNC_MAX_QUEUE
+                del self.threat_queue[0:overflow]
+                logger.debug(
+                    f"P2P threat_queue truncated by {overflow} entries (max={P2P_SYNC_MAX_QUEUE})"
+                )
         
         logger.debug(f"Queued threat for P2P broadcast: {safe_threat['attack_type']} from {safe_threat['src_ip']}")
     
@@ -217,7 +232,8 @@ class P2PSync:
                     f"{peer_url}/api/p2p/threats",
                     json={'threats': threats_to_send},
                     timeout=10,
-                    verify=False
+                    # Allow opt-out of TLS verification only when explicitly configured
+                    verify=not P2P_SYNC_DISABLE_SSL_VERIFY,
                 )
                 
                 if response.status_code == 200:
@@ -248,7 +264,7 @@ class P2PSync:
                     f"{peer_url}/api/p2p/threats",
                     params=params,
                     timeout=10,
-                    verify=False
+                    verify=not P2P_SYNC_DISABLE_SSL_VERIFY,
                 )
                 
                 if response.status_code == 200:

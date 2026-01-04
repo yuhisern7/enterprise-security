@@ -19,8 +19,10 @@ import pickle
 from datetime import datetime
 from typing import Dict, List, Optional
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+TRAINING_SYNC_ENABLED = os.getenv("TRAINING_SYNC_ENABLED", "true").lower() == "true"
+TRAINING_SYNC_VERIFY_TLS = os.getenv("TRAINING_SYNC_VERIFY_TLS", "true").lower() == "true"
 
 
 class TrainingSyncClient:
@@ -33,13 +35,17 @@ class TrainingSyncClient:
         """
         self.relay_url = relay_url or os.getenv('RELAY_URL', 'http://localhost:60002')
         self.local_ml_dir = "AI/ml_models"
-        
+
         # Create local directory for models only
         os.makedirs(self.local_ml_dir, exist_ok=True)
     
     
     def sync_ml_models(self):
         """Download ONLY pre-trained ML models (280 KB total) - NOT raw training data"""
+        if not TRAINING_SYNC_ENABLED:
+            logger.info("TrainingSyncClient disabled via TRAINING_SYNC_ENABLED=false")
+            return
+
         logger.info(f"🔄 Syncing ML models from {self.relay_url}")
         
         # Download ONLY the trained models
@@ -56,7 +62,8 @@ class TrainingSyncClient:
             try:
                 response = requests.get(
                     f"{self.relay_url}/models/{model_name}",
-                    timeout=30
+                    timeout=30,
+                    verify=TRAINING_SYNC_VERIFY_TLS,
                 )
                 response.raise_for_status()
                 
@@ -73,7 +80,11 @@ class TrainingSyncClient:
     def get_training_stats(self) -> Optional[Dict]:
         """Get statistics about training data on relay server (for info only)"""
         try:
-            response = requests.get(f"{self.relay_url}/stats", timeout=10)
+            response = requests.get(
+                f"{self.relay_url}/stats",
+                timeout=10,
+                verify=TRAINING_SYNC_VERIFY_TLS,
+            )
             response.raise_for_status()
             
             stats = response.json()
