@@ -23,8 +23,10 @@ from typing import Dict, List, Set, Tuple, Optional, Any
 from collections import defaultdict, deque
 from dataclasses import dataclass, asdict
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Feature flag to allow operators to disable graph intelligence without code changes
+GRAPH_INTELLIGENCE_ENABLED = os.getenv('GRAPH_INTELLIGENCE_ENABLED', 'true').lower() == 'true'
 
 
 @dataclass
@@ -429,15 +431,21 @@ class NetworkGraph:
     
     def get_graph_stats(self) -> Dict[str, Any]:
         """Get graph statistics"""
-        return {
-            "node_count": len(self.nodes),
-            "connection_count": self.connection_count,
-            "average_degree": sum(self.get_degree(n) for n in self.nodes) / max(len(self.nodes), 1),
+        node_count = len(self.nodes)
+        connection_count = self.connection_count
+        stats = {
+            "node_count": node_count,
+            "connection_count": connection_count,
+            "average_degree": sum(self.get_degree(n) for n in self.nodes) / max(node_count, 1),
             "max_degree": max((self.get_degree(n) for n in self.nodes), default=0),
             "alert_count": len(self.alerts),
             "zones_configured": len(set(self.zones.values())),
-            "last_update": datetime.utcnow().isoformat()
+            "last_update": datetime.utcnow().isoformat(),
+            # Backwards-compatible aliases used by get_attack_chains
+            "total_nodes": node_count,
+            "total_edges": connection_count,
         }
+        return stats
     
     def save_graph(self) -> None:
         """Save graph to disk"""
@@ -753,13 +761,54 @@ class NetworkGraph:
         return total_bytes
 
 
+class _DisabledGraph:
+    """No-op graph implementation used when graph intelligence is disabled"""
+
+    def __init__(self):
+        self.alerts: List[LateralMovementAlert] = []
+
+    # Interface-compatible no-op methods
+    def add_connection(self, *_, **__):
+        return None
+
+    def detect_lateral_movement(self, *_, **__):
+        return []
+
+    def detect_c2_patterns(self, *_, **__):
+        return []
+
+    def save_graph(self, *_, **__):
+        return None
+
+    def save_alerts(self, *_, **__):
+        return None
+
+    def get_graph_stats(self) -> Dict[str, Any]:
+        return {
+            "node_count": 0,
+            "connection_count": 0,
+            "average_degree": 0.0,
+            "max_degree": 0,
+            "alert_count": 0,
+            "zones_configured": 0,
+            "last_update": datetime.utcnow().isoformat(),
+            "total_nodes": 0,
+            "total_edges": 0,
+        }
+
+
 # Singleton instance
 _graph_instance: Optional[NetworkGraph] = None
+_disabled_graph_instance: Optional[_DisabledGraph] = None
 
 
 def get_graph_intelligence() -> NetworkGraph:
-    """Get singleton graph intelligence instance"""
-    global _graph_instance
+    """Get singleton graph intelligence instance (or no-op when disabled)"""
+    global _graph_instance, _disabled_graph_instance
+    if not GRAPH_INTELLIGENCE_ENABLED:
+        if _disabled_graph_instance is None:
+            _disabled_graph_instance = _DisabledGraph()
+        return _disabled_graph_instance  # type: ignore[return-value]
     if _graph_instance is None:
         _graph_instance = NetworkGraph()
     return _graph_instance

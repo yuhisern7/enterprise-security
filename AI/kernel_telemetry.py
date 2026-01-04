@@ -26,8 +26,10 @@ from typing import Dict, List, Optional, Any, Tuple
 from collections import defaultdict
 import ctypes
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Feature flag to allow operators to disable kernel telemetry entirely
+KERNEL_TELEMETRY_ENABLED = os.getenv('KERNEL_TELEMETRY_ENABLED', 'true').lower() == 'true'
 
 
 class KernelTelemetry:
@@ -437,6 +439,9 @@ _kernel_telemetry = None
 def get_kernel_telemetry(fallback_to_userland: bool = True) -> KernelTelemetry:
     """Get global kernel telemetry instance"""
     global _kernel_telemetry
+    if not KERNEL_TELEMETRY_ENABLED:
+        logger.info("[KERNEL-TELEMETRY] Disabled via KERNEL_TELEMETRY_ENABLED=false")
+        return KernelTelemetry(fallback_to_userland=True)
     if _kernel_telemetry is None:
         _kernel_telemetry = KernelTelemetry(fallback_to_userland=fallback_to_userland)
     return _kernel_telemetry

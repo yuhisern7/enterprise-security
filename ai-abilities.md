@@ -51,8 +51,8 @@ Suggested improvement order (next targets first):
 - [x] AI/sequence_analyzer.py — LSTM sequence analysis (kill chain modeling)
 - [x] AI/traffic_analyzer.py — Traffic autoencoder and anomaly detection
 - [x] AI/drift_detector.py — Model drift tracking and feature-distribution monitoring
-- [ ] AI/graph_intelligence.py — Lateral movement and network-graph based threats
-- [ ] AI/kernel_telemetry.py — eBPF/XDP kernel telemetry processing
+- [x] AI/graph_intelligence.py — Lateral movement and network-graph based threats
+- [x] AI/kernel_telemetry.py — eBPF/XDP kernel telemetry processing
 
 ## Deception & Honeypots
 
