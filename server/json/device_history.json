@@ -1,0 +1,206 @@
+{
+  "12:02:81:de:13:1c": {
+    "ip": "172.18.0.1",
+    "mac": "12:02:81:de:13:1c",
+    "type": "Unknown",
+    "hostname": "kali",
+    "last_seen": "2025-12-29T07:19:00.913075",
+    "first_seen": "2025-12-29T07:13:51.672623"
+  },
+  "b2:cb:4f:de:18:63": {
+    "ip": "172.18.0.1",
+    "mac": "b2:cb:4f:de:18:63",
+    "type": "Unknown",
+    "hostname": "kali",
+    "last_seen": "2025-12-29T07:27:28.336920",
+    "first_seen": "2025-12-29T07:21:28.349724"
+  },
+  "9e:6b:d6:b1:33:62": {
+    "ip": "172.18.0.1",
+    "mac": "9e:6b:d6:b1:33:62",
+    "type": "Unknown",
+    "hostname": "kali",
+    "last_seen": "2025-12-29T07:28:12.196080",
+    "first_seen": "2025-12-29T07:28:01.409057"
+  },
+  "28:f7:d6:af:62:01": {
+    "ip": "192.168.0.1",
+    "mac": "28:f7:d6:af:62:01",
+    "type": "Unknown Device",
+    "vendor": "Unknown",
+    "hostname": "_gateway",
+    "open_ports": [],
+    "last_seen": "2026-01-04T09:30:45.402414",
+    "first_seen": "2026-01-04T07:24:06.775588"
+  },
+  "e8:48:b8:2e:80:85": {
+    "ip": "192.168.0.101",
+    "mac": "e8:48:b8:2e:80:85",
+    "type": "Router/Network",
+    "vendor": "Tplink",
+    "hostname": "TP-Link-Router-101",
+    "open_ports": [],
+    "last_seen": "2026-01-04T09:30:51.534320",
+    "first_seen": "2026-01-04T08:56:44.397166"
+  },
+  "24:0f:9b:24:a0:4a": {
+    "ip": "192.168.0.103",
+    "mac": "24:0f:9b:24:a0:4a",
+    "type": "Security Camera",
+    "vendor": "Hikvision",
+    "hostname": "Hikvision-Camera-103",
+    "open_ports": [
+      {
+        "port": 80,
+        "service": "HTTP"
+      },
+      {
+        "port": 554,
+        "service": "RTSP"
+      }
+    ],
+    "last_seen": "2026-01-04T09:30:53.655442",
+    "first_seen": "2026-01-04T08:56:46.465519"
+  },
+  "1c:86:9a:3f:61:3c": {
+    "ip": "192.168.0.106",
+    "mac": "1c:86:9a:3f:61:3c",
+    "type": "Android Phone",
+    "vendor": "Samsung",
+    "hostname": "Samsung-Phone-106",
+    "open_ports": [],
+    "last_seen": "2026-01-04T09:31:02.301006",
+    "first_seen": "2026-01-04T08:31:05.568173"
+  },
+  "36:ce:45:73:56:3d": {
+    "ip": "192.168.0.105",
+    "mac": "36:ce:45:73:56:3d",
+    "type": "iPhone/iPad (Private MAC)",
+    "vendor": "Apple (Randomized)",
+    "hostname": "iPhone-105",
+    "open_ports": [],
+    "last_seen": "2026-01-04T09:25:22.092011",
+    "first_seen": "2026-01-04T09:25:22.092024"
+  },
+  "22:9c:c8:47:7d:23": {
+    "ip": "192.168.0.107",
+    "mac": "22:9c:c8:47:7d:23",
+    "type": "iPhone/iPad (Private MAC)",
+    "vendor": "Apple (Randomized)",
+    "hostname": "iPhone-107",
+    "open_ports": [],
+    "last_seen": "2026-01-03T09:08:48.628698",
+    "first_seen": "2026-01-03T09:08:48.628709"
+  },
+  "40:ac:bf:3e:53:af": {
+    "ip": "192.168.0.104",
+    "mac": "40:ac:bf:3e:53:af",
+    "type": "Security Camera",
+    "vendor": "Hikvision",
+    "hostname": "Hikvision-Camera-104",
+    "open_ports": [
+      {
+        "port": 8443,
+        "service": "HTTPS-Alt"
+      }
+    ],
+    "last_seen": "2026-01-04T09:30:55.761135",
+    "first_seen": "2026-01-04T08:56:48.551488"
+  },
+  "48:35:2b:cb:48:0a": {
+    "ip": "192.168.0.109",
+    "mac": "48:35:2b:cb:48:0a",
+    "type": "Unknown Device",
+    "vendor": "Unknown",
+    "hostname": "Unknown-109",
+    "open_ports": [],
+    "last_seen": "2026-01-04T06:10:48.471189",
+    "first_seen": "2026-01-04T06:05:02.308185"
+  },
+  "40:ac:bf:37:d6:39": {
+    "ip": "192.168.0.102",
+    "mac": "40:ac:bf:37:d6:39",
+    "type": "Security Camera",
+    "vendor": "Hikvision",
+    "hostname": "Hikvision-Camera-102",
+    "open_ports": [
+      {
+        "port": 8443,
+        "service": "HTTPS-Alt"
+      }
+    ],
+    "last_seen": "2026-01-04T09:31:06.527593",
+    "first_seen": "2026-01-04T08:56:57.175840"
+  },
+  "84:46:93:6d:3c:3f": {
+    "ip": "192.168.0.100",
+    "mac": "84:46:93:6d:3c:3f",
+    "type": "Android Phone",
+    "vendor": "Xiaomi",
+    "hostname": "Xiaomi-Phone-100",
+    "open_ports": [],
+    "last_seen": "2026-01-04T09:31:04.431822",
+    "first_seen": "2026-01-04T09:02:58.048799"
+  },
+  "92:dc:0b:ea:17:30": {
+    "ip": "192.168.0.112",
+    "mac": "92:dc:0b:ea:17:30",
+    "type": "Unknown",
+    "hostname": "Device-112",
+    "last_seen": "2025-12-30T02:08:39.234978",
+    "first_seen": "2025-12-30T02:08:39.234990"
+  },
+  "0a:12:a3:74:96:8c": {
+    "ip": "192.168.0.113",
+    "mac": "0a:12:a3:74:96:8c",
+    "type": "Unknown",
+    "hostname": "Device-113",
+    "last_seen": "2025-12-31T05:03:53.920917",
+    "first_seen": "2025-12-31T04:47:21.041157"
+  },
+  "74:42:8b:84:c0:ba": {
+    "ip": "192.168.0.113",
+    "mac": "74:42:8b:84:c0:ba",
+    "type": "Unknown Device",
+    "vendor": "Unknown",
+    "hostname": "Unknown-113",
+    "open_ports": [],
+    "last_seen": "2026-01-04T01:02:19.306361",
+    "first_seen": "2026-01-04T01:02:19.306373"
+  },
+  "6e:03:e6:21:81:ac": {
+    "ip": "192.168.0.106",
+    "mac": "6e:03:e6:21:81:ac",
+    "type": "Unknown",
+    "hostname": "Device-106",
+    "last_seen": "2025-12-30T12:22:00.271359",
+    "first_seen": "2025-12-30T12:22:00.271371"
+  },
+  "b0:a4:60:9d:3d:d9": {
+    "ip": "192.168.0.116",
+    "mac": "b0:a4:60:9d:3d:d9",
+    "type": "Unknown",
+    "hostname": "Device-116",
+    "last_seen": "2025-12-30T11:05:55.513136",
+    "first_seen": "2025-12-30T11:05:55.513150"
+  },
+  "2a:dc:4c:1d:91:1e": {
+    "ip": "192.168.0.108",
+    "mac": "2a:dc:4c:1d:91:1e",
+    "type": "Unknown",
+    "hostname": "Device-108",
+    "open_ports": [],
+    "last_seen": "2026-01-01T22:31:20.440172",
+    "first_seen": "2026-01-01T03:59:13.583303"
+  },
+  "70:22:fe:6b:55:87": {
+    "ip": "192.168.0.112",
+    "mac": "70:22:fe:6b:55:87",
+    "type": "Unknown Device",
+    "vendor": "Unknown",
+    "hostname": "Unknown-112",
+    "open_ports": [],
+    "last_seen": "2026-01-03T23:27:21.331895",
+    "first_seen": "2026-01-03T23:27:21.331907"
+  }
+}

@@ -1,0 +1,73 @@
+# Home WiFi Security System - Docker Image
+FROM python:3.11-slim
+
+# Install system dependencies for network monitoring + eBPF (MODULE A)
+RUN apt-get update && apt-get install -y \
+    tcpdump \
+    libpcap-dev \
+    gcc \
+    openssl \
+    iproute2 \
+    samba-common-bin \
+    avahi-utils \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Note: Full eBPF/BCC requires kernel headers and is complex to install in containers
+# System gracefully falls back to scapy userland monitoring
+# eBPF will work if host kernel supports it and container has proper capabilities
+# For production eBPF: Use host-installed bpftool or Cilium eBPF Go library
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first (for better caching)
+COPY server/requirements.txt .
+
+# Install Python dependencies with increased timeout and retries for large packages
+RUN pip install --no-cache-dir --default-timeout=1000 --retries 5 -r requirements.txt
+
+# Copy AI folder (contains pcs_ai.py, dashboard, and ml_models)
+COPY AI/ AI/
+
+# Copy crypto keys (customers must place 3 key files in server/crypto_keys/ before building)
+COPY server/crypto_keys/ ml_models/crypto_keys/
+
+# Copy server files
+COPY server/server.py .
+COPY server/network_monitor.py .
+COPY server/device_scanner.py .
+COPY server/device_blocker.py .
+COPY server/report_generator.py .
+
+# Create and copy JSON data directory
+RUN mkdir -p json
+COPY server/json/ json/
+
+# Copy entrypoint script
+COPY server/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Generate self-signed SSL certificate for encrypted P2P communication
+RUN mkdir -p /app/ssl && \
+    openssl req -x509 -newkey rsa:4096 -nodes \
+    -keyout /app/ssl/key.pem \
+    -out /app/ssl/cert.pem \
+    -days 3650 \
+    -subj "/C=US/ST=State/L=City/O=Security/CN=enterprise-security"
+
+# Expose ports (Dashboard HTTPS and P2P)
+EXPOSE 60000 60001
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Run as root (required for network monitoring)
+USER root
+
+# Health check (uses HTTPS on 60000)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -kf https://localhost:60000/ || exit 1
+
+# Start the server with HTTPS entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]

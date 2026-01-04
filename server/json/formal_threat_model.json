@@ -1,0 +1,154 @@
+{
+  "threat_rules": {
+    "rule_data_poisoning": {
+      "rule_id": "rule_data_poisoning",
+      "threat_category": "data_poisoning",
+      "conditions": {
+        "byzantine_score": ">0.7",
+        "update_deviation": ">3_sigma"
+      },
+      "allowed_actions": [
+        "quarantine",
+        "log_only",
+        "alert"
+      ],
+      "prohibited_actions": [
+        "block_ip"
+      ],
+      "severity_threshold": 0.8,
+      "requires_human_approval": true,
+      "description": "Detect and reject poisoned training data from peers",
+      "rationale": "Data poisoning can corrupt ML models. Require human review before rejecting peer data."
+    },
+    "rule_adversarial": {
+      "rule_id": "rule_adversarial",
+      "threat_category": "adversarial_examples",
+      "conditions": {
+        "reconstruction_error": ">threshold",
+        "confidence_variance": ">0.5"
+      },
+      "allowed_actions": [
+        "block_ip",
+        "rate_limit",
+        "honeypot_redirect",
+        "alert"
+      ],
+      "prohibited_actions": [],
+      "severity_threshold": 0.75,
+      "requires_human_approval": false,
+      "description": "Detect and block adversarial examples designed to fool ML models",
+      "rationale": "Adversarial attacks can bypass detection. Safe to auto-block as these are clearly malicious."
+    },
+    "rule_byzantine_peer": {
+      "rule_id": "rule_byzantine_peer",
+      "threat_category": "byzantine_peer",
+      "conditions": {
+        "krum_score": ">threshold",
+        "peer_reputation": "<0.3"
+      },
+      "allowed_actions": [
+        "isolate_peer",
+        "log_only",
+        "alert"
+      ],
+      "prohibited_actions": [
+        "block_ip",
+        "model_rollback"
+      ],
+      "severity_threshold": 0.85,
+      "requires_human_approval": true,
+      "description": "Detect malicious peers in federated learning network",
+      "rationale": "False positives could break P2P network. Require human approval."
+    },
+    "rule_model_extraction": {
+      "rule_id": "rule_model_extraction",
+      "threat_category": "model_extraction",
+      "conditions": {
+        "query_rate": ">100/min",
+        "query_diversity": "<0.2"
+      },
+      "allowed_actions": [
+        "rate_limit",
+        "alert",
+        "log_only"
+      ],
+      "prohibited_actions": [
+        "block_ip"
+      ],
+      "severity_threshold": 0.7,
+      "requires_human_approval": false,
+      "description": "Detect attempts to steal ML model via repeated queries",
+      "rationale": "Rate limiting is safe defense. Full IP block needs investigation first."
+    },
+    "rule_backdoor": {
+      "rule_id": "rule_backdoor",
+      "threat_category": "backdoor_attack",
+      "conditions": {
+        "model_lineage_break": true,
+        "unexpected_accuracy_on_trigger": ">0.9"
+      },
+      "allowed_actions": [
+        "model_rollback",
+        "quarantine",
+        "alert"
+      ],
+      "prohibited_actions": [],
+      "severity_threshold": 0.95,
+      "requires_human_approval": true,
+      "description": "Detect backdoored ML models with hidden triggers",
+      "rationale": "Backdoors are severe but rare. Rollback needs human verification."
+    }
+  },
+  "policy_constraints": [
+    {
+      "constraint_id": "constraint_no_payload_storage",
+      "constraint_type": "must_not",
+      "description": "System MUST NOT store full packet payloads or exploit code",
+      "verification_method": "Code review + runtime monitoring",
+      "applies_to": [
+        "eBPF module",
+        "packet capture",
+        "signature extraction"
+      ]
+    },
+    {
+      "constraint_id": "constraint_audit_logging",
+      "constraint_type": "must_have",
+      "description": "All automated actions MUST be logged with full context",
+      "verification_method": "Audit log completeness check",
+      "applies_to": [
+        "all modules"
+      ]
+    },
+    {
+      "constraint_id": "constraint_explainability",
+      "constraint_type": "must_have",
+      "description": "Every ML decision MUST have an explanation available",
+      "verification_method": "Explainability engine coverage check",
+      "applies_to": [
+        "all ML models",
+        "meta decision engine"
+      ]
+    },
+    {
+      "constraint_id": "constraint_graceful_degradation",
+      "constraint_type": "must_have",
+      "description": "System MUST degrade gracefully if ML models fail",
+      "verification_method": "Fallback to rule-based detection verified",
+      "applies_to": [
+        "pcs_ai.py",
+        "all ML modules"
+      ]
+    },
+    {
+      "constraint_id": "constraint_human_override",
+      "constraint_type": "must_have",
+      "description": "Humans MUST be able to override any automated decision",
+      "verification_method": "Manual override UI exists and tested",
+      "applies_to": [
+        "all automated actions"
+      ]
+    }
+  ],
+  "last_updated": "2026-01-03T23:48:04.907749"
+}

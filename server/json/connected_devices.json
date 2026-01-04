@@ -1,0 +1,94 @@
+{
+  "devices": {
+    "28:f7:d6:af:62:01": {
+      "ip": "192.168.0.1",
+      "mac": "28:f7:d6:af:62:01",
+      "type": "Unknown Device",
+      "vendor": "Unknown",
+      "hostname": "_gateway",
+      "open_ports": [],
+      "last_seen": "2026-01-04T09:30:45.402414",
+      "first_seen": "2026-01-04T07:24:06.775588"
+    },
+    "e8:48:b8:2e:80:85": {
+      "ip": "192.168.0.101",
+      "mac": "e8:48:b8:2e:80:85",
+      "type": "Router/Network",
+      "vendor": "Tplink",
+      "hostname": "TP-Link-Router-101",
+      "open_ports": [],
+      "last_seen": "2026-01-04T09:30:51.534320",
+      "first_seen": "2026-01-04T08:56:44.397166"
+    },
+    "24:0f:9b:24:a0:4a": {
+      "ip": "192.168.0.103",
+      "mac": "24:0f:9b:24:a0:4a",
+      "type": "Security Camera",
+      "vendor": "Hikvision",
+      "hostname": "Hikvision-Camera-103",
+      "open_ports": [
+        {
+          "port": 80,
+          "service": "HTTP"
+        },
+        {
+          "port": 554,
+          "service": "RTSP"
+        }
+      ],
+      "last_seen": "2026-01-04T09:30:53.655442",
+      "first_seen": "2026-01-04T08:56:46.465519"
+    },
+    "40:ac:bf:3e:53:af": {
+      "ip": "192.168.0.104",
+      "mac": "40:ac:bf:3e:53:af",
+      "type": "Security Camera",
+      "vendor": "Hikvision",
+      "hostname": "Hikvision-Camera-104",
+      "open_ports": [
+        {
+          "port": 8443,
+          "service": "HTTPS-Alt"
+        }
+      ],
+      "last_seen": "2026-01-04T09:30:55.761135",
+      "first_seen": "2026-01-04T08:56:48.551488"
+    },
+    "1c:86:9a:3f:61:3c": {
+      "ip": "192.168.0.106",
+      "mac": "1c:86:9a:3f:61:3c",
+      "type": "Android Phone",
+      "vendor": "Samsung",
+      "hostname": "Samsung-Phone-106",
+      "open_ports": [],
+      "last_seen": "2026-01-04T09:31:02.301006",
+      "first_seen": "2026-01-04T08:31:05.568173"
+    },
+    "84:46:93:6d:3c:3f": {
+      "ip": "192.168.0.100",
+      "mac": "84:46:93:6d:3c:3f",
+      "type": "Android Phone",
+      "vendor": "Xiaomi",
+      "hostname": "Xiaomi-Phone-100",
+      "open_ports": [],
+      "last_seen": "2026-01-04T09:31:04.431822",
+      "first_seen": "2026-01-04T09:02:58.048799"
+    },
+    "40:ac:bf:37:d6:39": {
+      "ip": "192.168.0.102",
+      "mac": "40:ac:bf:37:d6:39",
+      "type": "Security Camera",
+      "vendor": "Hikvision",
+      "hostname": "Hikvision-Camera-102",
+      "open_ports": [
+        {
+          "port": 8443,
+          "service": "HTTPS-Alt"
+        }
+      ],
+      "last_seen": "2026-01-04T09:31:06.527593",
+      "first_seen": "2026-01-04T08:56:57.175840"
+    }
+  },
+  "last_scan_time": "2026-01-04T09:31:06.527614"
+}

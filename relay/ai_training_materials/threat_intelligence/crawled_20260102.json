@@ -1,0 +1,2212 @@
+{
+  "crawled_at": "2025-12-30T17:30:00.418782",
+  "total_items": 200,
+  "statistics": {
+    "total_crawls": 1,
+    "total_items": 200,
+    "last_crawl_time": "2025-12-30T17:30:00.418138",
+    "errors": 0
+  },
+  "threats": [
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"05699124937cd579bceb4ef3c74299b80f2113e9a7b2318d9515f9bd703074e0",
+        "sha256": " \"8a2c965a91c9b67ea83991a497a22055",
+        "sha1": " \"777fd14bcf6ea0baeb7a18f64ed80e6185e70aa3"
+      },
+      "timestamp": "2025-12-30T17:29:53.249778"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"dde8d66a35c0e24fc0f930d4a0121676601284855c22710216a89adc75e3d184",
+        "sha256": " \"b0dbb67e53ff638dbca4794eaea72eaa",
+        "sha1": " \"2ac8a7f64ec335223cdfe85372656f1978cbadc0"
+      },
+      "timestamp": "2025-12-30T17:29:53.249784"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"159cda74ceee9e964ac9c1962e209e8ca44f6b08d5796824535e6bfb198cfb9a",
+        "sha256": " \"383630868146e77bb077e4c56e4fe55c",
+        "sha1": " \"910735f8c533a63a36bef5b2b113cdc5cdceba55"
+      },
+      "timestamp": "2025-12-30T17:29:53.249787"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"c48a992b8dea1c54ae4e4f92ec8fb3968792029758369c7e17dabd92796258ea",
+        "sha256": " \"d9ad3f1930bb307c2c45109712b42df6",
+        "sha1": " \"8027b81a974d18506e4e2cba08ec5592ca9b53d2"
+      },
+      "timestamp": "2025-12-30T17:29:53.249790"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"a4c773dfecaa77c920e55cbfb14205657fc9315acc62df0c217d6c1bd6fbe9df",
+        "sha256": " \"3fce506abedeec41079cbcaaca0fb6ee",
+        "sha1": " \"a5d8ade169c61085e25442927dacdf6c8c415b17"
+      },
+      "timestamp": "2025-12-30T17:29:53.249792"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"8de711ea471ce676e5a972a33dcc145e5440684a4803b858d6cbffe79a8cfeaa",
+        "sha256": " \"5c2afa3e342f957d134f2087db574244",
+        "sha1": " \"8508537f81bb714c95d6e5b2bf8625bbd5f06788"
+      },
+      "timestamp": "2025-12-30T17:29:53.249794"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"003a5dd31ede5ac5eced85099b69b1470257ee0a653c97275dc4d17be042626d",
+        "sha256": " \"d16fcd5a5960edc5e7b058f8c6381982",
+        "sha1": " \"a42844356368f18c896fd898bb963a6c1d7de77a"
+      },
+      "timestamp": "2025-12-30T17:29:53.249796"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"d9396c293403105ecf985e96054050364bb7d1b3b2f2aec9e77b0b37b33ab39f",
+        "sha256": " \"a888a95cbd8508d6403f036785056b21",
+        "sha1": " \"25970eb67edb73d33f4ea2cdf39bb3b8144d80ff"
+      },
+      "timestamp": "2025-12-30T17:29:53.249803"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"cd0261f37a95fd026d923bae8d3f69728a99af0afe8b62815afb92be993dd1f7",
+        "sha256": " \"5f0c6fed44aaef7daa745abd44f8db6f",
+        "sha1": " \"437c661ea038fa9f01c36a66cf64273cae76c8be"
+      },
+      "timestamp": "2025-12-30T17:29:53.249805"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"1924fb0d57e7cb2b2dbe7bb7a40dd7bf29f83651259676db052a35a365b67dad",
+        "sha256": " \"1a6f7fdb0274270515c9fcbcdd3bcd38",
+        "sha1": " \"5b91de877bbc74dbf766ff548a92a9f5bd29e457"
+      },
+      "timestamp": "2025-12-30T17:29:53.249811"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"fb24bee1b9ed5b49802b604d4fb2d033067f43708f99086e80c6f9148d4d2f17",
+        "sha256": " \"f0c3181d9e12c27d9771f36ce7e15f0b",
+        "sha1": " \"db14c3fa825a084adf17bf7cbf4ce67e1ba5b6d2"
+      },
+      "timestamp": "2025-12-30T17:29:53.249813"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"655289bab85bf42ebfba2bee493ff705ff12e12341170463062eda0425c31270",
+        "sha256": " \"66e3fce0b82f090e8d376a533a318f23",
+        "sha1": " \"83d51ab413efe404263c55d38437e7207ef5f87e"
+      },
+      "timestamp": "2025-12-30T17:29:53.249818"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"705df644497e38fa9451ef30cb2b858619584078e5b6b435f43d085ff31c14ea",
+        "sha256": " \"200187263c767998303f60f4497b0f3c",
+        "sha1": " \"1796153f61e2b36c57ba0e624880256a24c24528"
+      },
+      "timestamp": "2025-12-30T17:29:53.249820"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"c4311c312a408513d2a0cc53d241a12ec23498d85947aaac89587494fa34d18b",
+        "sha256": " \"dcb286533f5ff92cd860013ea746cb80",
+        "sha1": " \"28ef048effbedef452262343647636756a26012d"
+      },
+      "timestamp": "2025-12-30T17:29:53.249822"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"e6a1fb402b80ab63c6f5eff4c25e4eae74ccf79d0a8f2aafff84b85e02301b52",
+        "sha256": " \"fc5cf4deb7164d8b243933d600862615",
+        "sha1": " \"75bf05268ea775b5bc04e57948cf3dcb04c75f51"
+      },
+      "timestamp": "2025-12-30T17:29:53.249824"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"5ac8b5eddce05a044d369dc547dad88e9469fa7919aa51d139dd03b6d62022e1",
+        "sha256": " \"4f16b24a134feca77668be950336a341",
+        "sha1": " \"bb81d6698d53936c3b895e44ccf162efb8f09590"
+      },
+      "timestamp": "2025-12-30T17:29:53.249825"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"13ce5c118a3fbf487bafcabed33baf036c4d52cf9d86aa96ee5b3fd12b466d6d",
+        "sha256": " \"c647a40456f98f1912b75cb0e2e7fd28",
+        "sha1": " \"8e205668879d806d5211abdcbeb1370f520af2ab"
+      },
+      "timestamp": "2025-12-30T17:29:53.249827"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"226b8c98bfa32067167271b2c281f58aa474a384ecfd9781ea5b7042c86ee7e9",
+        "sha256": " \"e8cc1b4ee3f04f137d7b02984a65ace1",
+        "sha1": " \"4d5e25c59852c64e25d528fb14e9bee4f5877228"
+      },
+      "timestamp": "2025-12-30T17:29:53.249829"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"1241e2eb3855329fc78f86aabaaf91398d54ce9f9128517e58223bfd514723d5",
+        "sha256": " \"962d8645843638844dc528c300dd39f5",
+        "sha1": " \"b24de6debb9f5a40ab167969a827e29ebcac2183"
+      },
+      "timestamp": "2025-12-30T17:29:53.249831"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"c59564b9123536a193f5b7430f4f6494d0e92cd5394151b9f6d042dbadf95e14",
+        "sha256": " \"044a1981c05dc57f5cf387451d20f76a",
+        "sha1": " \"720ec0562bcbff92c8ad4dd86695aed63d153a62"
+      },
+      "timestamp": "2025-12-30T17:29:53.249833"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"8a7ccca829a33949eea69bfbc22fa16d3a206b71cab4fc50f75ca658b13ab40b",
+        "sha256": " \"2175255de1448a40cf36995f586a3ac6",
+        "sha1": " \"1894b34f91b2606e7597d55eb591ab5805df5a9b"
+      },
+      "timestamp": "2025-12-30T17:29:53.249851"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"3bb8ba2f8feb6612367b34aa3c1d78715963c11d8d4b560b4cca8231261c1a6c",
+        "sha256": " \"c65a5af6e984de5c69c60efe9576834b",
+        "sha1": " \"d3c3e266888ba406a63df1eb75b3317de531d695"
+      },
+      "timestamp": "2025-12-30T17:29:53.249852"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"7913a3dd8aa993ac49112d4583b96e28d527bc7a37aead7ff5b9563f65b6f308",
+        "sha256": " \"98f869380619f2ba2816f299108a922f",
+        "sha1": " \"3031455503b3883d778d37b65a79782eefc3a4c4"
+      },
+      "timestamp": "2025-12-30T17:29:53.249854"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"14b17dc6764a1916eb2200667f1f0e894baf84883c5d2c4fe90c73217aa7e0d8",
+        "sha256": " \"8ccff6bd392e70070cb6b50d4735edbb",
+        "sha1": " \"9c2c972dde042cf087d566e05f47a39588784db7"
+      },
+      "timestamp": "2025-12-30T17:29:53.249856"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"36e08e2b542a9fa337282aa0aeef9207e81286e81845128a64cde1e0b0f7c7e6",
+        "sha256": " \"4305329d82d2518ac485b7d7efa52671",
+        "sha1": " \"5dc8a01827e1a630a5708959a357ed1512fbdc9e"
+      },
+      "timestamp": "2025-12-30T17:29:53.249857"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"a3a156bc7261bf40b1575eabd96aacd003d079bf9b1e3f81402bda08781c8e0b",
+        "sha256": " \"8941e9d3d5b68b017290b2aee53e51e5",
+        "sha1": " \"eae3432ff57d34bb3c47e97166f9379669f07d4f"
+      },
+      "timestamp": "2025-12-30T17:29:53.249859"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"25ed6f398d359db47aafff59f24ae2cd54328eeb108e5158dba42228d1d8d562",
+        "sha256": " \"55fd4c31564ab26c1b78ffcf5721068b",
+        "sha1": " \"3b92534aa0dc2c3291a6040b62e5ace00b9ed642"
+      },
+      "timestamp": "2025-12-30T17:29:53.249861"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"6115cb9c24482cc35f770ece1e08ae4014341d2242a30bf262d2fbff1fc578a1",
+        "sha256": " \"9b01c6e935c70a1a330c241f6bcce45b",
+        "sha1": " \"6f4673a60fb235a2d2033a876ce6086b9e302742"
+      },
+      "timestamp": "2025-12-30T17:29:53.249863"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"d9dc4b9944c88a32e7ca498a1c6dcd6586c0957be1512f586e8632c07376c282",
+        "sha256": " \"823d89e8aef6b176ff1bf594c021a959",
+        "sha1": " \"53dca7c66062f300fefcab4a6495b12e0a8f3626"
+      },
+      "timestamp": "2025-12-30T17:29:53.249864"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"a2218af43cad32ab30859e208456a61dfdbd1c0943a6146d97ce540dc44e214e",
+        "sha256": " \"9dda74f7862f38bcde693c1e28c657c9",
+        "sha1": " \"ae9b8675ac3bf0c7b28a9ceab0502dccfbd60021"
+      },
+      "timestamp": "2025-12-30T17:29:53.249866"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"c46baefacd84f958856e0102a12f169892c50c190f0b44d1f9754943c2d91c31",
+        "sha256": " \"0bda9ec3b8e273e90ce91131d8025096",
+        "sha1": " \"bf672c40bab2de87c56dad1b7f210db65ab3cb60"
+      },
+      "timestamp": "2025-12-30T17:29:53.249869"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"e826b14c89a00d20e87ccb65a4ea391a26e541e774af9b75a72eb5241ed03143",
+        "sha256": " \"f724f3493623aeaf6c8f3ad13a55a969",
+        "sha1": " \"aa43396c7e4442648adb37f39a9512e17c645bb1"
+      },
+      "timestamp": "2025-12-30T17:29:53.249871"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"8b765e9a598719550a966acfb612ead1f4b968c0e00fa30e2e2da183065703df",
+        "sha256": " \"ee24aa1cebeff2b35f08ac0a1935fcc2",
+        "sha1": " \"07fb947fcaadffdf4d0cfe2d2a50513a5888c1d2"
+      },
+      "timestamp": "2025-12-30T17:29:53.249872"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"278904b1e6a6d848e3b14319363d95f01e498acf139bc9f8d5c346ed3d0ec9fb",
+        "sha256": " \"673bbc83845caafc2a881e76e96d8bcf",
+        "sha1": " \"a155852d3406137501a93fb9901ef2a42023f7ab"
+      },
+      "timestamp": "2025-12-30T17:29:53.249874"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"02ab440c2c576329b510ecf01709110a6efdd8e880bb50ad2bcd9011aaca0289",
+        "sha256": " \"0ad44cf79520a150ccedbb5773f0bab4",
+        "sha1": " \"18e452d4f29ad95794b5bd8dda7d1733ba451cc8"
+      },
+      "timestamp": "2025-12-30T17:29:53.249876"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"7c7023e85e7d72f5bb7eed28c780a57e0cd641850d2f7920bebaf1cc7b883d37",
+        "sha256": " \"ed5a103918cc122968a16dab0d3a04ca",
+        "sha1": " \"8683618da63e05be1a0b22fe111e877706d1dd4e"
+      },
+      "timestamp": "2025-12-30T17:29:53.249878"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"ca4b42d7936d8a6122df8ccb0fb5b72fe620c4031ed16c8e9a6d55c8caddbb36",
+        "sha256": " \"8b3bdbf726a37208fa46772e783965e9",
+        "sha1": " \"2a250f9fb38207d6eae78f9e7daa6fd32a9631fd"
+      },
+      "timestamp": "2025-12-30T17:29:53.249880"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"a35689944ef4044af9ed2370c586fe93d0e4839799cd378cc7e0d449bca8a3d2",
+        "sha256": " \"651dd6946f2f7ce39be3a29c60dcefb8",
+        "sha1": " \"ce8ab36e3a9eaa543afa7bdf235a86ddc8ddc058"
+      },
+      "timestamp": "2025-12-30T17:29:53.249881"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"4284326b697179fb7e523773fd42f1fa0d9d99503ee65b1717629f3499a01ee7",
+        "sha256": " \"7a187b5392a614c0cb11b8c9c288a796",
+        "sha1": " \"97d141c0cac3c4e9a55b3a49fe2221ee7e1efdf0"
+      },
+      "timestamp": "2025-12-30T17:29:53.249883"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"7788726275b4d212ddaa19c37432474ad929827fcb04f42088c6d459733bbb63",
+        "sha256": " \"ff46f36343e56268a12e9c412a7b0692",
+        "sha1": " \"cb549fdc56281787368c23543736f485769a4bd2"
+      },
+      "timestamp": "2025-12-30T17:29:53.249885"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"897727b735d929ca4857678d5368bb1ddd7ed1067e078c61a81ae144559e8cf0",
+        "sha256": " \"5f2abcb062c71806104bdc317ce1c08a",
+        "sha1": " \"21ed06cb76db94858205024244174f14c1c2a3d1"
+      },
+      "timestamp": "2025-12-30T17:29:53.249886"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"b09b451ff1c016dbfdc114479d0e4e5f7673024fbf82570642e845306819f322",
+        "sha256": " \"5f05d84aec0ae44b0fc014ae2adf9653",
+        "sha1": " \"1a80377798e6d87cb21ec662d46dd436363eb13f"
+      },
+      "timestamp": "2025-12-30T17:29:53.249888"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"5e2dccfdf3682d3d51f99050885c1e935ee9e4182a288f44d23de57e1a06e731",
+        "sha256": " \"6b905ffd95f04dccb05d40647a10c1a7",
+        "sha1": " \"deba478e48bcd7adacde260b5b37dd271b2c1099"
+      },
+      "timestamp": "2025-12-30T17:29:53.249890"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"0591f678a04cd9d8135af11a800dd93c97a0a9d4c39ca49c493dc75960dc04e5",
+        "sha256": " \"92cf042794ee74850a7b90358fe75191",
+        "sha1": " \"e08e733f83485b5c8d291103e5acc9fb47811a8a"
+      },
+      "timestamp": "2025-12-30T17:29:53.249891"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"144de74f4c10b312aeeb4a8569a68982a02106a3640364261189dd1390f912b5",
+        "sha256": " \"7fa4d0b6f5c5fce5f9986754b9729b0b",
+        "sha1": " \"1cafc0085cac9402d57c381f067bd5ec4d3a94de"
+      },
+      "timestamp": "2025-12-30T17:29:53.249893"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"168e13f5c3cdc76f00b4a0eb51ecc61d6bd08b45faae3a2daab155edf1c64847",
+        "sha256": " \"6c60ddbf037d2ace6df7fa80b24d8045",
+        "sha1": " \"597fb6c3fb75bdf8f57a8cc54860b1974f729355"
+      },
+      "timestamp": "2025-12-30T17:29:53.249895"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"1ad7c586bfc4ec3e19267f50e9d88fccd9dd1407b4e489b9a01a449751e6731d",
+        "sha256": " \"647fd286d0c406bd15e27fa1d5ba4b9b",
+        "sha1": " \"6bb06b3fee4389e723aba8b64d0c02490212f728"
+      },
+      "timestamp": "2025-12-30T17:29:53.249897"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"bd3f5602580ba52c6f1640d4318cfb34a5f7cd41b9dc155162b4105d76e17061",
+        "sha256": " \"b14cb15e68a01d348a81c85d373387a1",
+        "sha1": " \"c3e7160bd203e4df35ae82eb02604a339cbab0e1"
+      },
+      "timestamp": "2025-12-30T17:29:53.249898"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"68b969af7f174a9fb9542f0707ece387bacb75b22b9826e7cd679e0504faf3c2",
+        "sha256": " \"106e0529713b209e7b734392a7975f78",
+        "sha1": " \"e14ae091cfa5515c02402064c565efb4df3f004e"
+      },
+      "timestamp": "2025-12-30T17:29:53.249900"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"12c2c22ac2896a283118750f17735f30572671bc7400a30368b4e43767d2acd0",
+        "sha256": " \"5cb90fba7f11b756b8dca06e51f7a567",
+        "sha1": " \"7e05be6064bd31477c6eaeddb77cb5e56a980c2d"
+      },
+      "timestamp": "2025-12-30T17:29:53.249902"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"c1a128a64e4b9e16a9cda1439d8736eff37524b5e530620f7137d1e2b4068ca8",
+        "sha256": " \"1d0460912e5d0f26fb1a70f26e8802db",
+        "sha1": " \"93ac9235b9599dcc56837ca5847866c5ad93a342"
+      },
+      "timestamp": "2025-12-30T17:29:53.249903"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"0a000edf2313a4349f174537f0368d3cc639fc8875b12989ed2e9bd9dcc671f8",
+        "sha256": " \"49b02eaf8924d13bab36f81064e5e2f8",
+        "sha1": " \"ae855f10ecf195a0bcd5c0a0795f78f929503df2"
+      },
+      "timestamp": "2025-12-30T17:29:53.249905"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"1d2f9b6680d3df883dceac3eb5dd35c13a9862ef0ba6f40603df5a1e54408c6e",
+        "sha256": " \"147545b7f8afb7f7e3b6b1c0e5cb0f7b",
+        "sha1": " \"823520bba2a0aeb6a10b8bc721690903019c6374"
+      },
+      "timestamp": "2025-12-30T17:29:53.249907"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"4963515376ded0c77544b2f78033cbc11c6dfe02e6d45f9b0e26281d4435374b",
+        "sha256": " \"91e1385f5a4d80b2657a75ce86a87699",
+        "sha1": " \"31f924ecce4b5a0c76006f06439b0f9391e51b86"
+      },
+      "timestamp": "2025-12-30T17:29:53.249909"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"5aeee175fdb3ecfbf491f0ea1fb141945d6cfa0f764ad360f20b04cb3347f209",
+        "sha256": " \"858fed434129467135a5d79c9c98844c",
+        "sha1": " \"f90e7c9e6232ccceed7ba61c06f69df87248505c"
+      },
+      "timestamp": "2025-12-30T17:29:53.249910"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"a71dba9cd1e4632108ad6bab379bb29dd31119e30572ff31628df096354fa998",
+        "sha256": " \"da41d2a77e65fd05a8df93a2e25e7a5f",
+        "sha1": " \"52fa6053d033684d372156f0942474a89a913750"
+      },
+      "timestamp": "2025-12-30T17:29:53.249912"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"ad3dcb6722af79aec9aad35c0c1a1b6b8c163b1a8ac4952d9f52a40c93591a71",
+        "sha256": " \"493874cc7b52bf5a41955d1c8f0792cc",
+        "sha1": " \"46d0b1dc9492e049dccef84a47180326a3b539e8"
+      },
+      "timestamp": "2025-12-30T17:29:53.249914"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"bc31d57ee30fb5f3c76fa760a5e98e22850b50b77bdb5511fbf048d649336270",
+        "sha256": " \"7c1039724faff59131c11601a3d67a04",
+        "sha1": " \"6c2eec0bae93adf7a5f14f9f6ecf7ea6a7e89235"
+      },
+      "timestamp": "2025-12-30T17:29:53.249915"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"cb7793147566cb0cbd2d60918e4825389c549d8a9b89cec611c12ecb028593f5",
+        "sha256": " \"9fe20b85e9f9f3d9ee075ee5764a7078",
+        "sha1": " \"36be48a8165536973b72b6eca8386e842d258d6d"
+      },
+      "timestamp": "2025-12-30T17:29:53.249917"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"d09d3d9987c5a3ae2a06bfa5bcf9f0873e863da8ba1db5a9bc4ce6544232a37b",
+        "sha256": " \"de565c4ad0b59e832736fe47ab635f1f",
+        "sha1": " \"ac696e87d832997d7c1477b73eb8a08ffc98310b"
+      },
+      "timestamp": "2025-12-30T17:29:53.249919"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"e1b6f293a5e3a6457551b715eed6fada50eb7b1cd2cb2a8470afa2c75bdfff9b",
+        "sha256": " \"0b78c5d680337b4fb9bf6f5db3672cba",
+        "sha1": " \"148c10b1c30f0d301da10d1cff4d2cf496e67669"
+      },
+      "timestamp": "2025-12-30T17:29:53.249922"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"e51a8d123e2865d75fb429567c272fdb045a1ffdb89e10549c2e8ca0d3baedc5",
+        "sha256": " \"373bab7910e248fd9421d8ea5d6e2eba",
+        "sha1": " \"34dde9cba1e61c8de21fc0657a81dfb5d25d968e"
+      },
+      "timestamp": "2025-12-30T17:29:53.249923"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"f506fd8067bddf86e265415c6c447de5ba0c308b09977939722a59235266da60",
+        "sha256": " \"293332a21f56ec863c6933dcfe857ac5",
+        "sha1": " \"e99d49a8f85b0c82e0ce999da69c2e906f34a2dc"
+      },
+      "timestamp": "2025-12-30T17:29:53.249925"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"5bec915e63771fbab61dbfc9b580656ac350c86d17588e6f897b942511d94e35",
+        "sha256": " \"d802949dc0c5e7d582e47a9412af46d6",
+        "sha1": " \"f0d12e0c950daeff4be8834d4528ef9905b3882d"
+      },
+      "timestamp": "2025-12-30T17:29:53.249927"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"f086124b409d7c68bddfd310542d45c7b3ff01845eae87194231a0253f79ef7c",
+        "sha256": " \"b3a7e12d17eeb1939716ab5de1f14563",
+        "sha1": " \"cfd0f15769914c1a2806ed23efe1ba7b731438ba"
+      },
+      "timestamp": "2025-12-30T17:29:53.249930"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"02cd74a277a19ef59375d44e6111c5c887a2dd2313a2a7129c98e5967dc69ecc",
+        "sha256": " \"c3a986a3b5d32e2bd069fd24aaa64698",
+        "sha1": " \"fbbe80024951667d99d8ceacd7a3d34e11d6d214"
+      },
+      "timestamp": "2025-12-30T17:29:53.249932"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"64c9708b925dd3537b8e49df29d4df8aafc79d18fadd82788afd785fa08d3286",
+        "sha256": " \"a5a058927fc2c19d0c16527f2abf732f",
+        "sha1": " \"82e8a83bbed7197aecd6968f62aa39e4c8ed4abb"
+      },
+      "timestamp": "2025-12-30T17:29:53.249933"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"873ea83b3507d8391b1b66f0f3d57cefff4307463b018eec09abbff601c83d30",
+        "sha256": " \"3d8bcd5c17425d8a97de0ffeb8addb8d",
+        "sha1": " \"dd6edbd9a9cfdce6e02989ac3babee1256e8b4ac"
+      },
+      "timestamp": "2025-12-30T17:29:53.249935"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"b998616f30ec6ddf71968f951329279f0a9113f1714fd096bd5d08f3e1cc6d1b",
+        "sha256": " \"c7082bdd27233200550c3a6dcd4161e6",
+        "sha1": " \"b01ef26c1ae56602e60e8e4469e0030651fb1e46"
+      },
+      "timestamp": "2025-12-30T17:29:53.249937"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"d26166162cd1c86a92faf8ac6a92fce91ac8a71915b4583e9ab7fcbf6dbf0ad6",
+        "sha256": " \"df150002991d77dd1718ce35ea3552a1",
+        "sha1": " \"bb277083d91b0c0db6415918fd60269355f56290"
+      },
+      "timestamp": "2025-12-30T17:29:53.249938"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"6b66e3843d6228e76437e48033a6a57e45f3133d43aeb0967fc928c42c78f7b7",
+        "sha256": " \"8b6f6d2a5c3684827f658321fb994a36",
+        "sha1": " \"4c4b8d29bd9367f6f2cae98f1f6cc12e5f4e8d7e"
+      },
+      "timestamp": "2025-12-30T17:29:53.249940"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"0d7e7c6c1e02f7e5e5d0bf8f191e9d50636e71cabc2b4883d112b0f04da3d9f0",
+        "sha256": " \"32545e9391230b76d480fd06842edb51",
+        "sha1": " \"fb139eb4628c0939142735d28dfdd83423a493d9"
+      },
+      "timestamp": "2025-12-30T17:29:53.249943"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"c06e06820b32b395e0d34787a865fc9abed80a72c4734a0561dde0bb4ec1901a",
+        "sha256": " \"aa4596e4bb9e9c187e93f4950acf4769",
+        "sha1": " \"a9434235d32b7d3aae78aef5b530266a9de16a9d"
+      },
+      "timestamp": "2025-12-30T17:29:53.249945"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"5118f59ff6e3a48aafc7251646c80cb9cc718ffc610744739fa44e4f5bb0a9d2",
+        "sha256": " \"15c94d7fc6ff83e06daa551e155bbb21",
+        "sha1": " \"514eebc04368481386cada2ba8a47e107b4ef303"
+      },
+      "timestamp": "2025-12-30T17:29:53.249946"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"439d0584b98192279d62549b0fbd10bfa41e1bc2b5272d601ca9e27b976eda75",
+        "sha256": " \"f6cef55bb2ed2f1f8be688cf6609c1e8",
+        "sha1": " \"db56c7c8f8adf567756cafe586077a1f6ef500d1"
+      },
+      "timestamp": "2025-12-30T17:29:53.249948"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"06531922fdad68677036e45406c8a283ed20d07f6ae80ddd4f29053dca846809",
+        "sha256": " \"4b70f3b7bd86678722bc1843517cd4a2",
+        "sha1": " \"3b8652142a0ca2dd94c70e2ed1621ad1785231cb"
+      },
+      "timestamp": "2025-12-30T17:29:53.249950"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"e504fa719fa15aa068a818cb6d7fbeb8131bdb4e4c495502453b786a612ee4ea",
+        "sha256": " \"eb35eed18a6cbab96af7b5471e1c3cc2",
+        "sha1": " \"1664827d2239444c97ed2a3204927d67d8b05cbf"
+      },
+      "timestamp": "2025-12-30T17:29:53.249951"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"ef865dc51fc91096f8cd25661e95bbe0597f49716d31d914fbccf6370a2a56fb",
+        "sha256": " \"11e61a39988fb331a466b57a67971b31",
+        "sha1": " \"e4ec187e6d89d012fca22f79ea560c6ad180d17e"
+      },
+      "timestamp": "2025-12-30T17:29:53.249954"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"17ca4af085fa1e845509a2e7d0bc6f155fff8b1215e001002e3d7704d04e0903",
+        "sha256": " \"5c7bab2ded159841142ae243ccd6736e",
+        "sha1": " \"67b1cb98a90c3aa5a07edbb2b296672dd8b7b972"
+      },
+      "timestamp": "2025-12-30T17:29:53.249955"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"ebc4cfa59d239315e9d867993ed5169d57f0ea351405532f93fc2adb1fea3fea",
+        "sha256": " \"99b08a8a2073ff04f8d988480c6da01c",
+        "sha1": " \"3e6e163c9df61e9f5ced0c510ea026c359b50388"
+      },
+      "timestamp": "2025-12-30T17:29:53.249957"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"77e3aa52af76164ecf15fe59fc7e69ea046dd6e182aa12b8f4516f765124eee4",
+        "sha256": " \"9a4f68477d924b0e64061b361c465b4f",
+        "sha1": " \"4566da7f948fde30068e0368c71bb61650df0258"
+      },
+      "timestamp": "2025-12-30T17:29:53.249959"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"349c33df0b6938fbae6801222a6244871e0189a09c64db090556bf7252ade833",
+        "sha256": " \"bd972d9922de94e079a490782a2cc70f",
+        "sha1": " \"e226bb5854c153ffd27da7a600290bce19e7420a"
+      },
+      "timestamp": "2025-12-30T17:29:53.249960"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"79360f7459876dbf5db55189ce7c416a59a843a13df4b76a3a966a8fd4a401e3",
+        "sha256": " \"87e69126f5f524269d686c6411d4caaf",
+        "sha1": " \"f2d31ea03f68c895b90d1e02c66d8e1f9efc9c09"
+      },
+      "timestamp": "2025-12-30T17:29:53.249962"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"4a43b3e17cee8c3b85ac06b0e7877e777cbc55fd3c593112097ee66c21fe6707",
+        "sha256": " \"cf532dc722c18959e66a06c8951d3b56",
+        "sha1": " \"47951c262d981384150027b1f7a103aec687cbc9"
+      },
+      "timestamp": "2025-12-30T17:29:53.249964"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"b0b9696823baf3267aa86ad48a05e800828d5d0546a020f51f64e2d48ec42022",
+        "sha256": " \"809c7f2ae709d9bb37c1b05a23d71e2f",
+        "sha1": " \"9f705797d205e138b54291f91d5c0cd9dae0af04"
+      },
+      "timestamp": "2025-12-30T17:29:53.249965"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"b482c7a2734b90eea3e35e61962de17336ed81f26bc9432175a03d4e7da03d65",
+        "sha256": " \"979ee3b134b663a619f67d892d5d373e",
+        "sha1": " \"4190a6b246639cdc513f703d1d118aeb48f19105"
+      },
+      "timestamp": "2025-12-30T17:29:53.249967"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"506033f7a6ea5c9e4d89f9edcc998ed1f33fb74e4a2a4f32af8cec2ec009a906",
+        "sha256": " \"1c97d8953486280cc04570fce5f0f4dc",
+        "sha1": " \"c532a2097ac342abdee5aa0927d6359db7f787ac"
+      },
+      "timestamp": "2025-12-30T17:29:53.249969"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"4338ab77d05aeacd7eac5acbe9eed5568778c8e3e9499562816805b54b4d1a6a",
+        "sha256": " \"a4ee6d65eca0c3de859ac90f19e85095",
+        "sha1": " \"8493de7dec3d81680aa8681da736c1fe18a72215"
+      },
+      "timestamp": "2025-12-30T17:29:53.249970"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"646466171fc15efcd236d928696edf3292c150112e4943d6114a1949afa1394f",
+        "sha256": " \"95c59ff72b485c95ef6e44401d39742e",
+        "sha1": " \"f171cc85b47b0144e69fe15ca9f3ceeddf5cf566"
+      },
+      "timestamp": "2025-12-30T17:29:53.249972"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"afbff1553ab7b1352fbf323438e9550cb9ec719753ed1049e3a0424f36eb63fa",
+        "sha256": " \"a2f4e85d5e2a8ca8cfe5a682964b67c4",
+        "sha1": " \"156ab717ef9b932b649a5ba63aa2e0b0e4b3c151"
+      },
+      "timestamp": "2025-12-30T17:29:53.249974"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"e82e18193cf5846e7b5bfc1701c5831124339d2ac20c4a5e2919a003b6701a1a",
+        "sha256": " \"5ffb9a8ff23bbf91393bdbcaaa330406",
+        "sha1": " \"a8544d7d9c3cec8e51e472fcc922c0615a2c83b1"
+      },
+      "timestamp": "2025-12-30T17:29:53.249975"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"de1dfa9b59e677af6d42d4f629e1ece35ba60c90f8dc06e5656034809a5d2ffc",
+        "sha256": " \"6b2f282df157848417b11a1385e34a14",
+        "sha1": " \"1c40a1937ad694eeacf50784dbdb32ac7dd3f4a7"
+      },
+      "timestamp": "2025-12-30T17:29:53.249977"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"ac10db8e75c1fb3f4c90d60125dcc90d42ef0394ccb908de8829145bbcd00804",
+        "sha256": " \"2860811583736f3769496861305687a7",
+        "sha1": " \"9367472812b6b72b1a62b517d1e568975609b384"
+      },
+      "timestamp": "2025-12-30T17:29:53.249979"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"6ae30a591fc346ea037d4427bcbce1575be10cfc1a723e242fca3552f7cfd992",
+        "sha256": " \"5f855c162653842626ef40dc2466ba07",
+        "sha1": " \"1d67e621b0aaf5ea99675a30d288166ea39fa669"
+      },
+      "timestamp": "2025-12-30T17:29:53.249994"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"5f11cc7600da1e43519a7a07413e1d251ba89c788c00fee676dec5a2c5a8c31a",
+        "sha256": " \"e68c249cea4655ed8a6a2ba57d412899",
+        "sha1": " \"3b0804cfa963d5479d828d10bb2c6e81dc72cff4"
+      },
+      "timestamp": "2025-12-30T17:29:53.249996"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"cc520514904c71a33397a93325e2af9919b5b0a2bf14606323dea5943cca315c",
+        "sha256": " \"49df5391b6b721514a51af12dfa2ab8b",
+        "sha1": " \"4927d7228c02d22af2a725f711359f830577636f"
+      },
+      "timestamp": "2025-12-30T17:29:53.249998"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"406b211ae3e22bfa1801c77095996325b1a5bc387046759b2eb13fad9fa64db9",
+        "sha256": " \"687570911038f0d857edb78ff8d2d44e",
+        "sha1": " \"559be47dcc18bc6b26c7aa94ed6c9c84b6a258d6"
+      },
+      "timestamp": "2025-12-30T17:29:53.250002"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"606d9c553d6b60e82b603ba4895bdc3350e287d8d50488fdfb0b22eb32bae083",
+        "sha256": " \"50f3dce41235f08de6f9f1bbf9abcc5a",
+        "sha1": " \"6ab97609e1b2c595f046e71cd88f990757852d60"
+      },
+      "timestamp": "2025-12-30T17:29:53.250004"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"20b2fc2c0e2db1d34a5da873f846f02f75e81e4fd45325096f7976414a335009",
+        "sha256": " \"c8fd8aee7c6eaef1614fbfa0689cb26f",
+        "sha1": " \"f295d50328b20c025da45bb4599b4d7ffdfd4c4e"
+      },
+      "timestamp": "2025-12-30T17:29:53.250006"
+    },
+    {
+      "source": "MalwareBazaar",
+      "type": "Malware",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "md5": " \"9847bf04f2a15ba75ec019d3def6a104556d6f07be19fe1548115ed8cd2a0d5c",
+        "sha256": " \"0956a113547b0fb53e95d3e0ac889abf",
+        "sha1": " \"e66af883f6a2f764b98490f8a83b5a1cac8216f1"
+      },
+      "timestamp": "2025-12-30T17:29:53.250007"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://222.138.138.159:43158/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798135"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://42.52.208.207:44945/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798143"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://d8kbeizm.bun8topch2n.ru/?=check&&actmn=xRDtBDnZneddtrCV"
+      },
+      "timestamp": "2025-12-30T17:29:55.798146"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://pzmiqand.bun8topch2n.ru/?=check&&actmn=jtSMhoumXwcejPcm"
+      },
+      "timestamp": "2025-12-30T17:29:55.798149"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://60.23.131.179:34957/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798152"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://123.9.199.150:34015/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798155"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://219.156.173.102:45906/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798158"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://28l94n0x.astra1r0pac.ru/?=check&&actmn=TXuPrJmAcaMsXnAt"
+      },
+      "timestamp": "2025-12-30T17:29:55.798160"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://j2borkqf.astra1r0pac.ru/?=check&&actmn=mcdpEopbXJKmycUK"
+      },
+      "timestamp": "2025-12-30T17:29:55.798163"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://125.45.56.52:58064/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798167"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://112.247.6.200:56640/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798170"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://178.17.59.40:5506/KCZXWEFJ.msi"
+      },
+      "timestamp": "2025-12-30T17:29:55.798172"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://42.227.164.104:58719/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798175"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://d4yi75m0.brist1ynom2d.ru/?=check&&actmn=imbDcORxJMNtKGnN"
+      },
+      "timestamp": "2025-12-30T17:29:55.798178"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://q9v5lqkv.brist1ynom2d.ru/?=check&&actmn=mMfHioQqQysCYzHM"
+      },
+      "timestamp": "2025-12-30T17:29:55.798181"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://219.156.173.102:45906/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798184"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://dvq02enh.five5kitt1es.ru/?=check&&actmn=yJkabPSyFHAGljEz"
+      },
+      "timestamp": "2025-12-30T17:29:55.798186"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://qj9v9qv3.five5kitt1es.ru/?=check&&actmn=QpyFkmHgfkIoroZF"
+      },
+      "timestamp": "2025-12-30T17:29:55.798189"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://27.37.89.24:48287/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798191"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://113.236.83.79:37341/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798194"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://42.227.164.104:58719/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798197"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://110.37.95.136:56370/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798200"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://115.58.140.41:46151/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798202"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://115.52.30.32:34417/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798205"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://42.230.218.92:58317/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798208"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://123.5.148.197:41289/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798210"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://bwpxjg5k.bi8tape5try.ru/?=check&&actmn=OWsJFHIYDWzXdmmG"
+      },
+      "timestamp": "2025-12-30T17:29:55.798213"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://w7k49x7q.bi8tape5try.ru/?=check&&actmn=GWYPRroeikclSfLV"
+      },
+      "timestamp": "2025-12-30T17:29:55.798216"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://89.21.194.49:37439/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798219"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://113.236.83.79:37341/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798222"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://62fhvzqh.benefc2th0de.ru/?=check&&actmn=SteaWTJDouYMxuIA"
+      },
+      "timestamp": "2025-12-30T17:29:55.798224"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://lzo4wndi.benefc2th0de.ru/?=check&&actmn=zZzQJhstkYkWzPnL"
+      },
+      "timestamp": "2025-12-30T17:29:55.798227"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://freminfar.floresdelphinium.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798229"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://brumol.floresflorchuvaouro.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798232"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://globondinim4.floresflorestrela.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798234"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://scrowinnal.floresflorestrela.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798237"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://glejannonfil.floresflorcacto.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798240"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://stanintenal33.florescrinum.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798242"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://scrofil.floresclivia.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798245"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://screzol.floresflorchuva.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798247"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://planronpal2.floresixia.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798250"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://grafar.floresagapanto.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798253"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://prusul.floresflorcacto.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798255"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://planmenpunval.floresixia.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798258"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://drapunninsom.floresflorchuvaouro.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798261"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://brusonfinmol.floresnigella.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798264"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://drapunval.floresdelphinium.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798266"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://crobel3.floresagapanto.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798269"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://grammindiz.floresnigella.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798271"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://presinfer.florescrinum.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798274"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://grugoncinsom.floresclivia.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798277"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://brucontal73.floresflorchuva.cfd/?40449584567613974"
+      },
+      "timestamp": "2025-12-30T17:29:55.798280"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://4bl1n9f5.ar7aydia1ect.ru/?=check&&actmn=oPNPNvclnGtCUcji"
+      },
+      "timestamp": "2025-12-30T17:29:55.798282"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://grugoncinsom.floresclivia.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798285"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://planmenpunval.floresixia.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798287"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://grafar.floresagapanto.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798290"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://crobel3.floresagapanto.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798293"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://drapunval.floresdelphinium.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798296"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://globondinim4.floresflorestrela.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798298"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://drapunninsom.floresflorchuvaouro.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798301"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://planronpal2.floresixia.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798304"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://prusul.floresflorcacto.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798306"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://scrowinnal.floresflorestrela.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798309"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://scrofil.floresclivia.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798311"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://freminfar.floresdelphinium.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798314"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://glejannonfil.floresflorcacto.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798317"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://brucontal73.floresflorchuva.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798319"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://stanintenal33.florescrinum.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798322"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://screzol.floresflorchuva.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798324"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://presinfer.florescrinum.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798327"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://grammindiz.floresnigella.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798330"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://brusonfinmol.floresnigella.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798332"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://brumol.floresflorchuvaouro.cfd/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798335"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://2aopzocs.ar7aydia1ect.ru/?=check&&actmn=ntGmOLRHUHngFwSr"
+      },
+      "timestamp": "2025-12-30T17:29:55.798338"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://221.15.85.70:47732/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798341"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://lyotbch4.ar7aydia1ect.ru/?=check&&actmn=RYcqjzhIPCinAolF"
+      },
+      "timestamp": "2025-12-30T17:29:55.798343"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://119.178.11.160:55192/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798346"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://89.21.194.49:37439/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798348"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://182.122.216.193:38701/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798351"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://27.158.159.164:4525/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798354"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://27.202.212.135:49621/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798356"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://grusul4.floresfloripomeiaverde.cfd/?3/"
+      },
+      "timestamp": "2025-12-30T17:29:55.798359"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://ee6dxuic.ment0rr2nsom.ru/?=check&&actmn=WBSCkEMCkHHhsFxS"
+      },
+      "timestamp": "2025-12-30T17:29:55.798362"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://oo44p295.ment0rr2nsom.ru/?=check&&actmn=hNxvexSwwSUKlozS"
+      },
+      "timestamp": "2025-12-30T17:29:55.798364"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://182.122.216.193:38701/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798367"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://42.224.178.84:50860/bin.sh"
+      },
+      "timestamp": "2025-12-30T17:29:55.798369"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://wefbkvjr.in2che1ncrem.ru/?=check&&actmn=ceYlvNXxGkBhSyRz"
+      },
+      "timestamp": "2025-12-30T17:29:55.798372"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://183.196.29.73:6066/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798374"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://182.123.221.31:57221/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798377"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "https://oknkywzi.in2che1ncrem.ru/?=check&&actmn=kEqWSBHAoDxSZTHY"
+      },
+      "timestamp": "2025-12-30T17:29:55.798379"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://85.105.76.45:56575/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798382"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://182.119.230.239:51419/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798385"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://112.247.6.200:56640/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798387"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://112.237.28.58:37078/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798390"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://123.11.242.199:52547/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798392"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://182.126.124.80:51958/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798395"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://27.220.113.246:42343/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798397"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://78.165.255.33:50375/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798400"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://115.50.30.225:47382/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798402"
+    },
+    {
+      "source": "URLhaus",
+      "type": "Malicious URL",
+      "severity": "MEDIUM",
+      "description": "",
+      "indicators": {
+        "url": "http://125.45.11.2:34315/i"
+      },
+      "timestamp": "2025-12-30T17:29:55.798405"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "export_timestamp": 1767342488.5233388,
+  "export_datetime": "2026-01-02T16:28:08.523339",
+  "total_entities": 3,
+  "recidivists": 0,
+  "avg_reputation_score": 0.4601,
+  "records": [
+    {
+      "entity": "10.9.1.2",
+      "entity_type": "ip",
+      "first_seen": 1767342488.5147471,
+      "last_seen": 1767342488.5147471,
+      "total_attacks": 1,
+      "attack_types": {
+        "test": 1
+      },
+      "reputation_score": 0.4601,
+      "is_recidivist": false,
+      "blocked_count": 0
+    },
+    {
+      "entity": "10.9.1.1",
+      "entity_type": "ip",
+      "first_seen": 1767342488.5046232,
+      "last_seen": 1767342488.5046232,
+      "total_attacks": 1,
+      "attack_types": {
+        "test": 1
+      },
+      "reputation_score": 0.4601,
+      "is_recidivist": false,
+      "blocked_count": 0
+    },
+    {
+      "entity": "10.9.1.0",
+      "entity_type": "ip",
+      "first_seen": 1767342488.4997742,
+      "last_seen": 1767342488.4997742,
+      "total_attacks": 1,
+      "attack_types": {
+        "test": 1
+      },
+      "reputation_score": 0.4601,
+      "is_recidivist": false,
+      "blocked_count": 0
+    }
+  ]
+}

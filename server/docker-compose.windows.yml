@@ -1,0 +1,48 @@
+services:
+  enterprise-security:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    container_name: enterprise-security-ai
+    # Windows uses bridge mode (host mode doesn't work on Windows)
+    # This limits network scanning to Docker network only
+    privileged: true
+    
+    # Port mapping for Windows bridge mode
+    ports:
+      - "60000:60000"  # Dashboard
+      - "60001:60001"  # P2P/Relay
+    
+    # Volumes - persist data between restarts
+    volumes:
+      - ./json:/app/json                      # Threat logs (persistent)
+      - ../AI:/app/AI                          # ML models + code (persistent - survives rebuilds!)
+      # REMOVED: ExploitDB volume (Premium mode downloads models from relay, not ExploitDB)
+      # Free mode users: Uncomment below to mount local ExploitDB
+      # - ../AI/exploitdb:/app/AI/exploitdb:ro  # Optional: Free mode only
+    
+    # Environment variables (load from .env file in server directory)
+    env_file:
+      - .env
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - TZ=${TZ:-Asia/Kuala_Lumpur}
+      - VIRUSTOTAL_API_KEY=${VIRUSTOTAL_API_KEY}
+      - ABUSEIPDB_API_KEY=${ABUSEIPDB_API_KEY:-}
+      - AI_LEARNING_ENABLED=${AI_LEARNING_ENABLED:-true}
+      - DASHBOARD_PORT=${DASHBOARD_PORT:-60000}
+      - P2P_PORT=${P2P_PORT:-60001}
+      - SIGNATURE_MODE=${SIGNATURE_MODE:-auto}  # auto, master, or client
+    
+    # Health check (uses HTTPS dashboard port, self-signed cert)
+    healthcheck:
+      test: ["CMD", "curl", "-kf", "https://localhost:${DASHBOARD_PORT:-60000}/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# Optional: persistent data volumes (uncomment if you want Docker-managed volumes)
+# volumes:
+#   security_data:
+#     driver: local

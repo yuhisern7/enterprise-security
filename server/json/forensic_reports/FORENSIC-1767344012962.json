@@ -1,0 +1,77 @@
+{
+  "report_id": "FORENSIC-1767344012962",
+  "generated_at": 1767344012.9627712,
+  "entity": "10.0.0.5",
+  "incident_summary": "Threat decision for 10.0.0.5 at 2026-01-02T16:53:32.962709. Verdict: THREAT with 75.0% confidence. 1 of 1 signals indicated threat. Primary threat: Unclassified Threat. Severity: CRITICAL.",
+  "decision_breakdown": {
+    "decision_id": "DEC-1767344012962",
+    "timestamp": 1767344012.9627094,
+    "entity": "10.0.0.5",
+    "final_verdict": "THREAT",
+    "confidence": 0.75,
+    "threat_score": 75.0,
+    "total_signals": 1,
+    "threat_signals": 1,
+    "safe_signals": 0,
+    "signal_contributions": [
+      {
+        "signal_name": "test",
+        "weight": 0.8,
+        "confidence": 0.8,
+        "weighted_vote": 0.6400000000000001,
+        "verdict": "THREAT",
+        "evidence": "test",
+        "certainty": "HIGH"
+      }
+    ],
+    "primary_threat_type": "Unclassified Threat",
+    "attack_stage": "Unknown Stage",
+    "severity_level": "CRITICAL",
+    "strong_consensus": true,
+    "consensus_percentage": 100.0,
+    "decision_reason": "Threat detected with 75.0% weighted vote. Primary threat: Unclassified Threat. 1 signals indicated threat, 0 indicated safe. Strong consensus among detection systems. Extremely high confidence - immediate action recommended.",
+    "recommended_action": "BLOCK - Critical threat detected",
+    "mitigation_steps": [
+      "Block IP address immediately",
+      "Review firewall rules for similar patterns",
+      "Investigate further",
+      "Document incident for future reference"
+    ]
+  },
+  "attack_timeline": null,
+  "signal_evidence": {
+    "test": [
+      "test (confidence: 0.80, weight: 0.8)"
+    ]
+  },
+  "threat_indicators": [
+    "Strong consensus among signals (100.0%)",
+    "Identified threat type: Unclassified Threat",
+    "CRITICAL severity level"
+  ],
+  "false_positive_indicators": [],
+  "historical_context": {},
+  "related_entities": [],
+  "immediate_actions": [
+    "Block IP address immediately",
+    "Review firewall rules for similar patterns",
+    "Investigate further"
+  ],
+  "investigation_steps": [
+    "Review complete attack timeline",
+    "Investigate Unclassified Threat specifics",
+    "Analyze signal evidence for each detection",
+    "Check logs for related activity",
+    "Verify threat indicators against known patterns",
+    "Assess potential for false positive"
+  ],
+  "preventive_measures": [
+    "Implement emergency firewall rules",
+    "Update detection signatures",
+    "Review and adjust signal weights if needed",
+    "Implement additional monitoring for similar patterns",
+    "Share indicators with threat intelligence platforms"
+  ],
+  "analyst_notes": [],
+  "export_format": "json"
+}

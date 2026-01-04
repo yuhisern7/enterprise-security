@@ -1,0 +1,64 @@
+# Environment variables (contains API keys)
+.env
+relay/.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# ML Models (generated at runtime)
+AI/ml_models/*.pkl
+
+# Threat logs (user data)
+server/json/threat_log.json
+server/json/blocked_ips.json
+server/json/blocked_devices.json
+server/json/peer_threats.json
+server/json/network_monitor_state.json
+server/json/device_history.json
+server/json/connected_devices.json
+
+# Docker volumes
+docker-volumes/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# ExploitDB database (too large for git, auto-downloaded)
+AI/exploitdb/
+
+# Learned signatures (generated at runtime)
+AI/learned_signatures.json
+
+# Crypto keys (customers get these manually from you)
+relay/ai_training_materials/crypto_keys/private_key.pem
+relay/ai_training_materials/crypto_keys/public_key.pem
+relay/ai_training_materials/crypto_keys/shared_secret.key
+server/crypto_keys/private_key.pem
+server/crypto_keys/public_key.pem
+server/crypto_keys/shared_secret.key
+
+# Temporary files
+*.tmp
+temp/
+server/json/lineage_signing_key.pem

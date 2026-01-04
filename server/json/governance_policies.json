@@ -1,0 +1,68 @@
+{
+  "policies": {
+    "block_ip": {
+      "rule_id": "block_ip",
+      "action_pattern": "block_ip.*",
+      "requires_approval": false,
+      "min_confidence_for_auto": 0.85,
+      "approval_timeout_seconds": 300,
+      "max_auto_approvals_per_hour": 50,
+      "description": "IP blocking requires 85% confidence for auto-approval"
+    },
+    "block_peer": {
+      "rule_id": "block_peer",
+      "action_pattern": "block_peer.*|isolate_peer.*",
+      "requires_approval": true,
+      "min_confidence_for_auto": 1.0,
+      "approval_timeout_seconds": 600,
+      "max_auto_approvals_per_hour": 0,
+      "description": "Peer blocking always requires human approval (affects P2P network)"
+    },
+    "model_rollback": {
+      "rule_id": "model_rollback",
+      "action_pattern": "rollback_model.*|restore_model.*",
+      "requires_approval": true,
+      "min_confidence_for_auto": 1.0,
+      "approval_timeout_seconds": 900,
+      "max_auto_approvals_per_hour": 0,
+      "description": "Model rollback always requires human approval (major impact)"
+    },
+    "rate_limit": {
+      "rule_id": "rate_limit",
+      "action_pattern": "rate_limit.*",
+      "requires_approval": false,
+      "min_confidence_for_auto": 0.7,
+      "approval_timeout_seconds": 180,
+      "max_auto_approvals_per_hour": 100,
+      "description": "Rate limiting can auto-approve with 70% confidence"
+    },
+    "quarantine": {
+      "rule_id": "quarantine",
+      "action_pattern": "quarantine.*",
+      "requires_approval": true,
+      "min_confidence_for_auto": 0.95,
+      "approval_timeout_seconds": 600,
+      "max_auto_approvals_per_hour": 10,
+      "description": "Quarantine needs 95% confidence or human approval"
+    },
+    "honeypot_redirect": {
+      "rule_id": "honeypot_redirect",
+      "action_pattern": "honeypot.*|redirect.*",
+      "requires_approval": false,
+      "min_confidence_for_auto": 0.8,
+      "approval_timeout_seconds": 300,
+      "max_auto_approvals_per_hour": 30,
+      "description": "Honeypot redirect can auto-approve with 80% confidence"
+    },
+    "alert_only": {
+      "rule_id": "alert_only",
+      "action_pattern": "alert.*|log.*|notify.*",
+      "requires_approval": false,
+      "min_confidence_for_auto": 0.5,
+      "approval_timeout_seconds": 60,
+      "max_auto_approvals_per_hour": 1000,
+      "description": "Alerts and logging rarely need approval"
+    }
+  },
+  "last_updated": "2026-01-03T23:12:17.313354"
+}
