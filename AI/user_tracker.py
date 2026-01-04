@@ -8,6 +8,7 @@ import json
 import subprocess
 import platform
 import shutil
+import logging
 from datetime import datetime
 from collections import defaultdict
 from typing import Dict, List
@@ -17,6 +18,11 @@ try:
 except ImportError:
     psutil = None
 
+logger = logging.getLogger(__name__)
+
+# Feature flag so operators can disable user tracking when not desired
+USER_TRACKING_ENABLED = os.getenv("USER_TRACKING_ENABLED", "true").lower() == "true"
+
 class UserTracker:
     """Track users on the network using real system data"""
     
@@ -25,9 +31,12 @@ class UserTracker:
         base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
         self.users_file = os.path.join(base_dir, 'json', 'tracked_users.json')
         self.suspicious_activities = []
+        self.enabled = USER_TRACKING_ENABLED
         
     def get_arp_table(self) -> List[Dict]:
         """Get ARP table to identify connected users (cross-platform)"""
+        if not self.enabled:
+            return []
         users = []
         try:
             # Run arp command (works on Linux, macOS, Windows)
@@ -77,14 +86,16 @@ class UserTracker:
                     except:
                         continue  # Skip malformed lines
         except subprocess.TimeoutExpired:
-            pass
+            logger.warning("[USER_TRACKER] arp command timed out")
         except Exception as e:
-            print(f"[USER_TRACKER] ARP error: {e}")
+            logger.error(f"[USER_TRACKER] ARP error: {e}")
         
         return users
     
     def detect_suspicious_activity(self, users: List[Dict]) -> int:
         """Detect suspicious user behavior"""
+        if not self.enabled:
+            return 0
         suspicious_count = 0
         
         # Load threat log to check if any user IPs are in blocklist
@@ -93,25 +104,51 @@ class UserTracker:
             threat_log = os.path.join(base_dir, 'json', 'threat_log.json')
             if os.path.exists(threat_log):
                 with open(threat_log, 'r') as f:
-                    threats = json.load(f)
-                    blocked_ips = {t.get('src_ip') for t in threats if t.get('blocked')}
-                    
+                    data = json.load(f)
+                    # threat_log.json is expected to be a list of threat events
+                    threats = data if isinstance(data, list) else []
+
+                    blocked_ips = set()
+                    for t in threats:
+                        if not isinstance(t, dict):
+                            continue
+                        ip = t.get('ip_address') or t.get('src_ip')
+                        action = (t.get('action') or '').lower()
+                        level = (t.get('level') or '').upper()
+                        # Treat events as "blocked" if their action indicates blocking or level is CRITICAL
+                        is_blocked = ('block' in action) or level == 'CRITICAL'
+                        if ip and is_blocked:
+                            blocked_ips.add(ip)
+
                     for user in users:
-                        if user['ip'] in blocked_ips:
+                        if user.get('ip') in blocked_ips:
                             suspicious_count += 1
                             self.suspicious_activities.append({
-                                'user': user['hostname'],
-                                'ip': user['ip'],
+                                'user': user.get('hostname', 'Unknown'),
+                                'ip': user.get('ip'),
                                 'reason': 'IP matches blocked threat',
                                 'timestamp': datetime.now().isoformat()
                             })
+                            # Bound memory: keep only the most recent 1000 suspicious activity entries
+                            if len(self.suspicious_activities) > 1000:
+                                self.suspicious_activities = self.suspicious_activities[-1000:]
         except Exception as e:
-            print(f"[USER_TRACKER] Suspicious activity detection error: {e}")
+            logger.error(f"[USER_TRACKER] Suspicious activity detection error: {e}")
         
         return suspicious_count
     
     def get_stats(self) -> Dict:
         """Get user tracking statistics"""
+        if not self.enabled:
+            return {
+                'tracked_users': 0,
+                'suspicious_activities': 0,
+                'insider_threats': 0,
+                'active_sessions': 0,
+                'users': [],
+                'enabled': False,
+            }
+
         users = self.get_arp_table()
         suspicious = self.detect_suspicious_activity(users)
         
@@ -129,17 +166,19 @@ class UserTracker:
         
         # Save users to file
         try:
+            os.makedirs(os.path.dirname(self.users_file), exist_ok=True)
             with open(self.users_file, 'w') as f:
                 json.dump(users, f, indent=2)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"[USER_TRACKER] Failed to write tracked_users.json: {e}")
         
         return {
             'tracked_users': len(users),
             'suspicious_activities': suspicious,
             'insider_threats': insider_threats,
             'active_sessions': active_sessions,
-            'users': users
+            'users': users,
+            'enabled': True,
         }
 
 # Global instance
