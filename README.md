@@ -1,4 +1,4 @@
-# 🛡️ Battle-Hardened AI — World's Most Advanced Open-Source Cybersecurity Platform
+# 🛡️ Battle-Hardened AI — by Yuhisern, is one of the most ambitious, technically deep, and forward-looking open-source Network Detection & Response (NDR) systems ever designed.
 
 **18-Signal Ensemble AI** delivering 98%+ detection rate with <1% false positives. Production-ready with eBPF kernel telemetry, deep learning, graph intelligence, Byzantine-resilient federated learning, and autonomous defense. 31-section dashboard with full compliance suite.
 
@@ -133,7 +133,7 @@
 **Emergency Controls (J):** 4 operation modes (ACTIVE, MONITORING_ONLY, SAFE_MODE, DISABLED) | Compliance-ready audit logs | Auto log rotation
 
 ### **Autonomous Response**
-- Adaptive honeypots (5 service types: SSH, HTTP, FTP, Telnet, SMB)
+- Adaptive honeypots (multi-persona SSH/FTP/HTTP/SMB/LDAP/Kubernetes API/Elasticsearch, per-persona stats, persistent attack history & dashboard attack history view)
 - Self-healing networks (auto firewall rules, service restart, config rollback)
 - Predictive modeling (24-48hr threat forecasting, 83% accuracy)
 - SOAR integration (80+ API endpoints, automated playbooks)
