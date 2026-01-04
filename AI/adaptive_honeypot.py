@@ -10,10 +10,29 @@ import logging
 import time
 import json
 import re
+import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+import pytz
+
 logger = logging.getLogger(__name__)
+
+
+if os.path.exists('/app'):
+    _HONEYPOT_LOG_FILE = "/app/json/honeypot_attacks.json"
+else:
+    _HONEYPOT_LOG_FILE = "../server/json/honeypot_attacks.json"
+
+
+def _get_local_time() -> datetime:
+    """Get current datetime in configured timezone (TZ env), fallback to UTC."""
+    try:
+        tz_name = os.getenv('TZ', 'Asia/Kuala_Lumpur')
+        tz = pytz.timezone(tz_name)
+        return datetime.now(tz)
+    except Exception:
+        return datetime.utcnow()
 
 
 class AdaptiveHoneypot:
@@ -150,6 +169,9 @@ class AdaptiveHoneypot:
                 "keywords": ["elasticsearch", "_search", "index"]
             }
         }
+
+        # Load any previously persisted honeypot attacks
+        self._load_persistent_log()
     
     def get_available_personas(self) -> Dict:
         """Get list of available service personas"""
@@ -281,7 +303,7 @@ class AdaptiveHoneypot:
             
             # Log attack
             attack_entry = {
-                'timestamp': datetime.utcnow().isoformat(),
+                'timestamp': _get_local_time().isoformat(),
                 'source_ip': ip_address,
                 'source_port': port,
                 'honeypot_persona': self.current_persona,
@@ -303,12 +325,15 @@ class AdaptiveHoneypot:
             if score is not None:
                 logger.info(f"Honeypot analysis suspicion score: {score:.2f}")
             
-            # Feed attack to AI training (sandbox)
+            # Persist log and feed attack to AI training (sandbox)
+            self._save_persistent_log()
+
             self._feed_to_ai_training(attack_entry)
             
             # Keep log size manageable
             if len(self.attack_log) > 1000:
                 self.attack_log = self.attack_log[-500:]
+                self._save_persistent_log()
         
         except Exception as e:
             logger.error(f"Connection handler error: {e}")
@@ -375,6 +400,31 @@ class AdaptiveHoneypot:
         """Clear attack log"""
         self.attack_log = []
         logger.info("Honeypot attack log cleared")
+        self._save_persistent_log()
+
+    def _load_persistent_log(self) -> None:
+        """Load honeypot attacks from persistent storage if available."""
+        try:
+            if os.path.exists(_HONEYPOT_LOG_FILE):
+                with open(_HONEYPOT_LOG_FILE, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    if isinstance(data, list):
+                        # Keep at most 1000 entries to avoid unbounded growth
+                        self.attack_log = data[-1000:]
+                        logger.info(f"Loaded {len(self.attack_log)} honeypot attacks from disk")
+        except Exception as e:
+            logger.warning(f"Failed to load honeypot log from disk: {e}")
+
+    def _save_persistent_log(self) -> None:
+        """Persist honeypot attacks to disk for durability across restarts."""
+        try:
+            os.makedirs(os.path.dirname(_HONEYPOT_LOG_FILE), exist_ok=True)
+            # Save a bounded window of attacks
+            to_save = self.attack_log[-1000:]
+            with open(_HONEYPOT_LOG_FILE, 'w', encoding='utf-8') as f:
+                json.dump(to_save, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to save honeypot log to disk: {e}")
 
     def _update_ip_stats(self, ip_address: str) -> Dict[str, Any]:
         """Update per-IP statistics for honeypot interactions."""

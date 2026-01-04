@@ -2700,6 +2700,10 @@
         
         <!-- Honeypot Status Display -->
         <div id="honeypot-status-display" style="padding: 1rem; background: rgba(255, 184, 95, 0.1); border-radius: 6px; border: 1px solid #ffb85f; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; font-size: 0.8rem; color: #a9b3d4;">
+            <span>Honeypot timestamps use the configured system timezone.</span>
+            <span id="honeypot-timezone-indicator" style="font-family: monospace; color: #ffb85f;">Timezone: loading...</span>
+          </div>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 0.75rem;">
             <div>
               <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Status</div>
@@ -5657,6 +5661,7 @@
           const categoryDist = document.getElementById('honeypot-attack-categories');
           const avgSuspicion = document.getElementById('honeypot-avg-suspicion');
           const topAttackers = document.getElementById('honeypot-top-attackers');
+          const tzIndicator = document.getElementById('honeypot-timezone-indicator');
           
           if (status.running) {
             runningStatus.innerHTML = '▶️ Running';
@@ -5670,6 +5675,17 @@
             currentPersona.textContent = 'None';
             currentPort.textContent = 'N/A';
             attackCount.textContent = '0';
+          }
+
+          // Also refresh timezone indicator from the current-time API
+          try {
+            const tzResp = await fetch('/api/current-time');
+            const tzData = await tzResp.json();
+            if (tzData.timezone) {
+              tzIndicator.textContent = `Timezone: ${tzData.timezone}`;
+            }
+          } catch (e) {
+            tzIndicator.textContent = 'Timezone: unknown';
           }
 
           // Render persona distribution
