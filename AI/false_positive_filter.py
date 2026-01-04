@@ -203,19 +203,21 @@ class FalsePositiveFilter:
         - Is behavior normal for the service?
         """
         ip_address = signals[0].ip_address
-        
-        # Check whitelist
-        if ip_address in self.whitelisted_ips:
-            return False, f"IP {ip_address} is whitelisted"
-        
-        # Check if internal network (configurable - may want to monitor internal too)
-        # For now, we'll allow internal IPs but note them
-        is_internal = any(ip_address.startswith(net) for net in self.internal_networks)
-        
-        # Check for honeypot signals - these are always suspicious
+
+        # Check for honeypot signals first - these are always suspicious and
+        # must NOT be bypassed by whitelisting. A whitelisted IP that hits a
+        # honeypot is still considered malicious.
         honeypot_signals = [s for s in signals if s.signal_type == SignalType.HONEYPOT]
         if honeypot_signals:
             return True, "Honeypot interaction detected (always suspicious)"
+
+        # Check whitelist (only for non-honeypot traffic)
+        if ip_address in self.whitelisted_ips:
+            return False, f"IP {ip_address} is whitelisted"
+
+        # Check if internal network (configurable - may want to monitor internal too)
+        # For now, we'll allow internal IPs but note them
+        is_internal = any(ip_address.startswith(net) for net in self.internal_networks)
         
         # Check if all signals are very low confidence
         avg_confidence = sum(s.confidence for s in signals) / len(signals)
@@ -344,21 +346,23 @@ class FalsePositiveFilter:
         """
         # Count unique signal types
         signal_types = set(s.signal_type for s in signals)
-        
-        # Need at least 2 different signal types
-        if len(signal_types) < self.min_signals_for_confirmation:
-            return False, len(signal_types) / self.min_signals_for_confirmation
-        
+
         # Check for strong combinations
         has_ai = SignalType.AI_PREDICTION in signal_types
         has_protocol = SignalType.PROTOCOL_ANOMALY in signal_types
         has_behavior = SignalType.NETWORK_BEHAVIOR in signal_types
         has_honeypot = SignalType.HONEYPOT in signal_types
         has_reputation = SignalType.REPUTATION in signal_types
-        
-        # Honeypot + anything = strong signal
+
+        # Honeypot interactions are inherently high-signal, even if they are
+        # the only signal type we have. Do NOT require a second signal type
+        # for honeypot cases.
         if has_honeypot:
             return True, 0.95
+
+        # For non-honeypot traffic, require at least 2 different signal types
+        if len(signal_types) < self.min_signals_for_confirmation:
+            return False, len(signal_types) / self.min_signals_for_confirmation
         
         # AI + Protocol anomaly = strong
         if has_ai and has_protocol:
