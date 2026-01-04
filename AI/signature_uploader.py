@@ -20,12 +20,14 @@ Privacy Guarantee:
 import asyncio
 import json
 import logging
+import os
 import websockets
 from typing import Dict, Any, Optional
 from datetime import datetime
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+SIGNATURE_UPLOAD_ENABLED = os.getenv("SIGNATURE_UPLOAD_ENABLED", "true").lower() == "true"
 
 
 class SignatureUploader:
@@ -40,9 +42,14 @@ class SignatureUploader:
         self.connected = False
         self.signatures_sent = 0
         self.send_failures = 0
+        self.enabled = SIGNATURE_UPLOAD_ENABLED
     
     async def connect(self):
         """Connect to relay server"""
+        if not self.enabled:
+            logger.info("SignatureUploader disabled via SIGNATURE_UPLOAD_ENABLED=false")
+            return False
+
         try:
             self.websocket = await websockets.connect(self.relay_url)
             self.connected = True
@@ -83,6 +90,10 @@ class SignatureUploader:
             Dict with status and signature_id
         """
         
+        if not self.enabled:
+            logger.info("Signature upload skipped (SIGNATURE_UPLOAD_ENABLED=false)")
+            return {'success': False, 'error': 'Signature uploading disabled'}
+
         if not self.connected:
             logger.warning("Not connected to relay, attempting reconnect...")
             if not await self.connect():

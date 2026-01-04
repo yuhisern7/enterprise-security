@@ -86,9 +86,9 @@ Suggested improvement order (next targets first):
 ## Threat Intelligence & Signatures
 
 - [x] AI/threat_intelligence.py — Threat intel ingestion, crawlers, and signatures
-- [ ] AI/signature_extractor.py — Automated extraction of signatures from traffic/logs
-- [ ] AI/signature_distribution.py — Distribution of learned signatures
-- [ ] AI/signature_uploader.py — Uploading signatures to relay/central services
+- [x] AI/signature_extractor.py — Automated extraction of signatures from traffic/logs
+- [x] AI/signature_distribution.py — Distribution of learned signatures
+- [x] AI/signature_uploader.py — Uploading signatures to relay/central services
 
 ## Network, Devices, and Performance
 

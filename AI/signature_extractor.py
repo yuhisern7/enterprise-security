@@ -24,13 +24,22 @@ from datetime import datetime
 from typing import Dict, List, Optional, Set
 from urllib.parse import unquote
 from collections import defaultdict
+import logging
+
+
+logger = logging.getLogger(__name__)
+
+SIGNATURE_EXTRACTOR_ENABLED = os.getenv("SIGNATURE_EXTRACTOR_ENABLED", "true").lower() == "true"
+SIGNATURE_EXTRACTOR_MAX_PATTERNS_PER_TYPE = int(os.getenv("SIGNATURE_EXTRACTOR_MAX_PATTERNS_PER_TYPE", "1000"))
+SIGNATURE_EXTRACTOR_FILE = os.getenv("SIGNATURE_EXTRACTOR_FILE")
 
 
 class SignatureExtractor:
     """Extract attack patterns WITHOUT storing exploit code"""
     
     def __init__(self, signatures_file: str = "learned_attack_patterns.json"):
-        self.signatures_file = signatures_file
+        # Allow environment override of the signature file location
+        self.signatures_file = SIGNATURE_EXTRACTOR_FILE or signatures_file
         
         # Extracted patterns (SAFE - no exploit code)
         self.attack_patterns = {
@@ -75,6 +84,10 @@ class SignatureExtractor:
         
         # Load existing patterns
         self._load_signatures()
+
+        logger.info(
+            f"[SIGNATURE EXTRACTOR] Initialized (enabled={SIGNATURE_EXTRACTOR_ENABLED}, file={self.signatures_file})"
+        )
     
     def extract_signatures(self, attack_data: Dict) -> Dict:
         """
@@ -269,13 +282,26 @@ class SignatureExtractor:
     
     def _store_pattern(self, signature: Dict):
         """Store extracted pattern for ML training"""
+        if not SIGNATURE_EXTRACTOR_ENABLED:
+            # When disabled, do not persist patterns to disk or memory
+            return
+
         attack_type = signature['attack_type']
         
         # Add to attack vectors (pattern → attack type mapping)
         pattern_key = f"{signature['pattern_hash']}"
-        
-        if pattern_key not in [p.get('hash') for p in self.attack_patterns['attack_vectors'][attack_type]]:
-            self.attack_patterns['attack_vectors'][attack_type].append({
+        existing = self.attack_patterns['attack_vectors'][attack_type]
+
+        if pattern_key not in [p.get('hash') for p in existing]:
+            # Bound patterns per attack type to avoid unbounded growth
+            if len(existing) >= SIGNATURE_EXTRACTOR_MAX_PATTERNS_PER_TYPE:
+                # Drop oldest entry
+                dropped = existing.pop(0)
+                logger.debug(
+                    f"[SIGNATURE EXTRACTOR] Dropped oldest pattern for {attack_type} to enforce max={SIGNATURE_EXTRACTOR_MAX_PATTERNS_PER_TYPE}"
+                )
+
+            existing.append({
                 'hash': signature['pattern_hash'],
                 'keywords': signature['keywords_found'],
                 'encodings': signature['encodings_detected'],
@@ -299,10 +325,14 @@ class SignatureExtractor:
                     self.attack_patterns['encoding_chains'] = data.get('encoding_chains', [])
                     self.attack_patterns['attack_vectors'] = defaultdict(list, data.get('attack_vectors', {}))
             except Exception as e:
-                print(f"[SIGNATURE EXTRACTOR] Failed to load signatures: {e}")
+                logger.warning(f"[SIGNATURE EXTRACTOR] Failed to load signatures: {e}")
     
     def save_signatures(self):
         """Save extracted signatures (SAFE - no exploit code)"""
+        if not SIGNATURE_EXTRACTOR_ENABLED:
+            logger.debug("[SIGNATURE EXTRACTOR] save_signatures skipped (disabled via SIGNATURE_EXTRACTOR_ENABLED=false)")
+            return
+
         try:
             data = {
                 'metadata': {
@@ -321,11 +351,13 @@ class SignatureExtractor:
             
             with open(self.signatures_file, 'w') as f:
                 json.dump(data, f, indent=2)
-            
-            print(f"[SIGNATURE EXTRACTOR] Saved {data['metadata']['total_patterns']} patterns (0 bytes of exploit code)")
-            
+
+            logger.info(
+                f"[SIGNATURE EXTRACTOR] Saved {data['metadata']['total_patterns']} patterns (0 bytes of exploit code)"
+            )
+
         except Exception as e:
-            print(f"[SIGNATURE EXTRACTOR] Failed to save signatures: {e}")
+            logger.error(f"[SIGNATURE EXTRACTOR] Failed to save signatures: {e}")
     
     def get_ml_training_data(self) -> Dict:
         """

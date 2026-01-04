@@ -25,6 +25,16 @@ from pathlib import Path
 from collections import defaultdict
 from datetime import datetime, timedelta
 import threading
+import logging
+import urllib3
+
+
+logger = logging.getLogger(__name__)
+
+SIGNATURE_DIST_DISABLE_SSL_VERIFY = os.getenv("SIGNATURE_DIST_DISABLE_SSL_VERIFY", "false").lower() == "true"
+
+if SIGNATURE_DIST_DISABLE_SSL_VERIFY:
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class SignatureDistributionSystem:
     """Manages ExploitDB signature distribution across P2P mesh."""
@@ -56,7 +66,7 @@ class SignatureDistributionSystem:
         if self.mode == "auto":
             self.mode = self._detect_mode()
         
-        print(f"[SIGNATURE DIST] Mode: {self.mode.upper()}")
+        logger.info(f"[SIGNATURE DIST] Mode: {self.mode.upper()}")
         
         # Load signatures based on mode
         if self.mode == "master":
@@ -76,10 +86,10 @@ class SignatureDistributionSystem:
             if os.path.exists(path) and os.path.isdir(path):
                 csv_path = os.path.join(path, "files_exploits.csv")
                 if os.path.exists(csv_path):
-                    print(f"[SIGNATURE DIST] Found ExploitDB at {path} - Running as MASTER")
+                    logger.info(f"[SIGNATURE DIST] Found ExploitDB at {path} - Running as MASTER")
                     return "master"
         
-        print("[SIGNATURE DIST] No ExploitDB found - Running as CLIENT")
+        logger.info("[SIGNATURE DIST] No ExploitDB found - Running as CLIENT")
         return "client"
     
     def _load_local_exploitdb(self):
@@ -100,10 +110,10 @@ class SignatureDistributionSystem:
                         'signature': sig
                     }
             
-            print(f"[SIGNATURE DIST] Loaded {len(self._signature_index)} signatures from local ExploitDB")
+            logger.info(f"[SIGNATURE DIST] Loaded {len(self._signature_index)} signatures from local ExploitDB")
             
         except Exception as e:
-            print(f"[SIGNATURE DIST] Warning: Could not load ExploitDB: {e}")
+            logger.warning(f"[SIGNATURE DIST] Warning: Could not load ExploitDB: {e}")
             self.mode = "client"  # Fallback to client if ExploitDB missing
     
     def _load_cached_signatures(self):
@@ -124,11 +134,11 @@ class SignatureDistributionSystem:
                             'signature': sig
                         }
                 
-                print(f"[SIGNATURE DIST] Loaded {len(self._signature_index)} cached signatures")
+                logger.info(f"[SIGNATURE DIST] Loaded {len(self._signature_index)} cached signatures")
             except Exception as e:
-                print(f"[SIGNATURE DIST] Warning: Could not load cache: {e}")
+                logger.warning(f"[SIGNATURE DIST] Warning: Could not load cache: {e}")
         else:
-            print("[SIGNATURE DIST] No cached signatures found")
+            logger.info("[SIGNATURE DIST] No cached signatures found")
     
     def _save_cached_signatures(self):
         """Save cached signatures to disk."""
@@ -137,9 +147,9 @@ class SignatureDistributionSystem:
         try:
             with open(cache_file, 'w') as f:
                 json.dump(self._cached_signatures, f, indent=2)
-            print(f"[SIGNATURE DIST] Saved {len(self._signature_index)} signatures to cache")
+            logger.info(f"[SIGNATURE DIST] Saved {len(self._signature_index)} signatures to cache")
         except Exception as e:
-            print(f"[SIGNATURE DIST] Warning: Could not save cache: {e}")
+            logger.warning(f"[SIGNATURE DIST] Warning: Could not save cache: {e}")
     
     def _generate_signature_id(self, signature: Dict) -> str:
         """Generate unique ID for a signature."""
@@ -180,28 +190,30 @@ class SignatureDistributionSystem:
         try:
             import requests
             from server.server import get_peer_urls
-            
+
             peer_urls = get_peer_urls()
-            
+
             for peer_url in peer_urls:
                 try:
                     response = requests.get(
                         f"{peer_url}/api/signatures/{attack_type}",
                         timeout=5,
-                        verify=False
+                        verify=not SIGNATURE_DIST_DISABLE_SSL_VERIFY,
                     )
                     
                     if response.status_code == 200:
                         data = response.json()
                         signatures = data.get('signatures', [])
-                        print(f"[SIGNATURE DIST] Received {len(signatures)} signatures from peer")
+                        logger.info(
+                            f"[SIGNATURE DIST] Received {len(signatures)} signatures from peer {peer_url} (count={len(signatures)})"
+                        )
                         return signatures
                 
-                except Exception as e:
+                except Exception:
                     continue
         
         except Exception as e:
-            print(f"[SIGNATURE DIST] Error requesting from peers: {e}")
+            logger.error(f"[SIGNATURE DIST] Error requesting from peers: {e}")
         
         return None
     
@@ -247,16 +259,16 @@ class SignatureDistributionSystem:
             try:
                 import requests
                 from server.server import get_peer_urls
-                
+
                 peer_urls = get_peer_urls()
-                
+
                 for peer_url in peer_urls:
                     try:
                         # Get list of available attack types
                         response = requests.get(
                             f"{peer_url}/api/signatures/types",
                             timeout=5,
-                            verify=False
+                            verify=not SIGNATURE_DIST_DISABLE_SSL_VERIFY,
                         )
                         
                         if response.status_code == 200:
@@ -273,12 +285,12 @@ class SignatureDistributionSystem:
                             self._save_cached_signatures()
                             self._last_sync_time = datetime.utcnow()
                             break
-                    
-                    except Exception as e:
+
+                    except Exception:
                         continue
-            
+
             except Exception as e:
-                print(f"[SIGNATURE DIST] Sync error: {e}")
+                logger.error(f"[SIGNATURE DIST] Sync error: {e}")
     
     def get_stats(self) -> Dict:
         """Get statistics about signature distribution."""
@@ -316,9 +328,8 @@ def start_signature_distribution():
                 time.sleep(600)  # Sync every 10 minutes
                 dist.sync_with_peers()
         
-        import threading
         sync_thread = threading.Thread(target=sync_loop, daemon=True)
         sync_thread.start()
-        print("[SIGNATURE DIST] Started periodic sync thread")
+        logger.info("[SIGNATURE DIST] Started periodic sync thread")
     
     return dist
