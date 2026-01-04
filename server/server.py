@@ -2313,12 +2313,16 @@ def adaptive_honeypot_status():
         from AI.adaptive_honeypot import get_honeypot_status
         status = get_honeypot_status()
 
-        # Normalize keys for dashboard while preserving core fields
+        # Normalize keys for dashboard while preserving and exposing rich metrics
         response = {
             'running': bool(status.get('running', False)),
             'persona': status.get('persona_name') or status.get('current_persona'),
             'port': status.get('port'),
             'attack_count': status.get('total_attacks', 0),
+            'persona_attack_counts': status.get('persona_attack_counts', {}),
+            'attack_categories': status.get('attack_categories', {}),
+            'average_suspicion_score': status.get('average_suspicion_score', 0.0),
+            'top_attackers': status.get('top_attackers', []),
         }
 
         return jsonify(response)

@@ -2700,7 +2700,7 @@
         
         <!-- Honeypot Status Display -->
         <div id="honeypot-status-display" style="padding: 1rem; background: rgba(255, 184, 95, 0.1); border-radius: 6px; border: 1px solid #ffb85f; margin-bottom: 1.5rem;">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 0.75rem;">
             <div>
               <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Status</div>
               <div id="honeypot-running-status" style="color: #ff6b6b; font-weight: bold; font-size: 1.1rem;">⏸️ Stopped</div>
@@ -2716,6 +2716,24 @@
             <div>
               <div style="font-size: 0.75rem; color: #a9b3d4; margin-bottom: 0.25rem;">Total Attacks Logged</div>
               <div id="honeypot-attack-count" style="color: #ff6b6b; font-weight: bold; font-size: 1.1rem;">0</div>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; font-size: 0.8rem; color: #a9b3d4; border-top: 1px dashed rgba(255, 184, 95, 0.3); padding-top: 0.75rem;">
+            <div>
+              <div style="font-size: 0.75rem; margin-bottom: 0.25rem;">Persona Attack Distribution</div>
+              <div id="honeypot-persona-distribution" style="font-family: monospace; white-space: pre-wrap;">(no data)</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; margin-bottom: 0.25rem;">Attack Categories</div>
+              <div id="honeypot-attack-categories" style="font-family: monospace; white-space: pre-wrap;">(no data)</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; margin-bottom: 0.25rem;">Average Suspicion Score</div>
+              <div id="honeypot-avg-suspicion" style="font-family: monospace; color: #ffb85f;">0.00</div>
+            </div>
+            <div>
+              <div style="font-size: 0.75rem; margin-bottom: 0.25rem;">Top Attackers</div>
+              <div id="honeypot-top-attackers" style="font-family: monospace; white-space: pre-wrap;">(none)</div>
             </div>
           </div>
         </div>
@@ -5635,6 +5653,10 @@
           const currentPersona = document.getElementById('honeypot-current-persona');
           const currentPort = document.getElementById('honeypot-current-port');
           const attackCount = document.getElementById('honeypot-attack-count');
+          const personaDist = document.getElementById('honeypot-persona-distribution');
+          const categoryDist = document.getElementById('honeypot-attack-categories');
+          const avgSuspicion = document.getElementById('honeypot-avg-suspicion');
+          const topAttackers = document.getElementById('honeypot-top-attackers');
           
           if (status.running) {
             runningStatus.innerHTML = '▶️ Running';
@@ -5648,6 +5670,44 @@
             currentPersona.textContent = 'None';
             currentPort.textContent = 'N/A';
             attackCount.textContent = '0';
+          }
+
+          // Render persona distribution
+          const personaCounts = status.persona_attack_counts || {};
+          if (Object.keys(personaCounts).length > 0) {
+            const lines = Object.entries(personaCounts)
+              .sort((a, b) => b[1] - a[1])
+              .map(([persona, count]) => `${persona}: ${count}`);
+            personaDist.textContent = lines.join('\n');
+          } else {
+            personaDist.textContent = '(no data)';
+          }
+
+          // Render attack categories
+          const categories = status.attack_categories || {};
+          if (Object.keys(categories).length > 0) {
+            const lines = Object.entries(categories)
+              .sort((a, b) => b[1] - a[1])
+              .map(([cat, count]) => `${cat}: ${count}`);
+            categoryDist.textContent = lines.join('\n');
+          } else {
+            categoryDist.textContent = '(no data)';
+          }
+
+          // Average suspicion score (0–1)
+          if (typeof status.average_suspicion_score === 'number') {
+            avgSuspicion.textContent = status.average_suspicion_score.toFixed(2);
+          } else {
+            avgSuspicion.textContent = '0.00';
+          }
+
+          // Top attackers list
+          const attackers = status.top_attackers || [];
+          if (attackers.length > 0) {
+            const lines = attackers.map(a => `${a.ip}: ${a.hits} hits`);
+            topAttackers.textContent = lines.join('\n');
+          } else {
+            topAttackers.textContent = '(none)';
           }
           
           // Load recent attacks

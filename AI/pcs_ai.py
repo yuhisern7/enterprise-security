@@ -2390,6 +2390,10 @@ def log_honeypot_attack(threat_data: dict) -> None:
     threat_type = threat_data.get('threat_type', 'honeypot_unknown')
     level_str = threat_data.get('level', 'DANGEROUS')
     details = threat_data.get('details', 'Honeypot interaction')
+    persona = threat_data.get('honeypot_persona')
+    analysis = threat_data.get('analysis') or {}
+    attack_category = analysis.get('attack_category', 'honeypot_probe')
+    suspicion_score = analysis.get('suspicion_score', 0.85)
     
     # Convert string level to ThreatLevel enum
     level = ThreatLevel[level_str] if level_str in ThreatLevel.__members__ else ThreatLevel.DANGEROUS
@@ -2405,12 +2409,44 @@ def log_honeypot_attack(threat_data: dict) -> None:
         is_local=True
     )
     
+    # Attach honeypot-specific metadata to last local event (for explainability/forensics)
+    try:
+        if _threat_log:
+            last_event = _threat_log[-1]
+            if last_event.get("ip_address") == ip_address and last_event.get("threat_type") == threat_type:
+                last_event.setdefault("honeypot", {})
+                last_event["honeypot"].update({
+                    "persona": persona,
+                    "analysis": analysis
+                })
+                _save_threat_log()
+    except Exception as e:
+        logger.debug(f"[HONEYPOT→AI] Failed to attach honeypot metadata: {e}")
+
     print(f"[HONEYPOT→AI] 🍯 Attack from {ip_address} added to AI training sandbox")
     
     # Auto-block IPs that hit honeypots (they're obviously attackers)
     if ip_address not in _WHITELISTED_IPS and ip_address != '127.0.0.1':
         _block_ip(ip_address)
         print(f"[HONEYPOT→AI] 🛡️ AUTO-BLOCKED {ip_address} for honeypot interaction")
+
+    # Feed honeypot interactions into persistent reputation tracker
+    if REPUTATION_TRACKER_AVAILABLE:
+        try:
+            tracker = get_reputation_tracker()
+            if tracker:
+                severity = float(suspicion_score) if isinstance(suspicion_score, (int, float)) else 0.85
+                tracker.record_attack(
+                    entity=ip_address,
+                    entity_type="ip",
+                    attack_type=attack_category,
+                    severity=severity,
+                    signature=threat_type,
+                    blocked=True,
+                    geolocation=None
+                )
+        except Exception as e:
+            logger.debug(f"[HONEYPOT→AI] Failed to record honeypot attack in reputation tracker: {e}")
 
 def _block_ip(ip_address: str) -> None:
     """Block an IP address and save to persistent storage."""
@@ -2922,6 +2958,47 @@ def assess_request_pattern(
             should_block=False,
             ip_address=ip_address,
         )
+
+    # PHASE 5A: Honeypot history as ensemble signal
+    if META_ENGINE_AVAILABLE:
+        try:
+            from AI.adaptive_honeypot import get_honeypot
+            hp = get_honeypot()
+            # Scan recent honeypot attacks for this IP (bounded by internal limit)
+            honeypot_hits = 0
+            last_category = "honeypot_probe"
+            last_score = 0.85
+            for entry in hp.get_attack_log(limit=500):
+                if entry.get('source_ip') == ip_address:
+                    honeypot_hits += 1
+                    analysis = entry.get('analysis') or {}
+                    if 'attack_category' in analysis:
+                        last_category = analysis['attack_category']
+                    if isinstance(analysis.get('suspicion_score'), (int, float)):
+                        last_score = float(analysis['suspicion_score'])
+            if honeypot_hits > 0:
+                # Map suspicion score to meta threat level
+                if last_score >= 0.9:
+                    meta_level = MetaThreatLevel.CRITICAL
+                elif last_score >= 0.7:
+                    meta_level = MetaThreatLevel.DANGEROUS
+                else:
+                    meta_level = MetaThreatLevel.SUSPICIOUS
+                detection_signals.append(DetectionSignal(
+                    signal_type=SignalType.HONEYPOT,
+                    is_threat=True,
+                    confidence=max(0.7, min(1.0, last_score)),
+                    threat_level=meta_level,
+                    details=f"Honeypot interactions: {honeypot_hits} hits (category={last_category})",
+                    timestamp=datetime.utcnow().isoformat(),
+                    metadata={
+                        "honeypot_hits": honeypot_hits,
+                        "attack_category": last_category,
+                        "suspicion_score": last_score
+                    }
+                ))
+        except Exception as e:
+            logger.debug(f"[HONEYPOT→META] Failed to add honeypot signal: {e}")
     
     # Check if IP is blocked
     if ip_address in _blocked_ips:
@@ -4365,6 +4442,9 @@ def generate_enterprise_security_report() -> dict:
             "Consider temporary service shutdown"
         ]
     
+    # Honeypot contribution (from legacy honeypot crawler, if available)
+    honeypot_attack_count = stats.get('honeypot_attacks', 0)
+
     return {
         "report_metadata": {
             "report_title": "Enterprise Security Threat Intelligence Report",
@@ -4422,7 +4502,7 @@ def generate_enterprise_security_report() -> dict:
             "virustotal_enabled": bool(os.getenv('VIRUSTOTAL_API_KEY')),
             "abuseipdb_enabled": bool(os.getenv('ABUSEIPDB_API_KEY')),
             "exploitdb_signatures": stats.get('exploitdb_signatures', 0),
-            "honeypot_attacks": stats.get('honeypot_attacks', 0)
+            "honeypot_attacks": honeypot_attack_count
         },
         "detailed_logs": _threat_log[-100:]  # Last 100 threats for detailed analysis
     }

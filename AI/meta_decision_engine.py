@@ -65,6 +65,7 @@ class SignalType(str, Enum):
     VPN_TOR = "vpn_tor"
     THREAT_INTEL = "threat_intel"
     FP_FILTER = "fp_filter"
+    HONEYPOT = "honeypot"
 
 
 @dataclass
@@ -168,7 +169,8 @@ class MetaDecisionEngine:
             SignalType.ML_REPUTATION: 0.82,    # IP history very valuable
             SignalType.VPN_TOR: 0.65,          # Suspicious but not always malicious
             SignalType.THREAT_INTEL: 0.95,     # Known threats, very reliable
-            SignalType.FP_FILTER: 0.85         # Multi-gate validation
+            SignalType.FP_FILTER: 0.85,        # Multi-gate validation
+            SignalType.HONEYPOT: 0.98          # Direct attacker interaction, very strong signal
         }
         
         # Voting thresholds

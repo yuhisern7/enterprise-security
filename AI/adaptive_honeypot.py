@@ -9,8 +9,9 @@ import threading
 import logging
 import time
 import json
+import re
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ class AdaptiveHoneypot:
         self.server_thread = None
         self.server_socket = None
         self.attack_log = []
+        self.ip_stats: Dict[str, Dict[str, Any]] = {}
         
         # Current configuration
         self.enabled = False
@@ -98,6 +100,13 @@ class AdaptiveHoneypot:
                 "banner": "HTTP/1.1 200 OK\r\nServer: Apache/2.4.41\r\n\r\n<html><title>phpMyAdmin</title></html>",
                 "keywords": ["phpmyadmin", "database", "sql"]
             },
+            "smb": {
+                "name": "Windows SMB",
+                "default_port": 445,
+                "protocol": "TCP",
+                "banner": b"\x00\x00\x00\x90FFSMB",  # Minimal SMB signature
+                "keywords": ["smb", "cifs", "share"]
+            },
             "vnc": {
                 "name": "VNC Remote Desktop",
                 "default_port": 5900,
@@ -118,6 +127,27 @@ class AdaptiveHoneypot:
                 "protocol": "TCP",
                 "banner": "+PONG\r\n",
                 "keywords": ["redis", "set", "get", "ping"]
+            },
+            "ldap": {
+                "name": "LDAP Directory",
+                "default_port": 389,
+                "protocol": "TCP",
+                "banner": "LDAPv3 ready\r\n",
+                "keywords": ["ldap", "bind", "cn=", "dc="]
+            },
+            "kubernetes_api": {
+                "name": "Kubernetes API Server",
+                "default_port": 6443,
+                "protocol": "TCP",
+                "banner": "HTTP/2 200\r\nServer: kube-apiserver\r\n\r\n",
+                "keywords": ["kubernetes", "kube-system", "api/v1"]
+            },
+            "elasticsearch": {
+                "name": "Elasticsearch Cluster",
+                "default_port": 9200,
+                "protocol": "TCP",
+                "banner": "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n{\"cluster_name\":\"es-cluster\"}",
+                "keywords": ["elasticsearch", "_search", "index"]
             }
         }
     
@@ -245,6 +275,9 @@ class AdaptiveHoneypot:
                 attacker_input = data.decode('utf-8', errors='ignore')
             except:
                 attacker_input = "<no input>"
+
+            ip_stats = self._update_ip_stats(ip_address)
+            analysis = self._analyze_attacker_input(attacker_input, self.current_persona, ip_stats)
             
             # Log attack
             attack_entry = {
@@ -255,14 +288,20 @@ class AdaptiveHoneypot:
                 'honeypot_port': self.current_port,
                 'service_name': persona['name'],
                 'attacker_input': attacker_input[:500],  # Limit size
-                'banner_sent': banner.decode('utf-8', errors='ignore')[:200]
+                'banner_sent': banner.decode('utf-8', errors='ignore')[:200],
+                'analysis': analysis
             }
             
             self.attack_log.append(attack_entry)
             
             # Log to console
-            logger.warning(f"🎣 HONEYPOT HIT: {ip_address}:{port} → {persona['name']} (port {self.current_port})")
-            logger.info(f"Attacker sent: {attacker_input[:100]}")
+            category = analysis.get('attack_category', 'unknown') if isinstance(analysis, dict) else 'unknown'
+            score = analysis.get('suspicion_score') if isinstance(analysis, dict) else None
+            logger.warning(f"🎣 HONEYPOT HIT: {ip_address}:{port} → {persona['name']} (port {self.current_port}) [category={category}]")
+            if attacker_input:
+                logger.info(f"Attacker sent: {attacker_input[:100]}")
+            if score is not None:
+                logger.info(f"Honeypot analysis suspicion score: {score:.2f}")
             
             # Feed attack to AI training (sandbox)
             self._feed_to_ai_training(attack_entry)
@@ -281,6 +320,39 @@ class AdaptiveHoneypot:
     
     def get_status(self) -> Dict:
         """Get current honeypot status"""
+        # Aggregate metrics
+        persona_counts: Dict[str, int] = {}
+        category_counts: Dict[str, int] = {}
+        attacker_counts: Dict[str, int] = {}
+        suspicion_scores: List[float] = []
+
+        for entry in self.attack_log:
+            persona = entry.get('honeypot_persona', self.current_persona)
+            persona_counts[persona] = persona_counts.get(persona, 0) + 1
+
+            analysis = entry.get('analysis') or {}
+            category = analysis.get('attack_category', 'unknown')
+            category_counts[category] = category_counts.get(category, 0) + 1
+
+            score = analysis.get('suspicion_score')
+            if isinstance(score, (int, float)):
+                suspicion_scores.append(float(score))
+
+            ip = entry.get('source_ip')
+            if ip:
+                attacker_counts[ip] = attacker_counts.get(ip, 0) + 1
+
+        avg_suspicion = sum(suspicion_scores) / len(suspicion_scores) if suspicion_scores else 0.0
+
+        # Top attackers by honeypot hits (up to 5)
+        top_attackers = []
+        if attacker_counts:
+            sorted_attackers = sorted(attacker_counts.items(), key=lambda kv: kv[1], reverse=True)[:5]
+            top_attackers = [
+                {'ip': ip, 'hits': count}
+                for ip, count in sorted_attackers
+            ]
+
         return {
             'enabled': self.enabled,
             'running': self.running,
@@ -288,7 +360,11 @@ class AdaptiveHoneypot:
             'persona_name': self.personas[self.current_persona]['name'],
             'port': self.current_port,
             'total_attacks': len(self.attack_log),
-            'recent_attacks': self.attack_log[-10:] if self.attack_log else []
+            'recent_attacks': self.attack_log[-10:] if self.attack_log else [],
+            'persona_attack_counts': persona_counts,
+            'attack_categories': category_counts,
+            'average_suspicion_score': avg_suspicion,
+            'top_attackers': top_attackers
         }
     
     def get_attack_log(self, limit: int = 100) -> List[Dict]:
@@ -299,6 +375,86 @@ class AdaptiveHoneypot:
         """Clear attack log"""
         self.attack_log = []
         logger.info("Honeypot attack log cleared")
+
+    def _update_ip_stats(self, ip_address: str) -> Dict[str, Any]:
+        """Update per-IP statistics for honeypot interactions."""
+        now = time.time()
+        stats = self.ip_stats.get(ip_address)
+        if not stats:
+            stats = {
+                'total_hits': 0,
+                'first_seen': now,
+                'last_seen': now
+            }
+        stats['total_hits'] += 1
+        stats['last_seen'] = now
+        self.ip_stats[ip_address] = stats
+        return stats
+
+    def _analyze_attacker_input(self, attacker_input: str, persona_key: str, ip_stats: Dict[str, Any]) -> Dict[str, Any]:
+        """Lightweight heuristic analysis of honeypot input to enrich AI signals."""
+        text = attacker_input or ""
+        lowercase = text.lower()
+        input_length = len(text)
+
+        persona = self.personas.get(persona_key, {})
+        persona_keywords = persona.get('keywords', [])
+        matched_keywords = [k for k in persona_keywords if k.lower() in lowercase]
+
+        has_binary_data = any(ord(ch) < 9 or ord(ch) > 126 for ch in text[:64]) if text else False
+
+        suspicious_tags: List[str] = []
+
+        if any(token in lowercase for token in ["union select", "select ", " or 1=1", "information_schema", "sqlmap"]):
+            suspicious_tags.append("sql_injection")
+        if any(token in lowercase for token in ["<script", "javascript:", "onerror=", "onload=", "document.cookie"]):
+            suspicious_tags.append("xss")
+        if any(token in lowercase for token in [";rm ", ";cat ", ";wget ", ";curl ", "bash -c", "sh -c", "&&", "||"]):
+            suspicious_tags.append("command_injection")
+        if any(token in lowercase for token in ["user ", "pass ", "login", "password"]):
+            suspicious_tags.append("credential_guess")
+        if any(token in lowercase for token in ["wp-admin", "wp-login", "xmlrpc.php"]):
+            suspicious_tags.append("wordpress_probe")
+        if any(token in lowercase for token in ["phpmyadmin", "select * from", "drop table"]):
+            suspicious_tags.append("db_admin_probe")
+        if persona_key in ["redis", "docker_api", "mysql"]:
+            suspicious_tags.append("service_exploitation_probe")
+
+        if not text or text == "<no input>":
+            attack_category = "empty_probe"
+        elif "sql_injection" in suspicious_tags:
+            attack_category = "sql_injection"
+        elif "command_injection" in suspicious_tags:
+            attack_category = "command_injection"
+        elif "xss" in suspicious_tags:
+            attack_category = "xss"
+        elif "credential_guess" in suspicious_tags:
+            attack_category = "credential_guess"
+        elif "wordpress_probe" in suspicious_tags or "db_admin_probe" in suspicious_tags:
+            attack_category = "app_enumeration"
+        elif has_binary_data:
+            attack_category = "binary_probe"
+        else:
+            attack_category = "generic_probe"
+
+        base_score = 0.6
+        base_score += 0.1 * min(len(suspicious_tags), 3)
+        base_score += 0.05 * min(len(matched_keywords), 3)
+        if ip_stats.get('total_hits', 0) > 5:
+            base_score += 0.15
+        if has_binary_data:
+            base_score += 0.05
+        suspicion_score = max(0.0, min(base_score, 1.0))
+
+        return {
+            'attack_category': attack_category,
+            'input_length': input_length,
+            'matched_keywords': matched_keywords,
+            'suspicious_tags': suspicious_tags,
+            'has_binary_data': has_binary_data,
+            'suspicion_score': suspicion_score,
+            'ip_total_hits': ip_stats.get('total_hits', 1)
+        }
     
     def _feed_to_ai_training(self, attack_entry: Dict):
         """
@@ -310,15 +466,35 @@ class AdaptiveHoneypot:
             from AI.pcs_ai import log_honeypot_attack
             
             # Convert attack to threat log format
+            analysis = attack_entry.get('analysis') or {}
+            analysis_summary_parts = []
+            category = analysis.get('attack_category')
+            if category:
+                analysis_summary_parts.append(f"category={category}")
+            score = analysis.get('suspicion_score')
+            if isinstance(score, (int, float)):
+                analysis_summary_parts.append(f"score={score:.2f}")
+            ip_hits = analysis.get('ip_total_hits')
+            if isinstance(ip_hits, int) and ip_hits > 1:
+                analysis_summary_parts.append(f"ip_total_hits={ip_hits}")
+            analysis_summary = ", ".join(analysis_summary_parts)
+
+            base_detail = f"{attack_entry['service_name']} attack: {attack_entry['attacker_input'][:100]}"
+            if analysis_summary:
+                details = f"{base_detail} ({analysis_summary})"
+            else:
+                details = base_detail
+
             threat_data = {
                 'ip_address': attack_entry['source_ip'],
                 'threat_type': f"honeypot_{attack_entry['honeypot_persona']}",
                 'level': 'DANGEROUS',  # All honeypot hits are suspicious
-                'details': f"{attack_entry['service_name']} attack: {attack_entry['attacker_input'][:100]}",
+                'details': details,
                 'timestamp': attack_entry['timestamp'],
                 'source': 'honeypot',
                 'honeypot_persona': attack_entry['honeypot_persona'],
-                'honeypot_port': attack_entry['honeypot_port']
+                'honeypot_port': attack_entry['honeypot_port'],
+                'analysis': analysis
             }
             
             # Feed to AI
