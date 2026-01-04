@@ -24,6 +24,14 @@ import threading
 
 logger = logging.getLogger(__name__)
 
+# Feature flag to allow disabling the kill-switch layer in constrained deployments
+EMERGENCY_KILLSWITCH_ENABLED = os.getenv("EMERGENCY_KILLSWITCH_ENABLED", "true").lower() == "true"
+
+# Feature flag and tunables for the comprehensive audit log
+COMPREHENSIVE_AUDIT_ENABLED = os.getenv("COMPREHENSIVE_AUDIT_ENABLED", "true").lower() == "true"
+AUDIT_BUFFER_SIZE = int(os.getenv("AUDIT_BUFFER_SIZE", "100"))
+AUDIT_MAX_EVENTS = int(os.getenv("AUDIT_MAX_EVENTS", "10000"))
+
 
 class KillSwitchMode(str, Enum):
     """Kill-switch operation modes."""
@@ -97,6 +105,7 @@ class EmergencyKillSwitch:
         self.mode_history: List[Dict] = []
         self.disabled_reason: Optional[str] = None
         self.disabled_by: Optional[str] = None
+        self.enabled: bool = EMERGENCY_KILLSWITCH_ENABLED
         
         # Thread safety
         self.lock = threading.Lock()
@@ -104,7 +113,9 @@ class EmergencyKillSwitch:
         # Load state
         self._load_state()
         
-        logger.info(f"[KILLSWITCH] Initialized in {self.current_mode.value} mode")
+        logger.info(
+            f"[KILLSWITCH] Initialized in {self.current_mode.value} mode (enabled={self.enabled})"
+        )
     
     def activate_kill_switch(self, mode: KillSwitchMode, reason: str, activated_by: str = "admin") -> Dict:
         """
@@ -119,6 +130,16 @@ class EmergencyKillSwitch:
             Result dict
         """
         with self.lock:
+            if not self.enabled:
+                logger.warning(
+                    f"[KILLSWITCH] activate_kill_switch called while disabled via EMERGENCY_KILLSWITCH_ENABLED=false. No-op."
+                )
+                return {
+                    "success": False,
+                    "error": "Kill-switch enforcement disabled via EMERGENCY_KILLSWITCH_ENABLED=false",
+                    "current_mode": self.current_mode.value,
+                }
+
             previous_mode = self.current_mode
             
             self.current_mode = mode
@@ -178,6 +199,14 @@ class EmergencyKillSwitch:
             Dict with allowed status and reason
         """
         with self.lock:
+            if not self.enabled:
+                # When disabled via env, always allow actions but surface mode for observability
+                return {
+                    "allowed": True,
+                    "mode": self.current_mode.value,
+                    "reason": "Kill-switch disabled via EMERGENCY_KILLSWITCH_ENABLED=false",
+                }
+
             mode = self.current_mode
             
             # DISABLED: Nothing allowed
@@ -220,7 +249,9 @@ class EmergencyKillSwitch:
                 "disabled_reason": self.disabled_reason,
                 "disabled_by": self.disabled_by,
                 "mode_changes": len(self.mode_history),
-                "last_change": self.mode_history[-1] if self.mode_history else None
+                "last_change": self.mode_history[-1] if self.mode_history else None,
+                "enabled": self.enabled,
+                "storage_dir": self.storage_dir,
             }
     
     def _save_state(self):
@@ -233,8 +264,12 @@ class EmergencyKillSwitch:
             "last_updated": datetime.now().isoformat()
         }
         
-        with open(self.killswitch_file, 'w') as f:
-            json.dump(state, f, indent=2)
+        try:
+            with open(self.killswitch_file, 'w') as f:
+                json.dump(state, f, indent=2)
+        except Exception as e:
+            # Do not crash the system if state cannot be persisted
+            logger.error(f"[KILLSWITCH] Failed to save state: {e}")
     
     def _load_state(self):
         """Load kill-switch state from disk."""
@@ -284,11 +319,12 @@ class ComprehensiveAuditLog:
         
         # In-memory buffer for fast writes
         self.event_buffer: List[AuditEvent] = []
-        self.buffer_size = 100  # Flush after 100 events
+        self.buffer_size = max(1, AUDIT_BUFFER_SIZE)  # Flush after N events (configurable)
         
         # Statistics
         self.total_events = 0
         self.events_by_type: Dict[str, int] = {}
+        self.enabled: bool = COMPREHENSIVE_AUDIT_ENABLED
         
         # Thread safety
         self.lock = threading.Lock()
@@ -296,7 +332,9 @@ class ComprehensiveAuditLog:
         # Load existing logs
         self._load_stats()
         
-        logger.info(f"[AUDIT] Initialized (total events: {self.total_events})")
+        logger.info(
+            f"[AUDIT] Initialized (total events: {self.total_events}, enabled={self.enabled}, buffer_size={self.buffer_size}, max_events={AUDIT_MAX_EVENTS})"
+        )
     
     def log_event(
         self,
@@ -460,6 +498,14 @@ class ComprehensiveAuditLog:
         """Flush event buffer to disk."""
         if len(self.event_buffer) == 0:
             return
+
+        # If audit logging is disabled, drop buffered events to avoid unbounded memory growth
+        if not self.enabled:
+            logger.debug(
+                f"[AUDIT] Dropping {len(self.event_buffer)} buffered events (COMPREHENSIVE_AUDIT_ENABLED=false)"
+            )
+            self.event_buffer.clear()
+            return
         
         # Load existing events
         existing_events = []
@@ -468,18 +514,18 @@ class ComprehensiveAuditLog:
                 with open(self.audit_file, 'r') as f:
                     data = json.load(f)
                 existing_events = data.get('events', [])
-            except:
-                pass
+            except Exception as e:
+                logger.warning(f"[AUDIT] Failed to read existing audit file: {e}")
         
         # Append new events
         new_events = [asdict(e) for e in self.event_buffer]
         all_events = existing_events + new_events
         
-        # Rotate if too large (keep last 10,000 in main file)
-        if len(all_events) > 10000:
+        # Rotate if too large (keep last AUDIT_MAX_EVENTS in main file)
+        if len(all_events) > AUDIT_MAX_EVENTS:
             # Archive old events
-            self._archive_events(all_events[:-10000])
-            all_events = all_events[-10000:]
+            self._archive_events(all_events[:-AUDIT_MAX_EVENTS])
+            all_events = all_events[-AUDIT_MAX_EVENTS:]
         
         # Save
         data = {
@@ -489,8 +535,13 @@ class ComprehensiveAuditLog:
             "last_updated": datetime.now().isoformat()
         }
         
-        with open(self.audit_file, 'w') as f:
-            json.dump(data, f, indent=2)
+        try:
+            with open(self.audit_file, 'w') as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            logger.error(f"[AUDIT] Failed to write audit log file: {e}")
+            # Keep events in memory so they are not lost
+            return
         
         # Clear buffer
         self.event_buffer.clear()
@@ -502,10 +553,12 @@ class ComprehensiveAuditLog:
             f"audit_archive_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         )
         
-        with open(archive_file, 'w') as f:
-            json.dump({"events": events, "archived_at": datetime.now().isoformat()}, f)
-        
-        logger.info(f"[AUDIT] Archived {len(events)} events to {archive_file}")
+        try:
+            with open(archive_file, 'w') as f:
+                json.dump({"events": events, "archived_at": datetime.now().isoformat()}, f)
+            logger.info(f"[AUDIT] Archived {len(events)} events to {archive_file}")
+        except Exception as e:
+            logger.error(f"[AUDIT] Failed to archive events to {archive_file}: {e}")
     
     def _load_all_events(self) -> List[AuditEvent]:
         """Load all events from disk (including buffer)."""
@@ -557,7 +610,10 @@ class ComprehensiveAuditLog:
                 "total_events": self.total_events,
                 "events_by_type": self.events_by_type,
                 "buffer_size": len(self.event_buffer),
-                "events_in_main_file": self.total_events - len(self.event_buffer)
+                "events_in_main_file": self.total_events - len(self.event_buffer),
+                "enabled": self.enabled,
+                "storage_dir": self.storage_dir,
+                "archive_dir": self.archive_dir,
             }
 
 

@@ -70,7 +70,7 @@ Suggested improvement order (next targets first):
 - [x] AI/formal_threat_model.py — Policy-based threat model and enforcement
 - [x] AI/policy_governance.py — Policy lifecycle, approvals, and governance logic
 - [x] AI/self_protection.py — Self-protection, integrity checks, and tamper detection
-- [ ] AI/emergency_killswitch.py — Emergency kill-switch and safe modes
+- [x] AI/emergency_killswitch.py — Emergency kill-switch and safe modes
 
 ## Cryptography & Lineage
 
