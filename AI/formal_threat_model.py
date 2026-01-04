@@ -19,6 +19,9 @@ from enum import Enum
 
 logger = logging.getLogger(__name__)
 
+# Version identifier for the formal threat model/policy set
+POLICY_VERSION = os.getenv("FORMAL_THREAT_MODEL_VERSION", "1.0.0")
+
 
 class ThreatCategory(str, Enum):
     """Categories of threats the system defends against."""
@@ -96,6 +99,7 @@ class FormalThreatModel:
         # Threat rules
         self.threat_rules: Dict[str, ThreatRule] = {}
         self.policy_constraints: List[PolicyConstraint] = []
+        self.policy_version: str = POLICY_VERSION
         
         # Load or initialize default rules
         if os.path.exists(self.threat_model_file):
@@ -360,21 +364,26 @@ class FormalThreatModel:
     
     def get_threat_coverage(self) -> Dict:
         """Get coverage of threat categories."""
-        covered = set(rule.threat_category for rule in self.threat_rules.values())
+        covered = {rule.threat_category for rule in self.threat_rules.values()}
         all_threats = set(ThreatCategory)
-        
+
         uncovered = all_threats - covered
-        
+
+        total = len(all_threats)
+        coverage_percent = (len(covered) / total * 100.0) if total > 0 else 0.0
+
         return {
-            "total_threat_categories": len(all_threats),
-            "covered_categories": list(covered),
-            "uncovered_categories": list(uncovered),
-            "coverage_percent": (len(covered) / len(all_threats)) * 100
+            "total_threat_categories": total,
+            # Return string values for JSON friendliness
+            "covered_categories": [c.value for c in covered],
+            "uncovered_categories": [c.value for c in uncovered],
+            "coverage_percent": coverage_percent,
         }
     
     def _save_threat_model(self):
         """Save threat model to disk."""
         data = {
+            "policy_version": self.policy_version,
             "threat_rules": {
                 rule_id: {
                     "rule_id": rule.rule_id,
@@ -385,18 +394,20 @@ class FormalThreatModel:
                     "severity_threshold": rule.severity_threshold,
                     "requires_human_approval": rule.requires_human_approval,
                     "description": rule.description,
-                    "rationale": rule.rationale
+                    "rationale": rule.rationale,
                 }
                 for rule_id, rule in self.threat_rules.items()
             },
             "policy_constraints": [asdict(c) for c in self.policy_constraints],
-            "last_updated": datetime.now().isoformat()
+            "last_updated": datetime.now().isoformat(),
         }
-        
-        with open(self.threat_model_file, 'w') as f:
-            json.dump(data, f, indent=2)
-        
-        logger.info("[THREAT-MODEL] Saved threat model to disk")
+
+        try:
+            with open(self.threat_model_file, 'w') as f:
+                json.dump(data, f, indent=2)
+            logger.info("[THREAT-MODEL] Saved threat model to disk")
+        except Exception as e:
+            logger.error(f"[THREAT-MODEL] Failed to save threat model: {e}")
     
     def _load_threat_model(self):
         """Load threat model from disk."""
@@ -422,6 +433,9 @@ class FormalThreatModel:
             self.policy_constraints = [
                 PolicyConstraint(**c) for c in data.get('policy_constraints', [])
             ]
+
+            # Load policy version if present
+            self.policy_version = data.get('policy_version', self.policy_version)
             
             logger.info("[THREAT-MODEL] Loaded threat model from disk")
         except Exception as e:
@@ -436,7 +450,8 @@ class FormalThreatModel:
             "threat_coverage": self.get_threat_coverage(),
             "rules_requiring_approval": sum(
                 1 for r in self.threat_rules.values() if r.requires_human_approval
-            )
+            ),
+            "policy_version": self.policy_version,
         }
 
 
