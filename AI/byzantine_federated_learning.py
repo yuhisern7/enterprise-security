@@ -12,12 +12,17 @@ Risk Level: LOW (Pure defensive, math-based validation)
 
 import numpy as np
 import logging
+import os
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
 from datetime import datetime
 import hashlib
 
 logger = logging.getLogger(__name__)
+
+# Feature flags and tunables for the Byzantine defender
+BYZANTINE_DEFENSE_ENABLED = os.getenv("BYZANTINE_DEFENSE_ENABLED", "true").lower() == "true"
+BYZANTINE_MAX_REJECTED_LOG = int(os.getenv("BYZANTINE_MAX_REJECTED_LOG", "1000"))
 
 
 @dataclass
@@ -68,14 +73,19 @@ class ByzantineDefender:
         self.update_history = []
         self.rejected_updates = []
         self.peer_reputation = {}  # Track peer reputation scores
+        self.enabled = BYZANTINE_DEFENSE_ENABLED
+        self.max_rejected_log = max(100, BYZANTINE_MAX_REJECTED_LOG)
         self.aggregation_stats = {
             "total_updates": 0,
             "rejected_byzantine": 0,
             "accepted_updates": 0,
-            "method_used": []
+            "method_used": [],
+            "last_method": None,
         }
         
-        logger.info(f"[BYZANTINE] Initialized with {byzantine_tolerance*100}% tolerance")
+        logger.info(
+            f"[BYZANTINE] Initialized with {byzantine_tolerance*100}% tolerance (enabled={self.enabled})"
+        )
     
     def aggregate_updates(
         self, 
@@ -97,9 +107,37 @@ class ByzantineDefender:
         
         self.aggregation_stats["total_updates"] += len(updates)
         self.aggregation_stats["method_used"].append(method)
+        self.aggregation_stats["last_method"] = method
         
         # Extract weight matrices
         weight_matrices = [u.weights for u in updates]
+
+        # Sanity-check shapes to avoid obscure numpy errors
+        base_shape = weight_matrices[0].shape
+        if any(w.shape != base_shape for w in weight_matrices):
+            logger.error("[BYZANTINE] Mismatched update shapes; falling back to simple mean aggregation")
+            stacked = np.stack([w.reshape(-1) for w in weight_matrices])
+            mean_flat = np.mean(stacked, axis=0)
+            result = mean_flat.reshape(base_shape)
+            stats = {
+                "rejected_count": 0,
+                "accepted_count": len(updates),
+                "reason": "shape_mismatch_fallback",
+            }
+            return result, stats
+
+        # If defense is disabled via env, just compute a plain mean
+        if not self.enabled:
+            logger.warning(
+                f"[BYZANTINE] Defense disabled via BYZANTINE_DEFENSE_ENABLED=false; using plain mean aggregation (method={method})"
+            )
+            result = np.mean(weight_matrices, axis=0)
+            stats = {
+                "rejected_count": 0,
+                "accepted_count": len(updates),
+                "reason": "defense_disabled",
+            }
+            return result, stats
         
         # Apply Byzantine-resilient aggregation
         if method == "krum":
@@ -190,11 +228,10 @@ class ByzantineDefender:
         # Mark rejected updates
         rejected = [i for i in range(n) if i != selected_idx]
         for idx in rejected:
-            self.rejected_updates.append({
-                "peer_id": updates[idx].peer_id,
-                "reason": "Not selected by Krum",
-                "timestamp": datetime.now().isoformat()
-            })
+            self._log_rejected_update(
+                peer_id=updates[idx].peer_id,
+                reason="Not selected by Krum",
+            )
         
         stats = {
             "rejected_count": len(rejected),
@@ -313,11 +350,10 @@ class ByzantineDefender:
         # Mark rejected updates
         rejected_indices = set(range(n)) - set(selected_indices)
         for idx in rejected_indices:
-            self.rejected_updates.append({
-                "peer_id": updates[idx].peer_id,
-                "reason": "Multi-Krum rejection (high score)",
-                "timestamp": datetime.now().isoformat()
-            })
+            self._log_rejected_update(
+                peer_id=updates[idx].peer_id,
+                reason="Multi-Krum rejection (high score)",
+            )
         
         stats = {
             "rejected_count": len(rejected_indices),
@@ -382,7 +418,7 @@ class ByzantineDefender:
             })
         
         return {
-            "aggregation_method": "KRUM",  # Primary method
+            "aggregation_method": self.aggregation_stats.get("last_method"),
             "total_peers": len(self.peer_reputation),
             "rejected_updates": self.aggregation_stats["rejected_byzantine"],
             "accepted_updates": self.aggregation_stats["accepted_updates"],
@@ -390,8 +426,26 @@ class ByzantineDefender:
                             max(1, self.aggregation_stats["total_updates"]),
             "byzantine_tolerance": self.byzantine_tolerance,
             "peer_reputation": peer_reputation,
-            "total_updates_processed": self.aggregation_stats["total_updates"]
+            "total_updates_processed": self.aggregation_stats["total_updates"],
+            "enabled": self.enabled,
         }
+
+    def _log_rejected_update(self, peer_id: str, reason: str) -> None:
+        """Append a rejected update to the in-memory log with bounding."""
+        self.rejected_updates.append(
+            {
+                "peer_id": peer_id,
+                "reason": reason,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
+        # Bound the size of the rejected_updates log to avoid unbounded growth
+        if len(self.rejected_updates) > self.max_rejected_log:
+            overflow = len(self.rejected_updates) - self.max_rejected_log
+            del self.rejected_updates[0:overflow]
+            logger.debug(
+                f"[BYZANTINE] Truncated rejected_updates log by {overflow} entries (max={self.max_rejected_log})"
+            )
 
 
 # Singleton instance

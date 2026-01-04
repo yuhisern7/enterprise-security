@@ -79,7 +79,7 @@ Suggested improvement order (next targets first):
 
 ## Federated Learning & P2P
 
-- [ ] AI/byzantine_federated_learning.py — Byzantine-resilient federated learning
+- [x] AI/byzantine_federated_learning.py — Byzantine-resilient federated learning
 - [ ] AI/p2p_sync.py — P2P synchronization of signatures and models
 - [ ] AI/training_sync_client.py — Client-side training data and model sync
 
