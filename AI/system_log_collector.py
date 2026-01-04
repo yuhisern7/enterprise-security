@@ -26,6 +26,9 @@ from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
+# Feature flag so operators can disable system log collection without code changes
+SYSTEM_LOG_COLLECTION_ENABLED = os.getenv("SYSTEM_LOG_COLLECTION_ENABLED", "true").lower() == "true"
+
 
 class SystemLogCollector:
     """Collect and parse system logs from multiple operating systems."""
@@ -39,8 +42,32 @@ class SystemLogCollector:
         """
         self.max_entries = max_entries
         self.os_type = platform.system()  # 'Linux', 'Windows', 'Darwin' (macOS)
+        self.enabled = SYSTEM_LOG_COLLECTION_ENABLED
         
-        logger.info(f"[SYSTEM_LOGS] Initialized for {self.os_type}")
+        if self.enabled:
+            logger.info(f"[SYSTEM_LOGS] Initialized for {self.os_type} (collection enabled)")
+        else:
+            logger.info(f"[SYSTEM_LOGS] Initialized for {self.os_type} (collection DISABLED via SYSTEM_LOG_COLLECTION_ENABLED=false)")
+
+    def _empty_logs(self, message: Optional[str] = None) -> Dict:
+        """Return an empty log structure, optionally with a single info entry."""
+        logs: Dict[str, list] = {
+            "crashes": [],
+            "security": [],
+            "authentication": [],
+            "kernel": [],
+            "services": [],
+            "errors": [],
+            "total_count": 0,
+        }
+        if message:
+            logs["errors"].append({
+                "timestamp": datetime.now().isoformat(),
+                "message": message,
+                "severity": "info",
+            })
+            logs["total_count"] = 1
+        return logs
     
     def collect_linux_logs(self, hours: int = 168) -> Dict:
         """
@@ -52,6 +79,12 @@ class SystemLogCollector:
         Returns:
             Dict with categorized log entries
         """
+        # Clamp hours to a safe window (1 hour – 30 days)
+        hours = max(1, min(int(hours), 24 * 30))
+
+        if not self.enabled:
+            return self._empty_logs("System log collection disabled by SYSTEM_LOG_COLLECTION_ENABLED=false")
+
         logs = {
             "crashes": [],
             "security": [],
@@ -59,7 +92,7 @@ class SystemLogCollector:
             "kernel": [],
             "services": [],
             "errors": [],
-            "total_count": 0
+            "total_count": 0,
         }
         
         try:
@@ -162,6 +195,12 @@ class SystemLogCollector:
         Returns:
             Dict with categorized log entries
         """
+        # Clamp hours to a safe window (1 hour – 30 days)
+        hours = max(1, min(int(hours), 24 * 30))
+
+        if not self.enabled:
+            return self._empty_logs("System log collection disabled by SYSTEM_LOG_COLLECTION_ENABLED=false")
+
         logs = {
             "crashes": [],
             "security": [],
@@ -169,7 +208,7 @@ class SystemLogCollector:
             "kernel": [],
             "services": [],
             "errors": [],
-            "total_count": 0
+            "total_count": 0,
         }
         
         try:
@@ -333,6 +372,12 @@ $Events | Select-Object -First {self.max_entries} | ForEach-Object {{
         Returns:
             Dict with categorized log entries
         """
+        # Clamp hours to a safe window (1 hour – 30 days)
+        hours = max(1, min(int(hours), 24 * 30))
+
+        if not self.enabled:
+            return self._empty_logs("System log collection disabled by SYSTEM_LOG_COLLECTION_ENABLED=false")
+
         logs = {
             "crashes": [],
             "security": [],
@@ -340,7 +385,7 @@ $Events | Select-Object -First {self.max_entries} | ForEach-Object {{
             "kernel": [],
             "services": [],
             "errors": [],
-            "total_count": 0
+            "total_count": 0,
         }
         
         try:
@@ -414,6 +459,12 @@ $Events | Select-Object -First {self.max_entries} | ForEach-Object {{
         Returns:
             Dict with OS-specific logs
         """
+        # Clamp hours consistently
+        hours = max(1, min(int(hours), 24 * 30))
+
+        if not self.enabled:
+            return self._empty_logs("System log collection disabled by SYSTEM_LOG_COLLECTION_ENABLED=false")
+
         if self.os_type == 'Linux':
             return self.collect_linux_logs(hours)
         elif self.os_type == 'Windows':
