@@ -280,9 +280,10 @@ class MetaDecisionEngine:
         # Count threat vs safe signals
         threat_signals = [s for s in signals if s.is_threat]
         safe_signals = [s for s in signals if not s.is_threat]
-        
-        # Calculate weighted vote score
+
+        # Calculate weighted vote score and boost for strong authoritative signals
         weighted_score = self._calculate_weighted_vote(signals)
+        weighted_score = self._boost_authoritative_signals(weighted_score, signals)
         
         # Determine if threat based on weighted vote
         is_threat = weighted_score >= self.threat_threshold
@@ -330,6 +331,31 @@ class MetaDecisionEngine:
         self._log_decision(decision)
         
         return decision
+
+    def _boost_authoritative_signals(self, weighted_score: float, signals: List[DetectionSignal]) -> float:
+        """Boost vote score when authoritative signals fire strongly.
+
+        Honeypot hits, high-confidence threat intel, and a strong false-positive
+        filter verdict should be able to drive the ensemble to an auto-block
+        decision even if other signals are weaker.
+        """
+        boosted = weighted_score
+
+        for s in signals:
+            if not s.is_threat:
+                continue
+
+            if s.signal_type == SignalType.HONEYPOT and s.confidence >= 0.7:
+                # Direct attacker interaction – treat as critical
+                boosted = max(boosted, max(self.block_threshold, 0.9))
+            elif s.signal_type == SignalType.THREAT_INTEL and s.confidence >= 0.9:
+                # Known bad from intel feeds
+                boosted = max(boosted, max(self.block_threshold, 0.9))
+            elif s.signal_type == SignalType.FP_FILTER and s.confidence >= 0.9:
+                # 5-gate filter saying "real attack"
+                boosted = max(boosted, max(self.block_threshold, 0.85))
+
+        return min(1.0, boosted)
     
     def _calculate_weighted_vote(self, signals: List[DetectionSignal]) -> float:
         """

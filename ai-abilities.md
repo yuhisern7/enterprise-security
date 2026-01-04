@@ -9,14 +9,44 @@ Legend:
 Currently tracked:
 - 47 checklist entries total
 - 46 unique AI modules (AI/threat_intelligence.py appears in two sections)
-- 2/47 entries marked as completed so far
+- 3/47 entries marked as completed so far
+
+Suggested improvement order (next targets first):
+1. AI/pcs_ai.py — Core AI engine & request assessment
+2. AI/sequence_analyzer.py — LSTM kill-chain / sequence modeling
+3. AI/traffic_analyzer.py — Traffic autoencoder and anomaly scoring
+4. AI/drift_detector.py — Drift and feature-distribution monitoring
+5. AI/graph_intelligence.py — Lateral movement and C2 graph analysis
+6. AI/kernel_telemetry.py — eBPF/XDP telemetry ingestion and mapping
+7. AI/reputation_tracker.py — Long-term IP reputation & recidivism
+8. AI/threat_intelligence.py — OSINT ingestion and legacy honeypot feeds
+9. AI/system_log_collector.py — System log collection for AI
+10. AI/user_tracker.py — UEBA and user behavior signals
+11. AI/behavioral_heuristics.py — Heuristic behavior scoring
+12. AI/zero_trust.py — Zero Trust enforcement logic
+13. AI/vulnerability_manager.py — Vulnerability & supply-chain scoring
+14. AI/file_analyzer.py — File analysis and sandbox hooks
+15. AI/network_performance.py — Network performance anomaly detection
+16. AI/asset_inventory.py — Asset inventory enrichment for AI
+17. AI/node_fingerprint.py — Device fingerprinting and identity signals
+18. AI/pcap_capture.py — PCAP ingestion utilities
+19. AI/enterprise_integration.py — Enterprise workflows
+20. AI/cloud_security.py — Cloud posture signals
+21. AI/soar_api.py & AI/soar_workflows.py — SOAR control plane
+22. AI/central_sync.py & AI/relay_client.py — Relay / sync logic
+23. AI/compliance_reporting.py — Compliance metrics feeding AI
+24. AI/advanced_orchestration.py — Higher-level orchestration logic
+25. AI/advanced_visualization.py — Visualization hooks for explainability
+26. AI/alert_system.py — Alert routing and prioritization
+27. AI/backup_recovery.py — Backup & recovery integrity signals
+
 
 ---
 
 ## Core AI Orchestration
 
 - [ ] AI/pcs_ai.py — Core AI engine, threat scoring, ensemble integration
-- [ ] AI/meta_decision_engine.py — Phase 5 meta decision engine (ensemble of signals)
+- [x] AI/meta_decision_engine.py — Phase 5 meta decision engine (ensemble of signals, authoritative-signal boosting)
 - [x] AI/false_positive_filter.py — 5-gate false-positive reduction pipeline (HONEYPOT-aware, improved)
 - [ ] AI/sequence_analyzer.py — LSTM sequence analysis (kill chain modeling)
 - [ ] AI/traffic_analyzer.py — Traffic autoencoder and anomaly detection
