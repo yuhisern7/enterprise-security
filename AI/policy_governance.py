@@ -18,6 +18,9 @@ import threading
 
 logger = logging.getLogger(__name__)
 
+# Feature flag to allow disabling governance layer in constrained deployments
+POLICY_GOVERNANCE_ENABLED = os.getenv("POLICY_GOVERNANCE_ENABLED", "true").lower() == "true"
+
 
 class ApprovalStatus(str, Enum):
     """Status of approval requests."""
@@ -107,8 +110,10 @@ class PolicyGovernance:
         # Load state
         self._load_policies()
         self._load_approvals()
-        
-        logger.info(f"[GOVERNANCE] Initialized with {len(self.policies)} policies")
+
+        logger.info(
+            f"[GOVERNANCE] Initialized with {len(self.policies)} policies (enabled={POLICY_GOVERNANCE_ENABLED})"
+        )
     
     def _load_policies(self):
         """Load or initialize default policies."""
@@ -215,6 +220,27 @@ class PolicyGovernance:
         Returns:
             ApprovalRequest object
         """
+        if not POLICY_GOVERNANCE_ENABLED:
+            # Governance disabled: treat as auto-approved but still log
+            logger.info(
+                f"[GOVERNANCE] Governance disabled; treating {proposed_action} on {target} as auto-approved"
+            )
+            now = datetime.now().isoformat()
+            return ApprovalRequest(
+                request_id="governance_disabled",
+                timestamp=now,
+                proposed_action=proposed_action,
+                target=target,
+                risk_level=self._assess_risk(proposed_action, confidence),
+                confidence=confidence,
+                evidence=evidence,
+                rationale=rationale,
+                expires_at=now,
+                status=ApprovalStatus.AUTO_APPROVED,
+                approved_by="system",
+                approved_at=now,
+            )
+
         with self.lock:
             # Find applicable policy
             policy = self._find_policy(proposed_action)
@@ -283,6 +309,9 @@ class PolicyGovernance:
         Returns:
             Result dict
         """
+        if not POLICY_GOVERNANCE_ENABLED:
+            return {"success": False, "error": "Governance disabled"}
+
         with self.lock:
             request = self._find_request(request_id)
             
@@ -328,6 +357,9 @@ class PolicyGovernance:
         Returns:
             Result dict
         """
+        if not POLICY_GOVERNANCE_ENABLED:
+            return {"success": False, "error": "Governance disabled"}
+
         with self.lock:
             request = self._find_request(request_id)
             
@@ -441,21 +473,26 @@ class PolicyGovernance:
         }
         
         # Append to audit log
-        audit_log = []
+        audit_log: List[dict] = []
         if os.path.exists(self.audit_file):
             try:
                 with open(self.audit_file, 'r') as f:
-                    audit_log = json.load(f)
-            except:
-                pass
-        
+                    loaded = json.load(f)
+                    if isinstance(loaded, list):
+                        audit_log = loaded
+            except Exception as e:
+                logger.warning(f"[GOVERNANCE] Failed to read audit log: {e}")
+
         audit_log.append(audit_entry)
-        
+
         # Keep last 1000 entries
         audit_log = audit_log[-1000:]
-        
-        with open(self.audit_file, 'w') as f:
-            json.dump(audit_log, f, indent=2)
+
+        try:
+            with open(self.audit_file, 'w') as f:
+                json.dump(audit_log, f, indent=2)
+        except Exception as e:
+            logger.error(f"[GOVERNANCE] Failed to write audit log: {e}")
     
     def _save_approvals(self):
         """Save approval requests to disk."""
@@ -465,9 +502,12 @@ class PolicyGovernance:
             ],
             "last_updated": datetime.now().isoformat()
         }
-        
-        with open(self.approvals_file, 'w') as f:
-            json.dump(data, f, indent=2)
+
+        try:
+            with open(self.approvals_file, 'w') as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            logger.error(f"[GOVERNANCE] Failed to save approvals: {e}")
     
     def _load_approvals(self):
         """Load approval requests from disk."""
@@ -509,9 +549,12 @@ class PolicyGovernance:
             },
             "last_updated": datetime.now().isoformat()
         }
-        
-        with open(self.policies_file, 'w') as f:
-            json.dump(data, f, indent=2)
+
+        try:
+            with open(self.policies_file, 'w') as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            logger.error(f"[GOVERNANCE] Failed to save policies: {e}")
     
     def get_stats(self) -> Dict:
         """Get governance statistics."""
@@ -533,7 +576,8 @@ class PolicyGovernance:
                 "auto_approved_requests": auto_approved,
                 "expired_requests": expired,
                 "total_policies": len(self.policies),
-                "auto_approval_rate": auto_approved / max(1, total)
+                "auto_approval_rate": auto_approved / max(1, total),
+                "enabled": POLICY_GOVERNANCE_ENABLED,
             }
 
 

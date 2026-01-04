@@ -21,6 +21,9 @@ from enum import Enum
 
 logger = logging.getLogger(__name__)
 
+# Feature flag to allow disabling self-protection checks in constrained environments
+SELF_PROTECTION_ENABLED = os.getenv("SELF_PROTECTION_ENABLED", "true").lower() == "true"
+
 
 class IntegrityThreat(str, Enum):
     """Types of integrity threats."""
@@ -89,8 +92,10 @@ class SelfProtection:
         # Load state
         self._load_violations()
         self._load_or_create_baseline()
-        
-        logger.info("[SELF-PROTECT] Initialized with conservative thresholds")
+
+        logger.info(
+            f"[SELF-PROTECT] Initialized with conservative thresholds (enabled={SELF_PROTECTION_ENABLED})"
+        )
     
     def verify_model_integrity(self, model_path: str, expected_hash: Optional[str] = None) -> Dict:
         """
@@ -103,6 +108,13 @@ class SelfProtection:
         Returns:
             Integrity check result
         """
+        if not SELF_PROTECTION_ENABLED:
+            return {
+                "intact": True,
+                "reason": "Self-protection disabled",
+                "severity": 0.0,
+            }
+
         if not os.path.exists(model_path):
             return {
                 "intact": False,
@@ -198,6 +210,12 @@ class SelfProtection:
         
         CONSERVATIVE: Only alerts after 60 seconds of silence.
         """
+        if not SELF_PROTECTION_ENABLED:
+            return {
+                "suppressed": False,
+                "reason": "Self-protection disabled",
+            }
+
         current_time = time.time()
         
         # Update heartbeat
@@ -238,6 +256,8 @@ class SelfProtection:
         
         Call this regularly from telemetry sources to prove they're alive.
         """
+        if not SELF_PROTECTION_ENABLED:
+            return
         self.telemetry_heartbeat[telemetry_source] = time.time()
     
     def detect_log_tampering(self, current_log_count: int) -> Dict:
@@ -246,6 +266,12 @@ class SelfProtection:
         
         CONSERVATIVE: Only alerts on significant reductions (>50%).
         """
+        if not SELF_PROTECTION_ENABLED:
+            return {
+                "tampered": False,
+                "reason": "Self-protection disabled",
+            }
+
         if self.last_log_count == 0:
             # First run - establish baseline
             self.last_log_count = current_log_count
@@ -288,6 +314,12 @@ class SelfProtection:
         
         Monitors critical config files for unexpected modifications.
         """
+        if not SELF_PROTECTION_ENABLED:
+            return {
+                "tampered": False,
+                "reason": "Self-protection disabled",
+            }
+
         if not os.path.exists(config_file):
             return {
                 "tampered": False,
@@ -345,6 +377,12 @@ class SelfProtection:
         
         CONSERVATIVE: Only alerts on >30% discrepancy.
         """
+        if not SELF_PROTECTION_ENABLED:
+            return {
+                "rootkit_detected": False,
+                "reason": "Self-protection disabled",
+            }
+
         if observed_packets_kernel == 0 or observed_packets_userland == 0:
             return {"rootkit_detected": False, "reason": "Insufficient data"}
         
@@ -389,6 +427,12 @@ class SelfProtection:
         - Log tampering + telemetry suppression (combined attack)
         - Critical components offline
         """
+        if not SELF_PROTECTION_ENABLED:
+            return {
+                "blinding_detected": False,
+                "reason": "Self-protection disabled",
+            }
+
         silent_sources = []
         current_time = time.time()
         
@@ -516,8 +560,11 @@ class SelfProtection:
             "last_updated": datetime.now().isoformat()
         }
         
-        with open(self.integrity_file, 'w') as f:
-            json.dump(data, f, indent=2)
+        try:
+            with open(self.integrity_file, 'w') as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            logger.error(f"[SELF-PROTECT] Failed to save violations: {e}")
     
     def _load_violations(self):
         """Load violations from disk."""
@@ -552,8 +599,11 @@ class SelfProtection:
             "last_updated": datetime.now().isoformat()
         }
         
-        with open(self.baseline_file, 'w') as f:
-            json.dump(data, f, indent=2)
+        try:
+            with open(self.baseline_file, 'w') as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            logger.error(f"[SELF-PROTECT] Failed to save baseline: {e}")
     
     def _load_or_create_baseline(self):
         """Load or create integrity baseline."""
@@ -577,7 +627,8 @@ class SelfProtection:
             "should_alert": summary["should_alert"],
             "monitored_components": len(self.component_hashes),
             "telemetry_sources": len(self.telemetry_heartbeat),
-            "configuration": self.config
+            "configuration": self.config,
+            "enabled": SELF_PROTECTION_ENABLED,
         }
 
 
