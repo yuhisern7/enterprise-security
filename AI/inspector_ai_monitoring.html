@@ -2789,9 +2789,12 @@
 
         <!-- Recent Attacks -->
         <div>
-          <h3 style="color: #ffb85f; margin-bottom: 1rem;">🎯 Recent Attacks (Last 10)</h3>
-          <div id="honeypot-attacks-container" style="max-height: 400px; overflow-y: auto;">
-            <table style="width: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="color: #ffb85f; margin: 0;">🎯 Recent Attacks (Last 10)</h3>
+            <button onclick="toggleHoneypotHistory()" style="padding: 0.4rem 0.75rem; background: #2a3550; color: #5fe2ff; border: 1px solid #5fe2ff; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">📜 View Attack History</button>
+          </div>
+          <div id="honeypot-attacks-container" style="max-height: 300px; overflow-y: auto; border-radius: 4px; border: 1px solid rgba(255, 184, 95, 0.3);">
+            <table style="width: 100%; border-collapse: collapse;">
               <thead>
                 <tr>
                   <th style="text-align: left;">Time</th>
@@ -2806,6 +2809,13 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+          <div id="honeypot-history-panel" style="display: none; margin-top: 1rem; padding: 0.75rem; background: rgba(10, 14, 39, 0.95); border-radius: 6px; border: 1px solid rgba(95, 226, 255, 0.4);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.85rem;">
+              <span style="color: #5fe2ff; font-weight: 600;">📜 Attack History (all persisted honeypot hits)</span>
+              <button onclick="toggleHoneypotHistory()" style="padding: 0.25rem 0.6rem; background: transparent; color: #ff6b6b; border: 1px solid #ff6b6b; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">✖ Close</button>
+            </div>
+            <div id="honeypot-history-content" style="max-height: 350px; overflow-y: auto; font-family: monospace; font-size: 0.8rem; color: #a9b3d4; white-space: pre;"></div>
           </div>
         </div>
       </section>
@@ -5848,6 +5858,43 @@
           
         } catch (error) {
           console.error('Error loading honeypot attacks:', error);
+        }
+      }
+
+      // Toggle and load full honeypot attack history
+      let honeypotHistoryVisible = false;
+      async function toggleHoneypotHistory() {
+        const panel = document.getElementById('honeypot-history-panel');
+        const content = document.getElementById('honeypot-history-content');
+        honeypotHistoryVisible = !honeypotHistoryVisible;
+        if (!honeypotHistoryVisible) {
+          panel.style.display = 'none';
+          return;
+        }
+        panel.style.display = 'block';
+        content.textContent = 'Loading attack history...';
+
+        try {
+          const response = await fetch('/api/adaptive_honeypot/attacks/history');
+          const attacks = await response.json();
+
+          if (attacks && attacks.length > 0) {
+            const sorted = attacks.slice().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const lines = sorted.map(a => {
+              const ts = new Date(a.timestamp).toLocaleString();
+              const persona = a.honeypot_persona || 'unknown';
+              const ip = a.source_ip || 'unknown';
+              const port = a.source_port || '';
+              const preview = a.attacker_input ? (a.attacker_input.substring(0, 80) + (a.attacker_input.length > 80 ? '...' : '')) : '(no input)';
+              return `[${ts}] ${ip}${port ? ':' + port : ''} → ${persona} | ${preview}`;
+            });
+            content.textContent = lines.join('\n');
+          } else {
+            content.textContent = 'No attacks recorded yet.';
+          }
+        } catch (error) {
+          console.error('Error loading honeypot attack history:', error);
+          content.textContent = 'Failed to load attack history: ' + error.message;
         }
       }
       

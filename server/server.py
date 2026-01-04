@@ -2387,6 +2387,18 @@ def adaptive_honeypot_attacks():
         return jsonify([], 500)
 
 
+@app.route('/api/adaptive_honeypot/attacks/history', methods=['GET'])
+def adaptive_honeypot_attack_history():
+    """Get full honeypot attack history (bounded)."""
+    try:
+        from AI.adaptive_honeypot import get_honeypot
+        hp = get_honeypot()
+        attacks = hp.get_full_attack_log()
+        return jsonify(attacks)
+    except Exception as e:
+        return jsonify([], 500)
+
+
 # API endpoint to toggle honeypots (DEPRECATED - kept for backward compatibility)
 @app.route('/api/honeypot/toggle', methods=['POST'])
 def toggle_honeypot():

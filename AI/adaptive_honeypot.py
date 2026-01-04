@@ -395,6 +395,10 @@ class AdaptiveHoneypot:
     def get_attack_log(self, limit: int = 100) -> List[Dict]:
         """Get recent attack log"""
         return self.attack_log[-limit:] if self.attack_log else []
+
+    def get_full_attack_log(self) -> List[Dict]:
+        """Get full persisted attack log (bounded to last 1000 entries)."""
+        return list(self.attack_log) if self.attack_log else []
     
     def clear_log(self):
         """Clear attack log"""
