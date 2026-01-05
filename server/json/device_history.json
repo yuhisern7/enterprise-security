@@ -220,7 +220,17 @@
     "vendor": "Apple (Randomized)",
     "hostname": "iPhone-1",
     "open_ports": [],
-    "last_seen": "2026-01-06T03:52:49.097268",
+    "last_seen": "2026-01-06T04:37:07.047648",
     "first_seen": "2026-01-06T03:25:33.369644"
+  },
+  "8e:bd:65:fb:5f:34": {
+    "ip": "172.18.0.1",
+    "mac": "8e:bd:65:fb:5f:34",
+    "type": "iPhone/iPad (Private MAC)",
+    "vendor": "Apple (Randomized)",
+    "hostname": "iPhone-1",
+    "open_ports": [],
+    "last_seen": "2026-01-06T05:27:54.501757",
+    "first_seen": "2026-01-06T04:38:57.294999"
   }
 }

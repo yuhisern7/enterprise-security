@@ -1435,6 +1435,156 @@ def get_ml_model_stats() -> dict:
     return stats
 
 
+def get_ai_abilities_status() -> Dict[str, Any]:
+    """Summarize runtime status for the 18 advertised AI detection abilities.
+
+    This is used by the dashboard to show which abilities are actually active
+    in the current environment (libraries present, models initialized, etc.).
+    """
+
+    abilities: Dict[str, Dict[str, Any]] = {}
+
+    # 1) Kernel Telemetry (eBPF)
+    abilities["kernel_telemetry"] = {
+        "label": "Kernel Telemetry (eBPF)",
+        "enabled": KERNEL_TELEMETRY_AVAILABLE,
+    }
+
+    # 2) Signature Matching (core rules + signatures)
+    abilities["signature_matching"] = {
+        "label": "Signature Matching",
+        # Signature-based detection is always available in this engine
+        "enabled": True,
+    }
+
+    # 3) RandomForest ML (threat classifier)
+    abilities["random_forest_ml"] = {
+        "label": "RandomForest ML",
+        "enabled": bool(ML_AVAILABLE and _threat_classifier is not None),
+    }
+
+    # 4) IsolationForest ML (anomaly detector)
+    abilities["isolation_forest_ml"] = {
+        "label": "IsolationForest ML",
+        "enabled": bool(ML_AVAILABLE and _anomaly_detector is not None),
+    }
+
+    # 5) GradientBoosting ML (IP reputation)
+    abilities["gradient_boosting_ml"] = {
+        "label": "GradientBoosting ML",
+        "enabled": bool(ML_AVAILABLE and _ip_reputation_model is not None),
+    }
+
+    # 6) Behavioral Heuristics
+    abilities["behavioral_heuristics"] = {
+        "label": "Behavioral Heuristics",
+        "enabled": ADVANCED_AI_AVAILABLE,
+    }
+
+    # 7) LSTM Neural Network (sequence analyzer)
+    abilities["lstm_sequence_model"] = {
+        "label": "LSTM Neural Network",
+        "enabled": ADVANCED_AI_AVAILABLE,
+    }
+
+    # 8) Traffic Autoencoder (deep learning)
+    autoencoder = None
+    if TENSORFLOW_AVAILABLE:
+        try:
+            autoencoder = get_traffic_autoencoder()
+        except Exception:
+            autoencoder = None
+    abilities["traffic_autoencoder"] = {
+        "label": "Traffic Autoencoder",
+        "enabled": bool(TENSORFLOW_AVAILABLE and autoencoder is not None),
+    }
+
+    # 9) Drift Detector
+    abilities["drift_detector"] = {
+        "label": "Drift Detector",
+        "enabled": ADVANCED_AI_AVAILABLE,
+    }
+
+    # 10) Graph Intelligence
+    abilities["graph_intelligence"] = {
+        "label": "Graph Intelligence",
+        "enabled": GRAPH_INTELLIGENCE_AVAILABLE,
+    }
+
+    # 11) VPN/Tor Detection
+    abilities["vpn_tor_detection"] = {
+        "label": "VPN/Tor Detection",
+        # VPN/Tor stats are computed entirely from threat logs and do not
+        # require extra optional libraries beyond the core engine.
+        "enabled": True,
+    }
+
+    # 12) Threat Intelligence (OSINT feeds)
+    abilities["threat_intelligence"] = {
+        "label": "Threat Intelligence",
+        "enabled": ENTERPRISE_FEATURES_AVAILABLE,
+    }
+
+    # 13) False Positive Filter (5-gate)
+    abilities["false_positive_filter"] = {
+        "label": "False Positive Filter",
+        "enabled": FP_FILTER_AVAILABLE,
+    }
+
+    # 14) Historical Reputation (long-term IP memory)
+    abilities["historical_reputation"] = {
+        "label": "Historical Reputation",
+        "enabled": REPUTATION_TRACKER_AVAILABLE,
+    }
+
+    # 15) Explainability Engine
+    abilities["explainability_engine"] = {
+        "label": "Explainability Engine",
+        "enabled": EXPLAINABILITY_AVAILABLE,
+    }
+
+    # 16) Predictive Modeling / Forecasting
+    abilities["predictive_modeling"] = {
+        "label": "Predictive Modeling",
+        "enabled": bool(ML_AVAILABLE and ADVANCED_AI_AVAILABLE),
+    }
+
+    # 17) Byzantine Defense (federated learning hardening)
+    byzantine_enabled = False
+    try:
+        stats = get_byzantine_defense_stats()
+        byzantine_enabled = not bool(stats.get("error")) and stats.get("enabled", True)
+    except Exception:
+        byzantine_enabled = False
+    abilities["byzantine_defense"] = {
+        "label": "Byzantine Defense",
+        "enabled": byzantine_enabled,
+    }
+
+    # 18) Integrity Monitoring / Self-Protection
+    integrity_enabled = False
+    try:
+        from AI.self_protection import get_self_protection
+        protector = get_self_protection()
+        integrity_enabled = protector is not None
+    except Exception:
+        integrity_enabled = False
+    abilities["integrity_monitoring"] = {
+        "label": "Integrity Monitoring",
+        "enabled": integrity_enabled,
+    }
+
+    total = len(abilities)
+    enabled_count = sum(1 for a in abilities.values() if a.get("enabled"))
+
+    return {
+        "total": total,
+        "enabled": enabled_count,
+        "disabled": total - enabled_count,
+        "abilities": abilities,
+    }
+
+
 # =============================================================================
 # PHASE 2: AUTOENCODER ANOMALY DETECTION (Unsupervised Deep Learning)
 # =============================================================================

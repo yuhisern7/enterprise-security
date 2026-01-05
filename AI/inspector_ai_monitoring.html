@@ -152,80 +152,88 @@
         
         <!-- 18 AI Detection Abilities -->
         <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(95, 255, 159, 0.05); border-radius: 8px; border: 2px solid #5fff9f;">
-          <h4 style="color: #5fff9f; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-            <span style="background: #2a7f3f; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">ACTIVE</span>
+          <h4 style="color: #5fff9f; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="background: #2a7f3f; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.7rem;">RUNTIME STATUS</span>
             🤖 18 AI Detection Abilities - Complete Intelligence Stack
           </h4>
+          {% if ai_abilities %}
+          <p class="muted" style="margin: 0 0 0.75rem; font-size: 0.8rem; color: #9fffcf;">
+            ✅ <strong>{{ ai_abilities.enabled }}</strong> / {{ ai_abilities.total }} abilities active
+            {% if ai_abilities.disabled > 0 %}
+            • ⚠️ <strong>{{ ai_abilities.disabled }}</strong> disabled (missing libraries or optional modules)
+            {% endif %}
+          </p>
+          {% endif %}
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 0.5rem;">
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.kernel_telemetry.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">1️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>Kernel Telemetry (eBPF):</strong> Rootkit detection, syscall correlation, 100% accuracy</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.signature_matching.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">2️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>Signature Matching:</strong> 3,066 attack patterns, 50K+ exploits (ExploitDB), 98%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.random_forest_ml.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">3️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>RandomForest ML:</strong> Supervised threat classification, 100 trees, 91%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.isolation_forest_ml.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">4️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>IsolationForest ML:</strong> Unsupervised anomaly detection, 87%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.gradient_boosting_ml.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">5️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>GradientBoosting ML:</strong> IP reputation prediction, 50 estimators, 89%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.behavioral_heuristics.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">6️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>Behavioral Heuristics:</strong> 15 behavioral metrics, risk scoring, 90%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.lstm_sequence_model.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">7️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>LSTM Neural Network:</strong> 7-state kill chain tracking, 92%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.traffic_autoencoder.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">8️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>Traffic Autoencoder:</strong> Zero-day detection via reconstruction error, 88%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.drift_detector.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">9️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>Drift Detector:</strong> Model degradation monitoring (KS test, PSI), 85%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.graph_intelligence.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">🔟</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>Graph Intelligence:</strong> Lateral movement, C2 detection, betweenness, 90%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.vpn_tor_detection.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">1️⃣1️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>VPN/Tor Detection:</strong> Anonymous proxy fingerprinting, 75%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.threat_intelligence.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">1️⃣2️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>Threat Intelligence:</strong> 12 OSINT feeds (AbuseIPDB, GreyNoise, etc.), 99%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.false_positive_filter.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">1️⃣3️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>False Positive Filter:</strong> 5-gate multi-signal cross-validation, 93%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.historical_reputation.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">1️⃣4️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>Historical Reputation:</strong> Persistent cross-session memory, recidivism, 94%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.explainability_engine.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">1️⃣5️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>Explainability Engine:</strong> Decision transparency, forensic reporting, 100%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.predictive_modeling.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">1️⃣6️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>Predictive Modeling:</strong> 24-48hr attack forecasting, 83%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.byzantine_defense.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">1️⃣7️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>Byzantine Defense:</strong> Poisoned model rejection, peer reputation, 94%</span>
             </div>
-            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid #5fff9f;">
+            <div class="feature-item" style="background: #1a2135; padding: 0.5rem 0.75rem; border-radius: 4px; display: flex; align-items: center; gap: 0.5rem; border-left: 3px solid {% if ai_abilities and ai_abilities.abilities.integrity_monitoring.enabled %}#5fff9f{% else %}#ff5f5f{% endif %};">
               <span style="color: #5fff9f; font-size: 1.2rem;">1️⃣8️⃣</span>
               <span style="color: #f5f7ff; font-size: 0.85rem;"><strong>Integrity Monitoring:</strong> Tamper detection, self-protection, 91%</span>
             </div>

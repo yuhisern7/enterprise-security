@@ -9,7 +9,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 class AlertSystem:
     """Send real alerts via email and SMS"""
@@ -17,8 +17,10 @@ class AlertSystem:
     def __init__(self):
         # Use /app in Docker, ./server/json outside Docker
         base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
-        self.config_file = os.path.join(base_dir, 'json', 'alert_config.json')
-        self.stats_file = os.path.join(base_dir, 'json', 'alert_stats.json')
+        base_json_dir = os.path.join(base_dir, 'json')
+        os.makedirs(base_json_dir, exist_ok=True)
+        self.config_file = os.path.join(base_json_dir, 'alert_config.json')
+        self.stats_file = os.path.join(base_json_dir, 'alert_stats.json')
         self.config = self.load_config()
         self.stats = {'email_sent': 0, 'sms_sent': 0, 'failed': 0}
         self.load_stats()
@@ -131,6 +133,62 @@ class AlertSystem:
             self.stats['failed'] += 1
             self.save_stats()
             return False
+
+    def send_alert_for_threat(self, threat: Dict[str, Any], min_severity: str = "CRITICAL") -> bool:
+        """High-level helper to send alerts for a threat dict.
+
+        Args:
+            threat: Threat dictionary from the detection pipeline.
+            min_severity: Minimum severity required to trigger an alert
+                (e.g., "SUSPICIOUS", "DANGEROUS", "CRITICAL").
+
+        Returns:
+            True if at least one alert was sent, False otherwise.
+        """
+        severity_order = {
+            'SAFE': 0,
+            'SUSPICIOUS': 1,
+            'DANGEROUS': 2,
+            'CRITICAL': 3,
+        }
+
+        level = str(threat.get('level', 'SAFE')).upper()
+        required = min_severity.upper()
+
+        if severity_order.get(level, 0) < severity_order.get(required, 0):
+            return False
+
+        attack_type = threat.get('threat_type', 'Unknown Threat')
+        src_ip = threat.get('ip_address', 'Unknown IP')
+        timestamp = threat.get('timestamp') or datetime.utcnow().isoformat() + 'Z'
+        action = threat.get('action', 'monitored')
+        details = threat.get('details', '')
+
+        subject = f"[{level}] {attack_type} from {src_ip}"
+        body_lines = [
+            f"Time: {timestamp}",
+            f"Source IP: {src_ip}",
+            f"Severity: {level}",
+            f"Action: {action}",
+        ]
+        if details:
+            body_lines.append("")
+            body_lines.append("Details:")
+            body_lines.append(str(details))
+
+        body = "\n".join(body_lines)
+
+        sent = False
+
+        # Prefer email for rich alerts, fall back to SMS if configured
+        if self.config.get('email', {}).get('enabled'):
+            sent = self.send_email(subject, body)
+
+        if (not sent) and self.config.get('sms', {}).get('enabled'):
+            sms_message = f"{subject} at {timestamp} (action={action})"
+            sent = self.send_sms(sms_message)
+
+        return sent
     
     def get_stats(self) -> Dict:
         """Get alert statistics"""

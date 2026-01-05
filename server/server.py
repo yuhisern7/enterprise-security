@@ -47,7 +47,8 @@ def dashboard():
                          whitelisted_ips=pcs_ai.get_whitelisted_ips(),
                          threat_logs=pcs_ai._threat_log[-100:][::-1],
                          ml_stats=pcs_ai.get_ml_model_stats(),
-                         vpn_stats=pcs_ai.get_vpn_tor_statistics())
+                         vpn_stats=pcs_ai.get_vpn_tor_statistics(),
+                         ai_abilities=pcs_ai.get_ai_abilities_status())
 
 
 @app.route('/legacy')
@@ -59,7 +60,8 @@ def legacy_dashboard():
                          whitelisted_ips=pcs_ai.get_whitelisted_ips(),
                          threat_logs=pcs_ai._threat_log[-100:][::-1],
                          ml_stats=pcs_ai.get_ml_model_stats(),
-                         vpn_stats=pcs_ai.get_vpn_tor_statistics())
+                         vpn_stats=pcs_ai.get_vpn_tor_statistics(),
+                         ai_abilities=pcs_ai.get_ai_abilities_status())
 
 
 
@@ -73,7 +75,8 @@ def ai_monitoring():
                          whitelisted_ips=pcs_ai.get_whitelisted_ips(),
                          threat_logs=pcs_ai._threat_log[-100:][::-1],  # Latest 100, reversed
                          ml_stats=pcs_ai.get_ml_model_stats(),
-                         vpn_stats=pcs_ai.get_vpn_tor_statistics())
+                         vpn_stats=pcs_ai.get_vpn_tor_statistics(),
+                         ai_abilities=pcs_ai.get_ai_abilities_status())
 
 
 @app.route('/inspector/ai-monitoring/export')
@@ -1340,6 +1343,25 @@ def get_explainability_decisions():
             'low_confidence_count': 0,
             'average_confidence': 0.0,
             'decisions': []
+        }), 500
+
+
+@app.route('/api/ai/abilities', methods=['GET'])
+def get_ai_abilities():
+    """Return runtime status for all advertised AI detection abilities.
+
+    This powers the dashboard's "18 AI Detection Abilities" status view.
+    """
+    try:
+        return jsonify(pcs_ai.get_ai_abilities_status())
+    except Exception as e:
+        logger.error(f"[API] AI abilities status error: {e}")
+        return jsonify({
+            'error': str(e),
+            'total': 0,
+            'enabled': 0,
+            'disabled': 0,
+            'abilities': {}
         }), 500
 
 

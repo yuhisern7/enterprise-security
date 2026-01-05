@@ -200,17 +200,43 @@ class AdvancedOrchestration:
     - Training data export to ai_training_materials
     """
     
-    def __init__(self, export_dir: str = "relay/ai_training_materials/orchestration_data"):
+    def __init__(self, export_dir: Optional[str] = None):
         """
         Initialize orchestration engine.
         
         Args:
-            export_dir: Directory for training data export
+            export_dir: Directory for training data export. If not provided,
+                a sensible default is chosen based on the runtime environment.
         """
+        # Determine base directory for JSON storage (Docker vs local dev)
+        if os.path.exists('/app'):
+            self.base_dir = '/app'
+        else:
+            self.base_dir = os.path.abspath(
+                os.path.join(os.path.dirname(__file__), '..', 'server')
+            )
+
+        # Determine export directory for training materials
+        if export_dir is None:
+            if os.path.exists('/app'):
+                export_dir = "/app/relay/ai_training_materials/orchestration_data"
+            else:
+                export_dir = os.path.abspath(
+                    os.path.join(
+                        os.path.dirname(__file__),
+                        '..',
+                        'relay',
+                        'ai_training_materials',
+                        'orchestration_data',
+                    )
+                )
+
         self.export_dir = export_dir
-        os.makedirs(export_dir, exist_ok=True)
-        os.makedirs("server/json/predictions", exist_ok=True)
-        os.makedirs("server/json/responses", exist_ok=True)
+
+        # Ensure directories exist (cross-platform, Docker-safe)
+        os.makedirs(self.export_dir, exist_ok=True)
+        os.makedirs(os.path.join(self.base_dir, 'json', 'predictions'), exist_ok=True)
+        os.makedirs(os.path.join(self.base_dir, 'json', 'responses'), exist_ok=True)
         
         # Alert rules
         self.alert_rules: Dict[str, AlertRule] = {}
@@ -919,8 +945,10 @@ class AdvancedOrchestration:
     
     def _export_response(self, response: IncidentResponse):
         """Export response to files."""
-        # Server path
-        server_path = f"server/json/responses/{response.response_id}.json"
+        # Server-local JSON for dashboard / audit trail
+        responses_dir = os.path.join(self.base_dir, 'json', 'responses')
+        os.makedirs(responses_dir, exist_ok=True)
+        server_path = os.path.join(responses_dir, f"{response.response_id}.json")
         with open(server_path, 'w') as f:
             json.dump(asdict(response), f, indent=2)
         
@@ -941,8 +969,10 @@ class AdvancedOrchestration:
             "edges": [asdict(e) for e in self.topology_edges]
         }
         
-        # Export for visualization
-        viz_path = "server/json/network_topology.json"
+        # Export for visualization (server-local JSON)
+        topology_dir = os.path.join(self.base_dir, 'json')
+        os.makedirs(topology_dir, exist_ok=True)
+        viz_path = os.path.join(topology_dir, 'network_topology.json')
         with open(viz_path, 'w') as f:
             json.dump(topology_data, f, indent=2)
         
