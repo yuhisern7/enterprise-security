@@ -96,6 +96,7 @@ class BehavioralHeuristics:
             os.path.dirname(__file__), '..', 'server'
         )
         self.storage_dir = storage_dir or os.path.join(base_dir, 'json')
+        os.makedirs(self.storage_dir, exist_ok=True)
         self.metrics_file = os.path.join(self.storage_dir, 'behavioral_metrics.json')
         
         # Entity tracking

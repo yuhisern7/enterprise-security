@@ -2505,6 +2505,13 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
                 logger.info(f"[RELAY] ✅ Sent threat to relay: {threat_type} from {ip_address}")
             except Exception as e:
                 logger.warning(f"[RELAY] Failed to send threat to relay: {e}")
+
+        # 📢 ALERTING: Trigger email/SMS alerts for high-severity threats
+        try:
+            from AI.alert_system import alert_system
+            alert_system.send_alert_for_threat(event, min_severity=os.getenv('ALERT_MIN_SEVERITY', 'CRITICAL'))
+        except Exception as e:
+            logger.warning(f"[ALERT] Failed to send alert for threat: {e}")
     else:
         _peer_threats.append(event)  # Peer threats (AI training only)
         # Keep only last 500 peer events in memory

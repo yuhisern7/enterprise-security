@@ -131,6 +131,7 @@
       </div>
     </header>
     
+    
     <!-- FEATURE REGISTRY - Complete Feature List (Expandable) -->
     <div id="featureRegistry" style="background: linear-gradient(135deg, #1a1e2e, #151b2c); border-bottom: 2px solid #5fe2ff; padding: 0; max-width: 1400px; margin: 0 auto; overflow: hidden; transition: max-height 0.3s ease;">
       <div onclick="toggleFeatureRegistry()" style="padding: 0.75rem 2rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: rgba(95, 226, 255, 0.05);">
@@ -792,6 +793,36 @@
         </p>
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.75rem; margin-top: 1.5rem;">
+          <!-- AI Abilities Health Card -->
+          <div style="background: rgba(95, 255, 159, 0.12); padding: 1rem; border-radius: 8px; border-left: 4px solid #5fff9f; position: relative; overflow: hidden;">
+            <h3 style="margin: 0 0 0.5rem; color: #5fff9f; font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem;">
+              <span>💚 AI Abilities Health</span>
+            </h3>
+            {% if ai_abilities %}
+            <div style="font-size: 0.85rem; line-height: 1.7; color: #a9b3d4;">
+              <div style="font-size: 1.4rem; font-weight: 700; color: #5fff9f;">
+                {{ ai_abilities.enabled }}/{{ ai_abilities.total }} <span style="font-size: 0.75rem; color: #9fffcf;">abilities active</span>
+              </div>
+              {% if ai_abilities.disabled > 0 %}
+              <div style="margin-top: 0.25rem; color: #ffb85f; font-size: 0.8rem;">
+                ⚠️ {{ ai_abilities.disabled }} optional module(s) disabled (missing libraries or enterprise features)
+              </div>
+              {% else %}
+              <div style="margin-top: 0.25rem; color: #5fff9f; font-size: 0.8rem;">
+                ✅ All advertised AI abilities are active in this environment
+              </div>
+              {% endif %}
+              <button onclick="toggleFeatureRegistry(); document.getElementById('featureRegistry').scrollIntoView({behavior: 'smooth'});" style="margin-top: 0.6rem; padding: 0.45rem 0.9rem; font-size: 0.8rem; background: linear-gradient(135deg, #5fff9f, #5fe2ff); color: #0b1020; border-radius: 999px; border: none; cursor: pointer;">
+                🔍 View 18 AI Abilities Registry
+              </button>
+            </div>
+            {% else %}
+            <p class="muted" style="margin: 0; font-size: 0.8rem;">
+              AI abilities status will appear here when the engine is initialized.
+            </p>
+            {% endif %}
+          </div>
+
           <!-- Core AI Sections -->
           <div style="background: rgba(95, 255, 159, 0.1); padding: 1rem; border-radius: 8px; border-left: 4px solid #5fff9f;">
             <h3 style="margin: 0 0 0.5rem; color: #5fff9f; font-size: 0.95rem;">🧠 Core AI Intelligence</h3>
@@ -3262,6 +3293,11 @@
               <div class="stat-label">⚠️ Policy Violations</div>
               <div class="stat-value" id="zt-violations">--</div>
             </div>
+            <div class="stat-card">
+              <div class="stat-label">🧩 High-Risk Entities</div>
+              <div class="stat-value" id="behavior-high-risk">--</div>
+              <div class="muted">Behavioral heuristics engine</div>
+            </div>
           </div>
           
           <p class="muted" style="margin-top: 1.5rem;"><strong>🔐 Conditional Access Policies</strong></p>
@@ -3701,6 +3737,10 @@
           <div class="stat-card success">
             <div class="stat-label">✅ Patches Available</div>
             <div class="stat-value" id="patches-available">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">📊 Total Vulnerabilities</div>
+            <div class="stat-value" id="vuln-total">--</div>
           </div>
         </div>
         
@@ -5940,6 +5980,7 @@
         loadCloudSecurityPosture();
         loadDataLossPrevention();
         loadBackupRecovery();
+        loadSpecializedHealth();
         
         // Load Phase 4 & Phase 7 sections
         loadAttackChainVisualization();
@@ -5980,12 +6021,82 @@
         setInterval(loadCloudSecurityPosture, 30000);
         setInterval(loadDataLossPrevention, 30000);
         setInterval(loadBackupRecovery, 30000);
+        setInterval(loadSpecializedHealth, 30000);
         // Refresh Phase 4 & Phase 7 every 15 seconds
         setInterval(loadAttackChainVisualization, 15000);
         setInterval(loadDecisionExplainability, 15000);
         // Refresh Section 31: Governance every 10 seconds
         setInterval(loadGovernanceControls, 10000);
       });
+
+      async function loadSpecializedHealth() {
+        try {
+          // Backup resilience
+          try {
+            const resBackup = await fetch('/api/backup/resilience');
+            const backupData = await resBackup.json();
+            const el = document.getElementById('backup-resilience');
+            if (el && backupData && typeof backupData.resilience_score !== 'undefined') {
+              el.textContent = backupData.resilience_score;
+            }
+          } catch (e) {
+            console.error('Error loading backup resilience:', e);
+          }
+
+          // Vulnerability stats
+          try {
+            const resVuln = await fetch('/api/vulnerabilities/scan');
+            const vulnData = await resVuln.json();
+            const el = document.getElementById('vuln-total');
+            if (el && vulnData) {
+              const total = (vulnData.total_vulnerabilities != null)
+                ? vulnData.total_vulnerabilities
+                : ((vulnData.system_vulnerabilities || 0) + (vulnData.dependency_vulnerabilities || 0));
+              el.textContent = total;
+            }
+          } catch (e) {
+            console.error('Error loading vulnerability stats:', e);
+          }
+
+          // Zero Trust violations
+          try {
+            const resZT = await fetch('/api/zero-trust/violations');
+            const ztData = await resZT.json();
+            const el = document.getElementById('zt-violations');
+            if (el && ztData) {
+              el.textContent = ztData.count != null ? ztData.count : (ztData.violations ? ztData.violations.length : 0);
+            }
+          } catch (e) {
+            console.error('Error loading zero trust violations:', e);
+          }
+
+          // Behavioral heuristics
+          try {
+            const resBehavior = await fetch('/api/behavioral/stats');
+            const behaviorData = await resBehavior.json();
+            const el = document.getElementById('behavior-high-risk');
+            if (el && behaviorData) {
+              el.textContent = behaviorData.high_risk_entities != null ? behaviorData.high_risk_entities : 0;
+            }
+          } catch (e) {
+            console.error('Error loading behavioral stats:', e);
+          }
+
+          // File analyzer stats (sandbox detonation)
+          try {
+            const resFiles = await fetch('/api/sandbox/stats');
+            const fileData = await resFiles.json();
+            const el = document.getElementById('sandbox-analyzed');
+            if (el && fileData && typeof fileData.analyzed !== 'undefined') {
+              el.textContent = fileData.analyzed;
+            }
+          } catch (e) {
+            console.error('Error loading file analysis stats:', e);
+          }
+        } catch (error) {
+          console.error('Error loading specialized security health:', error);
+        }
+      }
 
       
       function layoutTopology(nodes) {

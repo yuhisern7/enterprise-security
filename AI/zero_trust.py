@@ -20,10 +20,12 @@ class ZeroTrustMonitor:
     def __init__(self):
         # Use /app in Docker, ./server/json outside Docker
         base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
-        self.trust_file = os.path.join(base_dir, 'json', 'zero_trust.json')
-        self.policies_file = os.path.join(base_dir, 'json', 'conditional_access.json')
-        self.dlp_file = os.path.join(base_dir, 'json', 'dlp_events.json')
-        self.data_classification_file = os.path.join(base_dir, 'json', 'data_classification.json')
+        json_dir = os.path.join(base_dir, 'json')
+        os.makedirs(json_dir, exist_ok=True)
+        self.trust_file = os.path.join(json_dir, 'zero_trust.json')
+        self.policies_file = os.path.join(json_dir, 'conditional_access.json')
+        self.dlp_file = os.path.join(json_dir, 'dlp_events.json')
+        self.data_classification_file = os.path.join(json_dir, 'data_classification.json')
         
         self.trust_scores = self.load_trust_scores()
         self.policies = self.load_policies()
@@ -117,21 +119,26 @@ class ZeroTrustMonitor:
         violations = []
         
         # Check for excessive permissions (simplified)
-        try:
-            # Check sudo access
-            result = subprocess.run(['getent', 'group', 'sudo'], 
-                                  capture_output=True, text=True, timeout=2)
-            if result.returncode == 0:
-                sudo_users = result.stdout.split(':')[-1].strip().split(',')
-                if len(sudo_users) > 3:  # More than 3 sudo users is risky
-                    violations.append({
-                        'type': 'excessive_sudo_access',
-                        'severity': 'medium',
-                        'description': f'{len(sudo_users)} users have sudo access',
-                        'recommendation': 'Reduce sudo user count to minimum required'
-                    })
-        except:
-            pass
+        if platform.system() == 'Linux' and shutil.which('getent'):
+            try:
+                # Check sudo access
+                result = subprocess.run(
+                    ['getent', 'group', 'sudo'],
+                    capture_output=True,
+                    text=True,
+                    timeout=2
+                )
+                if result.returncode == 0:
+                    sudo_users = result.stdout.split(':')[-1].strip().split(',')
+                    if len(sudo_users) > 3:  # More than 3 sudo users is risky
+                        violations.append({
+                            'type': 'excessive_sudo_access',
+                            'severity': 'medium',
+                            'description': f'{len(sudo_users)} users have sudo access',
+                            'recommendation': 'Reduce sudo user count to minimum required'
+                        })
+            except Exception:
+                pass
         
         return violations
     
@@ -199,16 +206,22 @@ class ZeroTrustMonitor:
         """Monitor for potential data exfiltration attempts"""
         exfiltration_attempts = []
         
-        try:
-            # Check for large outbound connections
-            result = subprocess.run(['ss', '-tupan'], capture_output=True, text=True, timeout=3)
-            if result.returncode == 0:
-                for line in result.stdout.split('\n'):
-                    # Look for unusual outbound connections
-                    # In production: correlate with traffic volumes, destinations, protocols
-                    pass
-        except Exception as e:
-            print(f"[DLP] Exfiltration monitoring error: {e}")
+        if platform.system() == 'Linux' and shutil.which('ss'):
+            try:
+                # Check for large outbound connections
+                result = subprocess.run(
+                    ['ss', '-tupan'],
+                    capture_output=True,
+                    text=True,
+                    timeout=3
+                )
+                if result.returncode == 0:
+                    for line in result.stdout.split('\n'):
+                        # Look for unusual outbound connections
+                        # In production: correlate with traffic volumes, destinations, protocols
+                        pass
+            except Exception as e:
+                print(f"[DLP] Exfiltration monitoring error: {e}")
         
         return exfiltration_attempts
     

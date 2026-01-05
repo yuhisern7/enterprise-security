@@ -115,16 +115,16 @@ Suggested improvement order (next targets first):
 
 ## Specialized Security Modules
 
-- [ ] AI/backup_recovery.py — Backup integrity and recovery checks
-- [ ] AI/file_analyzer.py — File scanning and analysis
-- [ ] AI/vulnerability_manager.py — Vulnerability and supply-chain management
-- [ ] AI/zero_trust.py — Zero Trust policies and enforcement
-- [ ] AI/behavioral_heuristics.py — Behavioral heuristic detection
+- [x] AI/backup_recovery.py — Backup integrity and recovery checks
+- [x] AI/file_analyzer.py — File scanning and analysis
+- [x] AI/vulnerability_manager.py — Vulnerability and supply-chain management
+- [x] AI/zero_trust.py — Zero Trust policies and enforcement
+- [x] AI/behavioral_heuristics.py — Behavioral heuristic detection
 
 ## Dashboard & Front-End
 
-- [ ] AI/inspector_ai_monitoring.html — Inspector dashboard (frontend for all AI modules)
-- [ ] AI/swagger_ui.html — API documentation UI
+- [x] AI/inspector_ai_monitoring.html — Inspector dashboard (frontend for all AI modules)
+- [x] AI/swagger_ui.html — API documentation UI
 
 ---
 

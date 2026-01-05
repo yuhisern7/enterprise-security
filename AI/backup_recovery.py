@@ -22,8 +22,10 @@ class BackupRecoveryMonitor:
     def __init__(self):
         # Use /app in Docker, ./server/json outside Docker
         base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
-        self.backup_file = os.path.join(base_dir, 'json', 'backup_status.json')
-        self.recovery_file = os.path.join(base_dir, 'json', 'recovery_tests.json')
+        json_dir = os.path.join(base_dir, 'json')
+        os.makedirs(json_dir, exist_ok=True)
+        self.backup_file = os.path.join(json_dir, 'backup_status.json')
+        self.recovery_file = os.path.join(json_dir, 'recovery_tests.json')
         
         self.backup_jobs = self.load_backup_jobs()
         self.recovery_tests = self.load_recovery_tests()
@@ -181,7 +183,12 @@ class BackupRecoveryMonitor:
         }
     
     def test_backup_restore(self, backup_id: str) -> Dict:
-        """Simulate backup restore test"""
+        """Simulate backup restore test (non-destructive dry-run).
+
+        This does not modify real backup systems; it records a structured
+        "would-run" test so the dashboard can verify that restore workflows
+        are being exercised.
+        """
         test_result = {
             'backup_id': backup_id,
             'tested_at': datetime.now().isoformat(),
@@ -189,7 +196,8 @@ class BackupRecoveryMonitor:
             'recovery_time_hours': 2.5,  # Simulated
             'data_loss_hours': 0.5,  # Simulated
             'verified_files': 0,
-            'corrupted_files': 0
+            'corrupted_files': 0,
+            'mode': 'simulation'
         }
         
         self.recovery_tests.append(test_result)

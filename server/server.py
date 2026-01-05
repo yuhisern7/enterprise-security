@@ -3117,6 +3117,16 @@ def test_backup_restore():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+@app.route('/api/behavioral/stats', methods=['GET'])
+def get_behavioral_stats():
+    """Get behavioral heuristics statistics"""
+    try:
+        from AI.behavioral_heuristics import get_stats as get_behavior_stats
+        return jsonify(get_behavior_stats())
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 # ============================================================================
 # MAIN APPLICATION ENTRY POINT
 # ============================================================================

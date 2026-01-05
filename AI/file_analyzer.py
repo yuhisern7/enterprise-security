@@ -19,7 +19,9 @@ class FileAnalyzer:
     def __init__(self):
         # Use /app in Docker, ./server/json outside Docker
         base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
-        self.analysis_log = os.path.join(base_dir, 'json', 'file_analysis.json')
+        json_dir = os.path.join(base_dir, 'json')
+        os.makedirs(json_dir, exist_ok=True)
+        self.analysis_log = os.path.join(json_dir, 'file_analysis.json')
         self.stats = {
             'analyzed': 0,
             'malicious': 0,
