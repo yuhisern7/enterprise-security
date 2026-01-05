@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 echo "🔐 Enterprise Security - HTTPS Server Starting..."
 

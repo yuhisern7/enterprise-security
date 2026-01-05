@@ -3,7 +3,8 @@ services:
     build:
       context: ..
       dockerfile: server/Dockerfile
-    container_name: enterprise-security-ai
+    image: battle-hardened-ai
+    container_name: battle-hardened-ai
     # Windows uses bridge mode (host mode doesn't work on Windows)
     # This limits network scanning to Docker network only
     privileged: true

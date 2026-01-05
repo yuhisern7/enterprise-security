@@ -1,0 +1,32 @@
+[
+  {
+    "timestamp": "2026-01-06T03:24:15.969861",
+    "stats": {
+      "total_detections": 2,
+      "cpu_spikes": 2,
+      "mining_connections": 0,
+      "miner_processes": 0,
+      "high_cpu_processes": [
+        {
+          "pid": 62,
+          "process": "gunicorn",
+          "cpu_percent": 161.9,
+          "memory_percent": 7.3,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:24:15.959131"
+        },
+        {
+          "pid": 63,
+          "process": "gunicorn",
+          "cpu_percent": 143.2,
+          "memory_percent": 7.4,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:24:15.960082"
+        }
+      ],
+      "mining_traffic": [],
+      "detected_miners": [],
+      "risk_level": "low"
+    }
+  }
+]

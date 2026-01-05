@@ -202,5 +202,25 @@
     "open_ports": [],
     "last_seen": "2026-01-03T23:27:21.331895",
     "first_seen": "2026-01-03T23:27:21.331907"
+  },
+  "9a:4b:bf:43:84:e1": {
+    "ip": "172.18.0.1",
+    "mac": "9a:4b:bf:43:84:e1",
+    "type": "iPhone/iPad (Private MAC)",
+    "vendor": "Apple (Randomized)",
+    "hostname": "iPhone-1",
+    "open_ports": [],
+    "last_seen": "2026-01-06T03:21:11.129767",
+    "first_seen": "2026-01-06T03:21:11.129783"
+  },
+  "a6:07:a8:5e:0c:6d": {
+    "ip": "172.18.0.1",
+    "mac": "a6:07:a8:5e:0c:6d",
+    "type": "iPhone/iPad (Private MAC)",
+    "vendor": "Apple (Randomized)",
+    "hostname": "iPhone-1",
+    "open_ports": [],
+    "last_seen": "2026-01-06T03:25:33.369628",
+    "first_seen": "2026-01-06T03:25:33.369644"
   }
 }

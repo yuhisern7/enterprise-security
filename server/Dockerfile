@@ -44,9 +44,9 @@ COPY server/report_generator.py .
 RUN mkdir -p json
 COPY server/json/ json/
 
-# Copy entrypoint script
+# Copy entrypoint script and normalize line endings for Linux
 COPY server/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN sed -i 's/\r$//' /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 # Generate self-signed SSL certificate for encrypted P2P communication
 RUN mkdir -p /app/ssl && \

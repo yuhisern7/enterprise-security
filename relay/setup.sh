@@ -38,6 +38,7 @@ if command -v ufw &> /dev/null; then
     # CRITICAL: Allow SSH first to prevent lockout!
     ufw allow 22/tcp comment 'SSH Access'
     ufw allow 60001/tcp comment 'WebSocket Relay'
+    ufw allow 60002/tcp comment 'Model Distribution API'
     
     # Check if UFW is already enabled
     if ufw status | grep -q "Status: active"; then
@@ -49,6 +50,7 @@ if command -v ufw &> /dev/null; then
     fi
 elif command -v firewall-cmd &> /dev/null; then
     firewall-cmd --permanent --add-port=60001/tcp
+    firewall-cmd --permanent --add-port=60002/tcp
     firewall-cmd --reload
     echo "✅ Firewalld configured"
 else

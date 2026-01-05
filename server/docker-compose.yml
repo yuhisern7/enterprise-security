@@ -3,7 +3,8 @@ services:
     build:
       context: ..
       dockerfile: server/Dockerfile
-    container_name: enterprise-security-ai
+    image: battle-hardened-ai
+    container_name: battle-hardened-ai
     network_mode: host   # Required for eBPF/XDP to see real traffic
     pid: host            # Required for syscall ↔ process correlation
     
