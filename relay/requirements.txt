@@ -7,9 +7,6 @@ websockets==12.0
 flask==3.0.0
 flask-cors==4.0.0
 
-# Database (PostgreSQL for attack signatures)
-psycopg2-binary==2.9.9
-
 # Machine learning (for training on relay server)
 scikit-learn==1.3.2
 numpy==1.26.2

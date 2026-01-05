@@ -7,7 +7,7 @@ Data Flow:
 1. pcs_ai.py extracts signature from detected attack
 2. Payload is DELETED immediately
 3. upload_signature() sends ONLY pattern to relay
-4. Relay stores in PostgreSQL database
+4. Relay stores signatures in file-based JSON (no SQL database)
 5. Node receives confirmation
 
 Privacy Guarantee:

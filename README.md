@@ -158,7 +158,7 @@
 - Deception tech (honeytokens, attacker profiling)
 
 ### **Persistent Intelligence**
-- Historical reputation (SQLite/PostgreSQL)
+- Historical reputation (SQLite/file-based storage)
 - Cross-session memory, recidivism detection (94% accuracy)
 - Geolocation-aware risk profiles (ASN + country + region)
 - Reputation decay algorithm
@@ -264,7 +264,6 @@ relay/
 **Services:**
 - Port 60001: WebSocket relay (P2P mesh hub)
 - Port 60002: Model distribution API
-- Port 5432: PostgreSQL (attack signatures)
 
 **Environment:** Uses `relay/.env`
 
@@ -293,7 +292,6 @@ server/
 ```env
 RELAY_PORT=60001        # WebSocket P2P mesh
 API_PORT=60002          # Model distribution
-DB_PASSWORD=...         # PostgreSQL password
 CRYPTO_ENABLED=true     # Message verification
 ```
 
