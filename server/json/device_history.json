@@ -232,5 +232,15 @@
     "open_ports": [],
     "last_seen": "2026-01-06T05:55:26.366240",
     "first_seen": "2026-01-06T04:38:57.294999"
+  },
+  "0e:b3:4e:87:04:19": {
+    "ip": "172.18.0.1",
+    "mac": "0e:b3:4e:87:04:19",
+    "type": "iPhone/iPad (Private MAC)",
+    "vendor": "Apple (Randomized)",
+    "hostname": "iPhone-1",
+    "open_ports": [],
+    "last_seen": "2026-01-06T06:20:32.020535",
+    "first_seen": "2026-01-06T06:00:05.795130"
   }
 }

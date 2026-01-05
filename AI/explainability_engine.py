@@ -995,6 +995,18 @@ def get_explainability_engine() -> ExplainabilityEngine:
     return _engine_instance
 
 
+def create_explanation(ensemble_decision: Dict[str, Any],
+                       signals: List[Dict[str, Any]],
+                       level: ExplanationLevel = ExplanationLevel.STANDARD) -> DecisionBreakdown:
+    """Convenience wrapper used by the core engine.
+
+    This keeps the public API stable (`create_explanation`) while routing all
+    work through the singleton ExplainabilityEngine instance.
+    """
+    engine = get_explainability_engine()
+    return engine.explain_decision(ensemble_decision, signals, level=level)
+
+
 def get_recent_explanations(limit: int = 15) -> List[Dict[str, Any]]:
     """Get recent decision explanations in dashboard-friendly format.
 

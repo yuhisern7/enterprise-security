@@ -4964,7 +4964,9 @@ def get_explainability_decisions() -> dict:
 def get_byzantine_defense_stats() -> Dict:
     """Get Byzantine-resilient federated learning statistics."""
     try:
-        from byzantine_federated_learning import get_byzantine_defender
+        # Import via the AI package so this works consistently in Docker
+        # and on bare metal.
+        from AI.byzantine_federated_learning import get_byzantine_defender
         defender = get_byzantine_defender()
         return defender.get_stats()
     except Exception as e:

@@ -201,6 +201,18 @@ class SystemLogCollector:
         if not self.enabled:
             return self._empty_logs("System log collection disabled by SYSTEM_LOG_COLLECTION_ENABLED=false")
 
+        # If this node is not actually running on Windows (for example, a Linux
+        # Docker container on a Windows host), we cannot access the local
+        # Windows Event Log APIs from here. In that case, return a clear
+        # informational message instead of trying to launch the `powershell`
+        # binary and surfacing a confusing FileNotFoundError in the UI.
+        if self.os_type != 'Windows':
+            return self._empty_logs(
+                f"Windows event log collection is only available when this node runs directly on Windows. "
+                f"Current OS: {self.os_type}. If you're running inside a Linux container on Windows, "
+                f"the Windows tab is informational only."
+            )
+
         logs = {
             "crashes": [],
             "security": [],

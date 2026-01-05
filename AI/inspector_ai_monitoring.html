@@ -4172,6 +4172,12 @@
                 <div class="muted">All logged events</div>
               </div>
             </div>
+            <p class="muted" style="margin-top: 1rem; font-size: 0.8rem; color: #8a92b6;">
+              ℹ️ When this node runs inside a Linux Docker container on a Windows host, the backend cannot
+              access the local Windows Event Viewer (no <code>powershell</code>/<code>wevtutil</code> inside the container).
+              In that mode this tab is informational only. To see real Windows events here, run the
+              security engine directly on a Windows host with system log collection enabled.
+            </p>
             
             <p class="muted" style="margin-top: 1.5rem;"><strong>🚨 Recent Windows Events</strong></p>
             <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; border: 1px solid #2a3548; margin-top: 1rem;">
