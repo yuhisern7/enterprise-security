@@ -4,6 +4,24 @@
 
 ---
 
+## 🗄️ Data Residency & Privacy Model
+
+- **Customer JSON stays on the customer node.**
+  - Runtime data (threat_log.json, decision_history.json, forensic_reports, network_graph.json, honeypot logs, etc.) is stored under `server/json/` when run natively.
+  - In Docker, this is mounted as `/app/json` from the same `server/json/` directory.
+  - This data is **not automatically sent to any third-party cloud service.**
+- **Relay runs on *your* VPS (your cloud), not ours.**
+  - The `relay/` folder is deployed only on infrastructure you control (your VPS/cloud).
+  - Customers receive only `server/` + `AI/`; they do **not** receive or run `relay/`.
+- **Optional training sync is one-way and controlled.**
+  - If enabled, selected and optionally anonymized training summaries can be pushed **from** a customer node **to your relay** using the sync client.
+  - Updated models and signatures flow back **from your relay to customer nodes**; raw customer JSON logs are not pulled up by default.
+- **No hidden telemetry.**
+  - All external communication is via explicit components (`AI/relay_client.py`, `AI/central_sync.py`, relay APIs).
+  - If you do not configure a relay URL / enable sync, the system operates entirely on local data.
+
+---
+
 ## 🧠 AI DETECTION CAPABILITIES (18 Active Signals)
 
 | Signal | Capability | Accuracy | Type |

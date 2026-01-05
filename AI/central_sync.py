@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 """
 Central Server Sync Client
-Sends local threats to central server and receives global threat feed
+Sends **sanitized local threat summaries** to an operator-controlled
+central server (for example, your own VPS/relay in the cloud) and
+receives a global threat feed for enrichment.
+
+This client is intentionally limited: it does not stream full raw JSON
+log files or packet payloads, only the minimal fields defined in
+``add_threat`` (IP, attack type, severity, tool label, coarse geo/ASN,
+timestamp), preserving the "JSON stays on the customer node" model.
 """
 
 import os
@@ -27,10 +34,13 @@ class CentralServerSync:
         self.api_key = os.getenv('CENTRAL_SERVER_API_KEY', '')
         self.sync_enabled = os.getenv('SYNC_ENABLED', 'false').lower() == 'true'
         self.sync_interval = int(os.getenv('SYNC_INTERVAL', '300'))  # 5 minutes default
+        # Allow operators to enable strict TLS verification for production
+        self.verify_tls = os.getenv('CENTRAL_VERIFY_TLS', 'false').lower() == 'true'
         
         self.local_threats_queue = []
         self.last_sync_time = None
         self.global_threats_cache = []
+        self._lock = threading.Lock()
         
         self.sync_thread = None
         self.running = False
@@ -76,11 +86,11 @@ class CentralServerSync:
             'asn': threat.get('asn')
         }
         
-        self.local_threats_queue.append(safe_threat)
-        
-        # Limit queue size
-        if len(self.local_threats_queue) > 1000:
-            self.local_threats_queue = self.local_threats_queue[-1000:]
+        with self._lock:
+            self.local_threats_queue.append(safe_threat)
+            # Limit queue size
+            if len(self.local_threats_queue) > 1000:
+                self.local_threats_queue = self.local_threats_queue[-1000:]
     
     def _sync_loop(self):
         """Background sync loop"""
@@ -103,13 +113,13 @@ class CentralServerSync:
     
     def _upload_threats(self):
         """Upload local threats to central server"""
-        if not self.local_threats_queue:
-            return
-        
-        try:
+        with self._lock:
+            if not self.local_threats_queue:
+                return
             # Prepare batch
             batch = self.local_threats_queue[:100]  # Upload max 100 at a time
-            
+        
+        try:
             response = requests.post(
                 f"{self.server_url}/api/v1/submit-threats",
                 headers={
@@ -117,13 +127,15 @@ class CentralServerSync:
                     'Content-Type': 'application/json'
                 },
                 json={'threats': batch},
-                verify=False,  # Accept self-signed certs
+                # Accept self-signed certs by default; can be hardened via CENTRAL_VERIFY_TLS=true
+                verify=self.verify_tls,
                 timeout=30
             )
             
             if response.status_code == 200:
                 # Remove uploaded threats
-                self.local_threats_queue = self.local_threats_queue[100:]
+                with self._lock:
+                    self.local_threats_queue = self.local_threats_queue[100:]
                 logger.info(f"Uploaded {len(batch)} threats to central server")
             else:
                 logger.error(f"Failed to upload threats: {response.status_code} - {response.text}")
@@ -149,7 +161,7 @@ class CentralServerSync:
                 f"{self.server_url}/api/v1/get-threats",
                 headers={'X-API-Key': self.api_key},
                 params=params,
-                verify=False,
+                verify=self.verify_tls,
                 timeout=30
             )
             
@@ -192,7 +204,7 @@ class CentralServerSync:
             response = requests.get(
                 f"{self.server_url}/api/v1/threat-patterns",
                 headers={'X-API-Key': self.api_key},
-                verify=False,
+                verify=self.verify_tls,
                 timeout=10
             )
             
@@ -214,17 +226,19 @@ class CentralServerSync:
             response = requests.get(
                 f"{self.server_url}/api/v1/stats",
                 headers={'X-API-Key': self.api_key},
-                verify=False,
+                verify=self.verify_tls,
                 timeout=10
             )
             
             if response.status_code == 200:
                 return response.json()
-            
+            return {
+                'sync_enabled': True,
+                'error': f"HTTP {response.status_code} while getting stats"
+            }
         except Exception as e:
             logger.error(f"Error getting stats: {e}")
-        
-        return {'error': str(e)}
+            return {'sync_enabled': True, 'error': str(e)}
     
     def health_check(self) -> bool:
         """Check if central server is reachable"""
@@ -234,7 +248,7 @@ class CentralServerSync:
         try:
             response = requests.get(
                 f"{self.server_url}/health",
-                verify=False,
+                verify=self.verify_tls,
                 timeout=5
             )
             return response.status_code == 200

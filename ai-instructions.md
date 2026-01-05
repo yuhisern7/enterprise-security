@@ -106,6 +106,21 @@
      - In Docker this resolves to `/app/ml_models`, which is where the server image copies/uses ML pickles.
    - This fix ensures that models pulled from the relay are actually picked up by the running AI engine without extra path tweaks.
 
+### 0.3 Data Residency & Privacy Guarantees
+
+- **Customer JSON and telemetry stay local by default.**
+  - All runtime JSON (threat logs, device lists, decision history, honeypot logs, graph data, forensic reports, etc.) is written under `server/json/` (or `/app/json/...` inside the server container).
+  - No module silently uploads these JSON files to any third-party cloud service.
+- **Relay is your own VPS/cloud, not a vendor cloud.**
+  - The `relay/` tree is deployed only on infrastructure you operate and control (e.g., your VPS/cloud instance).
+  - Customers receive only `server/` + `AI/`; they do **not** run `relay/` and have no direct access to your relay-side training materials.
+- **Training sync is explicit and limited.**
+  - When enabled, `AI/training_sync_client.py`, `AI/central_sync.py`, and `AI/relay_client.py` send **selected, structured training summaries** (and optionally anonymized features) **from customer nodes to your relay APIs**.
+  - The relay returns updated models/signatures back to the customer nodes; it does not pull full raw JSON logs unless you explicitly implement and enable such behavior.
+- **Auditability and compliance.**
+  - External communication paths are centralized in well-defined modules (relay client/sync code, relay APIs), making them easy to review.
+  - When extending the system, new outbound data flows should follow this pattern and document what leaves the node, to preserve privacy and compliance guarantees.
+
 ---
 
 ## 1. Repository Tree & File Purposes

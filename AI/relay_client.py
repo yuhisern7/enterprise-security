@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 WebSocket Relay Client for Enterprise Security Mesh
-Connects to relay server and shares threats with unlimited peers worldwide
+Connects to an operator-controlled relay server (your VPS/cloud) and
+shares **sanitized threat summaries only** with unlimited peers worldwide
+(no raw JSON logs, packet payloads, or user PII are sent by this client).
 """
 
 import os
