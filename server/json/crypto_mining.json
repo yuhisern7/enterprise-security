@@ -330,5 +330,27 @@
       "detected_miners": [],
       "risk_level": "low"
     }
+  },
+  {
+    "timestamp": "2026-01-06T07:10:22.704423",
+    "stats": {
+      "total_detections": 1,
+      "cpu_spikes": 1,
+      "mining_connections": 0,
+      "miner_processes": 0,
+      "high_cpu_processes": [
+        {
+          "pid": 74,
+          "process": "gunicorn",
+          "cpu_percent": 140.3,
+          "memory_percent": 7.5,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T07:10:22.693192"
+        }
+      ],
+      "mining_traffic": [],
+      "detected_miners": [],
+      "risk_level": "low"
+    }
   }
 ]
