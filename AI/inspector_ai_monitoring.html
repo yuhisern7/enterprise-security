@@ -2652,7 +2652,12 @@
 
       <!-- NEW SECTION: Decision Explainability Panel (Phase 7) -->
       <section style="background: linear-gradient(135deg, #3d1a3d, #2e1a2e); border: 2px solid #ff5fff;">
-        <h2>📍 Section 14 | 🧠 Decision Explainability Engine (Phase 7 - Transparency)</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+          <h2 style="margin: 0;">📍 Section 14 | 🧠 Decision Explainability Engine (Phase 7 - Transparency)</h2>
+          <button onclick="resetForensicReports()" style="padding: 0.45rem 0.9rem; background: linear-gradient(135deg, #ff5fff, #ff5f9f); color: #0b1020; border: none; border-radius: 999px; font-weight: 600; font-size: 0.75rem; cursor: pointer; box-shadow: 0 0 10px rgba(255, 95, 255, 0.4); white-space: nowrap;">
+            🧹 Reset Forensic Reports
+          </button>
+        </div>
         <p class="muted" style="font-size: 0.85rem; margin-top: -0.5rem; color: #ff5fff;">🆕 <strong>NEW FEATURE (Phase 7):</strong> Explains WHY each threat was flagged by AI models</p>
         <p class="muted" style="margin-bottom: 1rem;">
           Full transparency into AI decision-making. See which ML models voted for blocking, what features triggered alerts, and confidence scores for every decision.
@@ -4100,7 +4105,12 @@
         
         <!-- Audit Log Summary -->
         <div style="background: linear-gradient(135deg, #2a1a3d, #1a1a2e); padding: 2rem; border-radius: 12px; border: 2px solid #ff5fff; margin-bottom: 2rem;">
-          <h3 style="margin: 0 0 1.5rem; color: #ff5fff; font-size: 1.3rem;">📋 COMPREHENSIVE AUDIT LOG (Last 7 Days)</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin: 0 0 1.5rem; gap: 1rem;">
+            <h3 style="margin: 0; color: #ff5fff; font-size: 1.3rem;">📋 COMPREHENSIVE AUDIT LOG (Last 7 Days)</h3>
+            <button onclick="resetAuditLog()" style="padding: 0.5rem 1rem; background: linear-gradient(135deg, #ff5fff, #ff5f9f); color: #0b1020; border: none; border-radius: 999px; font-weight: 600; font-size: 0.8rem; cursor: pointer; box-shadow: 0 0 12px rgba(255, 95, 255, 0.4); white-space: nowrap;">
+              🧹 Reset 7-Day Audit Log
+            </button>
+          </div>
           
           <!-- OS Tabs for System Logs -->
           <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #2a1a3d;">
@@ -8024,6 +8034,39 @@
           console.error('Error loading decision explainability:', error);
         }
       }
+
+      async function resetForensicReports() {
+        try {
+          const confirmed = confirm('This will delete all JSON forensic report files and start a fresh set. Continue?');
+          if (!confirmed) {
+            return;
+          }
+
+          const response = await fetch('/api/forensics/reset', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            console.error('Failed to reset forensic reports:', response.status);
+            alert('Failed to reset forensic reports. Check server logs for details.');
+            return;
+          }
+
+          const result = await response.json();
+          if (result.success) {
+            const removed = typeof result.removed !== 'undefined' ? result.removed : 'some';
+            alert('Forensic reports reset. Removed ' + removed + ' JSON file(s).');
+          } else {
+            alert('Failed to reset forensic reports: ' + (result.error || 'unknown error'));
+          }
+        } catch (error) {
+          console.error('Error resetting forensic reports:', error);
+          alert('Unexpected error while resetting forensic reports.');
+        }
+      }
       
       // ========================================================================
       // Section 31: Governance & Emergency Controls (Modules B, C, D, F, G, H, J)
@@ -8193,6 +8236,41 @@
           
         } catch (error) {
           console.error('Error loading governance controls:', error);
+        }
+      }
+
+      async function resetAuditLog() {
+        try {
+          const confirmed = confirm('This will clear the comprehensive audit log JSON and reset the last 7 days view. Continue?');
+          if (!confirmed) {
+            return;
+          }
+
+          const response = await fetch('/api/audit-log/clear', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            console.error('Failed to clear audit log:', response.status);
+            alert('Failed to reset audit log. Check server logs for details.');
+            return;
+          }
+
+          const result = await response.json();
+          if (result.success) {
+            alert('Audit log reset. The dashboard will now show a clean 7-day view.');
+            // Immediately refresh governance controls so the cleared
+            // audit stats and critical events list are reflected.
+            loadGovernanceControls();
+          } else {
+            alert('Failed to reset audit log: ' + (result.error || 'unknown error'));
+          }
+        } catch (error) {
+          console.error('Error resetting audit log:', error);
+          alert('Unexpected error while resetting audit log.');
         }
       }
       

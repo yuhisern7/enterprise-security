@@ -616,6 +616,44 @@ class ComprehensiveAuditLog:
                 "archive_dir": self.archive_dir,
             }
 
+    def reset_log(self) -> Dict:
+        """Clear all audit events and reset the JSON file.
+
+        This preserves the archive directory but makes the main
+        comprehensive_audit.json look like a brand new file so the
+        next events start from a clean slate.
+        """
+        with self.lock:
+            # Reset in-memory state
+            self.event_buffer.clear()
+            self.total_events = 0
+            self.events_by_type = {}
+
+            data = {
+                "events": [],
+                "total_events": 0,
+                "events_by_type": {},
+                "last_updated": datetime.now().isoformat(),
+            }
+
+            try:
+                with open(self.audit_file, "w") as f:
+                    json.dump(data, f, indent=2)
+                logger.info(f"[AUDIT] Audit log reset: {self.audit_file}")
+                return {
+                    "success": True,
+                    "message": "Audit log cleared",
+                    "enabled": self.enabled,
+                    "storage_dir": self.storage_dir,
+                }
+            except Exception as e:
+                logger.error(f"[AUDIT] Failed to reset audit log: {e}")
+                return {
+                    "success": False,
+                    "error": str(e),
+                    "enabled": self.enabled,
+                }
+
 
 # Singleton instances
 _kill_switch: Optional[EmergencyKillSwitch] = None

@@ -26,6 +26,10 @@ server/json/network_monitor_state.json
 server/json/device_history.json
 server/json/connected_devices.json
 
+# All other runtime JSON under server/json (per-section data, behavior, forensics, etc.)
+server/json/*.json
+server/json/**/*.json
+
 # Docker volumes
 docker-volumes/
 

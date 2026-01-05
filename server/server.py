@@ -1346,6 +1346,25 @@ def get_explainability_decisions():
         }), 500
 
 
+@app.route('/api/forensics/reset', methods=['POST'])
+def reset_forensic_reports():
+    """Delete JSON forensic report files while keeping the folder.
+
+    This powers the dashboard's "reset forensic reports" button so
+    operators can clear old explainability forensic JSON data without
+    affecting directory layout or other non-JSON artifacts.
+    """
+    try:
+        from AI.pcs_ai import clear_forensic_reports
+
+        result = clear_forensic_reports()
+        status = 200 if result.get('success') else 500
+        return jsonify(result), status
+    except Exception as e:
+        logger.error(f"[API] Forensics reset error: {e}")
+        return jsonify({'success': False, 'error': str(e), 'removed': 0}), 500
+
+
 @app.route('/api/ai/abilities', methods=['GET'])
 def get_ai_abilities():
     """Return runtime status for all advertised AI detection abilities.
@@ -1455,6 +1474,24 @@ def get_audit_stats():
     except Exception as e:
         logger.error(f"[API] Audit log error: {e}")
         return jsonify({'error': str(e), 'enabled': False}), 500
+
+
+@app.route('/api/audit-log/clear', methods=['POST'])
+def clear_audit_stats():
+    """Clear the comprehensive audit log JSON file.
+
+    Used by Section 31's "Reset Audit Log" button to make the
+    audit history look brand new while keeping directories and
+    archive files intact.
+    """
+    try:
+        from AI.pcs_ai import clear_audit_log
+        result = clear_audit_log()
+        status = 200 if result.get('success') else 500
+        return jsonify(result), status
+    except Exception as e:
+        logger.error(f"[API] Audit log clear error: {e}")
+        return jsonify({'success': False, 'error': str(e), 'enabled': False}), 500
 
 
 @app.route('/api/system-logs/<os_type>', methods=['GET'])

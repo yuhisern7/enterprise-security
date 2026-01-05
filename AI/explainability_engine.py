@@ -176,6 +176,33 @@ class ExplainabilityEngine:
             "what_if_scenarios_run": 0,
             "timelines_reconstructed": 0
         }
+
+    def reset_forensic_reports(self) -> Dict[str, Any]:
+        """Delete all JSON forensic report files but keep the folder.
+
+        This is used by the dashboard "reset forensic reports" control
+        so operators can start a clean set of reports without touching
+        the directory structure or any non-JSON artifacts.
+        """
+        removed = 0
+        errors: List[str] = []
+
+        try:
+            for name in os.listdir(self.forensic_dir):
+                path = os.path.join(self.forensic_dir, name)
+                if os.path.isfile(path) and name.lower().endswith('.json'):
+                    try:
+                        os.remove(path)
+                        removed += 1
+                    except Exception as e:  # pragma: no cover - best effort cleanup
+                        errors.append(f"{name}: {e}")
+        except Exception as e:
+            return {"success": False, "error": str(e), "removed": removed}
+
+        result: Dict[str, Any] = {"success": True, "removed": removed}
+        if errors:
+            result["partial_errors"] = errors
+        return result
     
     def explain_decision(self, ensemble_decision: Dict[str, Any],
                         signals: List[Dict[str, Any]],
