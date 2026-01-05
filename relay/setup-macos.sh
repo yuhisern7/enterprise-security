@@ -76,8 +76,8 @@ mkdir -p ml_models
 echo ""
 echo "📚 Training materials setup (for Premium mode):"
 echo "   To enable Premium mode, upload training data to ai_training_materials/"
-echo "   • Run: cd ../AI && ./setup_exploitdb.sh"
-echo "   • Copy: cp -r exploitdb ../relay/ai_training_materials/"
+echo "   • Run: cd relay && ./setup_exploitdb.sh"
+echo "   • Copy: cp -r exploitdb ai_training_materials/"
 echo ""
 
 # Build and start relay server

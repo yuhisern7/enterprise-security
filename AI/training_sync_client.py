@@ -34,7 +34,9 @@ class TrainingSyncClient:
             relay_url: Relay server URL (e.g., http://vps-ip:60002)
         """
         self.relay_url = relay_url or os.getenv('RELAY_URL', 'http://localhost:60002')
-        self.local_ml_dir = "AI/ml_models"
+        # Store downloaded models where the AI engine expects them (ml_models/)
+        # In Docker this resolves to /app/ml_models, matching pcs_ai._ML_MODELS_DIR.
+        self.local_ml_dir = "ml_models"
 
         # Create local directory for models only
         os.makedirs(self.local_ml_dir, exist_ok=True)
@@ -119,7 +121,7 @@ def main():
         client.get_training_stats()
         client.sync_ml_models()
         logger.info(f"\n✅ ML models synced (280 KB total)")
-        logger.info(f"📍 Models saved to: AI/ml_models/")
+        logger.info(f"📍 Models saved to: ml_models/")
         logger.info(f"🔒 No exploit data downloaded (stays on relay server)")
 
 

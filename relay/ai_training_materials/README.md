@@ -85,9 +85,9 @@ ai_training_materials/
 
 ### Option A: ExploitDB (Automated)
 ```bash
-cd AI/
+cd relay/
 ./setup_exploitdb.sh
-cp -r exploitdb ../relay/ai_training_materials/
+cp -r exploitdb ai_training_materials/
 ```
 
 ### Option B: Custom Dataset (CSV)

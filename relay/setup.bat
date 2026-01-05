@@ -33,7 +33,7 @@ if not exist ml_models mkdir ml_models
 echo.
 echo 📚 Training materials setup (for Premium mode):
 echo    To enable Premium mode, upload training data to ai_training_materials\
-echo    • Run: cd ..\AI ^& setup_exploitdb.sh
+echo    • Run: cd relay ^& setup_exploitdb.sh
 echo    • Copy ExploitDB to ai_training_materials\exploitdb\
 echo.
 

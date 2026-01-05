@@ -77,8 +77,8 @@ echo "   • Global attacks → ai_training_materials/global_attacks.json"
 echo "   • Malware hashes → ai_training_materials/malware_hashes.json"
 echo ""
 echo "   📥 To setup ExploitDB on relay server:"
-echo "   cd ../AI && ./setup_exploitdb.sh"
-echo "   cp -r exploitdb ../relay/ai_training_materials/"
+echo "   cd relay && ./setup_exploitdb.sh"
+echo "   cp -r exploitdb ai_training_materials/"
 echo ""
 
 # Build and start relay server
