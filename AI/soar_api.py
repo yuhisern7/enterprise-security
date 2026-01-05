@@ -15,8 +15,11 @@ class SOARIntegration:
     def __init__(self):
         # Use /app in Docker, ./server/json outside Docker
         base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
-        self.keys_file = os.path.join(base_dir, 'json', 'api_keys.json')
-        self.stats_file = os.path.join(base_dir, 'json', 'api_stats.json')
+        json_dir = os.path.join(base_dir, 'json')
+        # Ensure the JSON directory exists across platforms before writing
+        os.makedirs(json_dir, exist_ok=True)
+        self.keys_file = os.path.join(json_dir, 'api_keys.json')
+        self.stats_file = os.path.join(json_dir, 'api_stats.json')
         self.keys = self.load_keys()
         self.stats = {'total_requests': 0, 'last_request': None}
         self.load_stats()

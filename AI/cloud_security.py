@@ -17,8 +17,11 @@ class CloudSecurityPosture:
     def __init__(self):
         # Use /app in Docker, ./server/json outside Docker
         base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
-        self.config_file = os.path.join(base_dir, 'json', 'cloud_config.json')
-        self.findings_file = os.path.join(base_dir, 'json', 'cloud_findings.json')
+        json_dir = os.path.join(base_dir, 'json')
+        # Ensure the JSON directory exists on all platforms (Linux, Windows, macOS)
+        os.makedirs(json_dir, exist_ok=True)
+        self.config_file = os.path.join(json_dir, 'cloud_config.json')
+        self.findings_file = os.path.join(json_dir, 'cloud_findings.json')
         self.findings = self.load_findings()
         
     def load_findings(self) -> List[Dict]:
@@ -27,8 +30,8 @@ class CloudSecurityPosture:
             if os.path.exists(self.findings_file):
                 with open(self.findings_file, 'r') as f:
                     return json.load(f)
-        except:
-            pass
+        except Exception as e:
+            print(f"[CLOUD] Load error: {e}")
         return []
     
     def save_findings(self):
@@ -162,20 +165,31 @@ class CloudSecurityPosture:
         
         # Check AWS IAM (if available)
         try:
-            result = subprocess.run(['aws', 'iam', 'list-users'], 
-                                  capture_output=True, text=True, timeout=10)
-            if result.returncode == 0:
-                data = json.loads(result.stdout)
-                for user in data.get('Users', [])[:10]:
-                    issues.append({
-                        'cloud': 'AWS',
-                        'identity': user['UserName'],
-                        'type': 'IAM User',
-                        'risk': 'Review attached policies',
-                        'severity': 'medium',
-                        'created_date': user.get('CreateDate', 'unknown')
-                    })
-        except:
+            if shutil.which('aws'):
+                result = subprocess.run(['aws', 'iam', 'list-users'], 
+                                      capture_output=True, text=True, timeout=10)
+                if result.returncode == 0:
+                    data = json.loads(result.stdout)
+                    for user in data.get('Users', [])[:10]:
+                        issues.append({
+                            'cloud': 'AWS',
+                            'identity': user['UserName'],
+                            'type': 'IAM User',
+                            'risk': 'Review attached policies',
+                            'severity': 'medium',
+                            'created_date': user.get('CreateDate', 'unknown')
+                        })
+            else:
+                issues.append({
+                    'cloud': 'AWS',
+                    'identity': 'N/A',
+                    'type': 'CLI Dependency',
+                    'risk': 'AWS CLI not installed',
+                    'severity': 'info',
+                    'created_date': datetime.now().isoformat()
+                })
+        except Exception:
+            # Swallow detailed CLI errors to keep the module non-fatal across platforms
             pass
         
         return issues
@@ -186,19 +200,20 @@ class CloudSecurityPosture:
         
         # AWS S3 encryption check (example)
         try:
-            result = subprocess.run(['aws', 's3api', 'list-buckets'], 
-                                  capture_output=True, text=True, timeout=10)
-            if result.returncode == 0:
-                data = json.loads(result.stdout)
-                for bucket in data.get('Buckets', [])[:5]:
-                    encryption_findings.append({
-                        'resource': f"s3://{bucket['Name']}",
-                        'cloud': 'AWS',
-                        'encryption_status': 'unknown',
-                        'recommendation': 'Verify server-side encryption is enabled',
-                        'compliance': ['PCI-DSS', 'HIPAA']
-                    })
-        except:
+            if shutil.which('aws'):
+                result = subprocess.run(['aws', 's3api', 'list-buckets'], 
+                                      capture_output=True, text=True, timeout=10)
+                if result.returncode == 0:
+                    data = json.loads(result.stdout)
+                    for bucket in data.get('Buckets', [])[:5]:
+                        encryption_findings.append({
+                            'resource': f"s3://{bucket['Name']}",
+                            'cloud': 'AWS',
+                            'encryption_status': 'unknown',
+                            'recommendation': 'Verify server-side encryption is enabled',
+                            'compliance': ['PCI-DSS', 'HIPAA']
+                        })
+        except Exception:
             pass
         
         return encryption_findings
@@ -209,24 +224,25 @@ class CloudSecurityPosture:
         
         # Check for public security groups (AWS example)
         try:
-            result = subprocess.run(['aws', 'ec2', 'describe-security-groups'], 
-                                  capture_output=True, text=True, timeout=10)
-            if result.returncode == 0:
-                data = json.loads(result.stdout)
-                for sg in data.get('SecurityGroups', [])[:10]:
-                    for rule in sg.get('IpPermissions', []):
-                        for ip_range in rule.get('IpRanges', []):
-                            if ip_range.get('CidrIp') == '0.0.0.0/0':
-                                exposed.append({
-                                    'resource': sg['GroupId'],
-                                    'cloud': 'AWS',
-                                    'type': 'Security Group',
-                                    'issue': 'Allows traffic from 0.0.0.0/0',
-                                    'severity': 'high',
-                                    'port': rule.get('FromPort', 'any'),
-                                    'recommendation': 'Restrict source IP ranges'
-                                })
-        except:
+            if shutil.which('aws'):
+                result = subprocess.run(['aws', 'ec2', 'describe-security-groups'], 
+                                      capture_output=True, text=True, timeout=10)
+                if result.returncode == 0:
+                    data = json.loads(result.stdout)
+                    for sg in data.get('SecurityGroups', [])[:10]:
+                        for rule in sg.get('IpPermissions', []):
+                            for ip_range in rule.get('IpRanges', []):
+                                if ip_range.get('CidrIp') == '0.0.0.0/0':
+                                    exposed.append({
+                                        'resource': sg['GroupId'],
+                                        'cloud': 'AWS',
+                                        'type': 'Security Group',
+                                        'issue': 'Allows traffic from 0.0.0.0/0',
+                                        'severity': 'high',
+                                        'port': rule.get('FromPort', 'any'),
+                                        'recommendation': 'Restrict source IP ranges'
+                                    })
+        except Exception:
             pass
         
         return exposed

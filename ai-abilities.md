@@ -99,9 +99,9 @@ Suggested improvement order (next targets first):
 
 ## Enterprise & Cloud Integrations
 
-- [ ] AI/enterprise_integration.py — Enterprise workflows and integrations
-- [ ] AI/cloud_security.py — Cloud posture and CSPM logic
-- [ ] AI/soar_api.py — SOAR API endpoints and orchestration
+- [x] AI/enterprise_integration.py  Enterprise workflows and integrations
+- [x] AI/cloud_security.py  Cloud posture and CSPM logic
+- [x] AI/soar_api.py  SOAR API endpoints and orchestration
 - [ ] AI/soar_workflows.py — Playbooks and automated workflows
 - [ ] AI/central_sync.py — Centralized sync with relay/backend
 - [ ] AI/relay_client.py — Client for talking to relay services
