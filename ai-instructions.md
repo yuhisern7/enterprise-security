@@ -31,27 +31,49 @@
   - Uses `fetch()` to call server APIs (in `server/server.py`), which in turn delegate to AI modules.
   - Visualizes threats, devices, models, honeypots, compliance, and performance.
 
-### 0.2 Data Flow Overview
+### 0.2 Data Flow & Paths Overview
 
-1. **Traffic & Events Ingestion**
+1. **Traffic & Events Ingestion (Server/Customer Node)**
    - `server/network_monitor.py` captures network events and pcap segments.
    - Kernel telemetry (eBPF/XDP) is processed by `AI/kernel_telemetry.py` (when enabled).
    - System logs, device data, user actions, and threat feeds are ingested via server and AI helpers.
+   - All persistent JSON written by server-side code ends up under:
+     - **Docker:** `/app/json/...` (mounted from `server/json/`).
+     - **Native:** `server/json/...` relative to the repo.
 
-2. **Feature Extraction & Detection Signals**
+2. **Feature Extraction & Detection Signals (AI/ on customer node)**
    - `AI/pcs_ai.py` orchestrates:
      - Signature matches (ExploitDB and custom patterns via `AI/threat_intelligence.py`, `AI/signature_extractor.py`).
      - Behavioral heuristics via `AI/behavioral_heuristics.py`.
-     - LSTM and sequence models via `AI/sequence_analyzer.py`.
-     - Traffic autoencoder anomalies via `AI/traffic_analyzer.py`.
-     - ML models (IsolationForest, RandomForest, GradientBoosting) using saved models in `AI/ml_models/`.
-     - Reputation via `AI/reputation_tracker.py`.
+     - LSTM and sequence models via `AI/sequence_analyzer.py` (model at `AI/ml_models/sequence_lstm.keras`).
+     - Traffic autoencoder anomalies via `AI/traffic_analyzer.py` (model at `AI/ml_models/traffic_autoencoder.keras`).
+     - Classical ML models (IsolationForest, RandomForest, GradientBoosting) using pickles in **`ml_models/`** (not `AI/ml_models/`):
+       - `_ML_MODELS_DIR = "ml_models"` → in Docker this is `/app/ml_models`.
+       - These are created/loaded by `_initialize_ml_models`, `_load_ml_models`, `_save_ml_models` in `AI/pcs_ai.py`.
+     - Reputation via `AI/reputation_tracker.py` (SQLite DB now stored under `/app/json/reputation.db` in Docker, `server/json/reputation.db` natively).
      - Honeypot hits via `AI/adaptive_honeypot.py`.
 
-3. **Meta Decision & False-Positive Filtering**
+3. **Meta Decision, Explainability & Graph Intelligence**
    - Raw detection signals are aggregated into an **ensemble decision**:
      - `AI/false_positive_filter.py`: 5-gate pipeline to eliminate noisy positives.
-     - `AI/meta_decision_engine.py`: combines all DetectionSignal instances; performs weighted voting, boosts authoritative signals (honeypot, threat intel, FP filter), and returns final `EnsembleDecision` (threat level, should_block, reasons).
+     - `AI/meta_decision_engine.py`:
+       - Config file now resolved at runtime:
+         - **Docker:** `/app/json/meta_engine_config.json`.
+         - **Native:** `server/json/meta_engine_config.json`.
+       - Decision history written via `save_decision_history()` to:
+         - **Docker:** `/app/json/decision_history.json`.
+         - **Native:** `server/json/decision_history.json`.
+       - Performs weighted voting, boosts authoritative signals (honeypot, threat intel, FP filter), and returns final `EnsembleDecision` (threat level, should_block, reasons).
+     - `AI/explainability_engine.py`:
+       - Forensic reports export to:
+         - **Docker:** `/app/json/forensic_reports/*.json`.
+         - **Native:** `server/json/forensic_reports/*.json`.
+       - Also mirrors forensic exports into `relay/ai_training_materials/explainability_data/` when running from the full repo (for training, not for customers).
+     - `AI/graph_intelligence.py`:
+       - Network graph and lateral movement alerts stored in:
+         - **Docker:** `/app/json/network_graph.json` and `/app/json/lateral_movement_alerts.json`.
+         - **Native:** `server/json/network_graph.json` and `server/json/lateral_movement_alerts.json`.
+       - Graph topology training export written under `relay/ai_training_materials/training_datasets/graph_topology.json` when the relay tree is present.
 
 4. **Actions & Response**
    - `server/server.py` and `server/device_blocker.py` enforce decisions:
@@ -60,10 +82,29 @@
      - Invoke orchestrations / SOAR playbooks via `AI/soar_api.py` and `AI/soar_workflows.py`.
    - Honeypot actions are controlled via `AI/adaptive_honeypot.py` and surfaced through APIs.
 
-5. **Persistence & Learning**
-   - Threat logs and decisions written to `server/json/` via pcs_ai and server code.
-   - Honeypot logs persisted via `AI/adaptive_honeypot.py` into JSON (bounded history).
-   - Relay side aggregates training data (`relay/ai_training_materials/`) and retrains models; new models pushed back to customer nodes.
+5. **Persistence & Learning (Server vs Relay)**
+   - **Customer node (server/ + AI/):**
+     - Threat logs and decisions written to `server/json/` (or `/app/json/` in Docker) via pcs_ai and server code.
+     - Honeypot logs persisted via `AI/adaptive_honeypot.py` into JSON (bounded history) under the same JSON path pattern.
+     - Sequence and traffic models persist under `AI/ml_models/` (LSTM + autoencoder), while classical ML pickles live in `ml_models/`.
+   - **Relay node (relay/ on your VPS/cloud, not shipped to customers):**
+     - All heavy training data, signatures, and global attacks live under the mounted volume:
+       - **Container:** `/app/relay/ai_training_materials/`.
+       - **Host:** `relay/ai_training_materials/`.
+     - `relay/relay_server.py` and `relay/signature_sync.py` write to:
+       - `ai_training_materials/global_attacks.json`.
+       - `ai_training_materials/ai_signatures/learned_signatures.json`.
+     - `relay/training_sync_api.py` and `relay/ai_retraining.py` read/write models in `ai_training_materials/ml_models/`.
+     - `relay/gpu_trainer.py` reads from `/app/relay/ai_training_materials` inside its container.
+     - ExploitDB lives in `relay/ai_training_materials/exploitdb/`, populated by `relay/setup_exploitdb.sh`:
+       - The script now downloads into `relay/exploitdb/` (local to relay/) and you copy that into `relay/ai_training_materials/`.
+
+6. **Model Sync from Relay to Customers**
+   - `AI/training_sync_client.py` pulls **only** pre-trained models (no raw training data) from the relay Model API (`relay/training_sync_api.py`).
+   - Download location has been aligned with the AI engine:
+     - `TrainingSyncClient.local_ml_dir = "ml_models"` → same directory used by `AI/pcs_ai.py` for `_ML_MODELS_DIR`.
+     - In Docker this resolves to `/app/ml_models`, which is where the server image copies/uses ML pickles.
+   - This fix ensures that models pulled from the relay are actually picked up by the running AI engine without extra path tweaks.
 
 ---
 
@@ -126,7 +167,12 @@
 - `AI/pcap_capture.py` — Utilities for capturing and saving PCAP slices for offline analysis.
 - `AI/pcs_ai.py` — Primary AI coordinator.
   - Ties together all models and heuristics into a single `assess_threat` pipeline.
-  - Reads/writes JSON logs in `server/json/`.
+  - Reads/writes JSON logs via the established pattern:
+    - **Docker:** `/app/json/...` (mounted from `server/json/`).
+    - **Native:** `server/json/...`.
+  - Uses:
+    - Keras models from `AI/ml_models/sequence_lstm.keras` and `AI/ml_models/traffic_autoencoder.keras`.
+    - Classical ML pickles from `ml_models/*.pkl` (`anomaly_detector.pkl`, `threat_classifier.pkl`, `ip_reputation.pkl`, `feature_scaler.pkl`).
   - Constructs DetectionSignals for the meta engine and FP filter.
 - `AI/policy_governance.py` — Manages security policies, approvals, and governance workflows.
 - `AI/relay_client.py` — Client-side code for talking to the relay server over HTTP/WebSocket.
@@ -201,6 +247,8 @@
 - `relay/exploitdb_scraper.py` — Scrapes or syncs ExploitDB data.
 - `relay/gpu_trainer.py` — GPU-accelerated training job runner (for deep models).
 - `relay/ai_training_materials/` — Local folder containing training datasets, labels, and artifacts (not for customers).
+  - Mounted into the relay container at `/app/relay/ai_training_materials/`.
+  - Holds ExploitDB mirror, global attacks, learned signatures, and relay-side trained models.
 - `relay/requirements.txt` — Python dependencies for relay image.
 - `relay/setup.sh`, `setup-macos.sh`, `setup.bat`, `setup_exploitdb.sh` — Convenience scripts to bootstrap relay and exploit DB.
 - `relay/start_services.py` — Starts multiple relay services together as needed.
@@ -368,9 +416,16 @@ This section is meant as “hints” for any AI agent working in this repo:
      - Any boosting logic in `_boost_authoritative_signals` if it’s authoritative.
    - Ensemble thresholds (`threat_threshold`, `block_threshold`) should be changed carefully.
 
-5. **JSON Files in server/json/ Are the Data Lake**
-   - AI modules should **not** hardcode paths outside of the established pattern.
-   - Use the same `/app/json` (Docker) vs `../server/json` (native) approach as in `AI/pcs_ai.py` and `AI/adaptive_honeypot.py`.
+5. **JSON & Model Paths Are Centralized and Docker-Aware**
+  - AI modules should **not** hardcode ad-hoc paths; use the shared patterns:
+    - **Server JSON:** `/app/json/...` in Docker, `server/json/...` natively.
+    - **Relay training materials:** `/app/relay/ai_training_materials/...` in Docker, `relay/ai_training_materials/...` on host.
+    - **Sequence/autoencoder models:** `AI/ml_models/sequence_lstm.keras`, `AI/ml_models/traffic_autoencoder.keras`.
+    - **Classical ML pickles:** `ml_models/*.pkl` (aligned between `AI/pcs_ai.py` and `AI/training_sync_client.py`).
+    - **Reputation DB & meta-engine config/history:**
+     - Default to `/app/json/...` inside containers.
+     - Default to `server/json/...` when running from the monorepo.
+  - This was explicitly audited and fixed so that container paths (`/app/...`) and monorepo paths (`server/...`, `relay/...`) always match the Dockerfiles and mounted volumes.
 
 6. **Relay Code is Optional for Local Development**
    - You can run and test the AI and dashboard locally **without** the relay by:
