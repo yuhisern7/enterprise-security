@@ -14,13 +14,20 @@ class SOARWorkflows:
     """Security Orchestration, Automation and Response workflows + Attack Simulation"""
     
     def __init__(self):
-        # Use /app in Docker, ./server/json outside Docker
-        base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
-        self.workflows_file = os.path.join(base_dir, 'json', 'soar_workflows.json')
-        self.incidents_file = os.path.join(base_dir, 'json', 'soar_incidents.json')
-        self.playbooks_file = os.path.join(base_dir, 'json', 'soar_playbooks.json')
-        self.simulations_file = os.path.join(base_dir, 'json', 'attack_simulations.json')
-        self.mitre_coverage_file = os.path.join(base_dir, 'json', 'mitre_coverage.json')
+        # Use /app in Docker, ../server outside Docker (cross-platform)
+        self.base_dir = '/app' if os.path.exists('/app') else os.path.join(
+            os.path.dirname(__file__), '..', 'server'
+        )
+
+        # Ensure JSON directory exists regardless of OS
+        json_dir = os.path.join(self.base_dir, 'json')
+        os.makedirs(json_dir, exist_ok=True)
+
+        self.workflows_file = os.path.join(json_dir, 'soar_workflows.json')
+        self.incidents_file = os.path.join(json_dir, 'soar_incidents.json')
+        self.playbooks_file = os.path.join(json_dir, 'soar_playbooks.json')
+        self.simulations_file = os.path.join(json_dir, 'attack_simulations.json')
+        self.mitre_coverage_file = os.path.join(json_dir, 'mitre_coverage.json')
         
         self.workflows = self.load_workflows()
         self.incidents = self.load_incidents()
@@ -128,7 +135,11 @@ class SOARWorkflows:
                 'description': 'Automatically quarantine suspicious files',
                 'triggers': ['malware_score_high'],
                 'actions': [
-                    {'type': 'quarantine_file', 'location': '/var/quarantine'},
+                    # Use an application-local quarantine directory for cross-platform compatibility
+                    {
+                        'type': 'quarantine_file',
+                        'location': os.path.join(self.base_dir, 'quarantine')
+                    },
                     {'type': 'collect_hash', 'algorithm': 'sha256'},
                     {'type': 'send_to_sandbox', 'sandbox': 'cuckoo'}
                 ],

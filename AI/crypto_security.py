@@ -40,7 +40,9 @@ class MessageSecurity:
             self.key_dir = MESSAGE_SECURITY_KEY_DIR
         else:
             self.key_dir = key_dir
-        os.makedirs(key_dir, exist_ok=True)
+
+        # Ensure key directory exists for whichever path is active (cross-platform)
+        os.makedirs(self.key_dir, exist_ok=True)
         
         self.private_key_file = os.path.join(key_dir, "private_key.pem")
         self.public_key_file = os.path.join(key_dir, "public_key.pem")

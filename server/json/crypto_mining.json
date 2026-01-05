@@ -1,6 +1,166 @@
 [
   {
-    "timestamp": "2026-01-06T03:24:15.969861",
+    "timestamp": "2026-01-06T03:28:03.447640",
+    "stats": {
+      "total_detections": 3,
+      "cpu_spikes": 3,
+      "mining_connections": 0,
+      "miner_processes": 0,
+      "high_cpu_processes": [
+        {
+          "pid": 7,
+          "process": "python",
+          "cpu_percent": 101.0,
+          "memory_percent": 7.5,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:28:03.441041"
+        },
+        {
+          "pid": 79,
+          "process": "gunicorn",
+          "cpu_percent": 115.7,
+          "memory_percent": 7.3,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:28:03.442391"
+        },
+        {
+          "pid": 80,
+          "process": "gunicorn",
+          "cpu_percent": 146.2,
+          "memory_percent": 7.3,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:28:03.443034"
+        }
+      ],
+      "mining_traffic": [],
+      "detected_miners": [],
+      "risk_level": "low"
+    }
+  },
+  {
+    "timestamp": "2026-01-06T03:28:33.451165",
+    "stats": {
+      "total_detections": 4,
+      "cpu_spikes": 4,
+      "mining_connections": 0,
+      "miner_processes": 0,
+      "high_cpu_processes": [
+        {
+          "pid": 7,
+          "process": "python",
+          "cpu_percent": 107.0,
+          "memory_percent": 7.5,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:28:33.446002"
+        },
+        {
+          "pid": 79,
+          "process": "gunicorn",
+          "cpu_percent": 160.2,
+          "memory_percent": 7.3,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:28:33.446153"
+        },
+        {
+          "pid": 80,
+          "process": "gunicorn",
+          "cpu_percent": 53.7,
+          "memory_percent": 7.3,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:28:33.446290"
+        },
+        {
+          "pid": 550,
+          "process": "apt",
+          "cpu_percent": 53.9,
+          "memory_percent": 0.0,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:28:33.446408"
+        }
+      ],
+      "mining_traffic": [],
+      "detected_miners": [],
+      "risk_level": "low"
+    }
+  },
+  {
+    "timestamp": "2026-01-06T03:29:32.793380",
+    "stats": {
+      "total_detections": 3,
+      "cpu_spikes": 3,
+      "mining_connections": 0,
+      "miner_processes": 0,
+      "high_cpu_processes": [
+        {
+          "pid": 7,
+          "process": "python",
+          "cpu_percent": 75.7,
+          "memory_percent": 7.5,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:29:32.781378"
+        },
+        {
+          "pid": 79,
+          "process": "gunicorn",
+          "cpu_percent": 77.7,
+          "memory_percent": 7.3,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:29:32.782351"
+        },
+        {
+          "pid": 80,
+          "process": "gunicorn",
+          "cpu_percent": 78.1,
+          "memory_percent": 7.3,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:29:32.782526"
+        }
+      ],
+      "mining_traffic": [],
+      "detected_miners": [],
+      "risk_level": "low"
+    }
+  },
+  {
+    "timestamp": "2026-01-06T03:30:32.757969",
+    "stats": {
+      "total_detections": 3,
+      "cpu_spikes": 3,
+      "mining_connections": 0,
+      "miner_processes": 0,
+      "high_cpu_processes": [
+        {
+          "pid": 7,
+          "process": "python",
+          "cpu_percent": 67.3,
+          "memory_percent": 7.5,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:30:32.754006"
+        },
+        {
+          "pid": 79,
+          "process": "gunicorn",
+          "cpu_percent": 67.9,
+          "memory_percent": 7.3,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:30:32.754148"
+        },
+        {
+          "pid": 80,
+          "process": "gunicorn",
+          "cpu_percent": 68.1,
+          "memory_percent": 7.4,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:30:32.754282"
+        }
+      ],
+      "mining_traffic": [],
+      "detected_miners": [],
+      "risk_level": "low"
+    }
+  },
+  {
+    "timestamp": "2026-01-06T03:48:21.999604",
     "stats": {
       "total_detections": 2,
       "cpu_spikes": 2,
@@ -8,20 +168,102 @@
       "miner_processes": 0,
       "high_cpu_processes": [
         {
-          "pid": 62,
+          "pid": 79,
           "process": "gunicorn",
-          "cpu_percent": 161.9,
-          "memory_percent": 7.3,
-          "suspected_miner": false,
-          "detected_at": "2026-01-06T03:24:15.959131"
-        },
-        {
-          "pid": 63,
-          "process": "gunicorn",
-          "cpu_percent": 143.2,
+          "cpu_percent": 99.8,
           "memory_percent": 7.4,
           "suspected_miner": false,
-          "detected_at": "2026-01-06T03:24:15.960082"
+          "detected_at": "2026-01-06T03:48:21.985152"
+        },
+        {
+          "pid": 80,
+          "process": "gunicorn",
+          "cpu_percent": 150.4,
+          "memory_percent": 7.4,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:48:21.985244"
+        }
+      ],
+      "mining_traffic": [],
+      "detected_miners": [],
+      "risk_level": "low"
+    }
+  },
+  {
+    "timestamp": "2026-01-06T03:50:22.049880",
+    "stats": {
+      "total_detections": 2,
+      "cpu_spikes": 2,
+      "mining_connections": 0,
+      "miner_processes": 0,
+      "high_cpu_processes": [
+        {
+          "pid": 7,
+          "process": "python",
+          "cpu_percent": 131.8,
+          "memory_percent": 7.6,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:50:22.041116"
+        },
+        {
+          "pid": 80,
+          "process": "gunicorn",
+          "cpu_percent": 113.7,
+          "memory_percent": 7.4,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:50:22.042688"
+        }
+      ],
+      "mining_traffic": [],
+      "detected_miners": [],
+      "risk_level": "low"
+    }
+  },
+  {
+    "timestamp": "2026-01-06T03:51:22.154019",
+    "stats": {
+      "total_detections": 1,
+      "cpu_spikes": 1,
+      "mining_connections": 0,
+      "miner_processes": 0,
+      "high_cpu_processes": [
+        {
+          "pid": 80,
+          "process": "gunicorn",
+          "cpu_percent": 287.5,
+          "memory_percent": 7.4,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:51:22.149082"
+        }
+      ],
+      "mining_traffic": [],
+      "detected_miners": [],
+      "risk_level": "low"
+    }
+  },
+  {
+    "timestamp": "2026-01-06T03:52:22.161506",
+    "stats": {
+      "total_detections": 2,
+      "cpu_spikes": 2,
+      "mining_connections": 0,
+      "miner_processes": 0,
+      "high_cpu_processes": [
+        {
+          "pid": 7,
+          "process": "python",
+          "cpu_percent": 153.2,
+          "memory_percent": 7.6,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:52:22.158251"
+        },
+        {
+          "pid": 79,
+          "process": "gunicorn",
+          "cpu_percent": 76.5,
+          "memory_percent": 7.4,
+          "suspected_miner": false,
+          "detected_at": "2026-01-06T03:52:22.158395"
         }
       ],
       "mining_traffic": [],
