@@ -7,7 +7,8 @@
 ## 🗄️ Data Residency & Privacy Model
 
 - **Customer JSON stays on the customer node.**
-  - Runtime data (threat_log.json, decision_history.json, forensic_reports, network_graph.json, honeypot logs, etc.) is stored under `server/json/` when run natively.
+  - The repo only tracks the `server/json/` folder itself (via a small placeholder); **all `*.json` files under it are Git-ignored and created at runtime per customer deployment.**
+  - Runtime data (threat_log.json, decision_history.json, forensic_reports, network_graph.json, honeypot logs, governance_audit.json, comprehensive_audit.json, etc.) is stored under `server/json/` when run natively.
   - In Docker, this is mounted as `/app/json` from the same `server/json/` directory.
   - This data is **not automatically sent to any third-party cloud service.**
 - **Relay runs on *your* VPS (your cloud), not ours.**
@@ -273,7 +274,7 @@ server/
 ├── docker-compose.yml  # Uses server/.env
 ├── .env                # Customer dashboard configuration
 ├── Dockerfile
-└── json/               # Local threat logs
+└── json/               # Runtime JSON data (folder tracked, all *.json inside are git-ignored and created at runtime)
 ```
 
 **Services:**
