@@ -9,6 +9,13 @@ import json
 import shutil
 from datetime import datetime
 from typing import List, Dict, Optional
+import logging
+
+logger = logging.getLogger(__name__)
+
+PCAP_CAPTURE_ENABLED = os.getenv("PCAP_CAPTURE_ENABLED", "true").lower() == "true"
+PCAP_MAX_RESULTS = int(os.getenv("PCAP_MAX_RESULTS", "100"))
+
 
 class PCAPCapture:
     """Real PCAP capture using tcpdump"""
@@ -31,6 +38,10 @@ class PCAPCapture:
     
     def start_capture(self, interface: str = 'any', duration: int = 3600) -> Optional[str]:
         """Start packet capture (requires root/CAP_NET_RAW)"""
+        if not PCAP_CAPTURE_ENABLED:
+            logger.info("[PCAP] Capture disabled via PCAP_CAPTURE_ENABLED=false")
+            return None
+
         if not self.is_tcpdump_available():
             return None
         
@@ -50,7 +61,7 @@ class PCAPCapture:
             subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             return filepath
         except Exception as e:
-            print(f"[PCAP] Capture failed: {e}")
+            logger.error(f"[PCAP] Capture failed: {e}")
             return None
     
     def get_total_size(self) -> str:
@@ -60,8 +71,8 @@ class PCAPCapture:
                                   capture_output=True, text=True)
             if result.returncode == 0:
                 return result.stdout.split()[0]
-        except:
-            pass
+        except Exception as e:
+            logger.debug(f"[PCAP] get_total_size error: {e}")
         return "0B"
     
     def search_pcap(self, query: str, timerange: str = '1h', protocol: str = 'all') -> List[Dict]:
@@ -99,7 +110,7 @@ class PCAPCapture:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
             
             if result.returncode == 0:
-                for line in result.stdout.split('\n')[:100]:  # Limit to 100 results
+                for line in result.stdout.split('\n')[:PCAP_MAX_RESULTS]:
                     if line.strip():
                         parts = line.split()
                         if len(parts) >= 5:
@@ -110,7 +121,7 @@ class PCAPCapture:
                                 'info': ' '.join(parts[3:])
                             })
         except Exception as e:
-            print(f"[PCAP] Search error: {e}")
+            logger.error(f"[PCAP] Search error: {e}")
         
         return results
     

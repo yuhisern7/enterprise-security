@@ -18,6 +18,13 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Tuple, Optional
 import threading
 import pytz
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Configuration flags
+NETWORK_PERF_ENABLED = os.getenv("NETWORK_PERF_ENABLED", "true").lower() == "true"
+MAX_IP_METRICS = int(os.getenv("NETWORK_PERF_MAX_IPS", "10000"))
 
 # Try importing ML libraries
 try:
@@ -103,6 +110,16 @@ def update_bandwidth(ip_address: str, bytes_sent: int, bytes_received: int) -> N
         bytes_sent: Bytes sent by this IP
         bytes_received: Bytes received by this IP
     """
+    if not NETWORK_PERF_ENABLED:
+        return
+
+    # Bound number of tracked IPs to avoid unbounded memory growth
+    if ip_address not in _performance_metrics and len(_performance_metrics) >= MAX_IP_METRICS:
+        logger.debug(
+            f"[NET-PERF] Max IP metrics reached ({MAX_IP_METRICS}); dropping new IP {ip_address}"
+        )
+        return
+
     metrics = _performance_metrics[ip_address]
     now = _get_current_time()
     
@@ -148,6 +165,15 @@ def update_latency(ip_address: str, rtt_ms: float) -> None:
         ip_address: Source IP
         rtt_ms: Round-trip time in milliseconds
     """
+    if not NETWORK_PERF_ENABLED:
+        return
+
+    if ip_address not in _performance_metrics and len(_performance_metrics) >= MAX_IP_METRICS:
+        logger.debug(
+            f"[NET-PERF] Max IP metrics reached ({MAX_IP_METRICS}); dropping latency for {ip_address}"
+        )
+        return
+
     metrics = _performance_metrics[ip_address]
     now = _get_current_time()
     
@@ -188,6 +214,15 @@ def update_packet_loss(ip_address: str, packets_sent: int, packets_received: int
         packets_sent: Total packets sent
         packets_received: Total packets received (ACKs)
     """
+    if not NETWORK_PERF_ENABLED:
+        return
+
+    if ip_address not in _performance_metrics and len(_performance_metrics) >= MAX_IP_METRICS:
+        logger.debug(
+            f"[NET-PERF] Max IP metrics reached ({MAX_IP_METRICS}); dropping packet loss for {ip_address}"
+        )
+        return
+
     metrics = _performance_metrics[ip_address]
     now = _get_current_time()
     
@@ -461,6 +496,10 @@ def get_performance_anomalies() -> List[dict]:
 
 def save_performance_metrics() -> None:
     """Save performance metrics to disk."""
+    if not NETWORK_PERF_ENABLED:
+        logger.debug("[NET-PERF] save_performance_metrics skipped (NETWORK_PERF_ENABLED=false)")
+        return
+
     try:
         os.makedirs(os.path.dirname(_PERFORMANCE_METRICS_FILE), exist_ok=True)
         
@@ -485,9 +524,9 @@ def save_performance_metrics() -> None:
         
         with open(_PERFORMANCE_METRICS_FILE, 'w') as f:
             json.dump(data, f, indent=2)
-    
+
     except Exception as e:
-        print(f"[WARNING] Failed to save performance metrics: {e}")
+        logger.warning(f"[NET-PERF] Failed to save performance metrics: {e}")
 
 
 def load_performance_metrics() -> None:
@@ -498,17 +537,17 @@ def load_performance_metrics() -> None:
         if os.path.exists(_PERFORMANCE_METRICS_FILE):
             with open(_PERFORMANCE_METRICS_FILE, 'r') as f:
                 data = json.load(f)
-            
+
             # Restore metrics
             for ip, metrics in data.get('metrics', {}).items():
                 _performance_metrics[ip] = metrics
-            
+
             _network_stats.update(data.get('network_stats', {}))
-            
-            print(f"[PERFORMANCE] Loaded metrics for {len(_performance_metrics)} IPs")
-    
+
+            logger.info(f"[NET-PERF] Loaded metrics for {len(_performance_metrics)} IPs")
+
     except Exception as e:
-        print(f"[WARNING] Failed to load performance metrics: {e}")
+        logger.warning(f"[NET-PERF] Failed to load performance metrics: {e}")
 
 
 def start_auto_save():

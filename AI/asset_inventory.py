@@ -11,6 +11,9 @@ import shutil
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 from collections import defaultdict
+import logging
+
+logger = logging.getLogger(__name__)
 
 class AssetInventory:
     """Track hardware and software assets across the network"""
@@ -38,7 +41,7 @@ class AssetInventory:
             with open(self.inventory_file, 'w') as f:
                 json.dump(self.assets, f, indent=2)
         except Exception as e:
-            print(f"[ASSET] Save error: {e}")
+            logger.warning(f"[ASSET] Save error: {e}")
 
     def _load_connected_devices(self) -> List[Dict]:
         """Load discovered hardware devices from connected_devices.json"""
@@ -52,7 +55,7 @@ class AssetInventory:
             devices = data.get('devices', {})
             return list(devices.values()) if isinstance(devices, dict) else []
         except Exception as e:
-            print(f"[ASSET] Connected devices load error: {e}")
+            logger.warning(f"[ASSET] Connected devices load error: {e}")
             return []
     
     def scan_software(self) -> List[Dict]:

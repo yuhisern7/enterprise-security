@@ -92,10 +92,10 @@ Suggested improvement order (next targets first):
 
 ## Network, Devices, and Performance
 
-- [ ] AI/network_performance.py — Network performance and anomaly monitoring
-- [ ] AI/asset_inventory.py — Device and asset inventory
-- [ ] AI/node_fingerprint.py — Device and node fingerprinting
-- [ ] AI/pcap_capture.py — PCAP capture and analysis helpers
+- [x] AI/network_performance.py — Network performance and anomaly monitoring
+- [x] AI/asset_inventory.py — Device and asset inventory
+- [x] AI/node_fingerprint.py — Device and node fingerprinting
+- [x] AI/pcap_capture.py — PCAP capture and analysis helpers
 
 ## Enterprise & Cloud Integrations
 
