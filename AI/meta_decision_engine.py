@@ -152,9 +152,21 @@ class MetaDecisionEngine:
     - Explainable decisions
     """
     
-    def __init__(self, config_file: str = "server/json/meta_engine_config.json"):
-        """Initialize meta decision engine"""
-        self.config_file = config_file
+    def __init__(self, config_file: str | None = None):
+        """Initialize meta decision engine.
+        
+        If no config_file is provided, use /app/json/meta_engine_config.json
+        in Docker or server/json/meta_engine_config.json when running from
+        the monorepo.
+        """
+        if config_file is None:
+            if os.path.exists('/app'):
+                base_dir = '/app'
+            else:
+                base_dir = os.path.join(os.path.dirname(__file__), '..', 'server')
+            self.config_file = os.path.join(base_dir, 'json', 'meta_engine_config.json')
+        else:
+            self.config_file = config_file
         
         # Signal weights (can be tuned based on historical performance)
         self.signal_weights = {
@@ -598,9 +610,20 @@ class MetaDecisionEngine:
         
         return dict(performance)
     
-    def save_decision_history(self, filepath: str = "server/json/decision_history.json") -> None:
-        """Save decision history to file"""
+    def save_decision_history(self, filepath: str | None = None) -> None:
+        """Save decision history to file.
+        
+        When no filepath is provided, use /app/json/decision_history.json
+        in Docker or server/json/decision_history.json in the monorepo.
+        """
         try:
+            if filepath is None:
+                if os.path.exists('/app'):
+                    base_dir = '/app'
+                else:
+                    base_dir = os.path.join(os.path.dirname(__file__), '..', 'server')
+                filepath = os.path.join(base_dir, 'json', 'decision_history.json')
+
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
             
             history_data = {

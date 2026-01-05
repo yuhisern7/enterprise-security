@@ -69,22 +69,32 @@ class ReputationTracker:
     - Recidivism detection (repeat offenders escalated)
     """
     
-    def __init__(self, db_path: str = "server/json/reputation.db", 
+    def __init__(self, db_path: str | None = None, 
                  decay_days: int = 90, recidivist_threshold: int = 3):
         """
         Initialize reputation tracker.
         
         Args:
-            db_path: Path to SQLite database
+            db_path: Optional path to SQLite database. When omitted, uses
+                /app/json/reputation.db in Docker or server/json/reputation.db
+                when running from the monorepo.
             decay_days: Days until reputation starts decaying
             recidivist_threshold: Attacks needed to mark as recidivist
         """
-        self.db_path = db_path
+        if db_path is None:
+            # Use /app in Docker, ./server/json outside Docker
+            if os.path.exists('/app'):
+                base_dir = '/app'
+            else:
+                base_dir = os.path.join(os.path.dirname(__file__), '..', 'server')
+            self.db_path = os.path.join(base_dir, 'json', 'reputation.db')
+        else:
+            self.db_path = db_path
         self.decay_days = decay_days
         self.recidivist_threshold = recidivist_threshold
         
         # Create directories
-        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         os.makedirs("relay/ai_training_materials/reputation_data", exist_ok=True)
         
         # Initialize database

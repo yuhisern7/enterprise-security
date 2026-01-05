@@ -157,7 +157,13 @@ class ExplainabilityEngine:
         """
         self.export_dir = export_dir
         os.makedirs(export_dir, exist_ok=True)
-        os.makedirs("server/json/forensic_reports", exist_ok=True)
+
+        # Forensic reports: /app/json in Docker, server/json in monorepo
+        if os.path.exists('/app'):
+            self.forensic_dir = os.path.join('/app', 'json', 'forensic_reports')
+        else:
+            self.forensic_dir = os.path.join('server', 'json', 'forensic_reports')
+        os.makedirs(self.forensic_dir, exist_ok=True)
         
         # Decision history (for pattern analysis)
         self.decision_history: List[DecisionBreakdown] = []
@@ -945,8 +951,8 @@ class ExplainabilityEngine:
         """Export forensic report to files."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
-        # Export to server/json
-        server_path = f"server/json/forensic_reports/{report.report_id}.json"
+        # Export to local forensic reports directory
+        server_path = os.path.join(self.forensic_dir, f"{report.report_id}.json")
         os.makedirs(os.path.dirname(server_path), exist_ok=True)
         
         with open(server_path, 'w') as f:

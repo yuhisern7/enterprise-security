@@ -69,16 +69,16 @@
 
 ## 1. Repository Tree & File Purposes
 
-> This is based on the `enterprise-security` workspace structure (same logical content was copied into `battle-hardened-ai`). Each file is annotated with its primary purpose.
+> This is based on the original `enterprise-security` workspace structure. The same logical content was copied into this `battle-hardened-ai-clean` workspace. Each file is annotated with its primary purpose.
 
 ### 1.1 Root Level
 
 - `README.md` — Main project overview, marketing-level and technical summary of abilities and dashboard sections.
 - `crawlers.md` — Documentation about threat intelligence crawlers and data sources.
-- `enterprise.code-workspace` — VS Code workspace configuration for the original multi-folder setup.
+- `battle-hardened-ai-clean.code-workspace` — VS Code workspace configuration for this cleaned workspace.
 - `ai-abilities.md` — Checklist of AI-related modules, with `[x]/[ ]` to track which have been fully reviewed/improved.
 - `ai-instructions.md` (this file) — Deep architecture and file-purpose documentation for AI and system components.
-- `__pycache__/` — Python bytecode cache; not logically important.
+- `AI/__pycache__/` — Python bytecode cache; not logically important.
 
 ### 1.2 AI/ — Core AI Modules
 

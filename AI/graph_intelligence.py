@@ -93,14 +93,19 @@ class NetworkGraph:
         self.last_cleanup = datetime.utcnow()
         self.alerts: List[LateralMovementAlert] = []
         
-        # File paths
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        self.graph_file = graph_file or os.path.join(base_dir, "..", "server", "json", "network_graph.json")
-        self.alerts_file = alerts_file or os.path.join(base_dir, "..", "server", "json", "lateral_movement_alerts.json")
+        # File paths for persistent JSON
+        if os.path.exists('/app'):
+            json_base = os.path.join('/app', 'json')
+        else:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            json_base = os.path.join(base_dir, "..", "server", "json")
+
+        self.graph_file = graph_file or os.path.join(json_base, "network_graph.json")
+        self.alerts_file = alerts_file or os.path.join(json_base, "lateral_movement_alerts.json")
         
-        # Training materials path
-        self.training_file = os.path.join(base_dir, "..", "relay", "ai_training_materials", 
-                                         "training_datasets", "graph_topology.json")
+        # Training materials path (monorepo layout; safe to create in Docker if present)
+        training_base = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "relay", "ai_training_materials", "training_datasets")
+        self.training_file = os.path.join(training_base, "graph_topology.json")
         
         # Create directories if they don't exist
         os.makedirs(os.path.dirname(self.graph_file), exist_ok=True)

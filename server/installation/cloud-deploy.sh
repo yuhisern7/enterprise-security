@@ -82,14 +82,14 @@ fi
 
 # Clone repository
 echo ""
-echo "📥 Cloning Enterprise Security repository..."
-if [ -d "enterprise-security" ]; then
+echo "📥 Cloning battle-hardened-ai repository..."
+if [ -d "battle-hardened-ai" ]; then
     echo "⚠️  Directory already exists, updating..."
-    cd enterprise-security
+    cd battle-hardened-ai
     git pull
 else
-    git clone https://github.com/yuhisern7/enterprise-security.git
-    cd enterprise-security
+    git clone https://github.com/yuhisern7/battle-hardened-ai.git
+    cd battle-hardened-ai
 fi
 
 # Configure firewall
@@ -124,8 +124,8 @@ echo ""
 echo "⚠️  IMPORTANT: Dashboard port 60000 is for internal use only!"
 echo "   Only share P2P URL (port 60001) with other containers."
 echo ""
-echo "📝 View logs: cd enterprise-security/server && docker compose logs -f"
-echo "🛑 Stop: cd enterprise-security/server && docker compose down"
-echo "🔄 Restart: cd enterprise-security/server && docker compose restart"
+echo "📝 View logs: cd battle-hardened-ai/server && docker compose logs -f"
+echo "🛑 Stop: cd battle-hardened-ai/server && docker compose down"
+echo "🔄 Restart: cd battle-hardened-ai/server && docker compose restart"
 echo ""
 echo "🎉 Happy securing!"

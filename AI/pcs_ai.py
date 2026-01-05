@@ -384,7 +384,7 @@ _feature_importance_cache = {}
 def _save_threat_log() -> None:
     """Save threat log to persistent storage with file locking."""
     try:
-        os.makedirs("data", exist_ok=True)
+        os.makedirs(os.path.dirname(_THREAT_LOG_FILE) or ".", exist_ok=True)
         with open(_THREAT_LOG_FILE, 'w') as f:
             # Acquire exclusive lock to prevent race conditions
             fcntl.flock(f.fileno(), fcntl.LOCK_EX)
@@ -400,7 +400,7 @@ def _save_threat_log() -> None:
 def _save_blocked_ips() -> None:
     """Save blocked IPs to persistent storage."""
     try:
-        os.makedirs("data", exist_ok=True)
+        os.makedirs(os.path.dirname(_BLOCKED_IPS_FILE) or ".", exist_ok=True)
         with open(_BLOCKED_IPS_FILE, 'w') as f:
             json.dump(list(_blocked_ips), f, indent=2)
     except Exception as e:
@@ -473,7 +473,7 @@ def _is_github_ip(ip_address: str) -> bool:
 def _save_whitelist() -> None:
     """Save whitelisted IPs to persistent storage."""
     try:
-        os.makedirs("data", exist_ok=True)
+        os.makedirs(os.path.dirname(_WHITELIST_FILE) or ".", exist_ok=True)
         # Remove default IPs before saving
         persistent_whitelist = _WHITELISTED_IPS - {"127.0.0.1", "localhost", "::1"}
         with open(_WHITELIST_FILE, 'w') as f:
@@ -485,7 +485,7 @@ def _save_whitelist() -> None:
 def _save_tracking_data() -> None:
     """Save brute force, rate limiting, and fingerprinting data."""
     try:
-        os.makedirs("data", exist_ok=True)
+        os.makedirs(os.path.dirname(_TRACKING_DATA_FILE) or ".", exist_ok=True)
         tracking_data = {
             'failed_login_tracker': {
                 ip: [ts.isoformat() for ts in timestamps]
@@ -510,7 +510,7 @@ def _save_tracking_data() -> None:
 def _save_peer_threats() -> None:
     """Save P2P peer threat intelligence."""
     try:
-        os.makedirs("data", exist_ok=True)
+        os.makedirs(os.path.dirname(_PEER_THREATS_FILE) or ".", exist_ok=True)
         with open(_PEER_THREATS_FILE, 'w') as f:
             json.dump(_peer_threats, f, indent=2)
     except Exception as e:
@@ -520,7 +520,7 @@ def _save_peer_threats() -> None:
 def _save_ml_training_data() -> None:
     """Save ML training data buffer."""
     try:
-        os.makedirs("data", exist_ok=True)
+        os.makedirs(os.path.dirname(_ML_TRAINING_FILE) or ".", exist_ok=True)
         # Convert numpy arrays to lists if present
         serializable_data = []
         for item in _ml_training_data:
@@ -544,7 +544,7 @@ def _save_ml_training_data() -> None:
 def _save_ml_metrics() -> None:
     """Save ML performance metrics."""
     try:
-        os.makedirs("data", exist_ok=True)
+        os.makedirs(os.path.dirname(_ML_METRICS_FILE) or ".", exist_ok=True)
         with open(_ML_METRICS_FILE, 'w') as f:
             json.dump(_ml_performance_metrics, f, indent=2)
     except Exception as e:

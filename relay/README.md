@@ -97,8 +97,8 @@ setup.bat
 ssh root@YOUR-VPS-IP
 
 # Clone repository
-git clone https://github.com/yuhisern7/enterprise-security.git
-cd enterprise-security/relay
+git clone https://github.com/yuhisern7/battle-hardened-ai.git
+cd battle-hardened-ai/relay
 
 # Run automated setup
 chmod +x setup.sh
@@ -140,7 +140,7 @@ brew install --cask docker
 **Quick Start:**
 ```bash
 # Navigate to relay directory
-cd enterprise-security/relay
+cd battle-hardened-ai/relay
 
 # Make script executable and run
 chmod +x setup-macos.sh
@@ -193,7 +193,7 @@ winget install Docker.DockerDesktop
 **Quick Start:**
 ```cmd
 REM Navigate to relay directory
-cd enterprise-security\relay
+cd battle-hardened-ai\relay
 
 REM Run Windows setup script
 setup.bat
