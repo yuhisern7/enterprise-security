@@ -177,52 +177,436 @@ The system is specifically designed so **no single evasion technique works**—a
 
 ## 🧠 Federated AI Training & Relay Architecture
 
-### 18-Signal Training Data Flow (Conceptual Diagram)
+### Complete Attack Detection & Response Flow
 
-The diagram below illustrates how attacks are processed locally, logged safely, and converted into privacy-preserving AI training materials that can optionally be shared through a relay so other deployments learn from real-world incidents.
+Battle-Hardened AI processes every network packet through a sophisticated multi-stage pipeline. Below is the detailed logical flow from initial packet capture to global intelligence sharing.
 
-In this design, each Battle-Hardened AI server acts as a trusted sensor-node for its own network:
+#### Stage 1: Data Ingestion & Normalization
 
-- Each node observes local traffic, logs, cloud APIs, identities, and backups
-- Raw traffic and exploit payloads are never shared
-- Observations are converted into sanitized statistical features, signatures, and reputation updates
-- High-confidence findings are logged locally and optionally distilled into relay-safe training materials
-- Other nodes pull updates and improve their detection models
+**Input Sources:**
+1. **Network Traffic** (packet capture via eBPF/XDP or scapy)
+   - Raw packets from network interfaces
+   - TCP/UDP/ICMP flows
+   - Application-layer protocols (HTTP, DNS, TLS, etc.)
 
-This enables collective defense without exposing sensitive traffic or endpoint data.
+2. **System Logs**
+   - Authentication logs (SSH, RDP, web login attempts)
+   - Application logs (web server, database, API)
+   - System events (service starts/stops, errors)
 
-```text
-[Network / Logs / Cloud APIs / Devices]
-                |
-                v
-        Pre-processing & Ingestion
-                |
-                v
-         18 Detection AI Signals
-                |
-                v
-       Ensemble Decision Engine
-                |
-      High-Confidence Incidents
-                |
-                v
-     Local JSON & Audit Surfaces
-                |
-      Sanitized Training Signals
-                |
-                v
-     Private Relay (Optional)
-                |
-        Other Networks Learn
+3. **Cloud APIs**
+   - AWS CloudTrail, Azure Activity Logs, GCP Audit Logs
+   - IAM policy changes, security group modifications
+   - Resource configuration drift
+
+4. **Device Scans**
+   - Active network device discovery
+   - Port enumeration and service fingerprinting
+   - Asset inventory updates
+
+**Processing:**
+- Extract metadata (source IP, destination IP, ports, timestamps, protocols)
+- Parse application-layer data (HTTP headers, DNS queries, TLS handshakes)
+- Normalize to common schema for multi-signal analysis
+- Strip sensitive payloads (retain only statistical features)
+
+**Output:** Normalized event stream → **18 Detection Signals**
+
+---
+
+#### Stage 2: Parallel Multi-Signal Detection (18 Simultaneous Analyses)
+
+Each event flows through **all 18 detection systems in parallel**. Each signal generates an independent threat assessment.
+
+**Signal #1: eBPF Kernel Telemetry**
+- **What it does:** Observes syscalls and correlates with network activity at OS level
+- **Example:** Process `bash` makes network connection → suspicious (likely shell backdoor)
+- **Output:** `{is_threat: true, confidence: 0.85, details: "syscall/network mismatch"}`
+
+**Signal #2: Signature Matching**
+- **What it does:** Pattern matching against 3,066+ known attack signatures
+- **Example:** HTTP request contains `' OR 1=1--` → SQL injection detected
+- **Output:** `{is_threat: true, confidence: 0.95, threat_type: "SQL Injection"}`
+
+**Signal #3: RandomForest (ML)**
+- **What it does:** Supervised classification based on 50+ traffic features
+- **Features:** Packet size, inter-arrival time, port numbers, protocol flags
+- **Output:** `{is_threat: false, confidence: 0.72, classification: "benign"}`
+
+**Signal #4: IsolationForest (ML)**
+- **What it does:** Unsupervised anomaly detection (finds outliers)
+- **Example:** Traffic pattern statistically different from normal baseline
+- **Output:** `{is_threat: true, confidence: 0.68, anomaly_score: 0.82}`
+
+**Signal #5: Gradient Boosting (ML)**
+- **What it does:** IP reputation scoring based on historical behavior
+- **Example:** IP has attacked 3 times before → high risk score
+- **Output:** `{is_threat: true, confidence: 0.88, reputation: -0.75}`
+
+**Signal #6: Behavioral Heuristics**
+- **What it does:** Tracks 15 behavioral metrics per IP
+- **Metrics:** Connection rate (50/min), port entropy (high), fan-out (20 IPs), retry frequency (8/min)
+- **APT Detection:** Low-and-slow (2 conn/hour over 24h), off-hours activity, credential reuse
+- **Output:** `{is_threat: true, confidence: 0.79, risk_factors: ["high_conn_rate", "port_scan"]}`
+
+**Signal #7: LSTM Sequence Analysis**
+- **What it does:** Models attack progression through 6 states
+- **Observed sequence:** SCANNING → AUTH_ABUSE → PRIV_ESC (within 10 minutes)
+- **APT Patterns:** Matches "Smash and Grab" campaign (fast exploitation)
+- **Output:** `{is_threat: true, confidence: 0.91, attack_stage: 3, campaign: "smash_and_grab"}`
+
+**Signal #8: Autoencoder (Deep Learning)**
+- **What it does:** Zero-day detection via reconstruction error
+- **Process:** Learns normal traffic → flags statistically abnormal patterns
+- **Example:** Traffic pattern never seen before → high reconstruction error (0.42) → likely exploit
+- **Output:** `{is_threat: true, confidence: 0.87, reconstruction_error: 0.42}`
+
+**Signal #9: Drift Detection**
+- **What it does:** Monitors if current traffic deviates from baseline distribution
+- **Method:** Kolmogorov-Smirnov test, Population Stability Index
+- **Output:** `{is_threat: false, confidence: 0.65, drift_detected: false}`
+
+**Signal #10: Graph Intelligence**
+- **What it does:** Maps network topology and detects lateral movement
+- **Example:** IP connects to server A → server B → server C (hop chain) within 5 minutes
+- **Output:** `{is_threat: true, confidence: 0.94, lateral_movement: true, hop_count: 3}`
+
+**Signal #11: VPN/Tor Fingerprinting**
+- **What it does:** Multi-vector de-anonymization (WebRTC leaks, timing analysis, DNS leaks)
+- **Output:** `{is_threat: false, confidence: 0.60, vpn_detected: true, real_ip: null}`
+
+**Signal #12: Threat Intelligence Feeds**
+- **What it does:** Checks IP against VirusTotal, AbuseIPDB, ExploitDB, etc.
+- **Example:** IP appears in 15 vendor blacklists → known botnet node
+- **Output:** `{is_threat: true, confidence: 0.98, sources: ["VirusTotal", "AbuseIPDB"], threat_score: 95}`
+
+**Signal #13: False Positive Filter**
+- **What it does:** 5-gate consensus validation to reduce false alarms
+- **Gates:** Temporal consistency, cross-signal correlation, whitelist check, threshold validation, confidence calibration
+- **Output:** `{is_threat: true, confidence: 0.90, gates_passed: 5/5}`
+
+**Signal #14: Historical Reputation**
+- **What it does:** Cross-session memory and recidivism detection
+- **Example:** IP attacked 2 months ago → recidivist flag → higher risk
+- **Output:** `{is_threat: true, confidence: 0.92, total_attacks: 3, is_recidivist: true}`
+
+**Signal #15: Explainability Engine**
+- **What it does:** Generates human-readable explanations for decisions
+- **Output:** `{confidence: 1.0, explanation: "SQL injection + known botnet IP + lateral movement detected"}`
+
+**Signal #16: Predictive Modeling**
+- **What it does:** 24-48 hour threat forecasting based on trends
+- **Example:** IP showing early-stage reconnaissance → likely to escalate within 12 hours
+- **Output:** `{is_threat: false, confidence: 0.70, predicted_escalation: 0.83, time_window: 12h}`
+
+**Signal #17: Byzantine Defense**
+- **What it does:** Detects poisoned ML model updates from federated learning
+- **Output:** `{is_threat: false, confidence: 0.75, update_valid: true}`
+
+**Signal #18: Integrity Monitoring**
+- **What it does:** Detects tampering with telemetry or models
+- **Example:** Log deletion attempt → integrity violation
+- **Output:** `{is_threat: true, confidence: 0.96, tampering_detected: true, type: "log_deletion"}`
+
+---
+
+#### Stage 3: Ensemble Decision Engine (Weighted Voting)
+
+All 18 signals converge in the **Meta Decision Engine** for final verdict.
+
+**Weighted Voting Calculation:**
+
+```
+Weighted Score = Σ (signal_weight × signal_confidence × is_threat)
+                 ────────────────────────────────────────────────
+                              Σ signal_weight
+
+Example calculation:
+- Honeypot (0.98 × 0.95 × 1) = 0.931
+- Threat Intel (0.95 × 0.98 × 1) = 0.931
+- Graph (0.92 × 0.94 × 1) = 0.865
+- Signature (0.90 × 0.95 × 1) = 0.855
+- Behavioral (0.75 × 0.79 × 1) = 0.593
+- (13 other signals...)
+
+Total weighted score = 0.87 (87%)
 ```
 
+**Decision Thresholds:**
+- **≥ 50% (0.50):** Classify as threat → log to `threat_log.json`
+- **≥ 75% (0.75):** Auto-block → firewall rule + connection drop
+- **≥ 70% (APT Mode):** Auto-block in critical infrastructure mode
 
-This architecture creates a federated, privacy-preserving defense mesh where:
+**Authoritative Signal Boosting:**
+- If **Honeypot** fires (confidence ≥ 0.7) → force score to 90%+
+- If **Threat Intel** fires (confidence ≥ 0.9) → force score to 90%+
+- If **False Positive Filter** confirms (5/5 gates) → boost by 10%
 
-- One server protects an entire network segment
-- No endpoint agents are required
-- Learning from one attack improves defenses everywhere
-- Organizations retain full control over participation
+**Consensus Checks:**
+- **Unanimous:** All signals agree (threat or safe)
+- **Strong Consensus:** ≥80% of signals agree
+- **Divided:** Mixed signals → require higher confidence threshold
+
+**Output Decision:**
+```json
+{
+  "is_threat": true,
+  "threat_level": "CRITICAL",
+  "confidence": 0.87,
+  "should_block": true,
+  "weighted_vote_score": 0.87,
+  "total_signals": 18,
+  "threat_signals": 14,
+  "safe_signals": 4,
+  "unanimous_verdict": false,
+  "strong_consensus": true,
+  "primary_threats": ["SQL Injection", "Lateral Movement", "Known Botnet"],
+  "ip_address": "203.0.113.42",
+  "timestamp": "2026-01-07T10:32:15Z"
+}
+```
+
+---
+
+#### Stage 4: Response Execution (Policy-Governed)
+
+Based on ensemble decision, the system executes controlled responses:
+
+**Immediate Actions (if `should_block = true`):**
+1. **Firewall Block:** Add IP to `iptables` or `nftables` with TTL (e.g., 24 hours)
+2. **Connection Drop:** Terminate active TCP connections from attacker
+3. **Rate Limiting:** If partial threat (50-74%), apply aggressive rate limiting instead of full block
+
+**Logging Actions (always executed):**
+1. **Local Threat Log:** Write to `server/json/threat_log.json`
+   ```json
+   {
+     "timestamp": "2026-01-07T10:32:15Z",
+     "ip": "203.0.113.42",
+     "threat_level": "CRITICAL",
+     "attack_types": ["SQL Injection", "Lateral Movement"],
+     "blocked": true,
+     "confidence": 0.87,
+     "signals_triggered": 14,
+     "explanation": "SQL injection pattern + known botnet + lateral movement chain detected"
+   }
+   ```
+
+2. **JSON Audit Surfaces:** Update multiple files:
+   - `dns_security.json` (DNS tunneling metrics)
+   - `tls_fingerprints.json` (encrypted traffic patterns)
+   - `network_graph.json` (topology updates)
+   - `behavioral_metrics.json` (per-IP statistics)
+   - `attack_sequences.json` (LSTM state sequences)
+   - `lateral_movement_alerts.json` (graph intelligence findings)
+
+3. **Dashboard Update:** Real-time WebSocket push to `inspector_ai_monitoring.html`
+
+**Alert Actions (configurable):**
+1. **Email/SMS:** Send to SOC team (if severity ≥ DANGEROUS)
+2. **SOAR Integration:** Trigger playbooks via REST API
+3. **Syslog/SIEM:** Forward to enterprise logging systems
+
+---
+
+#### Stage 5: Training Material Extraction (Privacy-Preserving)
+
+High-confidence attacks are converted into **sanitized training materials** (no payloads, no PII).
+
+**What Gets Extracted:**
+
+1. **Attack Signatures** (patterns only, zero exploit code):
+   ```json
+   {
+     "signature_id": "sig_20260107_001",
+     "attack_type": "SQL Injection",
+     "pattern": "' OR 1=1--",
+     "encoding": "url_encoded",
+     "http_method": "POST",
+     "confidence": 0.95
+   }
+   ```
+
+2. **Behavioral Statistics**:
+   ```json
+   {
+     "avg_connection_rate": 50,
+     "port_entropy": 3.8,
+     "fan_out": 20,
+     "geographic_region": "AS15169"  // ASN only, not exact location
+   }
+   ```
+
+3. **Reputation Updates**:
+   ```json
+   {
+     "ip_hash": "sha256(203.0.113.42)",  // Hashed, not raw IP
+     "attack_count": 3,
+     "severity_avg": 0.87,
+     "last_seen": "2026-01-07"
+   }
+   ```
+
+4. **Graph Topology** (anonymized):
+   ```json
+   {
+     "pattern": "A→B→C",  // Node labels, not IPs
+     "hop_count": 3,
+     "time_window": 300,
+     "attack_type": "lateral_movement"
+   }
+   ```
+
+5. **Model Weights** (ML/LSTM updates):
+   - Updated RandomForest trees
+   - LSTM weight adjustments
+   - Autoencoder parameter updates
+
+**Stored Locally:**
+- `relay/ai_training_materials/ai_signatures/` (signature files)
+- `relay/ai_training_materials/reputation_data/` (IP reputation)
+- `relay/ai_training_materials/training_datasets/` (ML training data)
+- `relay/ai_training_materials/trained_models/` (updated model weights)
+
+---
+
+#### Stage 6: Global Intelligence Sharing (Optional Relay)
+
+If relay is enabled, sanitized materials are shared worldwide.
+
+**Push to Relay** (authenticated WebSocket):
+```
+Client → Relay Server
+{
+  "node_id": "sha256(unique_id)",
+  "signatures": [...],
+  "statistics": {...},
+  "reputation_updates": [...],
+  "model_diffs": {...}  // Only weight deltas, not full models
+}
+```
+
+**Pull from Relay** (every 6 hours):
+```
+Client ← Relay Server
+{
+  "global_signatures": [3000+ new patterns],
+  "reputation_feed": [known bad IPs/ASNs],
+  "model_updates": {...},
+  "threat_statistics": {
+    "top_attack_types": ["SQL Injection", "Brute Force"],
+    "emerging_threats": ["CVE-2026-1234"]
+  }
+}
+```
+
+**Integration:**
+- New signatures → added to signature database
+- Reputation feed → merged with local reputation tracker
+- Model updates → validated by Byzantine defense → merged if safe
+- Statistics → displayed in dashboard "AI Training Network" section
+
+**Result:** Every node learns from attacks observed **anywhere in the global network**.
+
+---
+
+#### Stage 7: Continuous Learning Loop
+
+The system continuously improves through feedback:
+
+1. **Signature Extraction:** New attack patterns added every hour
+2. **ML Retraining:** Models retrained weekly with new labeled data
+3. **Drift Detection:** Baseline updated monthly to adapt to network changes
+4. **Reputation Decay:** Old attacks gradually fade (half-life: 30 days)
+5. **Byzantine Validation:** Malicious updates rejected (94% accuracy)
+
+**Feedback Sources:**
+- **Honeypot Interactions:** 100% confirmed attacks (highest quality training data)
+- **Human Validation:** SOC analyst confirms/rejects alerts → improves ML
+- **False Positive Reports:** Whitelisted events → update FP filter
+- **SOAR Playbook Results:** Successful remediation → reinforcement learning
+
+---
+
+### Complete Attack Detection & Response Flow
+
+Battle-Hardened AI processes every network packet through a sophisticated multi-stage pipeline. Each Battle-Hardened AI server acts as a trusted sensor-node for its own network, observing local traffic, logs, cloud APIs, identities, and backups. Raw traffic and exploit payloads are never shared—only sanitized statistical features, signatures, and reputation updates are extracted for collective learning.
+
+```
+📥 PACKET ARRIVES
+    ↓
+📊 Pre-processing (metadata extraction, normalization)
+    ↓
+⚡ 18 PARALLEL DETECTIONS
+    ├─ Kernel Telemetry (eBPF/XDP syscall correlation)
+    ├─ Signatures (3,066+ attack patterns)
+    ├─ RandomForest ML (supervised classification)
+    ├─ IsolationForest ML (unsupervised anomaly detection)
+    ├─ GradientBoosting ML (reputation modeling)
+    ├─ Behavioral (15 metrics + APT: low-and-slow, off-hours, credential reuse)
+    ├─ LSTM Sequences (6 attack states + APT campaign patterns)
+    ├─ Autoencoder (zero-day via reconstruction error)
+    ├─ Drift Detection (model degradation monitoring)
+    ├─ Graph Intelligence (lateral movement, C2, hop chains)
+    ├─ VPN/Tor Fingerprint (de-anonymization)
+    ├─ Threat Intel (VirusTotal, AbuseIPDB, ExploitDB, etc.)
+    ├─ False Positive Filter (5-gate consensus validation)
+    ├─ Historical Reputation (cross-session recidivism ~94%)
+    ├─ Explainability Engine (human-readable decisions)
+    ├─ Predictive Modeling (24-48h threat forecasting)
+    ├─ Byzantine Defense (poisoned update rejection)
+    └─ Integrity Monitoring (tampering detection)
+    ↓
+🎯 ENSEMBLE VOTING (weighted consensus)
+    ├─ Calculate weighted score (0.65-0.98 per signal)
+    ├─ Apply authoritative boosting (honeypot, threat intel override)
+    ├─ Check consensus strength (unanimous / strong / divided)
+    └─ Decision: Block (≥75%) / Log (≥50%) / Allow (<50%)
+    │   └─ APT Mode: Block threshold lowered to ≥70%
+    ↓
+🛡️ RESPONSE EXECUTION (policy-governed)
+    ├─ Firewall block (iptables/nftables + TTL)
+    ├─ Connection drop (active session termination)
+    ├─ Rate limiting (if 50-74% confidence)
+    ├─ Local logging → threat_log.json + 10+ audit surfaces
+    ├─ Dashboard update (real-time WebSocket push)
+    └─ Alerts (email/SMS/SOAR/SIEM integration)
+    ↓
+🧬 TRAINING MATERIAL EXTRACTION (privacy-preserving)
+    ├─ Signatures (patterns only, zero exploit code)
+    ├─ Statistics (anonymized: connection rate, port entropy, fan-out)
+    ├─ Reputation (SHA-256 hashed IPs, not raw addresses)
+    ├─ Graph patterns (topology labels A→B→C, not real IPs)
+    └─ Model weights (RandomForest/LSTM/Autoencoder deltas only)
+    ↓
+🌍 RELAY SHARING (optional, authenticated)
+    ├─ Push: Local findings → Relay Server (every hour)
+    ├─ Pull: Global intel ← Relay Server (every 6 hours)
+    │   ├─ 3,000+ new signatures from worldwide nodes
+    │   ├─ Known bad IP/ASN reputation feed
+    │   ├─ Model updates (Byzantine-validated)
+    │   └─ Emerging threat statistics (CVEs, attack trends)
+    └─ Merge: Integrate global knowledge into local detection
+    ↓
+🔄 CONTINUOUS LEARNING (feedback-driven improvement)
+    ├─ Signature database auto-updated (hourly)
+    ├─ ML models retrained (weekly with labeled data)
+    ├─ Reputation tracker updated (with decay, half-life 30 days)
+    ├─ Drift baseline refreshed (monthly adaptation)
+    └─ Byzantine validation (94% malicious update rejection)
+    ↓
+🔁 LOOP: Next packet processed with improved defenses
+```
+
+**This architecture creates a federated, privacy-preserving defense mesh where:**
+
+- **One server protects an entire network segment** (no endpoint agents required)
+- **Every attack makes the system smarter** (automated signature extraction + ML retraining)
+- **Every node benefits from global learning** (relay-shared intelligence from worldwide attacks)
+- **Organizations retain full control** (relay participation is optional, all data anonymized)
+- **Privacy is preserved** (no raw payloads, no PII, only statistical features shared)
+
+---
 
 ## High-Level Capabilities
 

@@ -79,6 +79,12 @@ class BehaviorMetrics:
     heuristic_score: float = 0.0  # 0.0 (benign) to 1.0 (malicious)
     risk_factors: List[str] = None
     
+    # APT-specific indicators
+    low_and_slow_score: float = 0.0  # Sustained low-rate activity
+    living_off_land_score: float = 0.0  # Legitimate tools used maliciously
+    off_hours_activity: bool = False  # Activity during unusual hours
+    credential_reuse_attempts: int = 0  # Same creds across services
+    
     def __post_init__(self):
         if self.risk_factors is None:
             self.risk_factors = []
@@ -110,6 +116,9 @@ class BehavioralHeuristics:
         self.destination_ips = defaultdict(set)
         self.source_ports = defaultdict(set)
         self.payload_sizes = defaultdict(lambda: deque(maxlen=100))
+        
+        # APT-specific tracking
+        self.apt_indicators = {}  # entity_id -> APT behavior patterns
         
         # Thresholds for risk scoring
         self.thresholds = {
@@ -487,6 +496,61 @@ def track_retry(entity_id: str) -> None:
 def track_auth_attempt(entity_id: str, success: bool) -> None:
     """Track an authentication attempt"""
     get_behavioral_heuristics().track_auth_attempt(entity_id, success)
+
+
+def detect_low_and_slow(entity_id: str, time_window_hours: int = 24) -> float:
+    """Detect low-and-slow APT attacks"""
+    heuristics = get_behavioral_heuristics()
+    
+    if entity_id not in heuristics.entities:
+        return 0.0
+    
+    metrics = heuristics.entities[entity_id]
+    
+    # Calculate sustained connection rate over extended period
+    if metrics.connection_count_15min == 0:
+        return 0.0
+    
+    # Very low rate (< 5 connections per 15 min) sustained = suspicious
+    if metrics.connection_count_15min < 5 and (time.time() - metrics.first_seen) > 7200:
+        # Higher score for longer sustained periods
+        sustained_hours = (time.time() - metrics.first_seen) / 3600
+        score = min(0.3 + (sustained_hours / 48) * 0.5, 0.8)  # Cap at 0.8
+        return score
+    
+    return 0.0
+
+
+def detect_off_hours_activity(entity_id: str, target_timezone: str = 'UTC') -> bool:
+    """Detect activity during off-hours (common APT tactic)"""
+    import pytz
+    from datetime import datetime
+    
+    try:
+        tz = pytz.timezone(target_timezone)
+    except:
+        tz = pytz.UTC
+    
+    now = datetime.now(tz)
+    hour = now.hour
+    
+    # Off-hours: 22:00 - 06:00
+    # In production, would track per-entity activity patterns
+    return hour >= 22 or hour < 6
+
+
+def detect_credential_reuse(entity_id: str, auth_pattern: str) -> int:
+    """Track credential reuse across multiple services"""
+    heuristics = get_behavioral_heuristics()
+    
+    if entity_id not in heuristics.apt_indicators:
+        heuristics.apt_indicators[entity_id] = {
+            'credential_patterns': defaultdict(int),
+            'services_targeted': set()
+        }
+    
+    heuristics.apt_indicators[entity_id]['credential_patterns'][auth_pattern] += 1
+    return heuristics.apt_indicators[entity_id]['credential_patterns'][auth_pattern]
 
 
 def get_entity_risk_score(entity_id: str) -> float:

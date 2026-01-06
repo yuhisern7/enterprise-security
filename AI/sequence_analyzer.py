@@ -136,8 +136,122 @@ class SequenceAnalyzer:
         # State transition probabilities (for rule-based fallback)
         self.transition_probs = self._initialize_transition_matrix()
         
+        # APT campaign patterns (known attack progressions)
+        self.apt_patterns = {
+            'slow_burn': {  # Low-and-slow APT
+                'min_dwell_time': 3600,  # 1 hour between stages
+                'max_dwell_time': 86400 * 7,  # Up to 7 days
+                'typical_sequence': [
+                    AttackState.SCANNING,
+                    AttackState.AUTH_ABUSE,
+                    AttackState.NORMAL,  # Go quiet
+                    AttackState.PRIV_ESC,
+                    AttackState.LATERAL_MOVEMENT,
+                    AttackState.EXFILTRATION
+                ]
+            },
+            'smash_and_grab': {  # Fast exploitation
+                'min_dwell_time': 60,  # 1 minute between stages
+                'max_dwell_time': 3600,  # < 1 hour total
+                'typical_sequence': [
+                    AttackState.SCANNING,
+                    AttackState.PRIV_ESC,
+                    AttackState.EXFILTRATION
+                ]
+            },
+            'lateral_spread': {  # Worm-like behavior
+                'min_dwell_time': 300,  # 5 minutes
+                'max_dwell_time': 7200,  # 2 hours
+                'typical_sequence': [
+                    AttackState.AUTH_ABUSE,
+                    AttackState.LATERAL_MOVEMENT,
+                    AttackState.LATERAL_MOVEMENT,
+                    AttackState.LATERAL_MOVEMENT
+                ]
+            }
+        }
+        
         # Load existing sequences
         self.load_sequences()
+    
+    def detect_apt_campaign_pattern(self, entity_id: str) -> Optional[Dict[str, Any]]:
+        """Detect if entity's sequence matches known APT campaign patterns.
+        
+        Args:
+            entity_id: Entity to analyze
+        
+        Returns:
+            Dictionary with matched campaign type and confidence, or None
+        \"""
+        if entity_id not in self.entity_sequences:
+            return None
+        
+        sequence = list(self.entity_sequences[entity_id])
+        if len(sequence) < 3:
+            return None
+        
+        # Extract state sequence and timing
+        states = [event.state for event in sequence[-10:]]  # Last 10 states
+        timestamps = [event.timestamp for event in sequence[-10:]]
+        
+        # Check each APT pattern
+        best_match = None
+        best_confidence = 0.0
+        
+        for pattern_name, pattern in self.apt_patterns.items():
+            confidence = self._match_sequence_pattern(
+                states, timestamps, pattern['typical_sequence'],
+                pattern['min_dwell_time'], pattern['max_dwell_time']
+            )
+            
+            if confidence > best_confidence:
+                best_confidence = confidence
+                best_match = pattern_name
+        
+        if best_confidence > 0.6:  # 60% match threshold
+            return {
+                'campaign_type': best_match,
+                'confidence': best_confidence,
+                'states_observed': [s.value for s in states],
+                'timestamp': time.time()
+            }
+        
+        return None
+    
+    def _match_sequence_pattern(self, observed_states: List[AttackState],
+                                timestamps: List[float],
+                                pattern_sequence: List[AttackState],
+                                min_dwell: float, max_dwell: float) -> float:
+        \"\"\"Calculate how well observed sequence matches an APT pattern.
+        
+        Returns:
+            Confidence score 0.0-1.0
+        \"\"\"
+        if len(observed_states) < 2:
+            return 0.0
+        
+        # Check if pattern states appear in observed sequence (order matters)
+        pattern_matches = 0
+        last_match_idx = -1
+        
+        for pattern_state in pattern_sequence:
+            for i in range(last_match_idx + 1, len(observed_states)):
+                if observed_states[i] == pattern_state:
+                    pattern_matches += 1
+                    last_match_idx = i
+                    break
+        
+        sequence_similarity = pattern_matches / len(pattern_sequence)
+        
+        # Check timing (dwell time between states)
+        timing_score = 0.0
+        if len(timestamps) >= 2:
+            dwells = [timestamps[i+1] - timestamps[i] for i in range(len(timestamps)-1)]
+            valid_dwells = sum(1 for d in dwells if min_dwell <= d <= max_dwell)
+            timing_score = valid_dwells / len(dwells) if dwells else 0.0
+        
+        # Combined confidence (70% sequence, 30% timing)
+        return (sequence_similarity * 0.7) + (timing_score * 0.3)
     
     def _initialize_model(self):
         """Initialize or load LSTM model"""

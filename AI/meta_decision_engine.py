@@ -175,7 +175,7 @@ class MetaDecisionEngine:
             SignalType.SEQUENCE: 0.85,         # Strong for multi-stage attacks
             SignalType.AUTOENCODER: 0.80,      # Excellent for zero-days
             SignalType.DRIFT: 0.70,            # Model degradation indicator
-            SignalType.GRAPH: 0.88,            # Strong for lateral movement
+            SignalType.GRAPH: 0.92,            # Critical for APT lateral movement detection
             SignalType.ML_ANOMALY: 0.72,       # Good but can have false positives
             SignalType.ML_CLASSIFICATION: 0.78, # Supervised, generally accurate
             SignalType.ML_REPUTATION: 0.82,    # IP history very valuable
@@ -187,8 +187,15 @@ class MetaDecisionEngine:
         
         # Voting thresholds
         self.threat_threshold = 0.50  # Weighted vote score to classify as threat
-        self.block_threshold = 0.75   # Weighted vote score to auto-block
+        # Default block threshold (0.75 standard, 0.65-0.70 for critical infrastructure)
+        self.block_threshold = float(os.getenv('BLOCK_THRESHOLD', '0.75'))  # Weighted vote score to auto-block
         self.strong_consensus_threshold = 0.80  # Agreement % for strong consensus
+        
+        # APT-focused mode for critical infrastructure
+        self.apt_detection_mode = os.getenv('APT_DETECTION_MODE', 'false').lower() == 'true'
+        if self.apt_detection_mode:
+            self.block_threshold = min(self.block_threshold, 0.70)  # Bias toward security
+            logger.info("[META-ENGINE] APT Detection Mode enabled - aggressive blocking")
         
         # Minimum signals required for decision
         self.min_signals_for_decision = 2
