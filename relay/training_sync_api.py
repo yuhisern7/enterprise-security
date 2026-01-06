@@ -135,6 +135,19 @@ def get_malware_hash_count():
 
 if __name__ == '__main__':
     # Run on port 60002 (relay WebSocket is on 60001)
-    logger.info("🚀 Starting ML Model Distribution API on port 60002")
+    logger.info("🚀 Starting ML Model Distribution API on port 60002 (HTTPS)")
     logger.info("📦 Serving ONLY pre-trained models (280 KB) - NOT raw training data")
-    app.run(host='0.0.0.0', port=60002, debug=False)
+    
+    # Use same SSL certs as relay server
+    import ssl
+    ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+    
+    # Try to load SSL certs (same as relay server)
+    try:
+        ssl_context.load_cert_chain('/app/relay/ssl/relay.crt', '/app/relay/ssl/relay.key')
+        logger.info("🔒 HTTPS enabled with SSL certificates")
+        app.run(host='0.0.0.0', port=60002, debug=False, ssl_context=ssl_context)
+    except FileNotFoundError:
+        logger.warning("⚠️ SSL certificates not found - falling back to HTTP (insecure)")
+        app.run(host='0.0.0.0', port=60002, debug=False)
+

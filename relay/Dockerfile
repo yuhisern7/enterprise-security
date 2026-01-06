@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     make \
     git \
     curl \
+    openssl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -34,6 +35,14 @@ RUN mkdir -p /app/relay/customer_keys
 RUN mkdir -p /app/relay/ai_training_materials/ml_models
 RUN mkdir -p /app/relay/ml_models
 RUN mkdir -p /app/relay/json
+
+# Generate self-signed SSL certificates for HTTPS
+RUN mkdir -p /app/relay/ssl && \
+    openssl req -x509 -newkey rsa:4096 -nodes \
+    -keyout /app/relay/ssl/relay.key \
+    -out /app/relay/ssl/relay.crt \
+    -days 3650 -sha256 \
+    -subj "/C=US/ST=Cloud/L=VPS/O=Battle-Hardened-AI/CN=relay-server"
 
 # Expose ports
 # WebSocket relay
