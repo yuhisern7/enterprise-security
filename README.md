@@ -702,7 +702,7 @@ can be safely applied to modern network defense at organizational and national s
 
 ### Deployment & Access
 
-**Home / Lab usage:** USD 25 / month  
+**Home / Lab usage:** USD 10 / month  
 **Organizations / SOCs:** USD 50 / month
 
 ### Operator
