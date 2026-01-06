@@ -41,7 +41,7 @@ def load_shared_secret():
     """Load shared HMAC secret (same for all customers)"""
     global SHARED_SECRET
     try:
-        secret_file = "ai_training_materials/crypto_keys/shared_secret.key"
+        secret_file = "crypto_keys/shared_secret.key"
         if os.path.exists(secret_file):
             with open(secret_file, 'rb') as f:
                 SHARED_SECRET = f.read()

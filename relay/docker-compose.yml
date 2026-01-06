@@ -11,6 +11,8 @@ services:
     volumes:
       # Mount ai_training_materials (825 MB training data)
       - ./ai_training_materials:/app/relay/ai_training_materials
+      # Mount crypto_keys (HMAC shared secrets)
+      - ./crypto_keys:/app/relay/crypto_keys
       # Mount AI folder for crypto_security access
       - ../AI:/app/AI
     env_file:
