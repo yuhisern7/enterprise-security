@@ -379,7 +379,7 @@ async def handle_client(websocket: WebSocketServerProtocol):
                     customer_id = data.get("customer_id")
                     if customer_id:
                         authenticated_peers[websocket] = customer_id
-                        company_name = AUTHORIZED_CUSTOMERS[customer_id]['company_name']
+                        company_name = customer_id  # All customers use shared key
                         logger.debug(f"✅ Verified message from: {company_name} ({customer_id})")
                 
                 # Handle different message types

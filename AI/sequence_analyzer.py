@@ -24,7 +24,7 @@ import numpy as np
 import logging
 from datetime import datetime
 from collections import deque
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 from dataclasses import dataclass, asdict
 from enum import Enum
 
@@ -182,7 +182,7 @@ class SequenceAnalyzer:
         
         Returns:
             Dictionary with matched campaign type and confidence, or None
-        \"""
+        """
         if entity_id not in self.entity_sequences:
             return None
         
@@ -222,11 +222,11 @@ class SequenceAnalyzer:
                                 timestamps: List[float],
                                 pattern_sequence: List[AttackState],
                                 min_dwell: float, max_dwell: float) -> float:
-        \"\"\"Calculate how well observed sequence matches an APT pattern.
+        """Calculate how well observed sequence matches an APT pattern.
         
         Returns:
             Confidence score 0.0-1.0
-        \"\"\"
+        """
         if len(observed_states) < 2:
             return 0.0
         
