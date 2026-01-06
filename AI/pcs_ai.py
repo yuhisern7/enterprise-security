@@ -5077,6 +5077,31 @@ def get_model_lineage_stats() -> Dict:
         # Add integrity check
         integrity = tracker.verify_chain_integrity()
         stats['chain_integrity'] = integrity
+
+        # Add lineage-based drift/poisoning detection summary
+        drift = tracker.detect_model_drift_via_lineage()
+        stats['lineage_drift'] = drift
+
+        # If drift is detected, mirror it into the comprehensive audit log
+        # so Stage 7 can treat it as a concrete crypto/lineage signal.
+        if drift.get('drift_detected'):
+            try:
+                from emergency_killswitch import get_audit_log, AuditEventType
+
+                audit = get_audit_log()
+                audit.log_event(
+                    event_type=AuditEventType.THREAT_DETECTED,
+                    actor="cryptographic_lineage",
+                    action="lineage_drift_detected",
+                    target="model_lineage_chain",
+                    outcome="detected",
+                    details=drift,
+                    risk_level="high" if drift.get('reason', '').lower().startswith('high proportion of peer') else "medium",
+                    metadata={"module": "cryptographic_lineage"},
+                )
+            except Exception:
+                # Stats API should never fail just because audit logging failed
+                pass
         
         return stats
     except Exception as e:

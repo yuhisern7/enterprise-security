@@ -8,6 +8,91 @@ The system is designed with defensive-only constraints, privacy preservation, an
 
 ---
 
+### 18‑Signal Training Data Flow (Diagram)
+
+The diagram below shows how the 18 detection abilities filter attacks, how incidents are logged on the local node, and how **AI training materials** are shared via the relay so that other servers/containers get smarter after each attack.
+
+```text
+		[Network traffic, logs, cloud APIs,
+		 backups, identities, devices]
+			  |
+			  v
+	  +-------------------------------+
+	  |   Pre-processing & Ingestion  |
+	  | - server/network_monitor.py   |
+	  | - server/device_scanner.py    |
+	  | - AI/cloud_security.py        |
+	  | - AI/backup_recovery.py       |
+	  | - AI/compliance_reporting.py  |
+	  +-------------------------------+
+			  |
+			  v
+	  +-------------------------------+
+	  |      18 Detection Abilities   |
+	  |  1. eBPF Kernel Telemetry     |
+	  |  2. Signature Matching        |
+	  |  3. RandomForest              |
+	  |  4. IsolationForest           |
+	  |  5. Gradient Boosting         |
+	  |  6. Behavioral Heuristics     |
+	  |  7. LSTM                      |
+	  |  8. Autoencoder               |
+	  |  9. Drift Detection           |
+	  | 10. Graph Intelligence        |
+	  | 11. VPN/Tor Fingerprinting    |
+	  | 12. Threat Intel Feeds        |
+	  | 13. False Positive Filter     |
+	  | 14. Historical Reputation     |
+	  | 15. Explainability Engine     |
+	  | 16. Predictive Modeling       |
+	  | 17. Byzantine Defense         |
+	  | 18. Integrity Monitoring      |
+	  +-------------------------------+
+			  |
+			  v
+	      [AI/meta_decision_engine.py + AI/pcs_ai.py
+		   + AI/false_positive_filter.py]
+		   (ensemble & gating)
+			  |
+	     High-confidence attacks /
+	     incidents & anomalies
+			  |
+			  v
+	  +-------------------------------+
+	  |   Local JSON & Audit Surfaces |
+	  | - server/json/threat_log.json |
+	  | - dns_security.json,          |
+	  |   tls_fingerprints.json       |
+	  | - cloud_findings.json         |
+	  | - soar_incidents.json         |
+	  | - backup_status.json,         |
+	  |   recovery_tests.json         |
+	  | - compliance_reports/         |
+	  | - forensic_reports/           |
+	  | - comprehensive_audit.json    |
+	  +-------------------------------+
+			  |
+	     Sanitized, privacy-preserving
+		     training data
+			  |
+			  v
+	  +------------------------------------------------+
+	  |        Relay AI Training Materials (shared)    |
+	  |  relay/ai_training_materials/global_attacks.json      |
+	  |  relay/ai_training_materials/attack_statistics.json   |
+	  |  relay/ai_training_materials/ai_signatures/...        |
+	  |  relay/ai_training_materials/reputation_data/         |
+	  +------------------------------------------------+
+			  |
+	     Other servers/containers pull updates
+			  |
+	     Updated models, reputations, and
+		   signatures on each node
+			  |
+	     ==> The AI gets smarter after
+		     every real attack
+```
+
 ## High-Level Capabilities
 
 ### Advanced Defense Modules
@@ -180,55 +265,45 @@ Only **signatures, statistics, and model updates** are shared — never raw traf
 
 ### 📊 Real-Time Dashboard Overview
 
-**AI has 18 detection abilities; the dashboard exposes 30+ monitoring sections.**
+AI has 18 detection abilities; the web dashboard exposes **31 labeled sections** that surface their outputs, plus governance, compliance, cloud security, and resilience.
 
-#### 🧠 Core AI Intelligence (5 sections)
+The table below reflects the current layout implemented in `AI/inspector_ai_monitoring.html` and used by the Stage 1–10 runbooks in `ai-abilities.md`.
 
-- **Section 1:** Complete AI feature overview (18 detection abilities).
-- **Section 5:** ML Models (4 tabs: Models/Training, Byzantine Defense, Model Lineage, Deterministic Testing).
-- **Section 11:** Automated signature extraction.
-- **Section 14:** Attack chain visualization (Graph Intelligence).
-- **Section 15:** Decision explainability engine.
+| #  | Section Title                                                    | Summary |
+| --- | ---------------------------------------------------------------- | ------- |
+| 1   | AI Training Network – Shared Machine Learning                    | P2P/federated training status, threats sent/learned between peers |
+| 2   | Network Devices – Live Monitor, Ports & History                  | Consolidated view of live devices, port scans, 7‑day history, and assets |
+| 3   | Attackers VPN/Tor De-Anonymization Statistics                    | VPN/Tor detection and de‑anonymization statistics |
+| 4   | Real AI/ML Models – Machine Learning Intelligence                | ML models, Byzantine defense, model lineage, deterministic testing |
+| 5   | Security Overview – Live Statistics                              | High‑level security posture, key counters and KPIs |
+| 6   | Threat Analysis by Type                                          | Breakdown of threats by type/severity |
+| 7   | IP Management & Threat Monitoring                                | Per‑IP risk, reputation, and management actions |
+| 8   | Failed Login Attempts (Battle-Hardened AI Server)                | Authentication abuse and brute‑force monitoring |
+| 9   | Attack Type Breakdown                                            | Distribution of attack types (visual breakdown) |
+| 10  | Automated Signature Extraction – Attack Pattern Analysis         | Defensive signature extraction dashboard (patterns only, no payloads) |
+| 11  | System Health & Network Performance                              | System resources, network performance, and self‑protection (integrity) |
+| 12  | Compliance & Threat Governance                                   | PCI/HIPAA/GDPR/SOC2 status, threat model, and audit summary |
+| 13  | Attack Chain Visualization (Graph Intelligence)                  | Lateral movement and kill‑chain visualization (graph intelligence) |
+| 14  | Decision Explainability Engine                                   | Explainable AI views for decisions and forensic context |
+| 15  | Adaptive Honeypot – AI Training Sandbox                          | Honeypot activity, personas, and training impact |
+| 16  | AI Security Crawlers & Threat Intelligence Sources               | Crawler status and external threat‑intel feed coverage |
+| 17  | Traffic Analysis & Inspection                                    | Deep packet inspection, app‑aware blocking, encrypted traffic stats |
+| 18  | DNS & Geo Security                                               | DNS tunneling/DGA metrics and geo‑IP risk/controls |
+| 19  | User & Identity Monitoring + Zero Trust                          | UEBA, insider‑threat analytics, Zero Trust posture |
+| 20  | Forensics & Threat Hunting                                       | PCAP storage, hunt queries, and packet‑level investigations |
+| 21  | Sandbox Detonation                                               | File detonation statistics and analysis capabilities |
+| 22  | Email/SMS Alerts                                                 | Alert configuration and notification metrics |
+| 23  | API for SOAR Integration + Workflow Automation                   | SOAR/API usage, playbooks, and integration health |
+| 24  | Vulnerability & Supply Chain Management                          | Vulnerability and software supply‑chain posture |
+| 25  | Cryptocurrency Mining Detection                                  | Crypto‑mining detection and related statistics |
+| 26  | Dark Web Monitoring                                              | Dark‑web‑related intelligence and monitoring |
+| 27  | Attack Simulation (Purple Team)                                  | Purple‑team attack simulation and validation views |
+| 28  | Cloud Security Posture Management (CSPM)                         | Multi‑cloud misconfigurations, IAM risks, and cloud compliance |
+| 29  | Data Loss Prevention (DLP)                                       | PII/PHI detections, exfiltration attempts, DLP coverage |
+| 30  | Backup & Recovery Status                                         | Backup posture, ransomware resilience, and recovery tests |
+| 31  | Governance & Emergency Controls                                  | Kill‑switch mode, approval queue, policy governance, audit/log health |
 
-#### 🌐 Network & Devices (4 sections)
-
-- **Section 3:** Live device monitoring and port scanning.
-- **Section 12:** System health (3 tabs: Resources, Network, Integrity).
-- **Section 18:** Traffic analysis, deep packet inspection (DPI), and encrypted traffic overview (TLS fingerprinting).
-- **Section 19:** DNS and geo security, powered by the DNS analyzer and dns_security.json metrics.
-
-#### 🎯 Threat Detection & Analysis (8 sections)
-
-- **Section 2:** AI training network (P2P federated learning).
-- **Section 4:** VPN/Tor de-anonymization.
-- **Section 6–8:** Security overview, threat analysis, IP management.
-- **Section 10:** Attack-type breakdown.
-- **Section 17:** AI crawlers and threat intelligence.
-- **Section 26:** Cryptocurrency mining detection.
-- **Section 27:** Dark web monitoring.
-
-#### 🛡️ Defense & Response (5 sections)
-
-- **Section 9:** Failed login attempts monitoring.
-- **Section 16:** Adaptive honeypot (AI learning sandbox).
-- **Section 21:** Forensics and threat hunting.
-- **Section 22:** Sandbox detonation.
-- **Section 28:** Attack simulation (Purple Team).
-
-#### 🔐 Identity, Compliance & Enterprise (10+ sections)
-
-- **Section 13:** Compliance and governance (3 tabs: PCI/HIPAA/GDPR/SOC2, Threat Model, Audit Summary).
-- **Section 20:** User monitoring and Zero Trust.
-- **Section 23:** Email/SMS alerts.
-- **Section 24:** API and SOAR integration.
-- **Section 24:** Vulnerability and supply chain management.
-- **Section 25:** Cryptocurrency mining detection.
-- **Section 26:** Dark web monitoring.
-- **Section 27:** Attack simulation (Purple Team).
-- **Section 28:** Cloud security posture (CSPM).
-- **Section 29:** Data loss prevention (DLP).
-- **Section 30:** Backup and recovery status.
-- **Section 31:** Governance and emergency controls (kill switch, policy approvals, audit logs, system logs).
+These sections are backed by the JSON/audit surfaces described in `filepurpose.md` and exercised by the Stage 1–10 validation and runbooks in `ai-abilities.md`.
 
 ---
 

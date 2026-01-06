@@ -29,6 +29,9 @@ class BackupRecoveryMonitor:
         
         self.backup_jobs = self.load_backup_jobs()
         self.recovery_tests = self.load_recovery_tests()
+        # Track which backup locations have already been escalated as
+        # incidents to avoid repeatedly spamming the relay/audit log.
+        self._escalated_locations = set()
     
     def load_backup_jobs(self) -> List[Dict]:
         """Load backup job history"""
@@ -222,6 +225,34 @@ class BackupRecoveryMonitor:
         # Count success/failure
         successful = sum(1 for b in backup_status if b.get('status') == 'success')
         failed = sum(1 for b in backup_status if b.get('status') != 'success')
+
+        # Escalate failed/overdue backups and high ransomware risk into the
+        # comprehensive audit log and (optionally) relay/global_attacks.json
+        # so that Stage 9 contributes real security incidents.
+        try:
+            for job in backup_status:
+                if job.get('status') == 'success':
+                    continue
+
+                location = job.get('location')
+                if not location or location in self._escalated_locations:
+                    continue
+
+                self._escalated_locations.add(location)
+                self._log_backup_issue(job)
+
+            # If overall ransomware resilience is low, record a posture
+            # incident as well so operators and the relay can see that the
+            # environment is in a high-risk backup state.
+            if resilience_score < 40:
+                posture = {
+                    'resilience_score': resilience_score,
+                    'air_gapped_verified': air_gapped.get('verified', False),
+                    'rto_meets_objective': rto.get('meets_objective', False),
+                }
+                self._log_resilience_posture(posture)
+        except Exception as e:
+            print(f"[BACKUP] Failed to escalate backup/recovery issues: {e}")
         
         return {
             'total_backup_locations': len(backup_status),
@@ -236,6 +267,121 @@ class BackupRecoveryMonitor:
             'total_recovery_tests': len(self.recovery_tests),
             'risk_level': 'low' if resilience_score >= 70 else ('medium' if resilience_score >= 40 else 'high')
         }
+
+    def _log_backup_issue(self, job: Dict) -> None:
+        """Mirror a failed or overdue backup job into audit and relay."""
+        location = job.get('location', 'unknown')
+        hours_since = job.get('hours_since_backup')
+        status = job.get('status')
+
+        # Map backup status to audit risk.
+        risk = 'high' if status != 'success' and (hours_since is None or hours_since > 48) else 'medium'
+
+        # 1) Comprehensive audit log entry
+        try:
+            from emergency_killswitch import get_audit_log, AuditEventType
+
+            audit = get_audit_log()
+            audit.log_event(
+                event_type=AuditEventType.THREAT_DETECTED,
+                actor='backup_recovery',
+                action='backup_issue_detected',
+                target=location,
+                outcome='observed',
+                details=job,
+                risk_level=risk,
+                metadata={'module': 'backup_recovery'},
+            )
+        except Exception as e:
+            print(f"[BACKUP] Failed to write backup issue to audit log: {e}")
+
+        # 2) Relay/global_attacks.json record (if relay tree is present)
+        try:
+            base_dir = os.path.join(os.path.dirname(__file__), '..')
+            training_dir = os.path.join(base_dir, 'relay', 'ai_training_materials')
+            if not os.path.isdir(training_dir):
+                return
+
+            attacks_file = os.path.join(training_dir, 'global_attacks.json')
+
+            if os.path.exists(attacks_file):
+                with open(attacks_file, 'r') as f:
+                    attacks = json.load(f)
+                    if not isinstance(attacks, list):
+                        attacks = []
+            else:
+                attacks = []
+
+            record = {
+                'attack_type': 'backup_issue',
+                'backup_location': location,
+                'status': status,
+                'hours_since_backup': hours_since,
+                'severity': 'high' if risk == 'high' else 'medium',
+                'timestamp': job.get('last_backup') or datetime.now().isoformat(),
+                'source': 'backup_recovery',
+                'relay_server': os.getenv('RELAY_NAME', 'central-relay'),
+            }
+
+            attacks.append(record)
+
+            with open(attacks_file, 'w') as f:
+                json.dump(attacks, f, indent=2)
+        except Exception as e:
+            print(f"[BACKUP] Failed to write backup issue to global_attacks.json: {e}")
+
+    def _log_resilience_posture(self, posture: Dict) -> None:
+        """Log an overall ransomware resilience posture issue."""
+        try:
+            from emergency_killswitch import get_audit_log, AuditEventType
+
+            audit = get_audit_log()
+            audit.log_event(
+                event_type=AuditEventType.THREAT_DETECTED,
+                actor='backup_recovery',
+                action='ransomware_resilience_low',
+                target='backup_environment',
+                outcome='observed',
+                details=posture,
+                risk_level='high',
+                metadata={'module': 'backup_recovery'},
+            )
+        except Exception as e:
+            print(f"[BACKUP] Failed to write resilience posture to audit log: {e}")
+
+        try:
+            base_dir = os.path.join(os.path.dirname(__file__), '..')
+            training_dir = os.path.join(base_dir, 'relay', 'ai_training_materials')
+            if not os.path.isdir(training_dir):
+                return
+
+            attacks_file = os.path.join(training_dir, 'global_attacks.json')
+
+            if os.path.exists(attacks_file):
+                with open(attacks_file, 'r') as f:
+                    attacks = json.load(f)
+                    if not isinstance(attacks, list):
+                        attacks = []
+            else:
+                attacks = []
+
+            record = {
+                'attack_type': 'ransomware_resilience_low',
+                'resilience_score': posture.get('resilience_score'),
+                'air_gapped_verified': posture.get('air_gapped_verified'),
+                'rto_meets_objective': posture.get('rto_meets_objective'),
+                'severity': 'high',
+                'timestamp': datetime.now().isoformat(),
+                'source': 'backup_recovery',
+                'relay_server': os.getenv('RELAY_NAME', 'central-relay'),
+            }
+
+            attacks.append(record)
+
+            with open(attacks_file, 'w') as f:
+                json.dump(attacks, f, indent=2)
+        except Exception as e:
+            print(f"[BACKUP] Failed to write resilience posture to global_attacks.json: {e}")
 
 # Global instance
 backup_recovery = BackupRecoveryMonitor()

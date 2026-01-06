@@ -4,26 +4,47 @@ This document briefly explains the purpose of each file in the core folders: `AI
 
 ---
 
+## Critical JSON & Audit Surfaces by Stage
+
+This table summarizes the most important JSON/audit surfaces exercised by the Stage 1–10 tests (see ai-abilities.md):
+
+| Stage | Local JSON / Audit (server/) | Relay JSON (relay/ai_training_materials/) |
+|-------|------------------------------|--------------------------------------------|
+| 1 – Plumbing & Relay | crypto_keys/, HMAC-signed messages (no persistent JSON beyond logs) | global_attacks.json (when sending real signed attack messages) |
+| 2 – Core Detection | json/threat_log.json; json/dns_security.json; json/tls_fingerprints.json | global_attacks.json; attack_statistics.json |
+| 3 – Deception & Honeypots | honeypot_* JSONs; json/threat_log.json | global_attacks.json; ai_signatures/learned_signatures.json |
+| 4 – Network, Devices & Behavioral | json/connected_devices.json; json/device_history.json; json/network_performance.json; json/dns_security.json; json/tls_fingerprints.json; json/network_graph.json; json/lateral_movement_alerts.json | global_attacks.json; attack_statistics.json |
+| 5 – Threat Intel & Signatures | json/local_threat_intel.json; reputation.db; json/threat_log.json | threat_intelligence/; reputation_data/; ai_signatures/learned_signatures.json; global_attacks.json |
+| 6 – Governance & Self‑Protection | json/approval_requests.json; json/governance_audit.json; json/integrity_violations.json; json/comprehensive_audit.json | global_attacks.json (policy/self‑protection events promoted as attacks) |
+| 7 – Crypto, Lineage & Federated | json/comprehensive_audit.json (cryptographic_lineage, byzantine_defender) | global_attacks.json (e.g., federated_update_rejected) |
+| 8 – Enterprise, Cloud & SOAR | json/soar_incidents.json; json/cloud_findings.json; json/comprehensive_audit.json | global_attacks.json (soar_incident, cloud_misconfiguration) |
+| 9 – Backup & Compliance | json/backup_status.json; json/recovery_tests.json; json/compliance_reports/; json/comprehensive_audit.json | global_attacks.json (backup_issue, ransomware_resilience_low, compliance_issue) |
+| 10 – Explainability & Dashboard | json/forensic_reports/; json/comprehensive_audit.json (SYSTEM_ERROR from dashboard/explainability/visualization APIs) | Reuses global_attacks.json and ai_signatures/learned_signatures.json from earlier stages |
+
+Use this as a quick index when you want to jump from a stage to the on-disk JSONs and relay views that its runbooks exercise.
+
+---
+
 ## AI Folder
 
 - AI/adaptive_honeypot.py — Adaptive multi-persona honeypot that mimics various services (HTTP admin, FTP, SSH, DB, etc.) and feeds honeypot hits into the AI threat log.
-- AI/advanced_orchestration.py — Advanced orchestration engine for predictive threat modeling, automated responses, custom alert rules, topology export, and training data export.
+- AI/advanced_orchestration.py — Advanced orchestration engine for predictive threat modeling, automated responses, custom alert rules, topology export, and training/orchestration data export.
 - AI/advanced_visualization.py — Generates network topology, attack flows, heatmaps, geo maps, and timelines from JSON logs for use in dashboards.
 - AI/alert_system.py — Configurable email/SMS alerting system with SMTP/Twilio-style integration and severity-based threat notifications.
 - AI/asset_inventory.py — Builds a hardware/software asset inventory from local scans and connected_devices.json, tracking EOL and shadow IT risks.
-- AI/backup_recovery.py — Monitors backup locations, estimates ransomware resilience, tracks recovery tests, and reports backup/RTO status.
+- AI/backup_recovery.py — Monitors backup locations, estimates ransomware resilience, tracks recovery tests, writes backup_status.json/recovery_tests.json, and logs backup_issue/ransomware_resilience_low posture issues into the comprehensive audit log and (when present) relay global_attacks.json.
 - AI/behavioral_heuristics.py — Behavioral engine that tracks per-entity connection/auth patterns and computes heuristic risk scores.
-- AI/byzantine_federated_learning.py — Byzantine-resilient federated learning aggregator (Krum, Multi-Krum, trimmed mean, median) with peer reputation.
+- AI/byzantine_federated_learning.py — Byzantine-resilient federated learning aggregator (Krum, Multi-Krum, trimmed mean, median) with peer reputation and audit/relay logging for rejected/poisoned updates.
 - AI/central_sync.py — Optional central server sync client that uploads sanitized threat summaries and ingests global threat patterns.
-- AI/cloud_security.py — Cloud security posture checks for AWS/Azure/GCP using CLIs, with misconfig, IAM, encryption, and exposure summaries.
-- AI/compliance_reporting.py — Generates compliance and control-mapping views (PCI/NIST/etc.) from local telemetry and SBOM/asset data.
-- AI/cryptographic_lineage.py — Tracks cryptographic provenance, key usage, and signature lineage for auditability.
+- AI/cloud_security.py — Cloud security posture checks for AWS/Azure/GCP using CLIs, with misconfig, IAM, encryption, and exposure summaries, persisting snapshots to cloud_findings.json and escalating high/critical issues into the comprehensive audit log and relay global_attacks.json.
+- AI/compliance_reporting.py — Generates PCI/HIPAA/GDPR/SOC2 compliance reports and control-mapping views from local telemetry and SBOM/asset data, writing JSON reports under server/json/compliance_reports and logging compliance_issue events into the comprehensive audit log and relay global_attacks.json.
+- AI/cryptographic_lineage.py — Tracks cryptographic provenance, key usage, and signature lineage for auditability, and surfaces lineage integrity/drift issues into the comprehensive audit log (and, when configured, relay global_attacks.json).
 - AI/crypto_security.py — Central cryptography helper (HMAC, signing, verification, key handling) used by server and relay for secure messaging.
 - AI/deterministic_evaluation.py — Provides deterministic evaluation harnesses and scoring for AI models using fixed datasets.
 - AI/drift_detector.py — Monitors model input/output statistics over time to detect data/model drift and trigger retraining.
-- AI/emergency_killswitch.py — Implements emergency kill switches to safely disable or downgrade AI actions under operator control.
+- AI/emergency_killswitch.py — Implements emergency kill switches to safely disable or downgrade AI actions under operator control and hosts the central comprehensive_audit.json log used by other modules for THREAT_DETECTED/ACTION_TAKEN/INTEGRITY_VIOLATION/SYSTEM_ERROR events.
 - AI/enterprise_integration.py — Bridges to enterprise tools (SIEM, ticketing, ITSM) and external APIs for incident/alert integration.
-- AI/explainability_engine.py — Builds human-readable explanations and feature attributions for AI decisions and threat scores.
+- AI/explainability_engine.py — Builds human-readable explanations and feature attributions for AI decisions and threat scores, maintains decision history, and emits forensic_reports JSON plus optional explainability_data for training.
 - AI/exploitdb — Placeholder/path used for local ExploitDB-related resources on the customer side (complements relay ExploitDB usage).
 - AI/false_positive_filter.py — Filters noisy detections using heuristics and metadata to reduce false positives before reaching the dashboard.
 - AI/file_analyzer.py — Analyzes files and artifacts (hashing, type, basic features) for use in malware/intel workflows.
@@ -38,17 +59,17 @@ This document briefly explains the purpose of each file in the core folders: `AI
 - AI/node_fingerprint.py — Creates device/node fingerprints from observed behavior and attributes for long-term identification.
 - AI/p2p_sync.py — Handles peer-to-peer sync logic for nodes in the mesh (metadata/state exchange between peers).
 - AI/pcap_capture.py — Packet capture helper for saving traffic (pcap) samples for offline analysis or training.
-- AI/pcs_ai.py — Central AI orchestrator and source of truth: wires together models, detection modules (including DNS/TLS analyzers), logs, and the dashboard API, and tags relay-bound threats with a stable sensor_id.
+- AI/pcs_ai.py — Central AI orchestrator and source of truth: wires together models, detection modules (including DNS/TLS analyzers), logs, and the dashboard API, tags relay-bound threats with a stable sensor_id, and routes integrity/lineage/federated/cloud/backup/compliance signals into the audit/relay paths.
 - AI/policy_governance.py — Models security policies, approvals, and governance workflows around automated actions.
 - AI/relay_client.py — Client-side relay connector used by customer nodes to talk to the relay WebSocket and model API.
 - AI/reputation_tracker.py — Maintains local IP/domain reputation, aggregating stats from threat logs and external intel.
-- AI/self_protection.py — Implements self-protection checks so the AI/agent can detect tampering or local compromise.
+- AI/self_protection.py — Implements self-protection checks so the AI/agent can detect tampering or local compromise, writing violations into integrity_violations.json and comprehensive_audit.json and optionally triggering the kill switch.
 - AI/sequence_analyzer.py — Sequence analysis utilities for logs/traffic, feeding sequence models like the LSTM.
 - AI/signature_distribution.py — Manages downloading and applying signatures/models distributed from the relay or central sources.
 - AI/signature_extractor.py — Extracts signatures and patterns from attacks/honeypot hits for later training and sharing.
 - AI/signature_uploader.py — Prepares and uploads privacy-preserving signatures to the relay/signature_sync service.
 - AI/soar_api.py — API interface for SOAR-like workflows, exposing actions and playbooks to orchestration.
-- AI/soar_workflows.py — Library of automated SOAR workflows/runbooks for incidents and playbook steps.
+- AI/soar_workflows.py — Library of automated SOAR workflows/runbooks for incidents and playbook steps that persists cases into soar_incidents.json, logs incident/playbook activity into the comprehensive audit log, and mirrors high/critical incidents into relay global_attacks.json as soar_incident entries.
 - AI/swagger_ui.html — Embedded Swagger UI HTML used to expose and document the local API when enabled.
 - AI/system_log_collector.py — Collects system logs and events into structured JSON for analysis by other AI modules.
 - AI/threat_intelligence.py — Local threat intelligence aggregator that merges external feeds and local observations.
@@ -88,15 +109,22 @@ This document briefly explains the purpose of each file in the core folders: `AI
 - server/json/forensic_reports/ — Folder for structured forensic reports generated by AI or operators.
 - server/json/network_monitor_state.json — Persistent state for the live network monitor (counters, trackers, thresholds).
 - server/json/network_performance.json — Historical bandwidth and performance metrics per IP recorded by network_performance.py.
- - server/json/dns_security.json — Aggregated DNS behavior metrics and suspicious query counts written by AI/dns_analyzer.py from live DNS traffic.
- - server/json/tls_fingerprints.json — Aggregated TLS/encrypted-flow fingerprints per source IP written by AI/tls_fingerprint.py.
+- server/json/dns_security.json — Aggregated DNS behavior metrics and suspicious query counts written by AI/dns_analyzer.py from live DNS traffic.
+- server/json/tls_fingerprints.json — Aggregated TLS/encrypted-flow fingerprints per source IP written by AI/tls_fingerprint.py.
+- server/json/comprehensive_audit.json — Central append-only audit log for security, governance, integrity, lineage, federated, backup, cloud, compliance, and dashboard/API events, maintained by EmergencyKillSwitch and consumed across Stages 6–10.
+- server/json/integrity_violations.json — Records integrity and self-protection violations detected by AI/self_protection.py.
+- server/json/soar_incidents.json — Persists SOAR/incidents and case metadata created by AI/soar_workflows.py.
+- server/json/cloud_findings.json — Stores recent cloud security posture snapshots and misconfiguration findings from AI/cloud_security.py.
+- server/json/backup_status.json — Summaries of backup jobs, freshness, and status from AI/backup_recovery.py.
+- server/json/recovery_tests.json — Results of recovery/restore tests used to estimate ransomware resilience in AI/backup_recovery.py.
+- server/json/compliance_reports/ — Directory for JSON compliance reports (PCI, HIPAA, GDPR, SOC2) written by AI/compliance_reporting.py.
 - server/json/sbom.json — Software bill of materials (SBOM) for the deployment, listing packages and versions.
 - server/json/threat_log.json — Main threat log of detections and actions generated by AI and network monitor.
 - server/json/tracked_users.json — Storage for tracked user accounts and related behavioral data.
 - server/network_monitor.py — Scapy-based live network sniffer that detects scans, floods, ARP spoofing, and now feeds behavioral heuristics, graph intelligence, DNS analyzer, TLS fingerprinting, and pcs_ai.
-- server/report_generator.py — Standalone HTML report generator for enterprise-style security reports.
+- server/report_generator.py — Standalone HTML/JSON report generator for enterprise-style security reports that stitches together threat statistics, explainability data, and compliance summaries.
 - server/requirements.txt — Python dependency list for building the server image.
-- server/server.py — Flask dashboard/API server that renders inspector_ai_monitoring.html and exposes APIs (including /api/dns/stats and /api/traffic/analysis) that read dns_security.json and tls_fingerprints.json to power DNS/TLS dashboard sections.
+- server/server.py — Flask dashboard/API server that renders inspector_ai_monitoring.html and exposes REST/JSON endpoints (traffic, DNS/TLS, explainability, audit, visualization, compliance), including logging dashboard/API failures as SYSTEM_ERROR events into comprehensive_audit.json.
 - server/test_system.py — System-level test harness for validating that core services and integrations are functioning.
 
 ---
@@ -114,6 +142,8 @@ This document briefly explains the purpose of each file in the core folders: `AI
 - relay/ai_training_materials/threat_intelligence/ — Stores raw/int-derived threat intel from crawlers for training.
 - relay/ai_training_materials/trained_models/ — Archive of trained model artifacts produced by relay training runs.
 - relay/ai_training_materials/training_datasets/ — Prepared feature/label datasets ready for model training or GPU training.
+ - relay/ai_training_materials/global_attacks.json — Central sanitized global attack/event log aggregated from customer nodes across all stages (core, honeypot, federated, SOAR, cloud, backup, compliance, etc.).
+ - relay/ai_training_materials/attack_statistics.json — Aggregated statistics and trends derived from global_attacks.json, used for dashboards and analytics.
 - relay/docker-compose.yml — Compose file to run the relay server on a VPS with host networking and mounted training data.
 - relay/Dockerfile — Builds the relay container image with WebSocket relay, training API, and training tools.
 - relay/exploitdb_scraper.py — Scrapes a local/remote ExploitDB CSV to derive attack patterns and export learned_signatures.json.

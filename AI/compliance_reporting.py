@@ -200,7 +200,18 @@ def generate_pci_dss_report(start_date: Optional[datetime] = None, end_date: Opt
         report['summary']['compliance_status'] = 'NEEDS_ATTENTION'
     elif report['summary']['blocked_attacks'] < report['summary']['total_security_events'] * 0.8:
         report['summary']['compliance_status'] = 'NEEDS_IMPROVEMENT'
-    
+
+    # Mirror non-COMPLIANT status into the comprehensive audit log so
+    # compliance posture can be treated as a detection signal for
+    # governance and forensics, and (optionally) into relay training
+    # data as a sanitized compliance_incident.
+    try:
+        status = report['summary']['compliance_status']
+        if status != 'COMPLIANT':
+            _log_compliance_issue('PCI-DSS', status, report)
+    except Exception as e:
+        print(f"[COMPLIANCE] Failed to escalate PCI-DSS compliance issue: {e}")
+
     return report
 
 
@@ -318,7 +329,14 @@ def generate_hipaa_report(start_date: Optional[datetime] = None, end_date: Optio
     if len(successful_critical) > 0:
         report['breach_analysis']['notification_required'] = True
         report['breach_analysis']['notification_reason'] = f'{len(successful_critical)} critical security incidents were not prevented and may have resulted in PHI exposure'
-    
+
+    # Escalate HIPAA compliance posture if breach notification is required.
+    try:
+        if report['breach_analysis'].get('notification_required'):
+            _log_compliance_issue('HIPAA', 'BREACH_NOTIFICATION_REQUIRED', report)
+    except Exception as e:
+        print(f"[COMPLIANCE] Failed to escalate HIPAA compliance issue: {e}")
+
     return report
 
 
@@ -415,7 +433,14 @@ def generate_gdpr_report(start_date: Optional[datetime] = None, end_date: Option
             'notification_sent': False  # Must be manually confirmed
         } for t in successful_breaches]
     }
-    
+
+    # Escalate GDPR compliance posture if breach notification is required.
+    try:
+        if report['breach_notification_assessment'].get('notification_required'):
+            _log_compliance_issue('GDPR', 'BREACH_NOTIFICATION_REQUIRED', report)
+    except Exception as e:
+        print(f"[COMPLIANCE] Failed to escalate GDPR compliance issue: {e}")
+
     # Geographic analysis (GDPR applies to EU data subjects)
     eu_countries = ['Germany', 'France', 'Italy', 'Spain', 'Netherlands', 'Belgium', 'Austria', 
                    'Poland', 'Ireland', 'United Kingdom', 'Sweden', 'Denmark', 'Finland', 'Portugal']
@@ -427,8 +452,69 @@ def generate_gdpr_report(start_date: Optional[datetime] = None, end_date: Option
         'eu_countries_affected': list(set(t.get('geolocation', {}).get('country') for t in eu_threats if t.get('geolocation'))),
         'cross_border_processing': len(eu_threats) > 0
     }
-    
+
     return report
+
+
+def _log_compliance_issue(standard: str, status: str, report: dict) -> None:
+    """Mirror a compliance issue into audit and relay/global_attacks.json."""
+    try:
+        from emergency_killswitch import get_audit_log, AuditEventType
+
+        audit = get_audit_log()
+        summary = report.get('summary', {})
+        period = report.get('period', {})
+
+        audit.log_event(
+            event_type=AuditEventType.THREAT_DETECTED,
+            actor='compliance_reporting',
+            action='compliance_issue_detected',
+            target=standard,
+            outcome=status,
+            details={
+                'standard': standard,
+                'status': status,
+                'summary': summary,
+                'period': period,
+            },
+            risk_level='high',
+            metadata={'module': 'compliance_reporting'},
+        )
+    except Exception as e:
+        print(f"[COMPLIANCE] Failed to write compliance issue to audit log: {e}")
+
+    # Also create a sanitized compliance incident for relay/global_attacks.json
+    try:
+        base_dir = os.path.join(os.path.dirname(__file__), '..')
+        training_dir = os.path.join(base_dir, 'relay', 'ai_training_materials')
+        if not os.path.isdir(training_dir):
+            return
+
+        attacks_file = os.path.join(training_dir, 'global_attacks.json')
+
+        if os.path.exists(attacks_file):
+            with open(attacks_file, 'r') as f:
+                attacks = json.load(f)
+                if not isinstance(attacks, list):
+                    attacks = []
+        else:
+            attacks = []
+
+        record = {
+            'attack_type': 'compliance_issue',
+            'standard': standard,
+            'status': status,
+            'timestamp': _get_current_time().isoformat(),
+            'source': 'compliance_reporting',
+            'relay_server': os.getenv('RELAY_NAME', 'central-relay'),
+        }
+
+        attacks.append(record)
+
+        with open(attacks_file, 'w') as f:
+            json.dump(attacks, f, indent=2)
+    except Exception as e:
+        print(f"[COMPLIANCE] Failed to write compliance issue to global_attacks.json: {e}")
 
 
 def generate_soc2_report(start_date: Optional[datetime] = None, end_date: Optional[datetime] = None) -> dict:

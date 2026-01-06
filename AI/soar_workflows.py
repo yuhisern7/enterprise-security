@@ -173,6 +173,10 @@ class SOARWorkflows:
         
         self.incidents.append(incident)
         self.save_incidents()
+        # Mirror the new incident into the comprehensive audit log and, for
+        # high/critical severities, into the relay/global_attacks.json feed so
+        # Stage 8 incidents become first-class detection signals.
+        self._log_incident_escalation(incident)
         return incident
     
     def update_incident(self, incident_id: str, updates: Dict) -> Optional[Dict]:
@@ -214,6 +218,29 @@ class SOARWorkflows:
         
         self.save_playbooks()
         
+        # Record that an automated SOAR action was taken for auditability.
+        try:
+            from emergency_killswitch import get_audit_log, AuditEventType
+
+            audit = get_audit_log()
+            audit.log_event(
+                event_type=AuditEventType.ACTION_TAKEN,
+                actor='soar_workflows',
+                action='execute_playbook',
+                target=playbook_id,
+                outcome='success',
+                details={
+                    'playbook_name': playbook.get('name'),
+                    'triggers': playbook.get('triggers'),
+                    'actions': [a.get('type') for a in playbook.get('actions', [])],
+                    'context': {k: v for k, v in context.items() if k not in ('secrets', 'api_keys')}
+                },
+                risk_level='medium',
+                metadata={'module': 'soar_workflows'}
+            )
+        except Exception as e:
+            print(f"[SOAR] Failed to write playbook execution to audit log: {e}")
+
         return {
             'success': True,
             'playbook_id': playbook_id,
@@ -439,6 +466,85 @@ class SOARWorkflows:
             'playbook_list': self.playbooks,
             'attack_simulation': attack_sim  # Purple team / BAS stats
         }
+
+    def _log_incident_escalation(self, incident: Dict) -> None:
+        """Escalate an incident into the audit log and relay/global_attacks."""
+        incident_id = incident.get('id')
+        incident_type = incident.get('type')
+        severity = str(incident.get('severity', 'low')).lower()
+
+        # 1) Comprehensive audit log entry so enterprise/cloud incidents show
+        # up in the same compliance surface as other stages.
+        try:
+            from emergency_killswitch import get_audit_log, AuditEventType
+
+            if severity == 'critical':
+                risk = 'critical'
+            elif severity == 'high':
+                risk = 'high'
+            elif severity == 'medium':
+                risk = 'medium'
+            else:
+                risk = 'low'
+
+            audit = get_audit_log()
+            audit.log_event(
+                event_type=AuditEventType.THREAT_DETECTED,
+                actor='soar_workflows',
+                action='incident_created',
+                target=incident_id or incident_type or 'unknown_incident',
+                outcome='open',
+                details={
+                    'incident_id': incident_id,
+                    'type': incident_type,
+                    'severity': incident.get('severity'),
+                    'description': incident.get('description'),
+                },
+                risk_level=risk,
+                metadata={'module': 'soar_workflows'}
+            )
+        except Exception as e:
+            print(f"[SOAR] Failed to write incident to audit log: {e}")
+
+        # 2) For high/critical incidents, also append a sanitized record into
+        # relay/ai_training_materials/global_attacks.json when the relay tree
+        # is present, so training and global correlation can see SOAR-driven
+        # incidents as attacks.
+        if severity not in ('high', 'critical'):
+            return
+
+        try:
+            base_dir = os.path.join(os.path.dirname(__file__), '..')
+            training_dir = os.path.join(base_dir, 'relay', 'ai_training_materials')
+            if not os.path.isdir(training_dir):
+                return
+
+            attacks_file = os.path.join(training_dir, 'global_attacks.json')
+
+            if os.path.exists(attacks_file):
+                with open(attacks_file, 'r') as f:
+                    attacks = json.load(f)
+                    if not isinstance(attacks, list):
+                        attacks = []
+            else:
+                attacks = []
+
+            record = {
+                'attack_type': 'soar_incident',
+                'incident_id': incident_id,
+                'incident_type': incident_type,
+                'severity': incident.get('severity'),
+                'timestamp': incident.get('created_at') or datetime.now().isoformat(),
+                'source': 'soar',
+                'relay_server': os.getenv('RELAY_NAME', 'central-relay'),
+            }
+
+            attacks.append(record)
+
+            with open(attacks_file, 'w') as f:
+                json.dump(attacks, f, indent=2)
+        except Exception as e:
+            print(f"[SOAR] Failed to write SOAR incident to global_attacks.json: {e}")
 
 # Global instance
 soar_workflows = SOARWorkflows()

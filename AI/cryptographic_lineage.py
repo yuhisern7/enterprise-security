@@ -270,8 +270,8 @@ class CryptographicLineage:
             if CRYPTO_AVAILABLE and checkpoint.signature != "UNSIGNED":
                 # This is a simplified check - full verification would need public key
                 verified_checkpoints += 1
-        
-        return {
+
+        report = {
             "is_valid": len(issues) == 0,
             "total_checkpoints": len(self.checkpoints),
             "verified_signatures": verified_checkpoints,
@@ -280,6 +280,30 @@ class CryptographicLineage:
             "genesis_checkpoint": self.checkpoints[0].checkpoint_id if self.checkpoints else None,
             "latest_checkpoint": self.checkpoints[-1].checkpoint_id if self.checkpoints else None
         }
+
+        # If we detect lineage issues, surface them into the comprehensive
+        # audit log so Stage 7 can see cryptographic provenance problems as
+        # real security events, not just a passive stats blob.
+        if issues and self.enabled:
+            try:
+                from emergency_killswitch import get_audit_log, AuditEventType
+
+                audit = get_audit_log()
+                for issue in issues:
+                    audit.log_event(
+                        event_type=AuditEventType.THREAT_DETECTED,
+                        actor="cryptographic_lineage",
+                        action="lineage_integrity_check",
+                        target=issue.get("checkpoint", "model_lineage_chain"),
+                        outcome="failure",
+                        details=issue,
+                        risk_level="high",
+                        metadata={"module": "cryptographic_lineage"},
+                    )
+            except Exception as e:
+                logger.debug(f"[LINEAGE] Failed to write integrity issues to audit log: {e}")
+
+        return report
     
     def get_provenance(self, checkpoint_id: str) -> List[ModelCheckpoint]:
         """

@@ -38,27 +38,27 @@ Follow this order so each stage builds on already-verified plumbing and relay lo
 
 5. **Stage 5 – Threat Intelligence & Signatures**  
 	- Run the local threat intel and signature distribution tests.  
-	- Goal: validate that intel and reputation affect scoring, and that relay‑distributed signatures/models are actually pulled and used by pcs_ai.
+	- Goal: validate the full flow `ingest_indicator → local_threat_intel.json → reputation_tracker → pcs_ai scoring → threat_log.json → relay/global_attacks.json` and that relay‑distributed signatures/models are actually pulled and used by pcs_ai.
 
 6. **Stage 6 – Policy, Governance & Self-Protection**  
 	- Run the formal threat model, governance, and self‑protection tests.  
-	- Goal: ensure policy decisions, approvals, and self‑protection events are logged locally and, when escalated, represented as structured events for the relay.
+	- Goal: ensure policy decisions and approvals are written to approval_requests.json/governance_audit.json, that self‑protection violations flow into integrity_violations.json and comprehensive_audit.json, and that critical integrity events can drive the kill‑switch into SAFE_MODE (with any escalated attacks still following the pcs_ai → threat_log.json → relay/global_attacks.json path).
 
 7. **Stage 7 – Crypto, Lineage & Federated / Relay**  
 	- Run secure signing, cryptographic lineage, and federated / Byzantine tests.  
-	- Goal: confirm secure messaging, model provenance, and federated stats are consistent between customer and relay.
+	- Goal: confirm that model provenance and federated defenses surface as **real security signals**: lineage integrity/drift issues and rejected federated updates appear as THREAT_DETECTED events in comprehensive_audit.json, and (when relay is present) federated incidents are mirrored into relay/ai_training_materials/global_attacks.json for training.
 
 8. **Stage 8 – Enterprise, Cloud & SOAR**  
 	- Run the enterprise integration and cloud posture tests.  
-	- Goal: verify incidents raised by the core pipeline trigger the right SOAR/workflow and any cloud posture findings are visible.
+	- Goal: verify that SOAR incidents and high/critical cloud misconfigurations become **real detection events** – incidents are written to soar_incidents.json, cloud findings to cloud_findings.json, and both surfaces mirror into comprehensive_audit.json and (when the relay stack is present) into relay/ai_training_materials/global_attacks.json as `soar_incident` / `cloud_misconfiguration` entries.
 
 9. **Stage 9 – Resilience, Backup & Compliance**  
 	- Run the backup/ransomware resilience and compliance/reporting tests.  
-	- Goal: confirm backup, restore, and compliance reporting use the same telemetry and that outputs are consistent.
+	- Goal: confirm that failed/overdue backups and weak ransomware resilience are surfaced as **backup_issue/ransomware_resilience_low** incidents (backup_status.json/recovery_tests.json → comprehensive_audit.json → relay/ai_training_materials/global_attacks.json) and that non‑compliant or breach‑notification conditions in the PCI/HIPAA/GDPR reports are mirrored as compliance_issue events in comprehensive_audit.json and relay/ai_training_materials/global_attacks.json.
 
 10. **Stage 10 – Explainability, Visualization & Dashboard**  
 	- Run the explainability, advanced visualization, and dashboard/API tests.  
-	- Goal: ensure explanations, advanced visualizations, and dashboard views correctly reflect all the earlier tests and signals.
+	- Goal: ensure explanations, advanced visualizations, and dashboard views correctly reflect all the earlier tests and signals, and that failures in these surfaces are mirrored as `SYSTEM_ERROR` events in server/json/comprehensive_audit.json.
 
 For **every** stage above, pair the tests with the Logging & Central Capture Checklist to validate that the complete logical flow – trigger → local JSON → dashboard → relay JSON – works for that stage.
 
@@ -117,10 +117,10 @@ This maps each of the **18 active detection signals** from the README to the con
 	Files: AI/advanced_orchestration.py (ThreatPrediction logic and export to orchestration_data); AI/pcs_ai.py (can integrate forecast results into decisions); relay/ai_training_materials/orchestration_data/.
 
 17. **Byzantine Defense (poisoned update rejection)**  
-	Files: AI/byzantine_federated_learning.py; AI/training_sync_client.py; relay/ai_retraining.py; relay/gpu_trainer.py; relay/ai_training_materials/ml_models/ (aggregated models after Byzantine-safe updates).
+	Files: AI/byzantine_federated_learning.py; AI/training_sync_client.py; relay/ai_retraining.py; relay/gpu_trainer.py; relay/ai_training_materials/ml_models/ (aggregated models after Byzantine-safe updates); server/json/comprehensive_audit.json; relay/ai_training_materials/global_attacks.json (when relay is present).
 
 18. **Integrity Monitoring (model & telemetry tampering)**  
-	Files: AI/self_protection.py; AI/emergency_killswitch.py; AI/cryptographic_lineage.py; AI/crypto_security.py; AI/policy_governance.py; server/json/comprehensive_audit.json and audit_archive/ (governance/integrity audit trail); AI/pcs_ai.py (routes integrity/self-protection signals into the ensemble).
+	Files: AI/self_protection.py; AI/emergency_killswitch.py; AI/cryptographic_lineage.py; AI/crypto_security.py; AI/policy_governance.py; server/json/integrity_violations.json; server/json/comprehensive_audit.json and audit_archive/ (governance/integrity + cryptographic lineage audit trail); AI/pcs_ai.py (routes integrity/self-protection and lineage/drift signals into the ensemble).
 
 ---
 
@@ -228,16 +228,18 @@ Files that may change:
 
 ### 17) Byzantine Defense
 
-Files that may change:
-- [ ] AI/byzantine_federated_learning.py — no schema change; only ensure logging of rejected/accepted updates includes model IDs that match those used in ai_retraining/gpu_trainer.
-- [ ] AI/training_sync_client.py — tighten how it sends/receives model updates so they’re always associated with the normalized model IDs and metadata.
-- [ ] relay/ai_retraining.py; relay/gpu_trainer.py — label trained models and snapshots with provenance so Byzantine stats and lineage align.
+Files that now change the live flow:
+- [ ] AI/byzantine_federated_learning.py — rejected federated updates are appended to an in‑memory log **and** mirrored into server/json/comprehensive_audit.json as `THREAT_DETECTED` events from `byzantine_defender`, and (when the relay tree is present) into relay/ai_training_materials/global_attacks.json as sanitized `attack_type="federated_update_rejected"` records for Stage 7 training.
+- [ ] AI/training_sync_client.py — keep updates tagged with stable peer/model IDs so aggregation, reputation, and audit records can be correlated.
+- [ ] relay/ai_retraining.py; relay/gpu_trainer.py — continue to label trained models/snapshots with provenance so Byzantine stats, lineage, and training data stay aligned.
 
 ### 18) Integrity Monitoring
 
-Files that may change:
-- [ ] AI/self_protection.py; AI/emergency_killswitch.py; AI/cryptographic_lineage.py; AI/crypto_security.py; AI/policy_governance.py — when integrity/self-protection events occur, emit them as structured records into a dedicated integrity log (and/or global_attacks.json with type="integrity_violation"), following the same canonical schema.
-- [ ] server/json/comprehensive_audit.json; audit_archive/ — ensure they capture the enriched integrity events with clear links to affected models, configs, and abilities.
+Files that now change the live flow:
+- [ ] AI/self_protection.py; AI/emergency_killswitch.py — integrity/self‑protection violations are written to server/json/integrity_violations.json, mirrored into server/json/comprehensive_audit.json as `INTEGRITY_VIOLATION` (and related) events, and for critical cases (when AUTO_KILLSWITCH_ON_INTEGRITY=true) can drive the kill‑switch into SAFE_MODE.
+- [ ] AI/cryptographic_lineage.py — lineage integrity and lineage‑based drift/poisoning are surfaced via `get_model_lineage_stats()` and logged into comprehensive_audit.json as `THREAT_DETECTED` events from `cryptographic_lineage`.
+- [ ] AI/crypto_security.py; AI/policy_governance.py — continue to anchor key material and governance rules that feed into the same audit and enforcement path.
+- [ ] server/json/comprehensive_audit.json; audit_archive/ — remain the central, append‑only record of integrity, governance, lineage, and federated events, backing Sections 6, 7, and 31 on the dashboard.
 
 ---
 
@@ -282,7 +284,9 @@ This summarizes which **relay JSON files** are expected to receive events when e
 - **Stage 10 – Explainability, Visualization & Dashboard**  
 	- No new relay files; reuses:  
 		- `relay/ai_training_materials/global_attacks.json` — attacks already logged in earlier stages.  
-		- `relay/ai_training_materials/ai_signatures/learned_signatures.json` — signatures already logged.
+		- `relay/ai_training_materials/ai_signatures/learned_signatures.json` — signatures already logged.  
+	- Additional logging surface for this stage:  
+		- `server/json/comprehensive_audit.json` — SYSTEM_ERROR events from dashboard/explainability/visualization APIs when those paths fail.
 
 Use this as a quick cross-check when validating that a given stage’s detections are visible both **locally** (server/json) and at the **relay** (ai_training_materials).
 
@@ -325,6 +329,24 @@ Relay output files for this stage:
 
 ---
 
+### Appendix S1 – Stage 1 Relay Plumbing Runbook
+
+1. **Prepare keys on server and relay**  
+	- Ensure matching HMAC keys exist under [server/crypto_keys](server/crypto_keys) on the customer node and [relay/ai_training_materials/crypto_keys](relay/ai_training_materials/crypto_keys) on the relay.  
+	- If rotating keys, restart both server and relay so AI/crypto_security.py and relay_server.py reload them.
+
+2. **Send a signed test message**  
+	- Follow [testconnection.md](testconnection.md) or your existing test script to construct a small JSON message and sign it using AI/crypto_security.py.  
+	- POST or WebSocket-send this message to the relay endpoint exposed by relay_server.py.
+
+3. **Verify relay acceptance and sanitization**  
+	- On the relay, check its logs and [relay/ai_training_materials/global_attacks.json](relay/ai_training_materials/global_attacks.json) (if you send a real attack event).  
+	- Confirm the relay:  
+		- Rejects messages with an invalid HMAC.  
+		- Accepts valid ones and records only sanitized metadata (no raw payloads or PII).
+
+---
+
 ## Stage 3 – Deception & Honeypots
 
 - [ ] Ability: Adaptive honeypot personas  
@@ -338,6 +360,24 @@ Relay output files for this stage:
 Relay output files for this stage:
 - ai_training_materials/global_attacks.json (honeypot attacks promoted to global view).
 - ai_training_materials/ai_signatures/learned_signatures.json (stored attack patterns/signatures).
+
+---
+
+### Appendix S3 – Stage 3 Honeypot & Signature Runbook
+
+1. **Start a honeypot persona**  
+	- Configure and start AI/adaptive_honeypot.py with a chosen persona/port on a non-critical host or test segment.  
+	- Confirm the honeypot is listening and reachable from a separate test machine.
+
+2. **Generate a controlled honeypot hit**  
+	- From the test machine, connect to the honeypot port using a simple tool (e.g., curl, netcat, or an RDP/SSH client depending on persona).  
+	- Open the relevant local JSONs and verify:  
+		- Honeypot events are added to the honeypot_attacks or equivalent JSON file.  
+		- AI/pcs_ai.py has produced a honeypot_* entry in [server/json/threat_log.json](server/json/threat_log.json).
+
+3. **Verify signature extraction and relay export**  
+	- Run the signature extraction/uploader path (AI/signature_extractor.py → AI/signature_uploader.py).  
+	- On the relay host, open [relay/ai_training_materials/ai_signatures/learned_signatures.json](relay/ai_training_materials/ai_signatures/learned_signatures.json) and check for a new signature/pattern_hash corresponding to your honeypot event, containing metadata/features only (no exploit payload).
 
 ---
 
@@ -391,6 +431,26 @@ Relay output files for this stage:
 
 ---
 
+### Appendix S5 – Stage 5 Intel & Signature Runbook
+
+1. **Seed local threat intelligence**  
+	- From a trusted admin shell on the server, call `ThreatIntelligence.ingest_indicator(...)` in AI/threat_intelligence.py for a known-bad IP or domain (use something from a real OSINT feed or your lab list).  
+	- Confirm [server/json/local_threat_intel.json](server/json/local_threat_intel.json) contains the new indicator with correct metadata.
+
+2. **Verify reputation and scoring behaviour**  
+	- Query `check_ip_reputation(ip)` for the same entity and verify:  
+		- The `threat_score` is higher than for a benign IP.  
+		- LocalIntel and ReputationTracker sections are populated in the result.  
+	- Generate traffic from that IP (or simulate via pcs_ai event injection) and confirm the threat appears with elevated severity in [server/json/threat_log.json](server/json/threat_log.json).
+
+3. **Confirm relay intel/signature export**  
+	- On the relay host, inspect:  
+		- [relay/ai_training_materials/reputation_data](relay/ai_training_materials/reputation_data) for updated reputation exports.  
+		- [relay/ai_training_materials/ai_signatures/learned_signatures.json](relay/ai_training_materials/ai_signatures/learned_signatures.json) for any relevant signatures tied to this indicator.  
+		- [relay/ai_training_materials/global_attacks.json](relay/ai_training_materials/global_attacks.json) for attacks enriched with intel/reputation fields.
+
+---
+
 ## Stage 6 – Policy, Governance & Self-Protection
 
 - [ ] Ability: Formal threat model + governance  
@@ -406,18 +466,38 @@ Relay output files for this stage:
 
 ---
 
+### Appendix S6 – Stage 6 Governance & Self-Protection Runbook
+
+1. **Exercise governance approvals**  
+	- Use AI/policy_governance.py to create at least one approval request (e.g., for a sensitive configuration change).  
+	- Confirm:  
+		- [server/json/approval_requests.json](server/json/approval_requests.json) shows the pending request.  
+		- [server/json/governance_audit.json](server/json/governance_audit.json) records request creation and the eventual approve/reject decision.
+
+2. **Trigger a controlled integrity/self-protection event**  
+	- In a non-production environment, deliberately modify a watched file or model (following AI/self_protection.py guidance), or call a self-protection check with a known-bad state.  
+	- Verify:  
+		- [server/json/integrity_violations.json](server/json/integrity_violations.json) records the violation with severity and recommended_action.  
+		- [server/json/comprehensive_audit.json](server/json/comprehensive_audit.json) gains an `INTEGRITY_VIOLATION` event with matching details.
+
+3. **Check kill-switch and relay behaviour**  
+	- If `AUTO_KILLSWITCH_ON_INTEGRITY=true` and severity is critical, confirm the kill-switch goes into SAFE_MODE via its status API/dashboard.  
+	- On the relay (if enabled), confirm [relay/ai_training_materials/global_attacks.json](relay/ai_training_materials/global_attacks.json) includes any policy/self-protection events that the ensemble promoted as global attacks (sanitized metadata only).
+
+---
+
 ## Stage 7 – Cryptography, Lineage & Federated / Relay
 
 - [ ] Ability: Cryptographic lineage & model provenance  
 	Modules: AI/cryptographic_lineage.py, relay/ai_retraining.py  
-	Test: After a training cycle on the relay, confirm models are signed/attributed correctly and customers can see lineage info.
+	Test: After a training cycle on the relay, confirm models are signed/attributed correctly and customers can see lineage info via the lineage stats API (chain depth, sources, signatures). Then deliberately introduce a bad lineage condition (e.g., break a parent_hash or inject an out-of-order checkpoint) and verify: (1) `get_model_lineage_stats` reports `chain_integrity.issues` and/or `lineage_drift.drift_detected=true`, and (2) `server/json/comprehensive_audit.json` contains new `THREAT_DETECTED` events from `cryptographic_lineage` describing the integrity/drift issues.
 
 - [ ] Ability: Byzantine-resilient federated aggregation  
 	Modules: AI/byzantine_federated_learning.py, AI/training_sync_client.py, relay/ai_retraining.py  
-	Test: Run multiple peers with one deliberately bad update and verify the aggregator rejects or down-weights the malicious update (check byzantine stats).
+	Test: Run multiple peers with one deliberately bad update and verify: (1) the Byzantine defender stats (`get_byzantine_defense_stats`) show non-zero `rejected_updates` and updated peer trust scores, (2) `server/json/comprehensive_audit.json` records `THREAT_DETECTED` events from `byzantine_defender` with `action="federated_update_rejected"`, and (3) when the `relay/` tree is present, `relay/ai_training_materials/global_attacks.json` gains sanitized `attack_type="federated_update_rejected"` entries tagged with `source="relay_federated_defense"`.
 
 Relay output files for this stage:
-- ai_training_materials/global_attacks.json (any training/federation-related security incidents recorded as attacks).
+- ai_training_materials/global_attacks.json (training/federation-related security incidents surfaced as `federated_update_rejected` attacks when the relay stack is present).
 - ai_training_materials/global_attacks.json + ai_training_materials/ai_signatures/learned_signatures.json are also the input training materials consumed by ai_retraining.py.
 
 ---
@@ -426,14 +506,32 @@ Relay output files for this stage:
 
 - [ ] Ability: Enterprise integrations  
 	Modules: AI/enterprise_integration.py, AI/soar_api.py, AI/soar_workflows.py  
-	Test: Trigger a representative incident and confirm that the expected SOAR workflow and external integration calls fire (even if mocked in dev).
+	Test: Trigger a representative incident and confirm that the expected SOAR workflow and external integration calls fire, that the case is written to server/json/soar_incidents.json, and that a corresponding THREAT_DETECTED entry appears in server/json/comprehensive_audit.json (with high/critical incidents also visible as `soar_incident` records in relay/ai_training_materials/global_attacks.json when the relay is present).
 
 - [ ] Ability: Cloud posture checks (CSPM)  
 	Modules: AI/cloud_security.py  
-	Test: With cloud CLIs available, run posture checks and verify misconfigurations and IAM issues show up in cloud_findings.json and dashboard metrics.
+	Test: With cloud CLIs available, run posture checks and verify misconfigurations and IAM issues show up in server/json/cloud_findings.json and dashboard metrics, and that high/critical misconfigurations and public exposures generate THREAT_DETECTED entries in server/json/comprehensive_audit.json and `cloud_misconfiguration` incidents in relay/ai_training_materials/global_attacks.json when the relay stack is present.
 
 Relay output files for this stage:
 - ai_training_materials/global_attacks.json (incidents raised from SOAR/cloud posture that are shared globally).
+
+---
+
+### Appendix S8 – Stage 8 Enterprise & Cloud Runbook
+
+1. **Create and escalate a SOAR incident**  
+	- Use AI/soar_workflows.py (directly or via your API) to create a new incident with type and severity (e.g., `critical` for a controlled test).  
+	- Confirm:  
+		- [server/json/soar_incidents.json](server/json/soar_incidents.json) contains the new case.  
+		- [server/json/comprehensive_audit.json](server/json/comprehensive_audit.json) records a `THREAT_DETECTED` event from `soar_workflows` with `action="incident_created"`.  
+		- When relay is present and severity is high/critical, [relay/ai_training_materials/global_attacks.json](relay/ai_training_materials/global_attacks.json) has a new `attack_type="soar_incident"` entry.
+
+2. **Run a cloud posture scan**  
+	- With relevant cloud CLIs installed (aws/az/gcloud), invoke AI/cloud_security.py get_stats() from the server context.  
+	- Verify:  
+		- [server/json/cloud_findings.json](server/json/cloud_findings.json) is updated with current misconfigurations/IAM issues.  
+		- Any high/critical misconfigs or public exposures create `THREAT_DETECTED` events from `cloud_security` in comprehensive_audit.json.  
+		- When relay is enabled, matching `attack_type="cloud_misconfiguration"` incidents appear in global_attacks.json.
 
 ---
 
@@ -441,11 +539,11 @@ Relay output files for this stage:
 
 - [ ] Ability: Backup & ransomware resilience  
 	Modules: AI/backup_recovery.py  
-	Test: Run backup directory checks and a controlled restore test in your environment; confirm backup_status.json and recovery_tests.json reflect realistic RTO/RPO and resilience scores.
+	Test: Run backup directory checks and a controlled restore test in your environment; confirm server/json/backup_status.json and server/json/recovery_tests.json reflect realistic RTO/RPO and resilience scores, and that any failed/overdue backups and low ransomware resilience generate THREAT_DETECTED entries in server/json/comprehensive_audit.json and corresponding `backup_issue` / `ransomware_resilience_low` records in relay/ai_training_materials/global_attacks.json when the relay stack is present.
 
 - [ ] Ability: Compliance & reporting  
 	Modules: AI/compliance_reporting.py, server/report_generator.py  
-	Test: Generate an enterprise security report and verify the compliance/controls sections reflect current telemetry and SBOM data.
+	Test: Generate an enterprise security report and verify the compliance/controls sections reflect current telemetry and SBOM data; for PCI-DSS, HIPAA, and GDPR, intentionally drive at least one non‑COMPLIANT or breach‑notification condition and confirm that a corresponding compliance_issue event appears in server/json/comprehensive_audit.json and relay/ai_training_materials/global_attacks.json.
 
 Relay output files for this stage:
 - ai_training_materials/global_attacks.json (any ransomware/backup/compliance‑related incidents that are escalated as attacks).
@@ -456,11 +554,11 @@ Relay output files for this stage:
 
 - [ ] Ability: Explainable decisions  
 	Modules: AI/explainability_engine.py, AI/pcs_ai.py  
-	Test: For a non-trivial detection, capture the explanation output and confirm it lists the contributing signals and reasoning.
+	Test: For a non-trivial detection, capture the explanation output and confirm it lists the contributing signals and reasoning. In a controlled negative test (for example, by temporarily disabling the explainability backend or calling `/api/explainability/decisions` while models are unavailable), verify that the API returns a structured error and that `server/json/comprehensive_audit.json` records a `SYSTEM_ERROR` event from `dashboard_api` with `target="/api/explainability/decisions"`.
 
 - [ ] Ability: Advanced visualizations  
 	Modules: AI/advanced_visualization.py, AI/advanced_orchestration.py  
-	Test: Generate the visualization_data.json set and confirm the dashboard renders topology, heatmaps, timelines, and geo views without errors.
+	Test: Generate the visualization_data.json set and confirm the dashboard renders topology, heatmaps, timelines, and geo views without errors. In a controlled failure test (for example, by pointing visualization code at an invalid JSON or temporarily removing a required input file), call `/api/visualization/topology`, `/api/visualization/heatmap`, or `/api/visualization/geographic` and confirm that failures are mirrored into `server/json/comprehensive_audit.json` as `SYSTEM_ERROR` events from `dashboard_api` with `target` matching the failing endpoint.
 
 - [ ] Ability: Dashboard & API surface  
 	Modules: AI/inspector_ai_monitoring.html, AI/swagger_ui.html, server/server.py, AI/dns_analyzer.py, AI/tls_fingerprint.py  
@@ -470,6 +568,32 @@ Relay output files for this stage:
 - No additional JSON beyond the same central files used by earlier stages:
 	ai_training_materials/global_attacks.json (attacks already logged).
 	ai_training_materials/ai_signatures/learned_signatures.json (signatures already logged).
+
+---
+
+### Appendix S10 – Stage 10 Explainability & Dashboard Runbook
+
+1. **Exercise a healthy explainability path**  
+	- In a test window, trigger a non-trivial detection (for example, a controlled scan or honeypot hit that the ensemble will score as THREAT/BLOCK).  
+	- From the dashboard or via `/api/explainability/decisions`, fetch recent decisions and confirm:  
+		- The returned object includes `decisions` with `final_verdict`, `threat_score`, and per-signal contributions.  
+		- At least one entry shows a rich breakdown (primary threat type, attack stage, consensus, recommendations) matching the event you triggered.
+
+2. **Verify explainability failure is audited**  
+	- In a non-production environment, temporarily break the explainability path (for example, by stopping the backend that serves decisions or by forcing `get_explainability_decisions` to raise an error).  
+	- Call `/api/explainability/decisions` and confirm:  
+		- The API returns a structured error JSON with safe defaults.  
+		- `server/json/comprehensive_audit.json` contains a new `SYSTEM_ERROR` event with `actor="dashboard_api"`, `action="endpoint_error"`, and `target="/api/explainability/decisions"`.
+
+3. **Exercise visualization and dashboard APIs**  
+	- With normal data present (threat_log.json, connected_devices.json, etc.), call `/api/visualization/topology`, `/api/visualization/heatmap`, `/api/visualization/geographic`, and `/api/visualization/all` from the UI or via curl.  
+	- Confirm each endpoint returns `status="success"` and that the dashboard renders topology, heatmaps, and geo cards without errors.
+
+4. **Verify visualization failures are audited**  
+	- Create a controlled visualization failure (for example, temporarily move or corrupt `server/json/threat_log.json` or `server/json/connected_devices.json` on a lab node).  
+	- Re-call the affected visualization endpoint(s) and confirm:  
+		- The API returns a JSON payload with `status="error"`.  
+		- `server/json/comprehensive_audit.json` records corresponding `SYSTEM_ERROR` events from `dashboard_api` with `target` set to the failing endpoint (such as `/api/visualization/topology` or `/api/visualization/geographic`).
 
 ---
 
@@ -586,4 +710,59 @@ This appendix gives a concrete, step-by-step runbook to validate the **DNS analy
 		 - `threat_type`/`attack_type` reflecting encrypted C2 / TLS anomaly.
 		 - `sensor_id` identifying the sending customer node.
 		 - Only metadata/features (no raw TLS payloads), suitable for training.
+
+---
+
+## Appendix B – Stage 9 Backup & Compliance Runbook
+
+This appendix gives concrete steps to validate that **Stage 9** backup/ransomware and compliance events are wired from local checks → JSON → audit log → relay.
+
+### B.1 Backup & Ransomware Resilience Path (backup_recovery → audit → relay)
+
+1. **Run backup status check**
+	 - From the server container/host, run the existing backup status path (for example via the dashboard API or a direct call into backup_recovery.get_stats()).
+	 - Confirm that:
+		 - [server/json/backup_status.json](server/json/backup_status.json) exists and lists your backup locations with `last_backup`, `hours_since_backup`, and `status`.
+		 - [server/json/recovery_tests.json](server/json/recovery_tests.json) contains at least one recent test (you can trigger `test_backup_restore("TEST")` in a controlled environment if needed).
+
+2. **Create a controlled "overdue" backup condition**
+	 - Pick a non-critical backup path (for example a test backup directory) and ensure its `last_backup` timestamp is older than your acceptable RPO (e.g., > 48 hours) or temporarily move/disable that backup directory.
+	 - Re-run the backup status function so that at least one entry comes back with `status != "success"` and a large `hours_since_backup`.
+
+3. **Verify backup incidents in the audit log**
+	 - Open [server/json/comprehensive_audit.json](server/json/comprehensive_audit.json) and search for recent entries where:
+		 - `actor` is `backup_recovery`.
+		 - `action` is `backup_issue_detected` or `ransomware_resilience_low`.
+	 - Confirm that `details` includes the affected `location` and `hours_since_backup` (for backup_issue) or the low resilience score (for ransomware_resilience_low).
+
+4. **Verify relay/global view (if relay enabled)**
+	 - On the relay host, open [relay/ai_training_materials/global_attacks.json](relay/ai_training_materials/global_attacks.json).
+	 - Confirm that new records exist with:
+		 - `attack_type` set to `backup_issue` or `ransomware_resilience_low`.
+		 - Backup-related fields only (location, hours_since_backup, resilience_score) with no raw file contents.
+		 - `source` equal to `backup_recovery`.
+
+### B.2 Compliance Issue Path (compliance_reporting → audit → relay)
+
+1. **Generate compliance reports**
+	 - From the server environment, run the compliance reporting helper (e.g., generate_all_compliance_reports()) or whatever API surface you expose for PCI/HIPAA/GDPR.
+	 - Confirm that JSON reports are written under [server/json/compliance_reports](server/json/compliance_reports).
+
+2. **Drive a non-COMPLIANT or breach-notification condition**
+	 - In a controlled environment, re-run reports with a period that includes known critical incidents, or temporarily adjust thresholds so that:
+		 - PCI-DSS sets `compliance_status` to `NEEDS_ATTENTION` or `NEEDS_IMPROVEMENT`, or
+		 - HIPAA / GDPR mark a breach notification as required.
+
+3. **Verify compliance issues in the audit log**
+	 - Open [server/json/comprehensive_audit.json](server/json/comprehensive_audit.json) and search for recent entries where:
+		 - `actor` is `compliance_reporting`.
+		 - `action` is `compliance_issue_detected`.
+	 - Confirm that `details.standard` is one of `PCI-DSS`, `HIPAA`, or `GDPR`, and that the `status`/summary matches the report.
+
+4. **Verify relay/global view for compliance issues (if relay enabled)**
+	 - On the relay host, inspect [relay/ai_training_materials/global_attacks.json](relay/ai_training_materials/global_attacks.json).
+	 - Confirm that new records exist with:
+		 - `attack_type` set to `compliance_issue`.
+		 - `standard` equal to `PCI-DSS`, `HIPAA`, or `GDPR`.
+		 - Only metadata about the issue (no underlying PII/PHI or raw log contents).
 

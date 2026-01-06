@@ -13,6 +13,7 @@ Risk Level: LOW (Pure defensive, math-based validation)
 import numpy as np
 import logging
 import os
+import json
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
 from datetime import datetime
@@ -431,14 +432,14 @@ class ByzantineDefender:
         }
 
     def _log_rejected_update(self, peer_id: str, reason: str) -> None:
-        """Append a rejected update to the in-memory log with bounding."""
-        self.rejected_updates.append(
-            {
-                "peer_id": peer_id,
-                "reason": reason,
-                "timestamp": datetime.now().isoformat(),
-            }
-        )
+        """Append a rejected update to the in-memory log with bounding and escalate if needed."""
+        event = {
+            "peer_id": peer_id,
+            "reason": reason,
+            "timestamp": datetime.now().isoformat(),
+        }
+
+        self.rejected_updates.append(event)
         # Bound the size of the rejected_updates log to avoid unbounded growth
         if len(self.rejected_updates) > self.max_rejected_log:
             overflow = len(self.rejected_updates) - self.max_rejected_log
@@ -446,6 +447,64 @@ class ByzantineDefender:
             logger.debug(
                 f"[BYZANTINE] Truncated rejected_updates log by {overflow} entries (max={self.max_rejected_log})"
             )
+
+        # Mirror federated learning security events into the comprehensive audit log
+        try:
+            from emergency_killswitch import get_audit_log, AuditEventType
+
+            audit = get_audit_log()
+            audit.log_event(
+                event_type=AuditEventType.THREAT_DETECTED,
+                actor="byzantine_defender",
+                action="federated_update_rejected",
+                target=peer_id,
+                outcome="blocked",
+                details={"reason": reason},
+                risk_level="high",
+                metadata={"module": "byzantine_federated_learning"},
+            )
+        except Exception as e:
+            logger.debug(f"[BYZANTINE] Failed to write federated rejection to audit log: {e}")
+
+        # When running alongside the relay tree, also record a sanitized
+        # training/federation incident into relay/ai_training_materials/global_attacks.json
+        # so Stage 7 can see these as first-class training events.
+        try:
+            base_dir = os.path.join(os.path.dirname(__file__), "..")
+            training_dir = os.path.join(base_dir, "relay", "ai_training_materials")
+            if not os.path.isdir(training_dir):
+                return
+
+            attacks_file = os.path.join(training_dir, "global_attacks.json")
+
+            if os.path.exists(attacks_file):
+                with open(attacks_file, "r") as f:
+                    attacks = json.load(f)
+                    if not isinstance(attacks, list):
+                        attacks = []
+            else:
+                attacks = []
+
+            record = {
+                "attack_type": "federated_update_rejected",
+                "peer_id": peer_id,
+                "reason": reason,
+                "timestamp": event["timestamp"],
+                "level": "medium",
+                "source": "relay_federated_defense",
+                "relay_server": os.getenv("RELAY_NAME", "central-relay"),
+            }
+
+            attacks.append(record)
+
+            with open(attacks_file, "w") as f:
+                json.dump(attacks, f, indent=2)
+
+            logger.debug(
+                f"[BYZANTINE] Logged federated incident to {attacks_file} (total={len(attacks)})"
+            )
+        except Exception as e:
+            logger.debug(f"[BYZANTINE] Failed to write federated incident to global_attacks.json: {e}")
 
 
 # Singleton instance

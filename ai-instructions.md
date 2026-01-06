@@ -166,11 +166,16 @@
 - `AI/backup_recovery.py` — Monitors backup jobs, integrity checks, and recovery readiness.
 - `AI/behavioral_heuristics.py` — Implements heuristic rules and behavioral scoring for IPs/sessions.
 - `AI/byzantine_federated_learning.py` — Federated learning aggregation with Byzantine-resilient algorithms (Krum, Trimmed Mean, etc.).
+  - Tracks per-peer trust and rejected updates; `get_byzantine_defense_stats()` exposes rejection counts, reputation, and methods used for the dashboard and APIs.
+  - Every rejected federated update is now mirrored into the comprehensive audit log (`server/json/comprehensive_audit.json`) as a `THREAT_DETECTED` event from `byzantine_defender`, and when the full relay tree is present (`relay/ai_training_materials/`), a sanitized `attack_type="federated_update_rejected"` record is appended to `relay/ai_training_materials/global_attacks.json` for Stage 7 training/federation visibility.
 - `AI/central_sync.py` — Handles synchronization to/from the central relay (models, signatures, stats).
 - `AI/cloud_security.py` — Cloud security posture management (CSPM) logic; integrates cloud account data and misconfiguration checks.
 - `AI/compliance_reporting.py` — Generates compliance reports (GDPR, HIPAA, PCI-DSS, SOC2), including summarized AI decisions.
 - `AI/crypto_security.py` — Cryptographic hardening routines, key validation, and secure crypto usage guidance.
 - `AI/cryptographic_lineage.py` — Model and data lineage: signing, hashing, and provenance tracking for ML artifacts.
+  - Maintains an append-only `model_lineage.json` under `server/json/` (or `/app/json/`) with per-checkpoint hashes, parent links, metrics, and sources (`local_training`, `peer_sync`, `relay_update`).
+  - `get_model_lineage_stats()` returns lineage depth, signature coverage, and a `chain_integrity` report; when integrity issues are found (broken parent_hash links, out-of-order timestamps, etc.), they are logged as `THREAT_DETECTED` events from `cryptographic_lineage` into `server/json/comprehensive_audit.json`.
+  - Also exposes `lineage_drift` based on recent checkpoints (accuracy drops, peer-dominated update windows). When `drift_detected=true`, a corresponding audit event is written so Stage 7 can treat cryptographic lineage drift/poisoning as a real detection signal, not just a passive metric.
 - `AI/deterministic_evaluation.py` — Deterministic evaluation and cryptographic proof-of-evaluation for ML models.
 - `AI/drift_detector.py` — Measures feature and label drift over time (KS tests, PSI, etc.), surfacing when models go stale.
 - `AI/emergency_killswitch.py` — Manages emergency modes (ACTIVE, MONITORING_ONLY, SAFE_MODE, DISABLED) and kill-switch behavior.

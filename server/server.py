@@ -1310,6 +1310,35 @@ def sync_signatures():
         }), 500
 
 
+def _log_dashboard_api_error(endpoint: str, error: Exception) -> None:
+    """Mirror dashboard/API failures into the comprehensive audit log.
+
+    Stage 10 treats repeated explainability/visualization/dashboard
+    errors as system issues worth auditing. This helper is best-effort
+    and will silently no-op if the audit stack is unavailable.
+    """
+    try:
+        from AI.emergency_killswitch import get_audit_log, AuditEventType
+
+        audit = get_audit_log()
+        audit.log_event(
+            event_type=AuditEventType.SYSTEM_ERROR,
+            actor='dashboard_api',
+            action='endpoint_error',
+            target=endpoint,
+            outcome='failure',
+            details={
+                'error': str(error),
+                'endpoint': endpoint,
+            },
+            risk_level='medium',
+            metadata={'module': 'server', 'stage': '10'},
+        )
+    except Exception:
+        # Never let audit issues break the API path itself.
+        pass
+
+
 @app.route('/api/graph-intelligence/attack-chains', methods=['GET'])
 def get_attack_chains():
     """Get attack chain visualization data (Phase 4)."""
@@ -1336,6 +1365,7 @@ def get_explainability_decisions():
         return jsonify(get_decisions())
     except Exception as e:
         logger.error(f"[API] Explainability error: {e}")
+        _log_dashboard_api_error('/api/explainability/decisions', e)
         return jsonify({
             'error': str(e),
             'total_decisions': 0,
@@ -1362,6 +1392,7 @@ def reset_forensic_reports():
         return jsonify(result), status
     except Exception as e:
         logger.error(f"[API] Forensics reset error: {e}")
+        _log_dashboard_api_error('/api/forensics/reset', e)
         return jsonify({'success': False, 'error': str(e), 'removed': 0}), 500
 
 
@@ -1375,6 +1406,7 @@ def get_ai_abilities():
         return jsonify(pcs_ai.get_ai_abilities_status())
     except Exception as e:
         logger.error(f"[API] AI abilities status error: {e}")
+        _log_dashboard_api_error('/api/ai/abilities', e)
         return jsonify({
             'error': str(e),
             'total': 0,
@@ -2169,6 +2201,7 @@ def get_network_topology():
         import traceback
         error_trace = traceback.format_exc()
         print(f"[TOPOLOGY ERROR] {error_trace}")
+        _log_dashboard_api_error('/api/visualization/topology', e)
         return jsonify({'status': 'error', 'message': str(e), 'traceback': error_trace}), 500
 
 
@@ -2181,6 +2214,7 @@ def get_attack_flows():
         flows = viz.generate_attack_flows(time_range)
         return jsonify({'status': 'success', 'flows': flows})
     except Exception as e:
+        _log_dashboard_api_error('/api/visualization/attack-flows', e)
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
@@ -2193,6 +2227,7 @@ def get_threat_heatmap():
         heatmap = viz.generate_threat_heatmap(hours)
         return jsonify({'status': 'success', 'heatmap': heatmap})
     except Exception as e:
+        _log_dashboard_api_error('/api/visualization/heatmap', e)
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
@@ -2234,6 +2269,7 @@ def get_geographic_map():
 
         return jsonify({'countries': countries})
     except Exception as e:
+        _log_dashboard_api_error('/api/visualization/geographic', e)
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
@@ -2245,6 +2281,7 @@ def get_all_visualizations():
         visualizations = viz.generate_all_visualizations()
         return jsonify({'status': 'success', 'visualizations': visualizations})
     except Exception as e:
+        _log_dashboard_api_error('/api/visualization/all', e)
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 

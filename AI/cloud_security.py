@@ -23,6 +23,9 @@ class CloudSecurityPosture:
         self.config_file = os.path.join(json_dir, 'cloud_config.json')
         self.findings_file = os.path.join(json_dir, 'cloud_findings.json')
         self.findings = self.load_findings()
+        # In-memory cache of findings we have already escalated, to avoid
+        # spamming the audit log and relay with duplicate entries.
+        self._logged_finding_keys = set()
         
     def load_findings(self) -> List[Dict]:
         """Load cloud security findings"""
@@ -280,6 +283,47 @@ class CloudSecurityPosture:
         encryption_findings = self.check_encryption()
         exposed_resources = self.detect_public_exposure()
         compliance = self.get_compliance_status()
+
+        # Persist a bounded history of the most recent findings snapshot so the
+        # dashboard and operators can review concrete misconfigurations.
+        try:
+            snapshot = {
+                'timestamp': datetime.now().isoformat(),
+                'misconfigurations': all_misconfigs,
+                'iam_issues': iam_issues,
+                'encryption_findings': encryption_findings,
+                'public_exposure': exposed_resources
+            }
+            self.findings.append(snapshot)
+            # Keep only the last 100 snapshots to avoid unbounded growth.
+            if len(self.findings) > 100:
+                self.findings = self.findings[-100:]
+            self.save_findings()
+        except Exception as e:
+            print(f"[CLOUD] Failed to persist findings snapshot: {e}")
+
+        # Escalate high/critical findings into the comprehensive audit log and,
+        # when the relay stack is present, into relay/ai_training_materials/global_attacks.json
+        # so Stage 8 becomes a real detection surface.
+        try:
+            for finding in all_misconfigs + exposed_resources:
+                severity = str(finding.get('severity', '')).lower()
+                if severity not in ('high', 'critical'):
+                    continue
+
+                key = (
+                    finding.get('provider') or finding.get('cloud'),
+                    finding.get('resource') or finding.get('identity'),
+                    finding.get('issue') or finding.get('type')
+                )
+
+                if key in self._logged_finding_keys:
+                    continue
+
+                self._logged_finding_keys.add(key)
+                self._log_finding_incident(finding)
+        except Exception as e:
+            print(f"[CLOUD] Failed to escalate findings to audit/relay: {e}")
         
         # Count by severity
         critical = sum(1 for m in all_misconfigs if m.get('severity') == 'critical')
@@ -309,6 +353,86 @@ class CloudSecurityPosture:
             'exposed_resources': exposed_resources[:10],
             'compliance_status': compliance
         }
+
+    def _log_finding_incident(self, finding: Dict) -> None:
+        """Mirror a high/critical cloud finding into audit and (optionally) relay."""
+        # First, write a structured THREAT_DETECTED event into the
+        # comprehensive audit log so governance and forensics can see
+        # cloud posture as part of the same audit surface used in
+        # stages 6 and 7.
+        try:
+            from emergency_killswitch import get_audit_log, AuditEventType
+
+            provider = finding.get('provider') or finding.get('cloud') or 'unknown'
+            resource = finding.get('resource') or finding.get('identity') or 'unknown'
+            issue = finding.get('issue') or finding.get('risk') or 'cloud_finding'
+            severity = str(finding.get('severity', 'high')).lower()
+
+            # Map cloud severity to audit risk level.
+            if severity == 'critical':
+                risk = 'critical'
+            elif severity == 'high':
+                risk = 'high'
+            elif severity == 'medium':
+                risk = 'medium'
+            else:
+                risk = 'low'
+
+            audit = get_audit_log()
+            audit.log_event(
+                event_type=AuditEventType.THREAT_DETECTED,
+                actor='cloud_security',
+                action='cloud_misconfiguration_detected',
+                target=resource,
+                outcome='observed',
+                details=finding,
+                risk_level=risk,
+                metadata={
+                    'module': 'cloud_security',
+                    'provider': provider,
+                    'issue': issue,
+                },
+            )
+        except Exception as e:
+            print(f"[CLOUD] Failed to write finding to audit log: {e}")
+
+        # Then, if a relay training tree is present, append a sanitized
+        # incident record into relay/ai_training_materials/global_attacks.json
+        # so that cloud misconfigurations can be used as training signals
+        # alongside traffic and federated incidents.
+        try:
+            base_dir = os.path.join(os.path.dirname(__file__), '..')
+            training_dir = os.path.join(base_dir, 'relay', 'ai_training_materials')
+            if not os.path.isdir(training_dir):
+                return
+
+            attacks_file = os.path.join(training_dir, 'global_attacks.json')
+
+            if os.path.exists(attacks_file):
+                with open(attacks_file, 'r') as f:
+                    attacks = json.load(f)
+                    if not isinstance(attacks, list):
+                        attacks = []
+            else:
+                attacks = []
+
+            record = {
+                'attack_type': 'cloud_misconfiguration',
+                'provider': finding.get('provider') or finding.get('cloud'),
+                'resource': finding.get('resource') or finding.get('identity'),
+                'issue': finding.get('issue') or finding.get('risk'),
+                'severity': finding.get('severity', 'high'),
+                'timestamp': finding.get('detected_at') or datetime.now().isoformat(),
+                'source': 'cloud_security',
+                'relay_server': os.getenv('RELAY_NAME', 'central-relay'),
+            }
+
+            attacks.append(record)
+
+            with open(attacks_file, 'w') as f:
+                json.dump(attacks, f, indent=2)
+        except Exception as e:
+            print(f"[CLOUD] Failed to write cloud incident to global_attacks.json: {e}")
 
 # Global instance
 cloud_security = CloudSecurityPosture()
