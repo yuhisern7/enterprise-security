@@ -1,13 +1,33 @@
 # Threat Intelligence Crawlers & Relay Integration
 
-This document explains how the **threat intelligence crawlers** and **ExploitDB scraper** connect to your **relay VPS**, where they store data under `relay/ai_training_materials`, and how the customer node discovers the relay endpoint **automatically via `server/.env`**.
+**Pipeline Alignment:** Stage 6 (Global Intelligence Sharing) + Stage 7 (Continuous Learning)
+
+This document explains how the **threat intelligence crawlers** and **ExploitDB scraper** integrate with the **7-stage attack detection pipeline**, where they store data under `relay/ai_training_materials`, and how the customer node discovers the relay endpoint automatically via `server/.env`.
+
+## Pipeline Context
+
+The crawlers and relay infrastructure support two critical pipeline stages:
+
+**Stage 6: Global Intelligence Sharing (Optional Relay)**
+- Crawlers collect global threat intelligence (CVEs, malware hashes, URLs, ExploitDB patterns)
+- Data stored in `relay/ai_training_materials/` for worldwide distribution
+- Customer nodes pull threat intel via `MODEL_SYNC_URL`
+- Feeds into Stage 2 Signal #12 (Threat Intel Feeds) on customer nodes
+
+**Stage 7: Continuous Learning Loop**
+- ExploitDB scraper generates new signatures weekly
+- Crawlers update threat intelligence daily
+- ML retraining uses crawler data as training input
+- Updated models distributed to all customer nodes
+
+## Deployment Architecture
 
 The high‑level design:
 
-- **Customer node** (this repo’s `AI/` + `server/` folders) runs the dashboard and local protection.
-- **Relay node (VPS)** (this repo’s `relay/` folder) runs background crawlers + ExploitDB scraper and stores training data under `relay/ai_training_materials/`.
-- The customer node connects to the relay over WebSocket/HTTP using URLs configured in `server/.env`.
-- No hardcoded IPs in code paths are required; everything is driven by environment variables.
+- **Customer node** (this repo's `AI/` + `server/` folders) runs the dashboard and local protection (Stages 1-5)
+- **Relay node (VPS)** (this repo's `relay/` folder) runs background crawlers + ExploitDB scraper and stores training data under `relay/ai_training_materials/` (Stages 6-7)
+- The customer node connects to the relay over WebSocket/HTTP using URLs configured in `server/.env`
+- No hardcoded IPs in code paths are required; everything is driven by environment variables
 
 ---
 
@@ -17,7 +37,7 @@ The high‑level design:
 
 These live under the `relay/` folder and should be deployed to your VPS.
 
-- `relay/threat_crawler.py`
+- **`relay/threat_crawler.py`** — **[Stage 6: Threat Intel Collection]**
   - Implements multiple threat‑intel crawlers:
     - `CVECrawler` (trending CVEs from cvetrends)
     - `MalwareBazaarCrawler` (malware samples + hashes via CSV export)
@@ -25,51 +45,58 @@ These live under the `relay/` folder and should be deployed to your VPS.
     - `URLhausCrawler` (malicious URLs via CSV)
     - `AttackerKBCrawler` (sample assessments)
   - `ThreatCrawlerManager.crawl_all(save_to_file=True)`
-    - Runs all crawlers, normalizes them into a flat threat list.
-    - Persists results via `save_results(...)`.
+    - Runs all crawlers, normalizes them into a flat threat list
+    - Persists results via `save_results(...)`
   - `ThreatCrawlerManager.save_results(...)`
-    - Default path in this repo: `ml_models/threat_intelligence_crawled.json` (relative to `relay/`).
-    - This JSON is a **training artifact** consumed by your ML pipeline, not by the dashboard directly.
+    - Default path: `ml_models/threat_intelligence_crawled.json` (relative to `relay/`)
+    - This JSON is a **training artifact** consumed by Stage 7 ML retraining pipeline
+    - Also feeds Stage 2 Signal #12 (Threat Intel Feeds) on customer nodes
 
-- `relay/exploitdb_scraper.py`
-  - Crawls a **local ExploitDB checkout** (`relay/ai_training_materials/exploitdb/`).
-  - Extracts **safe, pattern‑only signatures** from exploit descriptions and PoCs.
+- **`relay/exploitdb_scraper.py`** — **[Stage 7: Signature Generation]**
+  - Crawls a **local ExploitDB checkout** (`relay/ai_training_materials/exploitdb/`)
+  - Extracts **safe, pattern‑only signatures** from exploit descriptions and PoCs
   - `ExploitDBScraper.export_learned_signatures(...)`:
-    - Writes to: `relay/ai_training_materials/ai_signatures/learned_signatures.json`.
-    - This is the master signatures file on the relay side.
+    - Writes to: `relay/ai_training_materials/ai_signatures/learned_signatures.json`
+    - This is the master signatures file on the relay side
+    - Feeds Stage 2 Signal #2 (Signature Matching) on customer nodes
   - `start_exploitdb_scraper(exploitdb_path="exploitdb", continuous=True)`
-    - Performs initial scrape + export.
-    - Optionally keeps scraping on a 24h schedule.
+    - Performs initial scrape + export
+    - Optionally keeps scraping on a 24h schedule
 
-- `relay/training_sync_api.py`
-  - HTTP API on the relay side that exposes training materials to customers.
+- **`relay/training_sync_api.py`** — **[Stage 6: Distribution API]**
+  - HTTP API on the relay side that exposes training materials to customers
   - Typical responsibilities:
-    - Serve model bundles (`trained_models/`), threat‑intel JSON, and signatures under `ai_signatures/`.
+    - Serve model bundles (`trained_models/`) for Stage 7 continuous learning
+    - Serve threat‑intel JSON for Stage 2 Signal #12
+    - Serve signatures (`ai_signatures/`) for Stage 2 Signal #2
 
-- `relay/signature_sync.py`
-  - Helper layer for syncing signature files (e.g. `learned_signatures.json`) from `ai_training_materials` to connected customers.
+- **`relay/signature_sync.py`** — **[Stage 6: Sync Layer]**
+  - Helper layer for syncing signature files (e.g. `learned_signatures.json`) from `ai_training_materials` to connected customers
+  - Handles deduplication and HMAC validation
+  - Stores `global_attacks.json` with automatic 1GB rotation (see ML_LOG_ROTATION.md)
 
-- `relay/start_services.py`
+- **`relay/start_services.py`** — **[Relay Orchestrator]**
   - Convenience launcher to bring up:
-    - `relay_server.py` (WebSocket relay)
-    - `training_sync_api.py` (HTTP API)
-    - Optionally crawlers / scraper daemons.
+    - `relay_server.py` (WebSocket relay for Stage 6)
+    - `training_sync_api.py` (HTTP API for Stage 6)
+    - Optionally crawlers / scraper daemons for Stage 7
 
-- `relay/ai_training_materials/`
+- **`relay/ai_training_materials/`** — **[Stage 6 & 7 Storage]**
   - Canonical storage on the relay for anything *learned*:
-    - `ai_signatures/learned_signatures.json`  ← signatures from ExploitDB scraper.
-    - `threat_intelligence/`                  ← crawlers’ normalized intel.
-    - `trained_models/`                       ← ML models exported for customers.
-    - `orchestration_data/`, `reputation_data/`, etc. for other phases.
+    - `ai_signatures/learned_signatures.json`  ← signatures from ExploitDB scraper (Stage 7 → Stage 2 Signal #2)
+    - `threat_intelligence/`                  ← crawlers' normalized intel (Stage 6 → Stage 2 Signal #12)
+    - `global_attacks.json` + rotation files  ← aggregated customer attacks for ML training (Stage 6 → Stage 7)
+    - `trained_models/`                       ← ML models exported for customers (Stage 7 distribution)
+    - `orchestration_data/`, `reputation_data/`, etc. for other stages
 
-> **Important:** The relay stack (`relay/` tree) is **not shipped to customers**. It resides on your VPS and is considered your central intelligence plane.
+> **Important:** The relay stack (`relay/` tree) is **not shipped to customers**. It resides on your VPS and is considered your central intelligence plane for Stages 6-7.
 
 
-### 1.2 Customer side (this repo: AI + server)
+### 1.2 Customer side (this repo: AI + server) - Stage 2 & 6 Integration
 
 These files run on the customer node (Docker container), and learn from / talk to the relay.
 
-- `server/.env`
+- **`server/.env`** — **[Stage 6: Relay Configuration]**
   - Central place for pointing the customer to your VPS relay:
     - `RELAY_ENABLED=true`
     - `RELAY_URL=ws://YOUR_RELAY_IP_OR_HOST:60001`
@@ -164,15 +191,35 @@ You **do not** need to edit Python files to change relay IPs/URLs. Instead:
 
 ---
 
-## 4. Summary of key env variables
+## 4. Summary of key env variables (Stage 6 Configuration)
 
 From `server/.env` (inherited by AI modules):
 
-- `RELAY_ENABLED`  – `true` / `false`; turns relay client on/off.
-- `RELAY_URL`      – WebSocket URL of the relay server (e.g. `ws://165.22.108.8:60001`).
-- `MODEL_SYNC_URL` – HTTP base URL for model/signature downloads (e.g. `http://165.22.108.8:60002`).
-- `RELAY_CRYPTO_ENABLED` – enables message signing/verification.
-- `CUSTOMER_ID`    – unique ID used for crypto and multi‑tenant separation.
-- `PEER_NAME`      – friendly name of this node in the relay mesh.
+- `RELAY_ENABLED`  – `true` / `false`; turns Stage 6 relay client on/off
+- `RELAY_URL`      – WebSocket URL of the relay server (e.g. `ws://165.22.108.8:60001`)
+- `MODEL_SYNC_URL` – HTTP base URL for model/signature downloads (e.g. `http://165.22.108.8:60002`)
+- `RELAY_CRYPTO_ENABLED` – enables message signing/verification (HMAC)
+- `CUSTOMER_ID`    – unique ID used for crypto and multi‑tenant separation
+- `PEER_NAME`      – friendly name of this node in the relay mesh
 
 As long as these are set correctly in `server/.env` and the relay services are running, the crawlers and learned signatures flow will work **automatically** without changing file paths inside the code.
+
+## Pipeline Stage Summary
+
+**Stage 1-5 (Customer Node):**
+- Data Ingestion → 18 Parallel Detections → Ensemble Voting → Response Execution → Training Material Extraction
+- All handled by `AI/` + `server/` folders
+- Uses local signatures from `AI/learned_signatures.json` (Stage 2 Signal #2)
+
+**Stage 6 (Relay VPS):**
+- Global Intelligence Sharing
+- Relay receives sanitized attack summaries from all customer nodes
+- Stores in `global_attacks.json` with 1GB rotation (see ML_LOG_ROTATION.md)
+- Distributes signatures and threat intel to all customers
+
+**Stage 7 (Relay VPS):**
+- Continuous Learning Loop
+- `relay/ai_retraining.py` trains ML models on `global_attacks*.json` + threat intel
+- `relay/exploitdb_scraper.py` generates new signatures weekly
+- `relay/threat_crawler.py` updates threat intelligence daily
+- Updated models/signatures pushed to all customer nodes (Stage 7 → Stage 2)
