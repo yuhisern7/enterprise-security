@@ -14,52 +14,53 @@ Legend:
 > When you test, tick the box **only when you have confirmed**: local JSON, UI, and (if relay is configured) global/central side all look correct.
 
 ---
+We organize the tests into **10 stages** (Stage 1–Stage 10). Each stage builds on the previous one.
 
-## Test Execution Order (Recommended)
+## Stage Overview (10 Stages)
 
-Follow this order so each ability builds on already-verified plumbing and relay logging:
+Follow this order so each stage builds on already-verified plumbing and relay logging:
 
-1. **Plumbing & Relay Channel**  
-	- Test HMAC / key setup and basic relay connectivity (see: Section 6 – "Secure message signing & verification" + Section 10 logging checklist).  
+1. **Stage 1 – Plumbing & Relay Channel**  
+	- Test HMAC / key setup and basic relay connectivity.  
 	- Goal: prove the customer node can send a signed, sanitized message that the relay accepts and writes.
 
-2. **Core Detection Pipeline**  
-	- Run Section 1 (Core Detection & Scoring) end‑to‑end using a simple scan/attack.  
+2. **Stage 2 – Core Detection Pipeline**  
+	- Run the Core Detection & Scoring tests end‑to‑end using a simple scan/attack.  
 	- Goal: confirm network_monitor → pcs_ai → threat_log.json → dashboard → relay/global_attacks.json all line up.
 
-3. **Deception & Honeypots**  
-	- Run Section 2.  
+3. **Stage 3 – Deception & Honeypots**  
+	- Run the honeypot and honeypot→signature pipeline tests.  
 	- Goal: exercise honeypot → signature_extractor → signature_uploader → relay/signature_sync flow and see a new pattern_hash in learned_signatures.json.
 
-4. **Network, Devices & Behavioral Analytics**  
-	- Run Section 3.  
-	- Goal: confirm device discovery, behavioral scores, and zero-trust policy events all travel through pcs_ai and appear both locally and (when relevant) in relay logs.
+4. **Stage 4 – Network, Devices & Behavioral Analytics**  
+	- Run the network, device discovery, heuristics, and zero trust tests.  
+	- Goal: confirm device discovery, behavioral scores, and zero-trust policy events all travel through pcs_ai and appear locally and (when relevant) in relay logs.
 
-5. **Threat Intelligence & Signatures**  
-	- Run Section 4.  
+5. **Stage 5 – Threat Intelligence & Signatures**  
+	- Run the local threat intel and signature distribution tests.  
 	- Goal: validate that intel and reputation affect scoring, and that relay‑distributed signatures/models are actually pulled and used by pcs_ai.
 
-6. **Policy, Governance & Self-Protection**  
-	- Run Section 5.  
+6. **Stage 6 – Policy, Governance & Self-Protection**  
+	- Run the formal threat model, governance, and self‑protection tests.  
 	- Goal: ensure policy decisions, approvals, and self‑protection events are logged locally and, when escalated, represented as structured events for the relay.
 
-7. **Crypto, Lineage & Federated / Relay**  
-	- Finish remaining tests in Section 6 (lineage, federated / Byzantine).  
-	- Goal: confirm model provenance and federated stats are consistent between customer and relay.
+7. **Stage 7 – Crypto, Lineage & Federated / Relay**  
+	- Run secure signing, cryptographic lineage, and federated / Byzantine tests.  
+	- Goal: confirm secure messaging, model provenance, and federated stats are consistent between customer and relay.
 
-8. **Enterprise, Cloud & SOAR**  
-	- Run Section 7.  
+8. **Stage 8 – Enterprise, Cloud & SOAR**  
+	- Run the enterprise integration and cloud posture tests.  
 	- Goal: verify incidents raised by the core pipeline trigger the right SOAR/workflow and any cloud posture findings are visible.
 
-9. **Resilience, Backup & Compliance**  
-	- Run Section 8.  
+9. **Stage 9 – Resilience, Backup & Compliance**  
+	- Run the backup/ransomware resilience and compliance/reporting tests.  
 	- Goal: confirm backup, restore, and compliance reporting use the same telemetry and that outputs are consistent.
 
-10. **Explainability, Visualization & Dashboard**  
-	- Run Section 9.  
+10. **Stage 10 – Explainability, Visualization & Dashboard**  
+	- Run the explainability, advanced visualization, and dashboard/API tests.  
 	- Goal: ensure explanations, advanced visualizations, and dashboard views correctly reflect all the earlier tests and signals.
 
-For **every** step above, pair the test with Section 10 (Logging & Central Capture Checklist) to validate that the complete logical flow – trigger → local JSON → dashboard → relay JSON – works for that ability.
+For **every** stage above, pair the tests with the Logging & Central Capture Checklist to validate that the complete logical flow – trigger → local JSON → dashboard → relay JSON – works for that stage.
 
 ---
 
@@ -239,8 +240,16 @@ Files that may change:
 - [ ] server/json/comprehensive_audit.json; audit_archive/ — ensure they capture the enriched integrity events with clear links to affected models, configs, and abilities.
 
 ---
+## Stage 1 – Plumbing & Relay Channel
 
-## 1. Core Detection & Scoring
+- [ ] Ability: Secure message signing & relay connectivity  
+	Modules: AI/crypto_security.py, server/crypto_keys/, relay/ai_training_materials/crypto_keys/, relay/relay_server.py  
+	Test: Use the testconnection.md flow to sign a message on the customer node and verify the relay accepts it only when the HMAC is valid and records a sanitized entry (no raw payload) in its logs.
+	Relay output files for this stage: ai_training_materials/global_attacks.json (central attack/event log, when a real attack message is sent).
+
+---
+
+## Stage 2 – Core Detection & Scoring
 
 - [ ] Ability: Multi-signal threat scoring  
 	Modules: AI/pcs_ai.py, AI/meta_decision_engine.py, AI/false_positive_filter.py  
@@ -258,9 +267,13 @@ Files that may change:
 	Modules: AI/drift_detector.py  
 	Test: Feed unusual distributions (features or labels) and verify drift status is tracked and, if configured, that retraining flags are raised.
 
+Relay output files for this stage:
+- ai_training_materials/global_attacks.json (all elevated attacks from the core pipeline).
+- ai_training_materials/attack_statistics.json (aggregated counts and trends computed by relay_server.py).
+
 ---
 
-## 2. Deception & Honeypots
+## Stage 3 – Deception & Honeypots
 
 - [ ] Ability: Adaptive honeypot personas  
 	Modules: AI/adaptive_honeypot.py  
@@ -270,9 +283,13 @@ Files that may change:
 	Modules: AI/signature_extractor.py, AI/signature_uploader.py, relay/signature_sync.py  
 	Test: After honeypot hits, verify a new pattern_hash/signature is appended in relay/ai_training_materials/ai_signatures/learned_signatures.json with metadata only (no exploit code).
 
+Relay output files for this stage:
+- ai_training_materials/global_attacks.json (honeypot attacks promoted to global view).
+- ai_training_materials/ai_signatures/learned_signatures.json (stored attack patterns/signatures).
+
 ---
 
-## 3. Network, Devices & Behavioral Analytics
+## Stage 4 – Network, Devices & Behavioral Analytics
 
 - [ ] Ability: Network attack detection (scans/floods/ARP)  
 	Modules: server/network_monitor.py, AI/pcs_ai.py  
@@ -290,9 +307,13 @@ Files that may change:
 	Modules: AI/zero_trust.py, AI/policy_governance.py  
 	Test: Define a simple trust policy and violate it with a device or user; confirm policy violation is logged and, if configured, leads to a block/quarantine recommendation.
 
+Relay output files for this stage:
+- ai_training_materials/global_attacks.json (network/behavior/zero-trust violations escalated as attacks).
+- ai_training_materials/attack_statistics.json (updated statistics including these events).
+
 ---
 
-## 4. Threat Intelligence & Signatures
+## Stage 5 – Threat Intelligence & Signatures
 
 - [ ] Ability: Local threat intelligence aggregation  
 	Modules: AI/threat_intelligence.py, AI/reputation_tracker.py  
@@ -302,9 +323,15 @@ Files that may change:
 	Modules: AI/signature_distribution.py, AI/relay_client.py, relay/training_sync_api.py  
 	Test: Place a model/signature on the relay, ensure the customer node pulls it successfully and that pcs_ai starts using it in decisions.
 
+Relay output files for this stage:
+- ai_training_materials/ai_signatures/learned_signatures.json (central signature store).
+- ai_training_materials/threat_intelligence/ (OSINT / threat feed JSON files maintained by crawlers).
+- ai_training_materials/reputation_data/ (aggregated global reputation exports).
+- ai_training_materials/global_attacks.json (attacks enriched by intel/reputation).
+
 ---
 
-## 5. Policy, Governance & Self-Protection
+## Stage 6 – Policy, Governance & Self-Protection
 
 - [ ] Ability: Formal threat model + governance  
 	Modules: AI/formal_threat_model.py, AI/policy_governance.py  
@@ -314,13 +341,12 @@ Files that may change:
 	Modules: AI/self_protection.py, AI/emergency_killswitch.py  
 	Test: Trigger a simulated self-protection event and verify that dangerous actions are downgraded or stopped, and that the kill-switch state is visible on the dashboard.
 
+Relay output files for this stage:
+- ai_training_materials/global_attacks.json (policy violations and self‑protection events that are promoted to global attacks).
+
 ---
 
-## 6. Cryptography, Lineage & Federated / Relay
-
-- [ ] Ability: Secure message signing & verification  
-	Modules: AI/crypto_security.py, server/crypto_keys/, relay/ai_training_materials/crypto_keys/, relay/relay_server.py  
-	Test: Use the testconnection.md flow to sign a message on the customer node and verify the relay accepts it only when the HMAC is valid.
+## Stage 7 – Cryptography, Lineage & Federated / Relay
 
 - [ ] Ability: Cryptographic lineage & model provenance  
 	Modules: AI/cryptographic_lineage.py, relay/ai_retraining.py  
@@ -330,9 +356,13 @@ Files that may change:
 	Modules: AI/byzantine_federated_learning.py, AI/training_sync_client.py, relay/ai_retraining.py  
 	Test: Simulate multiple peers with one “bad” update and verify the aggregator rejects or down-weights the malicious update (check byzantine stats).
 
+Relay output files for this stage:
+- ai_training_materials/global_attacks.json (any training/federation-related security incidents recorded as attacks).
+- ai_training_materials/global_attacks.json + ai_training_materials/ai_signatures/learned_signatures.json are also the input training materials consumed by ai_retraining.py.
+
 ---
 
-## 7. Enterprise, Cloud & SOAR
+## Stage 8 – Enterprise, Cloud & SOAR
 
 - [ ] Ability: Enterprise integrations  
 	Modules: AI/enterprise_integration.py, AI/soar_api.py, AI/soar_workflows.py  
@@ -342,9 +372,12 @@ Files that may change:
 	Modules: AI/cloud_security.py  
 	Test: With cloud CLIs available, run posture checks and verify misconfigurations and IAM issues show up in cloud_findings.json and dashboard metrics.
 
+Relay output files for this stage:
+- ai_training_materials/global_attacks.json (incidents raised from SOAR/cloud posture that are shared globally).
+
 ---
 
-## 8. Resilience, Backup & Compliance
+## Stage 9 – Resilience, Backup & Compliance
 
 - [ ] Ability: Backup & ransomware resilience  
 	Modules: AI/backup_recovery.py  
@@ -354,9 +387,12 @@ Files that may change:
 	Modules: AI/compliance_reporting.py, server/report_generator.py  
 	Test: Generate an enterprise security report and verify the compliance/controls sections reflect current telemetry and SBOM data.
 
+Relay output files for this stage:
+- ai_training_materials/global_attacks.json (any ransomware/backup/compliance‑related incidents that are escalated as attacks).
+
 ---
 
-## 9. Explainability, Visualization & Dashboard
+## Stage 10 – Explainability, Visualization & Dashboard
 
 - [ ] Ability: Explainable decisions  
 	Modules: AI/explainability_engine.py, AI/pcs_ai.py  
@@ -370,9 +406,14 @@ Files that may change:
 	Modules: AI/inspector_ai_monitoring.html, AI/swagger_ui.html, server/server.py  
 	Test: Load the monitoring UI and (optionally) the Swagger UI, confirming endpoints and data wiring are correct.
 
+Relay output files for this stage:
+- No additional JSON beyond the same central files used by earlier stages:
+	ai_training_materials/global_attacks.json (attacks already logged).
+	ai_training_materials/ai_signatures/learned_signatures.json (signatures already logged).
+
 ---
 
-## 10. Logging & Central Capture Checklist
+## Logging & Central Capture Checklist (Applies to All Stages)
 
 For every test above, explicitly verify:
 
