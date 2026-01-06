@@ -80,13 +80,19 @@ class SelfProtection:
         self.telemetry_heartbeat: Dict[str, float] = {}
         self.last_log_count = 0
         
-        # Conservative thresholds
+        # Conservative thresholds and escalation behaviour
         self.config = {
             "telemetry_silence_threshold": 60.0,  # 60 seconds (very conservative)
             "hash_mismatch_severity_threshold": 0.9,  # Only critical mismatches
             "min_violations_before_alert": 3,  # Need 3 violations to alert
             "log_deletion_threshold": 0.5,  # 50% log reduction
             "model_change_grace_period": 300,  # 5 min grace after training
+            # New: when enabled, very severe integrity events will be mirrored
+            # into the comprehensive audit log, and (optionally) nudge the
+            # kill-switch into SAFE_MODE to prevent further automated actions.
+            "auto_audit_on_violation": True,
+            "auto_killswitch_on_critical": os.getenv("AUTO_KILLSWITCH_ON_INTEGRITY", "false").lower() == "true",
+            "critical_severity_threshold": 0.9,
         }
         
         # Load state
@@ -528,6 +534,50 @@ class SelfProtection:
         self._save_violations()
         
         logger.warning(f"[SELF-PROTECT] Integrity violation: {threat_type.value} on {component} (severity={severity:.2f})")
+
+        # Optionally mirror integrity violations into the comprehensive audit log
+        # so that Section 6 can see them in the compliance/audit views.
+        if self.config.get("auto_audit_on_violation", True):
+            try:
+                from emergency_killswitch import get_audit_log, AuditEventType
+
+                audit = get_audit_log()
+                audit.log_event(
+                    event_type=AuditEventType.INTEGRITY_VIOLATION,
+                    actor="self_protection",
+                    action=threat_type.value,
+                    target=component,
+                    outcome="detected",
+                    details={
+                        "violation_id": violation.violation_id,
+                        "severity": severity,
+                        "recommended_action": recommended_action,
+                    },
+                    risk_level="critical" if severity >= self.config.get("critical_severity_threshold", 0.9) else "high",
+                    metadata={"module": "self_protection"},
+                )
+            except Exception as e:
+                logger.debug(f"[SELF-PROTECT] Failed to write to audit log: {e}")
+
+        # Optional: for truly critical integrity events, nudge the kill-switch
+        # into SAFE_MODE to prevent further automated blocking until an
+        # operator reviews the situation. Controlled via env flag
+        # AUTO_KILLSWITCH_ON_INTEGRITY=true.
+        if (
+            self.config.get("auto_killswitch_on_critical")
+            and severity >= self.config.get("critical_severity_threshold", 0.9)
+        ):
+            try:
+                from emergency_killswitch import get_kill_switch, KillSwitchMode
+
+                ks = get_kill_switch()
+                ks.activate_kill_switch(
+                    mode=KillSwitchMode.SAFE_MODE,
+                    reason=f"Critical integrity violation: {threat_type.value} on {component}",
+                    activated_by="self_protection",
+                )
+            except Exception as e:
+                logger.debug(f"[SELF-PROTECT] Failed to activate kill-switch on critical integrity violation: {e}")
     
     def _hash_file(self, file_path: str) -> str:
         """Compute SHA-256 hash of file."""

@@ -219,9 +219,15 @@
 - `AI/policy_governance.py` — Manages security policies, approvals, and governance workflows.
 - `AI/relay_client.py` — Client-side code for talking to the relay server over HTTP/WebSocket.
 - `AI/reputation_tracker.py` — Tracks and updates IP/domain reputation over time.
+  - Stores long-term history in a SQLite DB under `/app/json/reputation.db` (Docker) or `server/json/reputation.db` (native).
+  - Exposes `record_attack()` and `query_reputation()` to attach cross-session risk (recidivism, severity, geolocation) to entities.
+  - Exports training-friendly snapshots into `server/json/reputation_export.json` and `relay/ai_training_materials/reputation_data/` for Stage 5.
 - `AI/self_protection.py` — Detects tampering, log deletion anomalies, and self-protective behavior.
+  - Maintains integrity baselines and violations under `server/json/integrity_baseline.json` and `server/json/integrity_violations.json`.
+  - On each recorded violation, writes a structured `INTEGRITY_VIOLATION` event into the comprehensive audit log (`server/json/comprehensive_audit.json`) so Section 6/31 can see integrity incidents in the compliance views.
+  - When `AUTO_KILLSWITCH_ON_INTEGRITY=true` and a violation exceeds the critical severity threshold, it will nudge the emergency kill-switch into `SAFE_MODE` via `AI/emergency_killswitch.py` to prevent further automated blocking until an operator reviews the situation.
 - `AI/sequence_analyzer.py` — LSTM and sequence-based modeling of kill chains and temporal patterns.
-- `AI/signature_distribution.py` — Handles distribution of signatures to other nodes/relay.
+- `AI/signature_distribution.py` — Handles distribution of signatures to other nodes/relay (including ExploitDB-derived signatures via P2P).
 - `AI/signature_extractor.py` — Extracts new signatures from observed malicious traffic.
 - `AI/signature_uploader.py` — Uploads new signatures to the relay or central servers.
 - `AI/soar_api.py` — Defines SOAR-related API endpoints consumed by external systems.
@@ -229,6 +235,15 @@
 - `AI/swagger_ui.html` — Swagger/OpenAPI UI for interacting with the REST APIs.
 - `AI/system_log_collector.py` — Collects and normalizes system logs for AI analysis and forensics.
 - `AI/threat_intelligence.py` — Threat intel ingestion (OSINT feeds, local DB, ExploitDB helpers) and enrichment.
+  - Wraps external IP reputation (VirusTotal, AbuseIPDB) with local context: threat scores are now a blend of VT/AbuseIPDB, local indicators, and the persistent reputation tracker.
+  - Provides `ThreatIntelligence.ingest_indicator(value, indicator_type, source, confidence, tags)` for Stage 5 "Local threat intelligence aggregation":
+    - Maintains an in-memory map of indicators (IP/domain/hash/CVE/URL) with first_seen/last_seen, sources, tags, times_seen, and max_confidence.
+    - For IPs/domains, forwards high-confidence indicators into `AI/reputation_tracker.py` via `record_attack()` so cross-session reputation reflects TI feeds.
+    - Persists a JSON view at `server/json/local_threat_intel.json` with a list of locally ingested indicators (no raw customer data beyond the indicator itself).
+  - `check_ip_reputation(ip)` now also:
+    - Adds a `local_intel` block when the IP matches a locally ingested indicator.
+    - Adds a `reputation` block when the entity exists in the reputation DB.
+    - Caps a combined 0–100 threat_score that pcs_ai uses for auto-blocking and dashboard stats (Section 3 and 5–7).
 - `AI/dns_analyzer.py` — DNS security analyzer (tunneling/DGA/exfil patterns) that tracks per-IP DNS behavior and writes aggregated metrics to `dns_security.json`, and promotes high-confidence DNS abuse as threats via `pcs_ai`.
 - `AI/tls_fingerprint.py` — TLS/encrypted-flow fingerprinting (metadata-only) that tracks per-IP encrypted flows and suspicious non-standard TLS usage, writing metrics to `tls_fingerprints.json` for both detection and dashboard use.
 - `AI/traffic_analyzer.py` — Traffic autoencoder logic and anomaly scoring.

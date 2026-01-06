@@ -121,6 +121,8 @@ class BehavioralHeuristics:
             'timing_variance': 0.8,          # High variance = inconsistent behavior
             'fan_out': 50,                   # Contacting >50 IPs suspicious
             'fan_in': 20,                    # Using >20 source ports suspicious
+            'avg_payload_large': 10000,      # Average payload >10KB suspicious (possible exfil)
+            'payload_variance_high': 20000,  # Very bursty payload sizes suspicious
         }
         
         # Cleanup interval
@@ -339,6 +341,20 @@ class BehavioralHeuristics:
         if entity.fan_in > self.thresholds['fan_in']:
             score += 0.10
             risk_factors.append(f"Port hopping: {entity.fan_in} source ports")
+
+        # Payload-based indicators (possible exfiltration or scanning via large/bursty traffic)
+        if entity.avg_payload_size > self.thresholds['avg_payload_large']:
+            score += 0.10
+            risk_factors.append(f"Large avg payload: {entity.avg_payload_size:.0f} bytes")
+
+        if entity.payload_variance > self.thresholds['payload_variance_high']:
+            score += 0.05
+            risk_factors.append(f"Bursty payload sizes: σ≈{entity.payload_variance:.0f}")
+
+        # Multi-signal agreement bonus: require several weak signals instead of any single one
+        if len(risk_factors) >= 3:
+            score += 0.10
+            risk_factors.append(f"Multi-signal agreement ({len(risk_factors)-1} factors)")
         
         # Normalize to 0-1 range
         score = min(score, 1.0)

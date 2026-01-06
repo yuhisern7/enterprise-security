@@ -240,6 +240,54 @@ Files that may change:
 - [ ] server/json/comprehensive_audit.json; audit_archive/ — ensure they capture the enriched integrity events with clear links to affected models, configs, and abilities.
 
 ---
+
+## 0.2 Relay Output Files by Stage (Summary)
+
+This summarizes which **relay JSON files** are expected to receive events when each stage is exercised and relay is enabled:
+
+- **Stage 1 – Plumbing & Relay Channel**  
+	- `relay/ai_training_materials/global_attacks.json` — central attack/event log when a real signed attack message is sent through the HMAC channel.
+
+- **Stage 2 – Core Detection & Scoring**  
+	- `relay/ai_training_materials/global_attacks.json` — all elevated attacks from the core pipeline (including ML, VPN/Tor, DNS tunneling, TLS C2 once promoted by pcs_ai).
+	- `relay/ai_training_materials/attack_statistics.json` — aggregated counts and trends computed from global_attacks.json.
+
+- **Stage 3 – Deception & Honeypots**  
+	- `relay/ai_training_materials/global_attacks.json` — honeypot-sourced attacks promoted to the global view.  
+	- `relay/ai_training_materials/ai_signatures/learned_signatures.json` — privacy-preserving signatures and patterns derived from honeypot hits and ExploitDB (no raw exploits).
+
+- **Stage 4 – Network, Devices & Behavioral Analytics**  
+	- `relay/ai_training_materials/global_attacks.json` — network/behavioral/graph/DNS/TLS/zero‑trust violations once pcs_ai elevates them to attacks.  
+	- `relay/ai_training_materials/attack_statistics.json` — updated statistics including these NDR and UEBA events.
+
+- **Stage 5 – Threat Intelligence & Signatures**  
+	- `relay/ai_training_materials/ai_signatures/learned_signatures.json` — central store for all normalized signatures.  
+	- `relay/ai_training_materials/threat_intelligence/` — OSINT / feed JSONs maintained by crawlers.  
+	- `relay/ai_training_materials/reputation_data/` — aggregated global reputation exports.  
+	- `relay/ai_training_materials/global_attacks.json` — attacks enriched with intel/reputation context.
+
+- **Stage 6 – Policy, Governance & Self-Protection**  
+	- `relay/ai_training_materials/global_attacks.json` — policy violations and self‑protection events that the ensemble promotes as attacks.
+
+- **Stage 7 – Cryptography, Lineage & Federated / Relay**  
+	- `relay/ai_training_materials/global_attacks.json` — training/federation-related security incidents recorded as attacks.  
+	- `relay/ai_training_materials/ai_signatures/learned_signatures.json` + `relay/ai_training_materials/global_attacks.json` — input training materials for `relay/ai_retraining.py`.
+
+- **Stage 8 – Enterprise, Cloud & SOAR**  
+	- `relay/ai_training_materials/global_attacks.json` — incidents raised from SOAR or cloud posture checks that are shared globally.
+
+- **Stage 9 – Resilience, Backup & Compliance**  
+	- `relay/ai_training_materials/global_attacks.json` — any ransomware/backup/compliance‑related incidents escalated as attacks.
+
+- **Stage 10 – Explainability, Visualization & Dashboard**  
+	- No new relay files; reuses:  
+		- `relay/ai_training_materials/global_attacks.json` — attacks already logged in earlier stages.  
+		- `relay/ai_training_materials/ai_signatures/learned_signatures.json` — signatures already logged.
+
+Use this as a quick cross-check when validating that a given stage’s detections are visible both **locally** (server/json) and at the **relay** (ai_training_materials).
+
+---
+
 ## Stage 1 – Plumbing & Relay Channel
 
 - [ ] Ability: Secure message signing & relay connectivity  
@@ -261,7 +309,7 @@ Files that may change:
 
 - [ ] Ability: Traffic anomaly detection (autoencoder)  
 	Modules: AI/traffic_analyzer.py, AI/network_performance.py  
-	Test: Simulate abnormal traffic volume or pattern, confirm anomaly flags in network_performance.json and corresponding entries in threat_log.json.
+	Test: Generate abnormal traffic volume or patterns in your environment and confirm anomaly flags in network_performance.json and corresponding entries in threat_log.json.
 
 - [ ] Ability: DNS tunneling & DGA detection (NDR-only)  
 	Modules: AI/dns_analyzer.py, server/network_monitor.py, server/server.py, AI/pcs_ai.py  
@@ -297,7 +345,7 @@ Relay output files for this stage:
 
 - [ ] Ability: Network attack detection (scans/floods/ARP)  
 	Modules: server/network_monitor.py, AI/pcs_ai.py  
-	Test: Run a port scan / SYN flood / ARP spoof lab, confirm detection entries in threat_log.json and appropriate actions (block / monitor) without crashing packet capture.
+	Test: Run a controlled port scan / SYN flood / ARP spoof from a test host, confirm detection entries in threat_log.json and appropriate actions (block / monitor) without crashing packet capture.
 
 - [ ] Ability: Device discovery & inventory  
 	Modules: server/device_scanner.py, AI/asset_inventory.py, AI/node_fingerprint.py  
@@ -305,11 +353,11 @@ Relay output files for this stage:
 
 - [ ] Ability: Behavioral heuristics (per-IP scoring)  
 	Modules: AI/behavioral_heuristics.py, server/network_monitor.py  
-	Test: Simulate abusive behavior (high connection rate, retries, auth failures) from a single IP and verify a rising heuristic_score and associated risk_factors as network_monitor feeds flow events into the heuristics engine.
+	Test: Generate abusive behavior (high connection rate, retries, auth failures) from a single IP and verify a rising heuristic_score and associated risk_factors as network_monitor feeds flow events into the heuristics engine.
 
 - [ ] Ability: Graph-based lateral movement / C2  
 	Modules: AI/graph_intelligence.py, server/network_monitor.py, AI/advanced_visualization.py  
-	Test: Generate a small lab of multi-hop connections (e.g., attacker → pivot → internal target) and confirm network_graph.json and lateral_movement_alerts.json are updated, and the dashboard graph/kill-chain views reflect the suspicious paths.
+	Test: Create a small set of multi-hop connections in your environment (e.g., attacker → pivot → internal target) and confirm network_graph.json and lateral_movement_alerts.json are updated, and the dashboard graph/kill-chain views reflect the suspicious paths.
 
 - [ ] Ability: Encrypted C2 / TLS fingerprinting  
 	Modules: AI/tls_fingerprint.py, server/network_monitor.py, server/server.py, AI/pcs_ai.py  
@@ -329,7 +377,7 @@ Relay output files for this stage:
 
 - [ ] Ability: Local threat intelligence aggregation  
 	Modules: AI/threat_intelligence.py, AI/reputation_tracker.py  
-	Test: Feed known bad indicators (IP/domain/hash) and verify they update local reputation and influence scoring decisions.
+	Test: Feed known bad indicators (IP/domain/hash) via `ThreatIntelligence.ingest_indicator(...)`, confirm they appear in `server/json/local_threat_intel.json`, that `AI/reputation_tracker.py` reflects them in reputation/export data, and that subsequent `check_ip_reputation(ip)` calls for those entities show boosted threat_score and LocalIntel/ReputationTracker details.
 
 - [ ] Ability: Signature distribution from relay  
 	Modules: AI/signature_distribution.py, AI/relay_client.py, relay/training_sync_api.py  
@@ -347,11 +395,11 @@ Relay output files for this stage:
 
 - [ ] Ability: Formal threat model + governance  
 	Modules: AI/formal_threat_model.py, AI/policy_governance.py  
-	Test: Define a scenario in the formal model and ensure policy decisions are honored (e.g., require approval before certain actions) and logged in approval_requests.json.
+	Test: Define a scenario in the formal model and ensure policy decisions are honored (e.g., require approval before certain actions), that pending/approved/rejected requests appear in server/json/approval_requests.json, and that governance_audit.json records the lifecycle (created/approved/rejected) of those decisions.
 
 - [ ] Ability: Self-protection & kill-switch  
 	Modules: AI/self_protection.py, AI/emergency_killswitch.py  
-	Test: Trigger a simulated self-protection event and verify that dangerous actions are downgraded or stopped, and that the kill-switch state is visible on the dashboard.
+	Test: Trigger a controlled integrity/self-protection event in your environment (e.g., deliberate model tampering or telemetry suppression) and verify: (1) server/json/integrity_violations.json records the violation with severity and recommended_action, (2) server/json/comprehensive_audit.json receives a matching INTEGRITY_VIOLATION event, and (3) when AUTO_KILLSWITCH_ON_INTEGRITY=true and severity is critical, the kill-switch mode moves into SAFE_MODE and is visible on the dashboard.
 
 Relay output files for this stage:
 - ai_training_materials/global_attacks.json (policy violations and self‑protection events that are promoted to global attacks).
@@ -366,7 +414,7 @@ Relay output files for this stage:
 
 - [ ] Ability: Byzantine-resilient federated aggregation  
 	Modules: AI/byzantine_federated_learning.py, AI/training_sync_client.py, relay/ai_retraining.py  
-	Test: Simulate multiple peers with one “bad” update and verify the aggregator rejects or down-weights the malicious update (check byzantine stats).
+	Test: Run multiple peers with one deliberately bad update and verify the aggregator rejects or down-weights the malicious update (check byzantine stats).
 
 Relay output files for this stage:
 - ai_training_materials/global_attacks.json (any training/federation-related security incidents recorded as attacks).
@@ -393,7 +441,7 @@ Relay output files for this stage:
 
 - [ ] Ability: Backup & ransomware resilience  
 	Modules: AI/backup_recovery.py  
-	Test: Run backup directory checks and a simulated restore test; confirm backup_status.json and recovery_tests.json reflect realistic RTO/RPO and resilience scores.
+	Test: Run backup directory checks and a controlled restore test in your environment; confirm backup_status.json and recovery_tests.json reflect realistic RTO/RPO and resilience scores.
 
 - [ ] Ability: Compliance & reporting  
 	Modules: AI/compliance_reporting.py, server/report_generator.py  
@@ -509,8 +557,8 @@ This appendix gives a concrete, step-by-step runbook to validate the **DNS analy
 2. **Generate non-standard TLS traffic**
 	 - From the test host, target the sensor or another internal service on unusual TLS-like ports (e.g., 8443, 9443):
 		 - `curl -k https://<sensor_ip>:8443/` (if a TLS listener exists)
-		 - Or run a simple TLS server on a high port inside the lab, then:
-			 - `curl -k https://<lab_server_ip>:9443/`
+		 - Or run a simple TLS server on a high port in your environment, then:
+			 - `curl -k https://<server_ip>:9443/`
 	 - Alternatively, use OpenSSL if available:
 		 - `openssl s_client -connect <sensor_ip>:8443`
 

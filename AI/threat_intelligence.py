@@ -50,6 +50,13 @@ except ImportError as e:
     CRAWLER_AVAILABLE = False
     logger.warning(f"[ThreatIntel] Threat crawlers not available: {e}")
 
+# Import local reputation tracker for cross-session intelligence
+try:
+    from reputation_tracker import get_reputation_tracker, REPUTATION_TRACKER_AVAILABLE as _REP_TRACKER_AVAILABLE
+except ImportError as e:
+    _REP_TRACKER_AVAILABLE = False
+    logger.warning(f"[ThreatIntel] Reputation tracker not available: {e}")
+
 # Configuration - Load from environment variables
 VIRUSTOTAL_API_KEY = os.getenv("VIRUSTOTAL_API_KEY", "")  # REQUIRED: Get free key from https://www.virustotal.com/gui/join-us
 ABUSEIPDB_API_KEY = os.getenv("ABUSEIPDB_API_KEY", "")  # Optional: Get free key from https://www.abuseipdb.com/
@@ -99,6 +106,9 @@ class ThreatIntelligence:
         self.vt_enabled = bool(VIRUSTOTAL_API_KEY)
         self.abuseipdb_enabled = bool(ABUSEIPDB_API_KEY)
         self.exploitdb_enabled = True
+        # Local indicator store (IP/domain/hash → aggregated metadata)
+        # Used for "local threat intelligence aggregation" in Stage 5.
+        self.local_indicators: Dict[str, Dict[str, Any]] = {}
         
     def check_ip_reputation(self, ip_address: str) -> Dict[str, Any]:
         """
@@ -107,7 +117,7 @@ class ThreatIntelligence:
         Returns aggregated threat score and details from:
         - VirusTotal (vendor detections)
         - AbuseIPDB (abuse reports)
-        - Internal ML models
+        - Internal ML models / local reputation tracker
         """
         result = {
             "ip": ip_address,
@@ -133,6 +143,35 @@ class ThreatIntelligence:
                 result["sources"].append("AbuseIPDB")
                 result["details"]["abuseipdb"] = abuse_data
                 result["threat_score"] += abuse_data.get("threat_contribution", 0)
+
+        # Local indicator hits (Stage 5 - local threat intelligence aggregation)
+        indicator_key = f"ip:{ip_address.strip().lower()}"
+        local_hit = self.local_indicators.get(indicator_key)
+        if local_hit:
+            result["sources"].append("LocalIntel")
+            result["details"]["local_intel"] = local_hit
+            # Local confidence contributes up to 50 points
+            local_conf = max(0, min(100, int(local_hit.get("max_confidence", 80))))
+            result["threat_score"] += int(local_conf * 0.5)
+
+        # Persistent reputation tracker (cross-session intel)
+        if _REP_TRACKER_AVAILABLE:
+            try:
+                tracker = get_reputation_tracker()
+                if tracker:
+                    rep = tracker.query_reputation(ip_address)
+                    if rep:
+                        result["sources"].append("ReputationTracker")
+                        result["details"]["reputation"] = {
+                            "reputation_score": rep.reputation_score,
+                            "threat_level": rep.threat_level,
+                            "total_attacks": rep.total_attacks,
+                            "is_recidivist": rep.is_recidivist,
+                        }
+                        # Reputation score (0.0–1.0) contributes up to 40 points
+                        result["threat_score"] += int(rep.reputation_score * 40)
+            except Exception as e:
+                logger.debug(f"[ThreatIntel] Reputation tracker query failed: {e}")
         
         # Generate recommendations
         if result["threat_score"] >= 80:
@@ -153,6 +192,120 @@ class ThreatIntelligence:
             del _threat_intel_log[: len(_threat_intel_log) - THREAT_INTEL_LOG_MAX]
         
         return result
+
+    def ingest_indicator(self, value: str, indicator_type: str = "ip",
+                         source: str = "manual", confidence: int = 80,
+                         tags: Optional[List[str]] = None) -> Dict[str, Any]:
+        """Ingest a local threat indicator and optionally feed it into reputation.
+
+        This powers Stage 5: Local threat intelligence aggregation.
+
+        Args:
+            value: Indicator value (IP, domain, URL, hash)
+            indicator_type: "ip", "domain", "url", "hash", "cve", ...
+            source: Source label (e.g. "admin_input", "osint_feed")
+            confidence: 0–100 confidence score in indicator being malicious
+            tags: Optional list of labels (e.g. ["botnet", "phishing"])
+        """
+        if not value:
+            raise ValueError("Indicator value cannot be empty")
+
+        tags = tags or []
+        indicator_type = indicator_type.lower().strip()
+        key = f"{indicator_type}:{value.strip().lower()}"
+        now = datetime.utcnow().isoformat()
+
+        existing = self.local_indicators.get(key, {
+            "indicator": value.strip(),
+            "indicator_type": indicator_type,
+            "first_seen": now,
+            "last_seen": now,
+            "sources": set(),
+            "tags": set(),
+            "times_seen": 0,
+            "max_confidence": 0,
+        })
+
+        # Update aggregate fields
+        existing["last_seen"] = now
+        existing["times_seen"] += 1
+        existing["max_confidence"] = max(int(confidence), int(existing.get("max_confidence", 0)))
+
+        src_set = existing.get("sources", set())
+        if isinstance(src_set, list):
+            src_set = set(src_set)
+        src_set.add(source)
+        existing["sources"] = src_set
+
+        tag_set = existing.get("tags", set())
+        if isinstance(tag_set, list):
+            tag_set = set(tag_set)
+        tag_set.update(tags)
+        existing["tags"] = tag_set
+
+        self.local_indicators[key] = existing
+
+        # Feed into persistent reputation tracker for IPs/domains
+        if indicator_type in {"ip", "domain"} and _REP_TRACKER_AVAILABLE:
+            try:
+                tracker = get_reputation_tracker()
+                if tracker:
+                    sev = max(0.0, min(1.0, confidence / 100.0))
+                    tracker.record_attack(
+                        entity=value.strip(),
+                        entity_type=indicator_type,
+                        attack_type="threat_intel_indicator",
+                        severity=sev,
+                        signature="threat_intel_blacklist",
+                        blocked=False,
+                        geolocation=None,
+                    )
+            except Exception as e:
+                logger.debug(f"[ThreatIntel] Failed to record indicator in reputation tracker: {e}")
+
+        # Persist local indicators to JSON for visibility / debugging
+        try:
+            if os.path.exists('/app'):
+                base_dir = '/app'
+            else:
+                base_dir = os.path.join(os.path.dirname(__file__), '..', 'server')
+            out_path = os.path.join(base_dir, 'json', 'local_threat_intel.json')
+            os.makedirs(os.path.dirname(out_path), exist_ok=True)
+
+            serializable = []
+            for rec in self.local_indicators.values():
+                serializable.append({
+                    **rec,
+                    "sources": sorted(list(rec.get("sources", []))),
+                    "tags": sorted(list(rec.get("tags", []))),
+                })
+
+            with open(out_path, 'w') as f:
+                json.dump({
+                    "exported_at": now,
+                    "total_indicators": len(serializable),
+                    "indicators": serializable,
+                }, f, indent=2)
+        except Exception as e:
+            logger.debug(f"[ThreatIntel] Failed to persist local indicators: {e}")
+
+        # Return a JSON-serializable copy
+        return {
+            **existing,
+            "sources": sorted(list(existing.get("sources", []))),
+            "tags": sorted(list(existing.get("tags", []))),
+        }
+
+    def get_local_intel_stats(self) -> Dict[str, Any]:
+        """Summarize locally ingested indicators for dashboards/tests."""
+        counts_by_type: Dict[str, int] = defaultdict(int)
+        for rec in self.local_indicators.values():
+            counts_by_type[rec.get("indicator_type", "unknown")] += 1
+
+        return {
+            "total_indicators": len(self.local_indicators),
+            "counts_by_type": dict(counts_by_type),
+        }
     
     def _check_virustotal_ip(self, ip_address: str) -> Optional[Dict[str, Any]]:
         """Query VirusTotal API for IP reputation"""

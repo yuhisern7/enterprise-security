@@ -3965,27 +3965,74 @@ def get_vpn_tor_statistics() -> dict:
     tor_count = 0
     proxy_count = 0
     real_ips_revealed = 0
-    
+
+    # Distinct attacker IPs per anonymization type
+    vpn_ips: set[str] = set()
+    tor_ips: set[str] = set()
+    proxy_ips: set[str] = set()
+
+    # Breakdown of anonymization techniques
+    anonymization_breakdown: dict[str, int] = {}
+    high_confidence_anonymized = 0
+
     for log in _threat_log:
         anon_data = log.get('anonymization_detection', {})
-        if anon_data.get('is_anonymized'):
-            anon_type = anon_data.get('anonymization_type', '')
-            if 'tor' in anon_type:
-                tor_count += 1
-            elif 'vpn' in anon_type:
-                vpn_count += 1
-            elif 'proxy' in anon_type:
-                proxy_count += 1
-            
-            if anon_data.get('real_ip_revealed'):
-                real_ips_revealed += 1
-    
+        if not anon_data.get('is_anonymized'):
+            continue
+
+        anon_type = str(anon_data.get('anonymization_type', '')).lower()
+        confidence = int(anon_data.get('confidence', 0) or 0)
+        ip = log.get('ip_address')
+
+        # Count by type (attacks)
+        if 'tor' in anon_type:
+            tor_count += 1
+            if ip:
+                tor_ips.add(ip)
+        elif 'vpn' in anon_type:
+            vpn_count += 1
+            if ip:
+                vpn_ips.add(ip)
+        elif 'proxy' in anon_type:
+            proxy_count += 1
+            if ip:
+                proxy_ips.add(ip)
+
+        # Generic anonymization technique breakdown
+        if anon_type:
+            anonymization_breakdown[anon_type] = anonymization_breakdown.get(anon_type, 0) + 1
+
+        # Track high-confidence anonymized attacks
+        if confidence >= 70:
+            high_confidence_anonymized += 1
+
+        if anon_data.get('real_ip_revealed'):
+            real_ips_revealed += 1
+
+    total_anonymized_attacks = vpn_count + tor_count + proxy_count
+
     return {
-        "total_anonymized_attacks": vpn_count + tor_count + proxy_count,
+        # Core anonymization stats
+        "total_anonymized_attacks": total_anonymized_attacks,
+        "high_confidence_anonymized_attacks": high_confidence_anonymized,
+
+        # Per-type attack counts (backwards compatible keys)
         "vpn_detected": vpn_count,
         "tor_detected": tor_count,
         "proxy_detected": proxy_count,
+
+        # Distinct users per type (for dashboards that show "users")
+        "total_vpn_users": len(vpn_ips) if vpn_ips else vpn_count,
+        "total_tor_users": len(tor_ips) if tor_ips else tor_count,
+        "total_proxy_users": len(proxy_ips) if proxy_ips else proxy_count,
+
+        # Real identity revelation
         "real_ips_revealed": real_ips_revealed,
+
+        # Technique breakdown for Section 3 dashboards
+        "anonymization_breakdown": anonymization_breakdown,
+
+        # Fingerprinting and correlation intelligence
         "fingerprints_tracked": len(_fingerprint_tracker),
         "ip_correlations": len(_real_ip_correlation),
         "proxy_chains_detected": len(_proxy_chain_tracker),
