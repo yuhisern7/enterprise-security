@@ -365,11 +365,11 @@ class RelayAITrainer:
 _retrain_manager = None
 
 
-def get_retrain_manager(relay_url: str = None) -> AIRetrainingManager:
+def get_retrain_manager(relay_url: str = None) -> RelayAITrainer:
     """Get singleton retrain manager instance"""
     global _retrain_manager
     if _retrain_manager is None:
-        _retrain_manager = AIRetrainingManager(relay_url=relay_url)
+        _retrain_manager = RelayAITrainer()
     return _retrain_manager
 
 
@@ -380,9 +380,9 @@ def start_auto_retrain(relay_url: str = None):
 
 
 def force_retrain_now(relay_url: str = None) -> bool:
-    """Force immediate retrain with global attacks"""
+    """Force immediate retrain with local data"""
     manager = get_retrain_manager(relay_url=relay_url)
-    return manager.retrain_with_global_attacks(force=True)
+    return manager.retrain_with_local_data(force=True)
 
 
 if __name__ == '__main__':
