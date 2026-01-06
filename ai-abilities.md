@@ -15,6 +15,54 @@ Legend:
 
 ---
 
+## Test Execution Order (Recommended)
+
+Follow this order so each ability builds on already-verified plumbing and relay logging:
+
+1. **Plumbing & Relay Channel**  
+	- Test HMAC / key setup and basic relay connectivity (see: Section 6 – "Secure message signing & verification" + Section 10 logging checklist).  
+	- Goal: prove the customer node can send a signed, sanitized message that the relay accepts and writes.
+
+2. **Core Detection Pipeline**  
+	- Run Section 1 (Core Detection & Scoring) end‑to‑end using a simple scan/attack.  
+	- Goal: confirm network_monitor → pcs_ai → threat_log.json → dashboard → relay/global_attacks.json all line up.
+
+3. **Deception & Honeypots**  
+	- Run Section 2.  
+	- Goal: exercise honeypot → signature_extractor → signature_uploader → relay/signature_sync flow and see a new pattern_hash in learned_signatures.json.
+
+4. **Network, Devices & Behavioral Analytics**  
+	- Run Section 3.  
+	- Goal: confirm device discovery, behavioral scores, and zero-trust policy events all travel through pcs_ai and appear both locally and (when relevant) in relay logs.
+
+5. **Threat Intelligence & Signatures**  
+	- Run Section 4.  
+	- Goal: validate that intel and reputation affect scoring, and that relay‑distributed signatures/models are actually pulled and used by pcs_ai.
+
+6. **Policy, Governance & Self-Protection**  
+	- Run Section 5.  
+	- Goal: ensure policy decisions, approvals, and self‑protection events are logged locally and, when escalated, represented as structured events for the relay.
+
+7. **Crypto, Lineage & Federated / Relay**  
+	- Finish remaining tests in Section 6 (lineage, federated / Byzantine).  
+	- Goal: confirm model provenance and federated stats are consistent between customer and relay.
+
+8. **Enterprise, Cloud & SOAR**  
+	- Run Section 7.  
+	- Goal: verify incidents raised by the core pipeline trigger the right SOAR/workflow and any cloud posture findings are visible.
+
+9. **Resilience, Backup & Compliance**  
+	- Run Section 8.  
+	- Goal: confirm backup, restore, and compliance reporting use the same telemetry and that outputs are consistent.
+
+10. **Explainability, Visualization & Dashboard**  
+	- Run Section 9.  
+	- Goal: ensure explanations, advanced visualizations, and dashboard views correctly reflect all the earlier tests and signals.
+
+For **every** step above, pair the test with Section 10 (Logging & Central Capture Checklist) to validate that the complete logical flow – trigger → local JSON → dashboard → relay JSON – works for that ability.
+
+---
+
 ## 0. Mapping of 18 Detection Abilities to Files
 
 This maps each of the **18 active detection signals** from the README to the concrete files/modules that implement or feed that signal.
