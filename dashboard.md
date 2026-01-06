@@ -11,7 +11,7 @@ Assumptions:
 - Install `requests` first if needed: `pip install requests`.
 
 ```python
-# common helper for all HTTP-based snippets
+# common helper for all HTTPS-based snippets
 import requests
 
 BASE_URL = "https://localhost:60000"

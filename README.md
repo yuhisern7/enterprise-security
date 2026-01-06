@@ -1,8 +1,19 @@
+Connect to our secret relay for the AI to extract its training materials, all you need is one Battle-Hardened AI server for each network (doesn't require an an endpoint for each computer).
+
+Home usage: 25 USD monthly.
+Organizations: 50 USD monthly.
+
+Company: Elite Cybersecurity Specialist - 202403184091 (MA0319303).
+
+Contact: Yuhisern Navaratnam
+WhatsApp: +60172791717
+Email: yuhisern@protonmail.com
+
 ## Battle-Hardened AI
 
 **An Open Research Platform for Network Detection & Response (NDR), Zero‑Day Detection, and National Cyber Defense**
 
-Battle-Hardened AI is an open, research-oriented Network Detection and Response (NDR) platform designed to study, evaluate, and deploy advanced defensive cybersecurity techniques, including **zero‑day attack detection**. It integrates multi-signal detection, zero‑day anomaly detection models, kernel-level telemetry, and policy-governed response mechanisms to support enterprise-scale and national-scale cyber defense research.
+Battle-Hardened AI is an open, research-oriented Network Detection and Response (NDR) platform designed to study, evaluate, and deploy advanced defensive cybersecurity techniques. It integrates multi-signal detection, **zero‑day anomaly detection models**, kernel-level telemetry, and policy-governed response mechanisms to support enterprise-scale and national-scale cyber defense research.
 
 The system is designed with defensive-only constraints, privacy preservation, and auditability as first-class principles.
 
@@ -11,6 +22,15 @@ The system is designed with defensive-only constraints, privacy preservation, an
 ### 18 AI Signals For Training Data Flow (Diagram)
 
 The diagram below shows how the 18 detection abilities filter attacks, how incidents are logged on the local node, and how **AI training materials** are shared via the relay so that other servers/containers get smarter after each attack.
+
+In this design, each Battle-Hardened AI server acts as a **trusted sensor-node** on its own network segment:
+
+- Each server observes local traffic, logs, cloud telemetry, and identities, then converts them into **sanitized statistical features** only (no payloads, no raw PII).
+- High-confidence incidents are written to local JSON/audit surfaces and then distilled into **relay-ready training materials** (signatures, reputation updates, and anonymized statistics).
+- When connected to the secret relay, every node **pulls and pushes** these materials over an authenticated, encrypted channel, so that improvements learned on one network are **safely shared** with others.
+- Because each network only needs **one Battle-Hardened AI server**, organizations avoid deploying agents on every endpoint while still benefiting from **fleet-wide learning and updated defenses**.
+
+This creates a new security design pattern: a **federated, privacy-preserving defense mesh** where multiple organizations contribute to, and benefit from, a constantly improving global model—without exposing their underlying traffic or sensitive content.
 
 ```text
 		[Network traffic, logs, cloud APIs,
