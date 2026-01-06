@@ -1,14 +1,14 @@
 ## Battle-Hardened AI
 
-**An Open Research Platform for Network Detection & Response (NDR) and National Cyber Defense**
+**An Open Research Platform for Network Detection & Response (NDR), Zero‑Day Detection, and National Cyber Defense**
 
-Battle-Hardened AI is an open, research-oriented Network Detection and Response (NDR) platform designed to study, evaluate, and deploy advanced defensive cybersecurity techniques. It integrates multi-signal detection, machine learning, kernel-level telemetry, and policy-governed response mechanisms to support enterprise-scale and national-scale cyber defense research.
+Battle-Hardened AI is an open, research-oriented Network Detection and Response (NDR) platform designed to study, evaluate, and deploy advanced defensive cybersecurity techniques, including **zero‑day attack detection**. It integrates multi-signal detection, zero‑day anomaly detection models, kernel-level telemetry, and policy-governed response mechanisms to support enterprise-scale and national-scale cyber defense research.
 
 The system is designed with defensive-only constraints, privacy preservation, and auditability as first-class principles.
 
 ---
 
-### 18‑Signal Training Data Flow (Diagram)
+### 18 AI Signals For Training Data Flow (Diagram)
 
 The diagram below shows how the 18 detection abilities filter attacks, how incidents are logged on the local node, and how **AI training materials** are shared via the relay so that other servers/containers get smarter after each attack.
 
