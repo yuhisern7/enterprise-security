@@ -765,7 +765,13 @@
         <!-- AI Learning Status -->
         <div style="background: #1a2135; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
           <h3 style="margin-top: 0; color: #9f5fff;">🤖 AI Learning Status</h3>
-          <div id="aiStatus" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+          <p style="margin: 0 0 0.75rem; font-size: 0.8rem; color: #a9b3d4; line-height: 1.6;">
+            18 detection abilities learn from <strong>local threats</strong>, <strong>honeypots</strong>,
+            <strong>ExploitDB-derived patterns</strong>, and the <strong>P2P training network</strong>.
+            This powers the zero-day anomaly models, threat classifier, reputation engine,
+            and global signatures while only sharing <em>patterns & statistics</em> — never raw payloads.
+          </p>
+          <div id="aiStatus" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 0.75rem;">
             <div class="loading-spinner">Loading AI status...</div>
           </div>
         </div>
