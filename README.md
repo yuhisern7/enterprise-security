@@ -80,11 +80,11 @@ Battle-Hardened AI uses **18 independent detection signals**, combined through a
 | 3   | RandomForest               | Supervised threat classification                                  |
 | 4   | IsolationForest            | Unsupervised anomaly detection                                    |
 | 5   | Gradient Boosting          | IP and behavior reputation modeling                               |
-| 6   | Behavioral Heuristics      | Rule-based statistical risk scoring                               |
+| 6   | Behavioral Heuristics      | Rule-based statistical risk scoring on per-IP flows (including DNS/TLS metadata) |
 | 7   | LSTM                       | Sequential kill-chain analysis                                    |
 | 8   | Autoencoder                | Zero-day anomaly detection                                        |
 | 9   | Drift Detection            | Model degradation and distribution shift monitoring               |
-| 10  | Graph Intelligence         | Lateral movement and C2 relationship mapping                      |
+| 10  | Graph Intelligence         | Lateral movement and C2 relationship mapping from live connection graphs |
 | 11  | VPN/Tor Fingerprinting     | Proxy and anonymization indicators                                |
 | 12  | Threat Intelligence Feeds  | OSINT correlation                                                 |
 | 13  | False Positive Filter      | Multi-gate consensus validation                                   |
@@ -95,6 +95,15 @@ Battle-Hardened AI uses **18 independent detection signals**, combined through a
 | 18  | Integrity Monitoring       | Model and telemetry tampering detection                           |
 
 Ensemble decisions require **cross-signal agreement**, reducing single-model bias.
+
+On the network path, packet flows captured by `server/network_monitor.py` are enriched by multiple AI modules before becoming ensemble signals:
+
+- `AI/behavioral_heuristics.py` scores per-IP behavior (connection rates, fan-out, retries).
+- `AI/graph_intelligence.py` builds a live connection graph for lateral movement and C2 paths.
+- `AI/dns_analyzer.py` inspects DNS metadata only (no payloads) to highlight tunneling/DGA/exfil patterns and writes aggregated metrics to `dns_security.json`.
+- `AI/tls_fingerprint.py` fingerprints encrypted flows (ports, fan-out, beacon-like patterns) and writes per-IP TLS metrics to `tls_fingerprints.json`.
+
+High-confidence DNS/TLS anomalies are promoted via `AI/pcs_ai.py` into `server/json/threat_log.json` on the customer node and into `relay/ai_training_materials/global_attacks.json` and `relay/ai_training_materials/attack_statistics.json` on the relay (when enabled), tagged with a stable `sensor_id` for multi-sensor correlation.
 
 ## 4. Machine Learning & AI Design
 
@@ -185,8 +194,8 @@ Only **signatures, statistics, and model updates** are shared — never raw traf
 
 - **Section 3:** Live device monitoring and port scanning.
 - **Section 12:** System health (3 tabs: Resources, Network, Integrity).
-- **Section 18:** Traffic analysis and deep packet inspection (DPI).
-- **Section 19:** DNS and geo security.
+- **Section 18:** Traffic analysis, deep packet inspection (DPI), and encrypted traffic overview (TLS fingerprinting).
+- **Section 19:** DNS and geo security, powered by the DNS analyzer and dns_security.json metrics.
 
 #### 🎯 Threat Detection & Analysis (8 sections)
 
@@ -241,7 +250,7 @@ Only **signatures, statistics, and model updates** are shared — never raw traf
 - Traffic autoencoder (15D → 8D → 15D, reconstruction error).
 - Drift detection (Kolmogorov–Smirnov, PSI).
 - Graph intelligence (lateral movement, C2, betweenness centrality).
-- 15-signal ensemble voting (weighted consensus > 75% = auto-block).
+- 18-signal ensemble voting (weighted consensus > 75% = auto-block).
 
 ## 10. Compliance & Governance
 

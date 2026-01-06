@@ -263,6 +263,10 @@ Files that may change:
 	Modules: AI/traffic_analyzer.py, AI/network_performance.py  
 	Test: Simulate abnormal traffic volume or pattern, confirm anomaly flags in network_performance.json and corresponding entries in threat_log.json.
 
+- [ ] Ability: DNS tunneling & DGA detection (NDR-only)  
+	Modules: AI/dns_analyzer.py, server/network_monitor.py, server/server.py, AI/pcs_ai.py  
+	Test: Generate suspicious DNS behavior (e.g., long/high-entropy subdomains or DNS tunneling patterns) and verify: (1) dns_security.json shows increased total_queries and suspicious/tunneling counts for the source IP, (2) high-confidence DNS abuse is promoted into threat_log.json via pcs_ai, (3) the dashboard DNS Security card in Section 18 reflects the analyzer metrics, and (4) relay ai_training_materials/global_attacks.json and attack_statistics.json contain sanitized DNS-attack entries when relay is enabled.
+
 - [ ] Ability: Drift detection  
 	Modules: AI/drift_detector.py  
 	Test: Feed unusual distributions (features or labels) and verify drift status is tracked and, if configured, that retraining flags are raised.
@@ -300,8 +304,16 @@ Relay output files for this stage:
 	Test: Scan the LAN, verify connected_devices.json + device_history.json and asset_inventory stats, and confirm devices show up correctly on the dashboard map.
 
 - [ ] Ability: Behavioral heuristics (per-IP scoring)  
-	Modules: AI/behavioral_heuristics.py  
-	Test: Simulate abusive behavior (high connection rate, retries, auth failures) from a single IP and verify a rising heuristic_score and associated risk_factors.
+	Modules: AI/behavioral_heuristics.py, server/network_monitor.py  
+	Test: Simulate abusive behavior (high connection rate, retries, auth failures) from a single IP and verify a rising heuristic_score and associated risk_factors as network_monitor feeds flow events into the heuristics engine.
+
+- [ ] Ability: Graph-based lateral movement / C2  
+	Modules: AI/graph_intelligence.py, server/network_monitor.py, AI/advanced_visualization.py  
+	Test: Generate a small lab of multi-hop connections (e.g., attacker → pivot → internal target) and confirm network_graph.json and lateral_movement_alerts.json are updated, and the dashboard graph/kill-chain views reflect the suspicious paths.
+
+- [ ] Ability: Encrypted C2 / TLS fingerprinting  
+	Modules: AI/tls_fingerprint.py, server/network_monitor.py, server/server.py, AI/pcs_ai.py  
+	Test: Produce TLS-like traffic on non-standard ports or with high fan-out from a single source IP; verify tls_fingerprints.json records suspicious TLS usage, high-confidence encrypted-C2 style events appear in threat_log.json, the Traffic Analysis (Section 17) Encrypted Traffic card shows `encrypted_percent / N suspicious` when appropriate, and relay ai_training_materials/global_attacks.json and attack_statistics.json include sanitized encrypted-C2 attack entries when relay is enabled.
 
 - [ ] Ability: Zero Trust posture  
 	Modules: AI/zero_trust.py, AI/policy_governance.py  
@@ -403,8 +415,8 @@ Relay output files for this stage:
 	Test: Generate the visualization_data.json set and confirm the dashboard renders topology, heatmaps, timelines, and geo views without errors.
 
 - [ ] Ability: Dashboard & API surface  
-	Modules: AI/inspector_ai_monitoring.html, AI/swagger_ui.html, server/server.py  
-	Test: Load the monitoring UI and (optionally) the Swagger UI, confirming endpoints and data wiring are correct.
+	Modules: AI/inspector_ai_monitoring.html, AI/swagger_ui.html, server/server.py, AI/dns_analyzer.py, AI/tls_fingerprint.py  
+	Test: Load the monitoring UI and (optionally) the Swagger UI, confirming endpoints and data wiring are correct. Pay special attention to Section 17 (Traffic Analysis & Inspection) and Section 18 (DNS & Geo Security) to verify that `/api/traffic/analysis` and `/api/dns/stats` surface the TLS and DNS analyzer metrics from tls_fingerprints.json and dns_security.json, and that suspicious DNS/TLS activity appears consistently with earlier stage tests.
 
 Relay output files for this stage:
 - No additional JSON beyond the same central files used by earlier stages:
@@ -425,4 +437,105 @@ For every test above, explicitly verify:
 	- [ ] SignatureSyncService (relay/signature_sync.py) increments counts and deduplicates correctly.
 
 Use this section as a final gate before marking any of the abilities above as "tested".
+
+---
+
+## Appendix A – DNS & TLS End-to-End Test Runbook
+
+This appendix gives a concrete, step-by-step runbook to validate the **DNS analyzer** and **TLS fingerprinting** paths from raw traffic → AI modules → JSON → dashboard → relay.
+
+> Assumptions:
+> - The server container is running and capturing traffic on the relevant interface.
+> - The relay stack is running and correctly configured in the server `.env` (for relay checks).
+> - You can generate traffic **from another host on the same network** toward the sensor.
+
+### A.1 DNS Analyzer Path (dns_analyzer → pcs_ai → dashboard → relay)
+
+1. **Generate baseline DNS traffic**
+	 - From a test host, run a few normal lookups so you can see non-suspicious baselines:
+		 - Windows: `nslookup example.com <your_DNS_server>`
+		 - Linux/macOS: `dig example.com @<your_DNS_server>`
+	 - Confirm that:
+		 - `server/json/dns_security.json` is created and contains an entry for the source IP under `sources[<ip>].total_queries`.
+		 - Section 18 (DNS & Geo Security) on the dashboard shows a non-zero **DNS Queries Analyzed** count.
+
+2. **Generate suspicious-looking DNS patterns**
+	 - From the same test host, issue queries with:
+		 - Long, high-entropy subdomains.
+		 - Repeated random-looking labels.
+	 - Examples (replace `<your_DNS_server>` and domain as needed):
+		 - Windows:
+			 - `nslookup aaaaaaaa11111111bbbbbbbb22222222.mydomain.test <your_DNS_server>`
+			 - `nslookup qwe9zxc8asd7rty6fgh5vbn4.mydomain.test <your_DNS_server>`
+		 - Linux/macOS:
+			 - `dig aaaaaaaa11111111bbbbbbbb22222222.mydomain.test @<your_DNS_server>`
+			 - `dig qwe9zxc8asd7rty6fgh5vbn4.mydomain.test @<your_DNS_server>`
+
+3. **Check local DNS analyzer metrics**
+	 - Open `server/json/dns_security.json` and verify for the attacking IP:
+		 - `total_queries` increased.
+		 - `suspicious_queries` (or equivalent suspicious/tunneling counter) increased.
+	 - Confirm that entries reflect the time of your test.
+
+4. **Check local threat log for DNS-derived threats**
+	 - Open `server/json/threat_log.json` and look for recent entries where:
+		 - `threat_type` or `attack_type` indicates DNS tunneling/DGA/abuse.
+		 - `details.reasons` (or similar field) mentions DNS analyzer reasons.
+
+5. **Check dashboard – Section 18 (DNS & Geo Security)**
+	 - In the UI (Section 18):
+		 - Confirm **DNS Queries Analyzed** matches (roughly) the aggregated `total_queries` from dns_security.json.
+		 - If your test triggered high-confidence DNS abuse, verify any **tunneling/suspicious** indicators increase.
+
+6. **Check relay global view (if relay enabled)**
+	 - On the relay host, open:
+		 - `relay/ai_training_materials/global_attacks.json`
+		 - `relay/ai_training_materials/attack_statistics.json`
+	 - Verify that new entries exist with:
+		 - `sensor_id` matching the customer node.
+		 - `threat_type`/`attack_type` consistent with DNS tunneling/DGA-style events.
+		 - No raw packet payloads (metadata only).
+
+### A.2 TLS Fingerprinting Path (tls_fingerprint → pcs_ai → dashboard → relay)
+
+1. **Generate normal HTTPS traffic (baseline)**
+	 - From a test host, send some regular HTTPS requests to typical ports (443):
+		 - `curl https://example.com/`
+		 - Browse HTTPS sites through the monitored gateway.
+	 - Confirm that:
+		 - `server/json/tls_fingerprints.json` is created with an entry for the source IP (total_flows, unique_dests, etc.).
+		 - Section 17 (Traffic Analysis & Inspection) shows a reasonable **Encrypted Traffic** percentage.
+
+2. **Generate non-standard TLS traffic**
+	 - From the test host, target the sensor or another internal service on unusual TLS-like ports (e.g., 8443, 9443):
+		 - `curl -k https://<sensor_ip>:8443/` (if a TLS listener exists)
+		 - Or run a simple TLS server on a high port inside the lab, then:
+			 - `curl -k https://<lab_server_ip>:9443/`
+	 - Alternatively, use OpenSSL if available:
+		 - `openssl s_client -connect <sensor_ip>:8443`
+
+3. **Check local TLS fingerprint metrics**
+	 - Open `server/json/tls_fingerprints.json` and verify for the attacking IP:
+		 - `total_flows` increased.
+		 - `nonstandard_tls_ports` includes the high ports you used.
+		 - Any internal `suspicious`/confidence flags or counters increased.
+
+4. **Check local threat log for encrypted-C2 style threats**
+	 - Open `server/json/threat_log.json` and look for recent entries where:
+		 - `threat_type` or `attack_type` indicates encrypted C2 / suspicious TLS.
+		 - `details.reasons` mention TLS fingerprint anomalies (non-standard ports, fan-out, beaconing).
+
+5. **Check dashboard – Section 17 (Traffic Analysis & Inspection)**
+	 - In the UI, locate the **Encrypted Traffic** card:
+		 - When `suspicious_tls_sources == 0`, it should show just `<percent>%`.
+		 - After your anomalous TLS tests, verify it can show `<percent>% / N suspicious` where `N` is the number of suspicious TLS sources.
+
+6. **Check relay global view (if relay enabled)**
+	 - On the relay host, inspect:
+		 - `relay/ai_training_materials/global_attacks.json`
+		 - `relay/ai_training_materials/attack_statistics.json`
+	 - Confirm that new records exist for the test IP with:
+		 - `threat_type`/`attack_type` reflecting encrypted C2 / TLS anomaly.
+		 - `sensor_id` identifying the sending customer node.
+		 - Only metadata/features (no raw TLS payloads), suitable for training.
 
