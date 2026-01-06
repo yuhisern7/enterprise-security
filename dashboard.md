@@ -1,24 +1,35 @@
-# Dashboard Sections: Functions & Test Scripts
+# Dashboard Sections: API Reference by Pipeline Stage
 
-This document walks from the top of the AI dashboard (Sections 1–31) and shows **tiny Python helper scripts** you can run to:
+This document maps the 31 dashboard sections to the **7-stage attack detection pipeline** (documented in README), showing which APIs and AI modules power each section.
 
-- Hit the same backend APIs each section uses, or
-- Call the core AI functions that feed that section.
+**Pipeline Stages:**
+1. **Data Ingestion** → Packet capture, metadata extraction
+2. **18 Parallel Detections** → Independent threat assessments
+3. **Ensemble Voting** → Weighted consensus decision
+4. **Response Execution** → Firewall blocks, logging, alerts
+5. **Training Extraction** → Privacy-preserving signatures
+6. **Relay Sharing** → Global intelligence exchange
+7. **Continuous Learning** → ML retraining, adaptation
 
-Assumptions:
-- Dashboard is running on `https://localhost:60000`.
-- Run these from the repo root (`battle-hardened-ai/`).
-- Install `requests` first if needed: `pip install requests`.
+---
 
+## Quick Start: Testing Dashboard APIs
+
+**Prerequisites:**
+- Dashboard running at `https://localhost:60000`
+- Run scripts from repo root: `battle-hardened-ai/`
+- Install `requests`: `pip install requests`
+
+**Common Helper:**
 ```python
-# common helper for all HTTPS-based snippets
 import requests
 
 BASE_URL = "https://localhost:60000"
 
 def show_json(path: str):
+    """Fetch and display any dashboard API endpoint."""
     url = f"{BASE_URL}{path}"
-    resp = requests.get(url, timeout=10)
+    resp = requests.get(url, timeout=10, verify=False)  # Note: verify=False for self-signed cert
     resp.raise_for_status()
     print(f"GET {url} -> status {resp.status_code}")
     print(resp.json())
@@ -26,41 +37,164 @@ def show_json(path: str):
 
 ---
 
-## Section 1 – AI Training Network – Shared Machine Learning
+## Pipeline Stage Map: Sections by Detection Stage
 
-Backed by: `/api/p2p/status`, `/api/relay/status`, `/api/p2p/threats` and `AI/p2p_sync.py`.
+### Stage 1: Data Ingestion & Normalization
 
+**Dashboard Sections:**
+- **Section 2:** Network Devices – Live Monitor, Ports & History
+- **Section 17:** Traffic Analysis & Inspection
+- **Section 18:** DNS & Geo Security
+- **Section 20:** Forensics & Threat Hunting
+
+---
+
+### Stage 2: Parallel Multi-Signal Detection (18 Signals)
+
+**Dashboard Sections:**
+- **Section 3:** VPN/Tor De-Anonymization (Signal #11)
+- **Section 4:** Real AI/ML Models (Signals #3-9, #16-18)
+- **Section 6:** Threat Analysis by Type (All signals aggregated)
+- **Section 8:** Failed Login Attempts (Behavioral Signal #6)
+- **Section 10:** Automated Signature Extraction (Signal #2)
+- **Section 13:** Attack Chain Visualization (Graph Signal #10)
+- **Section 15:** Adaptive Honeypot (Signal #2 training source)
+- **Section 16:** AI Security Crawlers & Threat Intelligence (Signal #12)
+- **Section 25:** Cryptocurrency Mining Detection (Traffic Signal #8)
+
+---
+
+### Stage 3: Ensemble Decision Engine
+
+**Dashboard Sections:**
+- **Section 5:** Security Overview – Live Statistics (Final voting results)
+- **Section 7:** IP Management & Threat Monitoring (Block/log/allow decisions)
+- **Section 9:** Attack Type Breakdown (Ensemble classifications)
+- **Section 14:** Decision Explainability Engine (Weighted voting transparency)
+
+---
+
+### Stage 4: Response Execution
+
+**Dashboard Sections:**
+- **Section 11:** System Health & Network Performance (Self-protection monitoring)
+- **Section 22:** Email/SMS Alerts (Alert delivery)
+- **Section 23:** API for SOAR Integration (Automated response workflows)
+
+---
+
+### Stage 5: Training Material Extraction
+
+**Dashboard Sections:**
+- **Section 10:** Automated Signature Extraction (Privacy-preserving patterns)
+- **Section 15:** Adaptive Honeypot (High-quality training source)
+
+---
+
+### Stage 6: Global Intelligence Sharing
+
+**Dashboard Sections:**
+- **Section 1:** AI Training Network – Shared Machine Learning (P2P/relay status)
+- **Section 31:** Governance & Emergency Controls (Central sync status)
+
+---
+
+### Stage 7: Continuous Learning Loop
+
+**Dashboard Sections:**
+- **Section 4:** Real AI/ML Models (Drift detection, lineage, retraining metrics)
+- **Section 12:** Compliance & Threat Governance (Audit trail, formal threat model)
+
+---
+
+### Enterprise & Validation Features (Beyond Core Pipeline)
+
+**Dashboard Sections:**
+- **Section 19:** User & Identity Monitoring + Zero Trust
+- **Section 21:** Sandbox Detonation
+- **Section 24:** Vulnerability & Supply Chain Management
+- **Section 26:** Dark Web Monitoring
+- **Section 27:** Attack Simulation (Purple Team)
+- **Section 28:** Cloud Security Posture Management (CSPM)
+- **Section 29:** Data Loss Prevention (DLP)
+- **Section 30:** Backup & Recovery Status
+
+---
+
+## Section Reference: APIs & Modules by Dashboard Section
+
+## Section 1 – AI Training Network (Stage 6: Relay Sharing)
+
+**Pipeline Stage:** Global Intelligence Sharing
+**Purpose:** Shows P2P mesh status, relay connectivity, and federated learning metrics
+
+**APIs:**
+- `/api/p2p/status` — P2P mesh health and peer count
+- `/api/relay/status` — Relay server connectivity
+- `/api/p2p/threats` — Threats shared/received via relay
+
+**Backend Modules:**
+- `AI/p2p_sync.py` — P2P synchronization
+- `AI/relay_client.py` — Relay communication
+- `AI/byzantine_federated_learning.py` — Federated aggregation
+
+**Test Script:**
 ```python
-# Show AI training / P2P mesh and relay status
-from pprint import pprint
-from helper import show_json  # or inline show_json from above
-
-show_json("/api/p2p/status")
-show_json("/api/relay/status")
-show_json("/api/p2p/threats")
-```
-
-## Section 2 – Network Devices – Live Monitor, Ports & History
-
-Backed by: `/api/connected-devices`, `/api/scan-devices`, `/api/current-ports`, `/api/device-history`, `/api/assets/inventory`, `/api/visualization/topology` and `server/device_scanner.py`, `AI/asset_inventory.py`, `AI/advanced_visualization.py`.
-
-```python
-# List live devices, scan ports, and show 7‑day history
 from helper import show_json
 
-show_json("/api/connected-devices")       # live devices
-show_json("/api/current-ports")           # current port scan config
-show_json("/api/device-history")          # historical device connections
-show_json("/api/assets/inventory")        # asset inventory
-show_json("/api/visualization/topology")  # topology graph
+show_json("/api/p2p/status")    # P2P mesh status
+show_json("/api/relay/status")  # Relay connectivity
+show_json("/api/p2p/threats")   # Shared threat intelligence
 ```
 
-## Section 3 – Attackers VPN/Tor De-Anonymization Statistics
+---
 
-Backed by: `pcs_ai.get_vpn_tor_statistics()` (from `AI/pcs_ai.py`) and VPN/Tor enrichment inside the threat pipeline.
+## Section 2 – Network Devices (Stage 1: Data Ingestion)
 
+**Pipeline Stage:** Data Ingestion & Normalization
+**Purpose:** Live device discovery, asset inventory, and network topology
+
+**APIs:**
+- `/api/connected-devices` — Active devices on network
+- `/api/scan-devices` — Trigger new device scan
+- `/api/current-ports` — Port scan configuration
+- `/api/device-history` — 7-day device connection history
+- `/api/assets/inventory` — Complete asset inventory
+- `/api/visualization/topology` — Network topology graph
+
+**Backend Modules:**
+- `server/device_scanner.py` — Device discovery (Stage 1)
+- `AI/asset_inventory.py` — Asset management
+- `AI/advanced_visualization.py` — Topology visualization
+
+**Test Script:**
 ```python
-# Show raw VPN/Tor de‑anonymization statistics
+from helper import show_json
+
+show_json("/api/connected-devices")       # Live devices
+show_json("/api/current-ports")           # Port scan config
+show_json("/api/device-history")          # Historical connections
+show_json("/api/assets/inventory")        # Asset inventory
+show_json("/api/visualization/topology")  # Network graph
+```
+
+---
+
+## Section 3 – VPN/Tor De-Anonymization (Stage 2: Signal #11)
+
+**Pipeline Stage:** Parallel Multi-Signal Detection
+**Detection Signal:** #11 VPN/Tor Fingerprinting
+**Purpose:** Multi-vector de-anonymization statistics
+
+**APIs:**
+- Internal: `pcs_ai.get_vpn_tor_statistics()` (no direct HTTP endpoint)
+
+**Backend Modules:**
+- `AI/pcs_ai.py` — VPN/Tor tracking (Signal #11)
+- Integrated into threat enrichment pipeline
+
+**Test Script:**
+```python
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 import AI.pcs_ai as pcs_ai
@@ -69,27 +203,61 @@ stats = pcs_ai.get_vpn_tor_statistics()
 print(stats)
 ```
 
-## Section 4 – Real AI/ML Models – Machine Learning Intelligence
+---
 
-Backed by: `pcs_ai.get_ml_model_stats()` and several AI modules (`AI/drift_detector.py`, `AI/meta_decision_engine.py`, `AI/reputation_tracker.py`, `AI/kernel_telemetry.py`, `AI/byzantine_federated_learning.py`, `AI/cryptographic_lineage.py`, `AI/deterministic_evaluation.py`).
+## Section 4 – Real AI/ML Models (Stage 2: Signals #3-9, #16-18)
 
+**Pipeline Stage:** Parallel Multi-Signal Detection + Continuous Learning
+**Detection Signals:**
+- #3 RandomForest
+- #4 IsolationForest
+- #5 Gradient Boosting
+- #7 LSTM
+- #8 Autoencoder
+- #9 Drift Detection
+- #16 Predictive Modeling
+- #17 Byzantine Defense
+- #18 Integrity Monitoring (Cryptographic Lineage)
+
+**APIs:**
+- Internal: `pcs_ai.get_ml_model_stats()` (aggregated from multiple modules)
+
+**Backend Modules:**
+- `AI/pcs_ai.py` — Model orchestration
+- `AI/drift_detector.py` — Signal #9
+- `AI/meta_decision_engine.py` — Ensemble stats
+- `AI/reputation_tracker.py` — Signal #14
+- `AI/byzantine_federated_learning.py` — Signal #17
+- `AI/cryptographic_lineage.py` — Signal #18
+- `AI/deterministic_evaluation.py` — Model validation
+
+**Test Script:**
 ```python
-# Reveal ML model stats and ensemble/lineage/Byzantine info
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 import AI.pcs_ai as pcs_ai
+from pprint import pprint
 
 ml_stats = pcs_ai.get_ml_model_stats()
-from pprint import pprint
 pprint(ml_stats)
 ```
 
-## Section 5 – Security Overview – Live Statistics
+---
 
-Backed by: `pcs_ai.get_threat_statistics()` and `ml_stats` from above.
+## Section 5 – Security Overview (Stage 3: Ensemble Results)
 
+**Pipeline Stage:** Ensemble Decision Engine (Final Results)
+**Purpose:** High-level KPIs from ensemble voting across all 18 signals
+
+**APIs:**
+- Internal: `pcs_ai.get_threat_statistics()`
+
+**Backend Modules:**
+- `AI/pcs_ai.py` — Aggregated threat stats
+- `AI/meta_decision_engine.py` — Ensemble decisions
+
+**Test Script:**
 ```python
-# High‑level security counters used in the overview tiles
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 import AI.pcs_ai as pcs_ai
@@ -99,12 +267,21 @@ stats = pcs_ai.get_threat_statistics()
 pprint(stats)
 ```
 
-## Section 6 – Threat Analysis by Type
+---
 
-Backed by: `stats.threats_by_type` from `pcs_ai.get_threat_statistics()`.
+## Section 6 – Threat Analysis by Type (Stage 2: All Signals Aggregated)
 
+**Pipeline Stage:** Parallel Multi-Signal Detection (aggregated across all 18 signals)
+**Purpose:** Per-attack-type breakdown from ensemble classifications
+
+**APIs:**
+- Internal: `pcs_ai.get_threat_statistics()` → `threats_by_type`
+
+**Backend Modules:**
+- `AI/pcs_ai.py` — Threat type aggregation from all signals
+
+**Test Script:**
 ```python
-# Show per‑type threat breakdown
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 import AI.pcs_ai as pcs_ai
@@ -113,19 +290,36 @@ stats = pcs_ai.get_threat_statistics()
 print(stats.get("threats_by_type", {}))
 ```
 
-## Section 7 – IP Management & Threat Monitoring
+---
 
-Backed by: `/api/threat_log`, `/api/unblock/<ip>`, `/api/whitelist`, `/api/whitelist/add`, `/api/whitelist/remove`, `/api/threat/block-ip` and `pcs_ai._threat_log`, `pcs_ai.get_blocked_ips()`, `pcs_ai.get_whitelisted_ips()`.
+## Section 7 – IP Management & Threat Monitoring (Stage 3: Decision Outcomes)
 
+**Pipeline Stage:** Ensemble Decision Engine (block/log/allow outcomes)
+**Purpose:** Per-IP threat history, block/whitelist management
+
+**APIs:**
+- `/api/threat_log` — Complete threat log with ensemble decisions
+- `/api/unblock/<ip>` — Remove IP from blocklist
+- `/api/whitelist` — Current whitelist
+- `/api/whitelist/add`, `/api/whitelist/remove` — Whitelist management
+- `/api/threat/block-ip` — Manual block trigger
+- `/api/stats` — Includes `blocked_ips_count`
+
+**Backend Modules:**
+- `AI/pcs_ai.py` — `_threat_log`, `get_blocked_ips()`, `get_whitelisted_ips()`
+- `AI/meta_decision_engine.py` — Final block/log/allow decisions
+- `AI/reputation_tracker.py` — Signal #14 (cross-session reputation)
+
+**Test Script:**
 ```python
-# Explore blocked IPs, whitelist, and raw threat log
 from helper import show_json
 
-show_json("/api/threat_log")   # same data used by live threats table
-show_json("/api/whitelist")    # current whitelist
-# blocked IPs are part of /api/stats and pcs_ai.get_blocked_ips()
-show_json("/api/stats")        # includes blocked_ips_count etc.
+show_json("/api/threat_log")   # Threat log with decisions
+show_json("/api/whitelist")    # Whitelist entries
+show_json("/api/stats")        # Blocked IPs count
 ```
+
+---
 
 ## Section 8 – Failed Login Attempts (Battle-Hardened AI Server)
 
@@ -198,41 +392,90 @@ show_json("/api/audit-log/stats")          # audit log statistics
 show_json("/api/compliance/report/gdpr")
 ```
 
-## Section 13 – Attack Chain Visualization (Graph Intelligence)
+## Section 13 – Attack Chain Visualization (Stage 2: Signal #10 Graph Intelligence)
 
-Backed by: `/api/graph-intelligence/attack-chains` and `AI/graph_intelligence.py`.
+**Pipeline Stage:** Parallel Multi-Signal Detection
+**Detection Signal:** #10 Graph Intelligence (lateral movement, C2 detection)
+**Purpose:** Kill-chain visualization, hop chains, pivot detection
 
+**APIs:**
+- `/api/graph-intelligence/attack-chains` — Attack chain topology
+
+**Backend Modules:**
+- `AI/graph_intelligence.py` — Signal #10 implementation
+- `AI/advanced_visualization.py` — Graph rendering
+
+**JSON Output:**
+- `server/json/network_graph.json` — Topology data
+- `server/json/lateral_movement_alerts.json` — Hop chain alerts
+
+**Test Script:**
 ```python
-# Show current attack chains and lateral movement graph
 from helper import show_json
 
 show_json("/api/graph-intelligence/attack-chains")
 ```
 
-## Section 14 – Decision Explainability Engine
+---
 
-Backed by: `/api/explainability/decisions` and `AI/explainability_engine.py`.
+## Section 14 – Decision Explainability Engine (Stage 3: Transparency)
 
+**Pipeline Stage:** Ensemble Decision Engine (decision transparency)
+**Detection Signal:** #15 Explainability Engine
+**Purpose:** Human-readable explanations for block/log/allow decisions
+
+**APIs:**
+- `/api/explainability/decisions` — Recent decisions with per-signal contributions
+
+**Backend Modules:**
+- `AI/explainability_engine.py` — Signal #15 implementation
+- `AI/meta_decision_engine.py` — Weighted voting breakdown
+- `AI/false_positive_filter.py` — Gate-level reasoning
+
+**JSON Output:**
+- `server/json/forensic_reports/*.json` — Detailed forensic explanations
+
+**Test Script:**
 ```python
-# Fetch explainable‑AI decision records
 from helper import show_json
 
 show_json("/api/explainability/decisions")
 ```
 
-## Section 15 – Adaptive Honeypot – AI Training Sandbox
+---
 
-Backed by: `/api/adaptive_honeypot/status`, `/api/adaptive_honeypot/attacks`, `/api/adaptive_honeypot/attacks/history`, `/api/honeypot/status` and `AI/adaptive_honeypot.py`.
+## Section 15 – Adaptive Honeypot (Stage 5: Training Source)
 
+**Pipeline Stage:** Training Material Extraction (100% confirmed attacks)
+**Detection Signal:** Feeds Signal #2 (Signature Matching) with high-quality training data
+**Purpose:** Multi-persona deception, attacker profiling, signature extraction
+
+**APIs:**
+- `/api/adaptive_honeypot/status` — Personas, ports, mode
+- `/api/adaptive_honeypot/configure` — Start honeypot (POST)
+- `/api/adaptive_honeypot/stop` — Stop honeypot (POST)
+- `/api/adaptive_honeypot/attacks` — Recent honeypot hits
+- `/api/adaptive_honeypot/attacks/history` — Full attack history
+- `/api/honeypot/status` — Legacy honeypot status
+
+**Backend Modules:**
+- `AI/adaptive_honeypot.py` — Multi-persona honeypot (16 personas)
+- `AI/signature_extractor.py` — Extract patterns from honeypot attacks
+- `AI/false_positive_filter.py` — Honeypot hits bypass whitelists (Gate 1)
+- `AI/meta_decision_engine.py` — Honeypot signals weighted 0.98 (highest)
+
+**Personas:** SSH, FTP, HTTP, SMTP, MySQL, PostgreSQL, RDP, SMB, Telnet, VNC, Kubernetes, Docker, Elasticsearch, Redis, MongoDB, Custom
+
+**Test Script:**
 ```python
-# Inspect adaptive honeypot status and captured attacks
 from helper import show_json
 
-show_json("/api/adaptive_honeypot/status")       # personas, mode, ports
-show_json("/api/adaptive_honeypot/attacks")      # recent honeypot attacks
-show_json("/api/adaptive_honeypot/attacks/history")
-show_json("/api/honeypot/status")                # legacy/simple honeypot
+show_json("/api/adaptive_honeypot/status")       # Status & personas
+show_json("/api/adaptive_honeypot/attacks")      # Recent hits
+show_json("/api/adaptive_honeypot/attacks/history")  # Full history
 ```
+
+---
 
 ## Section 16 – AI Security Crawlers & Threat Intelligence Sources
 

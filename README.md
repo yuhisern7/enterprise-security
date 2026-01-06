@@ -1,4 +1,5 @@
-## Battle-Hardened AI
+## Battle-Hardened AI  
+**The First Layer of Defense**
 
 Battle-Hardened AI is an open, research-oriented Network Detection and Response (NDR) platform designed to support the study, evaluation, and controlled deployment of advanced defensive cybersecurity techniques. The platform combines multi-signal detection, zero-day anomaly detection models, kernel-level telemetry, and policy-governed response mechanisms to enable enterprise-scale and national-scale cyber defense research.
 

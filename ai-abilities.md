@@ -1,70 +1,90 @@
 # AI Abilities – Test Checklist
 
-This file is now a **test checklist** for every major type of AI ability in the platform.
+This file is a **test checklist** for every major AI ability in the platform, organized by the same logical flow used in the README's attack detection pipeline.
 
-- We will use it to verify that:
-	- Each ability actually fires on the customer node (local JSON + dashboard).
-	- The relay / central server correctly receives the **sanitized log/signature**, when enabled.
-	- The **false-positive filter and meta-decision engine** behave as expected (what is blocked, what is only logged, what is ignored).
+**Testing validates end-to-end flow:**
+- Each ability fires on the customer node → local JSON + dashboard
+- Relay/central server receives **sanitized log/signature** (when enabled)
+- **False-positive filter and meta-decision engine** behave correctly (block/log/ignore decisions)
 
-Legend:
+**Legend:**
 - [ ] Not tested yet
 - [x] Tested (local + relay logs verified)
 
-> When you test, tick the box **only when you have confirmed**: local JSON, UI, and (if relay is configured) global/central side all look correct.
-
----
-We organize the tests into **10 stages** (Stage 1–Stage 10). Each stage builds on the previous one.
-
-## Stage Overview (10 Stages)
-
-Follow this order so each stage builds on already-verified plumbing and relay logging:
-
-1. **Stage 1 – Plumbing & Relay Channel**  
-	- Test HMAC / key setup and basic relay connectivity.  
-	- Goal: prove the customer node can send a signed, sanitized message that the relay accepts and writes.
-
-2. **Stage 2 – Core Detection Pipeline**  
-	- Run the Core Detection & Scoring tests end‑to‑end using a simple scan/attack.  
-	- Goal: confirm network_monitor → pcs_ai → threat_log.json → dashboard → relay/global_attacks.json all line up.
-
-3. **Stage 3 – Deception & Honeypots**  
-	- Run the honeypot and honeypot→signature pipeline tests.  
-	- Goal: exercise honeypot → signature_extractor → signature_uploader → relay/signature_sync flow and see a new pattern_hash in learned_signatures.json.
-
-4. **Stage 4 – Network, Devices & Behavioral Analytics**  
-	- Run the network, device discovery, heuristics, and zero trust tests.  
-	- Goal: confirm device discovery, behavioral scores, and zero-trust policy events all travel through pcs_ai and appear locally and (when relevant) in relay logs.
-
-5. **Stage 5 – Threat Intelligence & Signatures**  
-	- Run the local threat intel and signature distribution tests.  
-	- Goal: validate the full flow `ingest_indicator → local_threat_intel.json → reputation_tracker → pcs_ai scoring → threat_log.json → relay/global_attacks.json` and that relay‑distributed signatures/models are actually pulled and used by pcs_ai.
-
-6. **Stage 6 – Policy, Governance & Self-Protection**  
-	- Run the formal threat model, governance, and self‑protection tests.  
-	- Goal: ensure policy decisions and approvals are written to approval_requests.json/governance_audit.json, that self‑protection violations flow into integrity_violations.json and comprehensive_audit.json, and that critical integrity events can drive the kill‑switch into SAFE_MODE (with any escalated attacks still following the pcs_ai → threat_log.json → relay/global_attacks.json path).
-
-7. **Stage 7 – Crypto, Lineage & Federated / Relay**  
-	- Run secure signing, cryptographic lineage, and federated / Byzantine tests.  
-	- Goal: confirm that model provenance and federated defenses surface as **real security signals**: lineage integrity/drift issues and rejected federated updates appear as THREAT_DETECTED events in comprehensive_audit.json, and (when relay is present) federated incidents are mirrored into relay/ai_training_materials/global_attacks.json for training.
-
-8. **Stage 8 – Enterprise, Cloud & SOAR**  
-	- Run the enterprise integration and cloud posture tests.  
-	- Goal: verify that SOAR incidents and high/critical cloud misconfigurations become **real detection events** – incidents are written to soar_incidents.json, cloud findings to cloud_findings.json, and both surfaces mirror into comprehensive_audit.json and (when the relay stack is present) into relay/ai_training_materials/global_attacks.json as `soar_incident` / `cloud_misconfiguration` entries.
-
-9. **Stage 9 – Resilience, Backup & Compliance**  
-	- Run the backup/ransomware resilience and compliance/reporting tests.  
-	- Goal: confirm that failed/overdue backups and weak ransomware resilience are surfaced as **backup_issue/ransomware_resilience_low** incidents (backup_status.json/recovery_tests.json → comprehensive_audit.json → relay/ai_training_materials/global_attacks.json) and that non‑compliant or breach‑notification conditions in the PCI/HIPAA/GDPR reports are mirrored as compliance_issue events in comprehensive_audit.json and relay/ai_training_materials/global_attacks.json.
-
-10. **Stage 10 – Explainability, Visualization & Dashboard**  
-	- Run the explainability, advanced visualization, and dashboard/API tests.  
-	- Goal: ensure explanations, advanced visualizations, and dashboard views correctly reflect all the earlier tests and signals, and that failures in these surfaces are mirrored as `SYSTEM_ERROR` events in server/json/comprehensive_audit.json.
-
-For **every** stage above, pair the tests with the Logging & Central Capture Checklist to validate that the complete logical flow – trigger → local JSON → dashboard → relay JSON – works for that stage.
+> **Testing Rule:** Tick the box **only after confirming** local JSON, dashboard UI, and relay/global logs all show correct data.
 
 ---
 
-## 0. Mapping of 18 Detection Abilities to Files
+## Testing Strategy: 10-Stage Progressive Validation
+
+Tests follow the same **7-stage pipeline** from the README, plus 3 additional validation stages. Each stage builds on previously verified infrastructure:
+
+## Stage Overview: Progressive Validation (10 Stages)
+
+**Stages 1-7 mirror the README's attack detection pipeline.** Each validates one major pipeline component:
+
+### Core Pipeline Stages (README Flow)
+
+**Stage 1: Data Ingestion & Normalization**
+- **Test:** HMAC/key setup, relay connectivity, packet capture
+- **Goal:** Verify network_monitor captures traffic → normalizes metadata → feeds into detection signals
+- **Validates README:** "Stage 1: Data Ingestion & Normalization" (packet capture, metadata extraction)
+
+**Stage 2: Parallel Multi-Signal Detection (18 Signals)**
+- **Test:** Core detection pipeline (signatures, ML models, behavioral, LSTM, autoencoder, drift, graph, VPN/Tor, threat intel, FP filter, reputation, explainability, predictive, Byzantine, integrity)
+- **Goal:** All 18 signals fire independently → produce threat assessments → visible in local JSON
+- **Validates README:** "Stage 2: Parallel Multi-Signal Detection" (all 18 detection systems)
+
+**Stage 3: Ensemble Decision Engine (Weighted Voting)**
+- **Test:** Meta-decision engine combines signals → weighted consensus → threshold decisions (block/log/allow)
+- **Goal:** Verify ensemble voting calculation → authoritative boosting → consensus checks → final verdict in threat_log.json
+- **Validates README:** "Stage 3: Ensemble Decision Engine" (weighted voting, 75% block threshold, APT mode 70%)
+
+**Stage 4: Response Execution (Policy-Governed)**
+- **Test:** Automated responses (firewall blocks, connection drops, rate limiting, logging, alerts, SOAR integration)
+- **Goal:** Verify policy-governed actions execute → local logging → dashboard updates → alert delivery
+- **Validates README:** "Stage 4: Response Execution" (immediate actions, logging, alerts)
+
+**Stage 5: Training Material Extraction (Privacy-Preserving)**
+- **Test:** Honeypot-to-signature pipeline, attack pattern extraction, behavioral statistics, reputation updates, graph topology anonymization
+- **Goal:** Verify high-confidence attacks → sanitized training materials (no payloads/PII) → stored locally
+- **Validates README:** "Stage 5: Training Material Extraction" (signatures, statistics, reputation, graph patterns, model weights)
+
+**Stage 6: Global Intelligence Sharing (Optional Relay)**
+- **Test:** Relay push/pull, signature distribution, model updates, Byzantine validation, global reputation feeds
+- **Goal:** Verify local findings → relay server → global_attacks.json + learned_signatures.json → other nodes pull updates
+- **Validates README:** "Stage 6: Relay Sharing" (push/pull protocol, global intelligence, privacy-preserving federation)
+
+**Stage 7: Continuous Learning Loop**
+- **Test:** Signature extraction, ML retraining, reputation decay, drift baseline updates, Byzantine validation, feedback integration
+- **Goal:** Verify system improves over time → models retrain weekly → baselines adapt → false positives decrease
+- **Validates README:** "Stage 7: Continuous Learning" (automated improvement, feedback mechanisms)
+
+---
+
+### Validation Stages (Extended Testing)
+
+**Stage 8: Enterprise Integration & Cloud Posture**
+- **Test:** SOAR workflows, enterprise integrations, cloud security posture (CSPM), IAM risk detection
+- **Goal:** Verify enterprise features integrate with core pipeline → incidents flow to relay as `soar_incident` / `cloud_misconfiguration`
+
+**Stage 9: Resilience, Backup & Compliance**
+- **Test:** Backup status monitoring, ransomware resilience, compliance reporting (PCI/HIPAA/GDPR), breach notifications
+- **Goal:** Verify backup/compliance issues → comprehensive_audit.json → relay as `backup_issue` / `compliance_issue`
+
+**Stage 10: Explainability, Visualization & Dashboard**
+- **Test:** Decision explanations, advanced visualizations (topology/heatmaps/geo), dashboard API endpoints, error handling
+- **Goal:** Verify UI correctly reflects all pipeline stages → API failures logged as `SYSTEM_ERROR` events
+
+---
+
+**For every stage:** Validate complete flow → **trigger → local JSON → dashboard → relay JSON** (Logging & Central Capture Checklist).
+
+---
+
+## 0. Quick Reference: 18 Detection Signals → Implementation Files
+
+This maps each of the **18 parallel detection signals** (from README Stage 2) to their implementing modules.
 
 This maps each of the **18 active detection signals** from the README to the concrete files/modules that implement or feed that signal.
 
@@ -292,7 +312,18 @@ Use this as a quick cross-check when validating that a given stage’s detection
 
 ---
 
-## Stage 1 – Plumbing & Relay Channel
+## Stage 1: Data Ingestion & Normalization
+
+**README Alignment:** Validates "Stage 1: Data Ingestion & Normalization" (packet capture → metadata extraction → pre-processing)
+
+**What This Tests:**
+- Network packet capture (eBPF/XDP or scapy)
+- Metadata extraction (IPs, ports, protocols, timestamps)
+- Normalization to common schema
+- HMAC-protected relay connectivity
+- Baseline traffic flow
+
+### Tests
 
 - [ ] Ability: Secure message signing & relay connectivity  
 	Modules: AI/crypto_security.py, server/crypto_keys/, relay/ai_training_materials/crypto_keys/, relay/relay_server.py  
@@ -301,7 +332,17 @@ Use this as a quick cross-check when validating that a given stage’s detection
 
 ---
 
-## Stage 2 – Core Detection & Scoring
+## Stage 2: Parallel Multi-Signal Detection (18 Signals)
+
+**README Alignment:** Validates "Stage 2: Parallel Multi-Signal Detection" (all 18 independent detection systems)
+
+**What This Tests:**
+- All 18 detection signals fire in parallel
+- Each signal produces independent threat assessment
+- Signals operate independently (no single-point failure)
+- APT enhancements (low-and-slow, campaign patterns, off-hours detection)
+
+### Tests
 
 - [ ] Ability: Multi-signal threat scoring  
 	Modules: AI/pcs_ai.py, AI/meta_decision_engine.py, AI/false_positive_filter.py  
@@ -347,7 +388,89 @@ Relay output files for this stage:
 
 ---
 
-## Stage 3 – Deception & Honeypots
+## Stage 3: Ensemble Decision Engine (Weighted Voting)
+
+**README Alignment:** Validates "Stage 3: Ensemble Decision Engine" (weighted voting → consensus → final verdict)
+
+**What This Tests:**
+- Weighted voting calculation (signal_weight × confidence × is_threat)
+- Threshold decisions (≥75% block, ≥50% log, <50% allow)
+- APT mode threshold adjustment (70% in critical infrastructure mode)
+- Authoritative signal boosting (honeypot/threat intel override)
+- Consensus strength classification (unanimous/strong/divided)
+
+### Tests
+
+- [ ] Ability: Ensemble weighted voting  
+	Modules: AI/meta_decision_engine.py, AI/false_positive_filter.py  
+	Test: Generate attack with mixed signal confidence scores, verify weighted score calculation matches formula, threshold-based decision (block/log/allow) is correct, and decision_history.json records per-signal contributions.
+
+- [ ] Ability: APT detection mode  
+	Modules: AI/meta_decision_engine.py  
+	Test: Set APT_DETECTION_MODE=true, verify block threshold lowers from 75% to 70%, test borderline attack (72% score) blocks in APT mode but only logs in normal mode.
+
+- [ ] Ability: Authoritative signal boosting  
+	Modules: AI/meta_decision_engine.py  
+	Test: Trigger honeypot interaction (confidence ≥0.7) or threat intel match (confidence ≥0.9), verify final weighted score forced to 90%+ regardless of other signals, confirm auto-block decision.
+
+Relay output files for this stage:
+- ai_training_materials/global_attacks.json (ensemble decisions with weighted scores and final verdicts)
+
+---
+
+## Stage 4: Response Execution (Policy-Governed)
+
+**README Alignment:** Validates "Stage 4: Response Execution" (immediate actions → logging → alerts)
+
+**What This Tests:**
+- Firewall blocking (iptables/nftables with TTL)
+- Active connection termination
+- Rate limiting (50-74% confidence attacks)
+- Multi-surface logging (threat_log.json + 10+ audit files)
+- Real-time dashboard WebSocket updates
+- Alert delivery (email/SMS/SOAR/SIEM)
+
+### Tests
+
+- [ ] Ability: Automated firewall blocking  
+	Modules: AI/pcs_ai.py, server/network_monitor.py  
+	Test: Generate attack exceeding 75% threshold, verify firewall rule added (check iptables/nftables), connection dropped, block persists for TTL duration, unblocks after expiry.
+
+- [ ] Ability: Rate limiting for medium-confidence threats  
+	Modules: AI/pcs_ai.py  
+	Test: Generate attack scoring 60-74%, verify rate limiting applied instead of full block, connection throttled but not terminated, threat_log.json shows rate_limited action.
+
+- [ ] Ability: Multi-surface audit logging  
+	Modules: AI/pcs_ai.py, server/server.py  
+	Test: Trigger diverse attacks, verify each writes to: threat_log.json, comprehensive_audit.json, attack_sequences.json (LSTM), lateral_movement_alerts.json (graph), behavioral_metrics.json (heuristics), dns_security.json (DNS), tls_fingerprints.json (TLS).
+
+- [ ] Ability: Real-time dashboard updates  
+	Modules: server/server.py (WebSocket)  
+	Test: Generate attack while dashboard is open, verify threat appears in UI within 2 seconds, Security Overview counters increment, Attack Type Breakdown chart updates, IP Management table adds new row.
+
+- [ ] Ability: Alert delivery (email/SMS/SOAR)  
+	Modules: AI/alert_system.py, AI/soar_api.py  
+	Test: Configure alerts, trigger critical threat (severity ≥ DANGEROUS), verify alert sent via configured channels (check email inbox, SMS logs, SOAR incident created).
+
+Relay output files for this stage:
+- ai_training_materials/global_attacks.json (response actions recorded: blocked, rate_limited, alerted)
+
+---
+
+## Stage 5: Training Material Extraction (Privacy-Preserving)
+
+**README Alignment:** Validates "Stage 5: Training Material Extraction" (sanitized signatures/statistics/reputation → no payloads/PII)
+
+**What This Tests:**
+- Signature extraction (patterns only, zero exploit code)
+- Behavioral statistics anonymization
+- IP reputation hashing (SHA-256, not raw IPs)
+- Graph topology anonymization (A→B→C labels, not real IPs)
+- ML model weight deltas (not full models)
+
+### Tests
+
+- [ ] Ability: Deception & honeypot signatures
 
 - [ ] Ability: Adaptive honeypot personas  
 	Modules: AI/adaptive_honeypot.py  

@@ -1,31 +1,448 @@
-# File Purpose Overview
+# File Purpose Overview: 7-Stage Pipeline Implementation
 
-This document briefly explains the purpose of each file in the core folders: `AI/`, `server/`, and `relay/`.
+This document maps each file in `AI/`, `server/`, and `relay/` folders to the **7-stage attack detection pipeline** documented in the README.
 
----
-
-## Critical JSON & Audit Surfaces by Stage
-
-This table summarizes the most important JSON/audit surfaces exercised by the Stage 1–10 tests (see ai-abilities.md):
-
-| Stage | Local JSON / Audit (server/) | Relay JSON (relay/ai_training_materials/) |
-|-------|------------------------------|--------------------------------------------|
-| 1 – Plumbing & Relay | crypto_keys/, HMAC-signed messages (no persistent JSON beyond logs) | global_attacks.json (when sending real signed attack messages) |
-| 2 – Core Detection | json/threat_log.json; json/dns_security.json; json/tls_fingerprints.json | global_attacks.json; attack_statistics.json |
-| 3 – Deception & Honeypots | honeypot_* JSONs; json/threat_log.json | global_attacks.json; ai_signatures/learned_signatures.json |
-| 4 – Network, Devices & Behavioral | json/connected_devices.json; json/device_history.json; json/network_performance.json; json/dns_security.json; json/tls_fingerprints.json; json/network_graph.json; json/lateral_movement_alerts.json | global_attacks.json; attack_statistics.json |
-| 5 – Threat Intel & Signatures | json/local_threat_intel.json; reputation.db; json/threat_log.json | threat_intelligence/; reputation_data/; ai_signatures/learned_signatures.json; global_attacks.json |
-| 6 – Governance & Self‑Protection | json/approval_requests.json; json/governance_audit.json; json/integrity_violations.json; json/comprehensive_audit.json | global_attacks.json (policy/self‑protection events promoted as attacks) |
-| 7 – Crypto, Lineage & Federated | json/comprehensive_audit.json (cryptographic_lineage, byzantine_defender) | global_attacks.json (e.g., federated_update_rejected) |
-| 8 – Enterprise, Cloud & SOAR | json/soar_incidents.json; json/cloud_findings.json; json/comprehensive_audit.json | global_attacks.json (soar_incident, cloud_misconfiguration) |
-| 9 – Backup & Compliance | json/backup_status.json; json/recovery_tests.json; json/compliance_reports/; json/comprehensive_audit.json | global_attacks.json (backup_issue, ransomware_resilience_low, compliance_issue) |
-| 10 – Explainability & Dashboard | json/forensic_reports/; json/comprehensive_audit.json (SYSTEM_ERROR from dashboard/explainability/visualization APIs) | Reuses global_attacks.json and ai_signatures/learned_signatures.json from earlier stages |
-
-Use this as a quick index when you want to jump from a stage to the on-disk JSONs and relay views that its runbooks exercise.
+**Pipeline Stages:**
+1. **Data Ingestion & Normalization** → Packet capture, metadata extraction
+2. **18 Parallel Detections** → Independent threat assessments
+3. **Ensemble Voting** → Weighted consensus decision
+4. **Response Execution** → Firewall blocks, logging, alerts
+5. **Training Extraction** → Privacy-preserving signatures
+6. **Relay Sharing** → Global intelligence exchange
+7. **Continuous Learning** → ML retraining, adaptation
 
 ---
 
-## AI Folder
+## Critical JSON Surfaces by Pipeline Stage
+
+| Pipeline Stage | Local JSON (server/json/) | Relay JSON (relay/ai_training_materials/) | Purpose |
+|----------------|---------------------------|-------------------------------------------|---------|
+| **Stage 1: Data Ingestion** | `connected_devices.json`, `device_history.json`, `network_monitor_state.json` | N/A | Device discovery, packet capture state |
+| **Stage 2: 18 Parallel Detections** | `threat_log.json`, `dns_security.json`, `tls_fingerprints.json`, `network_graph.json`, `lateral_movement_alerts.json`, `attack_sequences.json`, `behavioral_metrics.json`, `drift_baseline.json`, `drift_reports.json`, `model_lineage.json`, `reputation.db` | N/A | Individual signal outputs |
+| **Stage 3: Ensemble Voting** | `decision_history.json`, `meta_engine_config.json`, `fp_filter_config.json` | N/A | Weighted voting, thresholds |
+| **Stage 4: Response Execution** | `threat_log.json`, `blocked_ips.json`, `comprehensive_audit.json`, `integrity_violations.json`, `forensic_reports/` | N/A | Actions, logging, alerts |
+| **Stage 5: Training Extraction** | `local_threat_intel.json`, `reputation_export.json` | `ai_signatures/learned_signatures.json`, `reputation_data/`, `training_datasets/`, `explainability_data/` | Privacy-preserving materials |
+| **Stage 6: Relay Sharing** | `crypto_keys/` (HMAC auth) | `global_attacks.json`, `attack_statistics.json`, `ai_signatures/learned_signatures.json`, `threat_intelligence/`, `ml_models/` | Global intelligence |
+| **Stage 7: Continuous Learning** | `drift_baseline.json`, `comprehensive_audit.json` (Byzantine events) | `trained_models/`, `ml_models/` (updated), `training_datasets/` | Retraining, adaptation |
+| **Enterprise Extensions** | `soar_incidents.json`, `cloud_findings.json`, `backup_status.json`, `recovery_tests.json`, `compliance_reports/`, `sbom.json` | `global_attacks.json` (enterprise incidents) | SOAR, cloud, backup, compliance |
+
+---
+
+## File Map by Pipeline Stage
+
+### Stage 1: Data Ingestion & Normalization
+
+**Purpose:** Capture packets, extract metadata, normalize events
+
+**Server Files:**
+- `server/network_monitor.py` — Live packet capture (Scapy/eBPF), feeds all detection signals
+- `server/device_scanner.py` — Network device discovery and asset enumeration
+- `server/json/connected_devices.json` — Active device inventory
+- `server/json/device_history.json` — 7-day device connection history
+- `server/json/network_monitor_state.json` — Packet capture state and counters
+
+**AI Files:**
+- `AI/kernel_telemetry.py` — eBPF/XDP kernel telemetry (Linux only)
+- `AI/system_log_collector.py` — System log ingestion and normalization
+- `AI/pcap_capture.py` — PCAP saving for forensics
+- `AI/asset_inventory.py` — Asset inventory management
+
+---
+
+### Stage 2: Parallel Multi-Signal Detection (18 Signals)
+
+**Purpose:** 18 independent detection systems produce threat assessments
+
+**Signal #1: eBPF Kernel Telemetry**
+- `AI/kernel_telemetry.py` — Syscall/network correlation
+
+**Signal #2: Signature Matching**
+- `AI/threat_intelligence.py` — Signature matching (3,066+ patterns)
+- `AI/signature_extractor.py` — Extract new signatures from attacks
+- `relay/exploitdb_scraper.py` — ExploitDB pattern generation
+- `relay/ai_training_materials/exploitdb/` — ExploitDB mirror
+- `relay/ai_training_materials/ai_signatures/learned_signatures.json` — Global signature database
+
+**Signal #3: RandomForest**
+- `AI/pcs_ai.py` — Loads `ml_models/threat_classifier.pkl`
+- `ml_models/threat_classifier.pkl` — RandomForest classifier
+
+**Signal #4: IsolationForest**
+- `AI/pcs_ai.py` — Loads `ml_models/anomaly_detector.pkl`
+- `ml_models/anomaly_detector.pkl` — IsolationForest anomaly detector
+
+**Signal #5: Gradient Boosting**
+- `AI/pcs_ai.py` — Loads `ml_models/ip_reputation.pkl`
+- `ml_models/ip_reputation.pkl` — Gradient boosting reputation model
+
+**Signal #6: Behavioral Heuristics**
+- `AI/behavioral_heuristics.py` — 15 metrics + APT patterns (low-and-slow, off-hours, credential reuse)
+- `server/json/behavioral_metrics.json` — Per-IP heuristic scores
+
+**Signal #7: LSTM Sequences**
+- `AI/sequence_analyzer.py` — Kill-chain state progression + APT campaign patterns
+- `AI/ml_models/sequence_lstm.keras` — LSTM model
+- `server/json/attack_sequences.json` — Sequence history
+
+**Signal #8: Autoencoder**
+- `AI/traffic_analyzer.py` — Zero-day anomaly detection via reconstruction error
+- `AI/ml_models/traffic_autoencoder.keras` — Autoencoder model
+- `AI/network_performance.py` — Network performance metrics
+
+**Signal #9: Drift Detection**
+- `AI/drift_detector.py` — KS/PSI model degradation monitoring
+- `server/json/drift_baseline.json` — Baseline distribution
+- `server/json/drift_reports.json` — Drift analysis results
+
+**Signal #10: Graph Intelligence**
+- `AI/graph_intelligence.py` — Lateral movement, C2 detection, hop chains
+- `server/json/network_graph.json` — Network topology
+- `server/json/lateral_movement_alerts.json` — Hop chain alerts
+- `AI/advanced_visualization.py` — Graph rendering
+
+**Signal #11: VPN/Tor Fingerprinting**
+- `AI/pcs_ai.py` — VPN/Tor de-anonymization statistics
+
+**Signal #12: Threat Intel Feeds**
+- `AI/threat_intelligence.py` — OSINT correlation (VirusTotal, AbuseIPDB)
+- `relay/threat_crawler.py` — CVE, MalwareBazaar, URLhaus, AlienVault OTX
+- `relay/ai_training_materials/threat_intelligence/` — Crawled intel data
+- `server/json/local_threat_intel.json` — Local threat indicators
+
+**Signal #13: False Positive Filter**
+- `AI/false_positive_filter.py` — 5-gate consensus validation
+- `server/json/fp_filter_config.json` — FP filter tuning
+
+**Signal #14: Historical Reputation**
+- `AI/reputation_tracker.py` — Cross-session recidivism tracking
+- `server/json/reputation.db` — SQLite reputation database
+- `server/json/reputation_export.json` — Training export
+- `relay/ai_training_materials/reputation_data/` — Global reputation
+
+**Signal #15: Explainability Engine**
+- `AI/explainability_engine.py` — Decision transparency
+- `server/json/forensic_reports/` — Per-incident explanations
+- `relay/ai_training_materials/explainability_data/` — Training export
+
+**Signal #16: Predictive Modeling**
+- `AI/advanced_orchestration.py` — 24-48h threat forecasting
+- `relay/ai_training_materials/orchestration_data/` — Prediction exports
+
+**Signal #17: Byzantine Defense**
+- `AI/byzantine_federated_learning.py` — Poisoned update rejection (Krum, trimmed mean)
+- `server/json/comprehensive_audit.json` — Rejected update events
+
+**Signal #18: Integrity Monitoring**
+- `AI/self_protection.py` — Tampering detection
+- `AI/cryptographic_lineage.py` — Model provenance tracking
+- `server/json/integrity_violations.json` — Integrity violations
+- `server/json/model_lineage.json` — Cryptographic lineage chain
+- `server/json/comprehensive_audit.json` — Lineage/integrity events
+
+**Additional Detection Support:**
+- `AI/dns_analyzer.py` — DNS tunneling/DGA detection (feeds Signal #2)
+- `server/json/dns_security.json` — DNS analyzer metrics
+- `AI/tls_fingerprint.py` — Encrypted C2 detection (feeds Signal #8)
+- `server/json/tls_fingerprints.json` — TLS fingerprinting data
+- `AI/adaptive_honeypot.py` — Multi-persona honeypot (training source for Signal #2)
+
+---
+
+### Stage 3: Ensemble Decision Engine (Weighted Voting)
+
+**Purpose:** Combine 18 signals → weighted consensus → threshold decision
+
+**AI Files:**
+- `AI/meta_decision_engine.py` — Weighted voting algorithm, authoritative boosting, consensus checks
+- `server/json/meta_engine_config.json` — Signal weights (0.65-0.98)
+- `server/json/decision_history.json` — Per-signal contributions audit
+
+**Signal Weighting (configurable):**
+- Honeypot: 0.98, Threat Intel: 0.95, Graph: 0.92, Signature: 0.90, LSTM: 0.85, Behavioral: 0.75, Drift: 0.65
+
+**Thresholds:**
+- ≥75% (0.75) → Auto-block
+- ≥70% (0.70 in APT mode) → Auto-block
+- ≥50% (0.50) → Log as threat
+- <50% → Allow
+
+---
+
+### Stage 4: Response Execution (Policy-Governed)
+
+**Purpose:** Execute actions, log events, send alerts
+
+**Server Files:**
+- `server/device_blocker.py` — Firewall blocking (iptables/nftables)
+- `server/json/blocked_ips.json` — Current blocklist
+- `server/json/threat_log.json` — Primary threat log
+
+**AI Files:**
+- `AI/alert_system.py` — Email/SMS alerting (SMTP/Twilio)
+- `AI/soar_api.py`, `AI/soar_workflows.py` — SOAR integration
+- `AI/policy_governance.py` — Approval workflows
+- `AI/emergency_killswitch.py` — SAFE_MODE override
+- `server/json/approval_requests.json` — Pending approvals
+- `server/json/comprehensive_audit.json` — Central audit log (all THREAT_DETECTED/INTEGRITY_VIOLATION/SYSTEM_ERROR events)
+- `server/json/integrity_violations.json` — Self-protection violations
+
+**Logging Surfaces (Multi-Surface Logging):**
+- `server/json/threat_log.json` — Primary threat log
+- `server/json/comprehensive_audit.json` — Comprehensive audit trail
+- `server/json/attack_sequences.json` — LSTM progressions
+- `server/json/lateral_movement_alerts.json` — Graph hop chains
+- `server/json/behavioral_metrics.json` — Heuristic scores
+- `server/json/dns_security.json` — DNS findings
+- `server/json/tls_fingerprints.json` — TLS findings
+- `server/json/forensic_reports/` — Explainability outputs
+
+---
+
+### Stage 5: Training Material Extraction (Privacy-Preserving)
+
+**Purpose:** Convert attacks → sanitized training materials (no payloads/PII)
+
+**AI Files:**
+- `AI/signature_extractor.py` — Extract attack patterns (no exploit code)
+- `AI/signature_uploader.py` — Upload signatures to relay
+- `AI/reputation_tracker.py` — Export hashed IP reputation
+- `AI/graph_intelligence.py` — Anonymize graph topology (A→B→C labels)
+
+**Training Outputs:**
+- `relay/ai_training_materials/ai_signatures/learned_signatures.json` — Signature database
+- `relay/ai_training_materials/reputation_data/` — Hashed reputation
+- `relay/ai_training_materials/training_datasets/` — Feature tables
+- `relay/ai_training_materials/explainability_data/` — Decision context
+
+**Privacy Guarantees:**
+- ✅ No raw payloads
+- ✅ No PII/PHI
+- ✅ IP hashing (SHA-256)
+- ✅ Metadata only
+
+---
+
+### Stage 6: Global Intelligence Sharing (Optional Relay)
+
+**Purpose:** Push local findings → relay → pull global intel → merge
+
+**Push to Relay:**
+- `AI/relay_client.py` — WebSocket/HTTP client
+- `AI/signature_uploader.py` — Signature sharing
+- `AI/training_sync_client.py` — Training data sync
+- `AI/central_sync.py` — Central server sync
+- `AI/crypto_security.py` — HMAC authentication
+- `server/crypto_keys/` — Shared HMAC keys
+
+**Relay Server:**
+- `relay/relay_server.py` — WebSocket relay, HMAC validation
+- `relay/signature_sync.py` — Signature deduplication
+- `relay/ai_training_materials/global_attacks.json` — Central attack log (all stages: core, honeypot, federated, SOAR, cloud, backup, compliance)
+- `relay/ai_training_materials/attack_statistics.json` — Aggregated trends
+- `relay/ai_training_materials/ai_signatures/learned_signatures.json` — Global signatures
+
+**Pull from Relay:**
+- `AI/signature_distribution.py` — Download signatures
+- `AI/training_sync_client.py` — Download models
+- `relay/training_sync_api.py` — Model distribution API
+
+**Relay Infrastructure (NOT shipped to customers):**
+- `relay/docker-compose.yml` — Relay deployment
+- `relay/Dockerfile` — Relay container image
+- `relay/ai_training_materials/` — Training data lake
+- `relay/ai_training_materials/crypto_keys/` — Relay HMAC keys
+
+---
+
+### Stage 7: Continuous Learning Loop
+
+**Purpose:** Automated improvement → signature updates → ML retraining → baseline adaptation
+
+**Hourly: Signature Auto-Update**
+- `AI/signature_distribution.py` — Pull new signatures from relay
+
+**Weekly: ML Retraining**
+- `relay/ai_retraining.py` — Feature extraction → model training
+- `relay/gpu_trainer.py` — GPU-accelerated deep learning
+- `relay/ai_training_materials/training_datasets/` — Feature tables
+- `relay/ai_training_materials/ml_models/` — Updated models
+- `relay/ai_training_materials/trained_models/` — Model archive
+
+**Daily: Reputation Decay**
+- `AI/reputation_tracker.py` — Half-life decay (30 days)
+
+**Monthly: Drift Baseline Refresh**
+- `AI/drift_detector.py` — Baseline update, retraining triggers
+- `server/json/drift_baseline.json` — Updated baseline
+
+**Continuous: Byzantine Validation**
+- `AI/byzantine_federated_learning.py` — Reject poisoned updates (94% accuracy)
+- `server/json/comprehensive_audit.json` — Rejected update events
+- `relay/ai_training_materials/global_attacks.json` — `attack_type="federated_update_rejected"`
+
+**Feedback Sources:**
+- `AI/adaptive_honeypot.py` — 100% confirmed attacks (highest quality)
+- Human validation → ML improvement
+- False positive reports → FP filter tuning
+- SOAR playbook results → reinforcement learning
+
+---
+
+### Enterprise Extensions (Beyond Core Pipeline)
+
+**User & Identity Monitoring:**
+- `AI/user_tracker.py` — UEBA, session tracking
+- `server/json/tracked_users.json` — User behavior data
+
+**Zero Trust:**
+- `AI/zero_trust.py` — Zero trust posture scoring, DLP
+
+**SOAR Integration:**
+- `AI/soar_api.py`, `AI/soar_workflows.py` — Incident workflows
+- `server/json/soar_incidents.json` — SOAR cases
+- Logged to `comprehensive_audit.json` and `relay/ai_training_materials/global_attacks.json` as `soar_incident`
+
+**Cloud Security:**
+- `AI/cloud_security.py` — CSPM for AWS/Azure/GCP
+- `server/json/cloud_findings.json` — Cloud misconfigurations
+- High/critical findings → `comprehensive_audit.json` and `relay/ai_training_materials/global_attacks.json` as `cloud_misconfiguration`
+
+**Backup & Recovery:**
+- `AI/backup_recovery.py` — Backup monitoring, ransomware resilience
+- `server/json/backup_status.json` — Backup health
+- `server/json/recovery_tests.json` — Recovery test results
+- Issues → `comprehensive_audit.json` and `relay/ai_training_materials/global_attacks.json` as `backup_issue`/`ransomware_resilience_low`
+
+**Compliance:**
+- `AI/compliance_reporting.py` — PCI/HIPAA/GDPR/SOC2 reports
+- `server/json/compliance_reports/` — Compliance snapshots
+- Issues → `comprehensive_audit.json` and `relay/ai_training_materials/global_attacks.json` as `compliance_issue`
+
+**Vulnerability Management:**
+- `AI/vulnerability_manager.py` — CVE tracking, SBOM
+- `server/json/sbom.json` — Software bill of materials
+
+**File Analysis & Sandbox:**
+- `AI/file_analyzer.py` — File hashing, metadata extraction
+
+**Formal Threat Modeling:**
+- `AI/formal_threat_model.py` — Structured attack scenarios
+
+**Deterministic Evaluation:**
+- `AI/deterministic_evaluation.py` — Model validation harnesses
+
+---
+
+## Server Infrastructure Files
+
+**Dashboard & API:**
+- `server/server.py` — Flask application (REST APIs, dashboard serving)
+- `AI/inspector_ai_monitoring.html` — Dashboard UI (31 sections)
+- `AI/swagger_ui.html` — API documentation UI
+- Dashboard/API failures → `comprehensive_audit.json` as `SYSTEM_ERROR` events
+
+**Deployment:**
+- `server/Dockerfile` — Server container image
+- `server/docker-compose.yml` — Linux deployment
+- `server/docker-compose.windows.yml` — Windows deployment
+- `server/entrypoint.sh` — Container entrypoint
+- `server/.env`, `server/.env.linux`, `server/.env.windows` — Environment configs
+- `server/requirements.txt` — Python dependencies
+
+**Installation:**
+- `server/installation/install.sh` — Linux/Unix installer
+- `server/installation/QUICKSTART_WINDOWS.bat` — Windows quickstart
+- `server/installation/cloud-deploy.sh` — VPS cloud deployment
+
+**Reporting:**
+- `server/report_generator.py` — Enterprise security reports (HTML/JSON)
+
+**Testing:**
+- `server/test_system.py` — System validation harness
+
+**Audit Archives:**
+- `server/json/audit_archive/` — Rotated audit logs
+
+**Device Management:**
+- `server/json/blocked_devices.json` — ARP-blocked devices (via `device_blocker.py`)
+
+**Crypto Mining Detection:**
+- `server/json/crypto_mining.json` — Crypto mining activity
+
+**Git Tracking:**
+- `server/.dockerignore` — Docker build exclusions
+- `server/json/.gitkeep` — Ensures JSON directory exists in Git
+
+---
+
+## Relay Infrastructure Files (Operator-Only)
+
+**Relay Server:**
+- `relay/relay_server.py` — WebSocket relay + HMAC validation
+- `relay/signature_sync.py` — Signature/attack storage
+- `relay/training_sync_api.py` — Model distribution API
+- `relay/start_services.py` — Multi-service orchestration
+
+**Training & Retraining:**
+- `relay/ai_retraining.py` — ML retraining pipeline
+- `relay/gpu_trainer.py` — GPU-accelerated training
+
+**Threat Intelligence:**
+- `relay/exploitdb_scraper.py` — ExploitDB pattern generation
+- `relay/threat_crawler.py` — OSINT crawler (CVE, MalwareBazaar, URLhaus, AlienVault OTX)
+
+**Deployment:**
+- `relay/Dockerfile` — Relay container image
+- `relay/docker-compose.yml` — Relay deployment
+- `relay/.env.relay` — Relay environment config
+- `relay/requirements.txt` — Python dependencies
+- `relay/setup.sh` — VPS installer
+- `relay/setup_exploitdb.sh` — ExploitDB setup
+
+**Training Materials:**
+- `relay/ai_training_materials/README.md` — Training data documentation
+- `relay/ai_training_materials/global_attacks.json` — Central attack log (all customer nodes, all stages)
+- `relay/ai_training_materials/attack_statistics.json` — Aggregated statistics
+- `relay/ai_training_materials/ai_signatures/` — Global signature database
+- `relay/ai_training_materials/exploitdb/` — ExploitDB mirror
+- `relay/ai_training_materials/threat_intelligence/` — Crawled threat intel
+- `relay/ai_training_materials/reputation_data/` — Global reputation
+- `relay/ai_training_materials/trained_models/` — Model archive
+- `relay/ai_training_materials/ml_models/` — Active models for distribution
+- `relay/ai_training_materials/training_datasets/` — Feature tables
+- `relay/ai_training_materials/crypto_keys/` — Relay HMAC keys
+
+**Documentation:**
+- `relay/README.md` — Relay architecture and deployment guide
+
+---
+
+## File Naming Conventions
+
+**Customer Node (server/ + AI/):**
+- `server/json/*.json` — Runtime state (`.gitignored`, created at runtime)
+- `AI/*.py` — Detection modules, orchestration, honeypot, governance
+- `AI/ml_models/*.keras` — Deep learning models (LSTM, autoencoder)
+- `ml_models/*.pkl` — Classical ML models (RandomForest, IsolationForest, GradientBoosting, scaler)
+
+**Relay (relay/):**
+- `relay/ai_training_materials/` — Training data lake (NOT accessible to customers)
+- `relay/*.py` — Relay services, training, crawlers
+
+**Configuration:**
+- `.env`, `.env.*` — Environment variables (ports, features, relay URLs)
+- `*_config.json` — Runtime configuration (meta engine, FP filter)
+
+**Logs & Audit:**
+- `*_log.json` — Event logs (threat, comprehensive audit)
+- `*_status.json` — State snapshots (backup, cloud)
+- `*_history.json` — Historical data (device, attack sequences)
+
+---
+
+**For testing procedures, see:** `ai-abilities.md` (10-stage validation mapped to pipeline)
+**For API reference, see:** `dashboard.md` (31 dashboard sections mapped to pipeline stages)
+**For implementation guide, see:** `ai-instructions.md` (developer guide with pipeline implementation details)
 
 - AI/adaptive_honeypot.py — Adaptive multi-persona honeypot that mimics various services (HTTP admin, FTP, SSH, DB, etc.) and feeds honeypot hits into the AI threat log.
 - AI/advanced_orchestration.py — Advanced orchestration engine for predictive threat modeling, automated responses, custom alert rules, topology export, and training/orchestration data export.
