@@ -1,3 +1,11 @@
+## Battle-Hardened AI
+
+**An Open Research Platform for Network Detection & Response (NDR), Zero‑Day Detection, and National Cyber Defense**
+
+Battle-Hardened AI is an open, research-oriented Network Detection and Response (NDR) platform designed to study, evaluate, and deploy advanced defensive cybersecurity techniques. It integrates multi-signal detection, **zero‑day anomaly detection models**, kernel-level telemetry, and policy-governed response mechanisms to support enterprise-scale and national-scale cyber defense research.
+
+The system is designed with defensive-only constraints, privacy preservation, and auditability as first-class principles.
+
 Connect to our secret relay for the AI to extract its training materials, all you need is one Battle-Hardened AI server for each network (doesn't require an an endpoint for each computer).
 
 Home usage: 25 USD monthly.
@@ -8,14 +16,6 @@ Company: Elite Cybersecurity Specialist - 202403184091 (MA0319303).
 Contact: Yuhisern Navaratnam
 WhatsApp: +60172791717
 Email: yuhisern@protonmail.com
-
-## Battle-Hardened AI
-
-**An Open Research Platform for Network Detection & Response (NDR), Zero‑Day Detection, and National Cyber Defense**
-
-Battle-Hardened AI is an open, research-oriented Network Detection and Response (NDR) platform designed to study, evaluate, and deploy advanced defensive cybersecurity techniques. It integrates multi-signal detection, **zero‑day anomaly detection models**, kernel-level telemetry, and policy-governed response mechanisms to support enterprise-scale and national-scale cyber defense research.
-
-The system is designed with defensive-only constraints, privacy preservation, and auditability as first-class principles.
 
 ---
 
