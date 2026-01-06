@@ -84,7 +84,7 @@ The diagram below shows how the 18 detection abilities filter attacks, how incid
 	  |  relay/ai_training_materials/reputation_data/         |
 	  +------------------------------------------------+
 			  |
-	     Other servers/containers pull updates
+	     Other servers/containers Worldwide (each customer) pull updates
 			  |
 	     Updated models, reputations, and
 		   signatures on each node
