@@ -8,14 +8,14 @@ The system is designed with defensive-only constraints, privacy preservation, an
 
 Connect to our secret relay for the AI to extract its training materials, all you need is one Battle-Hardened AI server for each network (doesn't require an an endpoint for each computer).
 
-Home usage: 25 USD monthly.
-Organizations: 50 USD monthly.
+- Home usage: 25 USD monthly.
+- Organizations: 50 USD monthly.
 
-Company: Elite Cybersecurity Specialist - 202403184091 (MA0319303).
+- Company: Elite Cybersecurity Specialist - 202403184091 (MA0319303).
 
-Contact: Yuhisern Navaratnam
-WhatsApp: +60172791717
-Email: yuhisern@protonmail.com
+- Contact: Yuhisern Navaratnam
+- WhatsApp: +60172791717
+- Email: yuhisern@protonmail.com
 
 ---
 
