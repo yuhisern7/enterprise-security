@@ -308,9 +308,25 @@ class SignatureSyncService:
     
     def store_global_attack(self, attack_data: Dict[str, Any]):
         """
-        Store complete attack data to global_attacks.json for AI training
+        Store complete attack data to global_attacks.json for AI training with auto-rotation at 1GB.
         """
         try:
+            # Check if rotation is needed (1GB limit for ML training logs)
+            try:
+                # Import from AI folder (relay accesses AI modules)
+                import sys
+                import os
+                ai_path = os.path.join(os.path.dirname(__file__), '..', 'AI')
+                if ai_path not in sys.path:
+                    sys.path.insert(0, ai_path)
+                
+                from file_rotation import rotate_if_needed
+                rotate_if_needed(self.global_attacks_file)
+            except ImportError:
+                pass  # Graceful degradation if file_rotation module not available
+            except Exception as e:
+                logger.warning(f"File rotation check failed: {e}")
+            
             # Read existing attacks
             if os.path.exists(self.global_attacks_file):
                 with open(self.global_attacks_file, 'r') as f:

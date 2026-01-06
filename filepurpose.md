@@ -140,6 +140,7 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - `server/json/comprehensive_audit.json` — Lineage/integrity events
 
 **Additional Detection Support:**
+- `AI/file_rotation.py` — **[Stage 4 & 6: ML Training Log Management]** Automatic file rotation utility for ML training logs. Rotates `threat_log.json`, `comprehensive_audit.json`, and `global_attacks.json` at 1GB limit with numeric suffixes (_1, _2, _3, etc.) to prevent unbounded growth while preserving all attack data for ML training.
 - `AI/dns_analyzer.py` — DNS tunneling/DGA detection (feeds Signal #2)
 - `server/json/dns_security.json` — DNS analyzer metrics
 - `AI/tls_fingerprint.py` — Encrypted C2 detection (feeds Signal #8)
@@ -187,14 +188,16 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - `server/json/integrity_violations.json` — Self-protection violations
 
 **Logging Surfaces (Multi-Surface Logging):**
-- `server/json/threat_log.json` — Primary threat log
-- `server/json/comprehensive_audit.json` — Comprehensive audit trail
+- `server/json/threat_log.json` — Primary threat log (auto-rotates at 1GB → threat_log_1.json, threat_log_2.json, etc.)
+- `server/json/comprehensive_audit.json` — Comprehensive audit trail (auto-rotates at 1GB → comprehensive_audit_1.json, etc.)
 - `server/json/attack_sequences.json` — LSTM progressions
 - `server/json/lateral_movement_alerts.json` — Graph hop chains
 - `server/json/behavioral_metrics.json` — Heuristic scores
 - `server/json/dns_security.json` — DNS findings
 - `server/json/tls_fingerprints.json` — TLS findings
 - `server/json/forensic_reports/` — Explainability outputs
+
+**ML Training Log Rotation:** Files used for ML training (`threat_log.json`, `comprehensive_audit.json`, `global_attacks.json`) automatically rotate when reaching 1GB. When rotation occurs, the current file is renamed with a numeric suffix (e.g., `threat_log.json` → `threat_log_1.json`), and a new file is created. This ensures continuous logging without unbounded file growth while preserving all historical attack data for ML training.
 
 ---
 
@@ -237,7 +240,7 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 **Relay Server:**
 - `relay/relay_server.py` — WebSocket relay, HMAC validation
 - `relay/signature_sync.py` — Signature deduplication
-- `relay/ai_training_materials/global_attacks.json` — Central attack log (all stages: core, honeypot, federated, SOAR, cloud, backup, compliance)
+- `relay/ai_training_materials/global_attacks.json` — Central attack log from all customer nodes (auto-rotates at 1GB → global_attacks_1.json, etc.)
 - `relay/ai_training_materials/attack_statistics.json` — Aggregated trends
 - `relay/ai_training_materials/ai_signatures/learned_signatures.json` — Global signatures
 

@@ -37,16 +37,23 @@ def _get_current_time():
 
 
 def _load_threat_log() -> List[dict]:
-    """Load threat log for compliance analysis."""
+    """Load threat log for compliance analysis (includes ALL rotation files)."""
     try:
         if os.path.exists('/app'):
             threat_log_file = "/app/json/threat_log.json"
         else:
             threat_log_file = "../server/json/threat_log.json"
         
-        if os.path.exists(threat_log_file):
-            with open(threat_log_file, 'r') as f:
-                return json.load(f)
+        # Load ALL rotation files (threat_log.json, threat_log_1.json, threat_log_2.json, etc.)
+        # This ensures compliance reports include complete historical attack data
+        try:
+            from file_rotation import load_all_rotations
+            return load_all_rotations(threat_log_file)
+        except ImportError:
+            # Fallback: load only current file if file_rotation module not available
+            if os.path.exists(threat_log_file):
+                with open(threat_log_file, 'r') as f:
+                    return json.load(f)
     except Exception as e:
         print(f"[COMPLIANCE] Failed to load threat log: {e}")
     

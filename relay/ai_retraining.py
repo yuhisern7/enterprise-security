@@ -173,11 +173,36 @@ class RelayAITrainer:
             "exploitdb_count": 0
         }
         
-        # Load global attacks
+        # Load global attacks from ALL rotation files (global_attacks.json, global_attacks_1.json, global_attacks_2.json, etc.)
         attacks_path = os.path.join(self.training_materials_dir, "global_attacks.json")
+        
+        # Load current file
         if os.path.exists(attacks_path):
             with open(attacks_path, 'r') as f:
-                training_data["global_attacks"] = json.load(f)
+                attacks = json.load(f)
+                if isinstance(attacks, list):
+                    training_data["global_attacks"].extend(attacks)
+                    logger.info(f"📚 Loaded global_attacks.json: {len(attacks)} attacks")
+        
+        # Load ALL rotation files (global_attacks_1.json, global_attacks_2.json, etc.)
+        rotation_num = 1
+        while rotation_num <= 10000:  # Safety limit
+            rotation_path = os.path.join(
+                self.training_materials_dir, 
+                f"global_attacks_{rotation_num}.json"
+            )
+            
+            if os.path.exists(rotation_path):
+                with open(rotation_path, 'r') as f:
+                    attacks = json.load(f)
+                    if isinstance(attacks, list):
+                        training_data["global_attacks"].extend(attacks)
+                        logger.info(f"📚 Loaded global_attacks_{rotation_num}.json: {len(attacks)} attacks")
+                rotation_num += 1
+            else:
+                break  # No more rotation files
+        
+        logger.info(f"✅ Total attacks loaded from all files: {len(training_data['global_attacks'])}")
         
         # Load learned signatures
         sig_path = os.path.join(self.training_materials_dir, "ai_signatures", "learned_signatures.json")

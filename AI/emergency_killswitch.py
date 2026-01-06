@@ -495,7 +495,7 @@ class ComprehensiveAuditLog:
         }
     
     def _flush_buffer(self):
-        """Flush event buffer to disk."""
+        """Flush event buffer to disk with auto-rotation at 1GB for ML training."""
         if len(self.event_buffer) == 0:
             return
 
@@ -506,6 +506,15 @@ class ComprehensiveAuditLog:
             )
             self.event_buffer.clear()
             return
+        
+        # Check if rotation is needed (1GB limit for ML training logs)
+        try:
+            from file_rotation import rotate_if_needed
+            rotate_if_needed(self.audit_file)
+        except ImportError:
+            pass  # Graceful degradation if file_rotation module not available
+        except Exception as e:
+            logger.warning(f"[AUDIT] File rotation check failed: {e}")
         
         # Load existing events
         existing_events = []

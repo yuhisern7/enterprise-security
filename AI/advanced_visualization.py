@@ -36,25 +36,32 @@ def _get_current_time():
 
 
 def _load_threat_log() -> List[dict]:
-    """Load threat log for visualization."""
+    """Load threat log for visualization (includes ALL rotation files)."""
     try:
         if os.path.exists('/app'):
             threat_log_file = "/app/json/threat_log.json"
         else:
             threat_log_file = "../server/json/threat_log.json"
         
-        if os.path.exists(threat_log_file):
-            with open(threat_log_file, 'r') as f:
-                data = json.load(f)
-                # Ensure data is a list, not a string or other type
-                if isinstance(data, list):
-                    return data
-                elif isinstance(data, dict):
-                    # If it's a dict with 'threats' or 'logs' key, extract the list
-                    return data.get('threats', data.get('logs', []))
-                else:
-                    print(f"[VISUALIZATION] Unexpected threat log format: {type(data)}")
-                    return []
+        # Load ALL rotation files (threat_log.json, threat_log_1.json, threat_log_2.json, etc.)
+        # This ensures visualizations show complete historical attack patterns
+        try:
+            from file_rotation import load_all_rotations
+            return load_all_rotations(threat_log_file)
+        except ImportError:
+            # Fallback: load only current file if file_rotation module not available
+            if os.path.exists(threat_log_file):
+                with open(threat_log_file, 'r') as f:
+                    data = json.load(f)
+                    # Ensure data is a list, not a string or other type
+                    if isinstance(data, list):
+                        return data
+                    elif isinstance(data, dict):
+                        # If it's a dict with 'threats' or 'logs' key, extract the list
+                        return data.get('threats', data.get('logs', []))
+                    else:
+                        print(f"[VISUALIZATION] Unexpected threat log format: {type(data)}")
+                        return []
     except json.JSONDecodeError as e:
         print(f"[VISUALIZATION] Failed to parse threat log JSON: {e}")
         return []

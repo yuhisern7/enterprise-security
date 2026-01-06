@@ -382,9 +382,19 @@ _feature_importance_cache = {}
 
 
 def _save_threat_log() -> None:
-    """Save threat log to persistent storage with file locking."""
+    """Save threat log to persistent storage with file locking and auto-rotation at 1GB."""
     try:
         os.makedirs(os.path.dirname(_THREAT_LOG_FILE) or ".", exist_ok=True)
+        
+        # Check if rotation is needed (1GB limit for ML training logs)
+        try:
+            from file_rotation import rotate_if_needed
+            rotate_if_needed(_THREAT_LOG_FILE)
+        except ImportError:
+            pass  # Graceful degradation if file_rotation module not available
+        except Exception as e:
+            print(f"[WARNING] File rotation check failed: {e}")
+        
         with open(_THREAT_LOG_FILE, 'w') as f:
             # Acquire exclusive lock to prevent race conditions
             fcntl.flock(f.fileno(), fcntl.LOCK_EX)
