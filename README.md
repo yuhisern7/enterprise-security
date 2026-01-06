@@ -6,19 +6,37 @@ Battle-Hardened AI is an open, research-oriented Network Detection and Response 
 
 The system is explicitly designed around defensive-only operation, privacy preservation, and full auditability. It does not retain raw payloads or exploit code, and all automated actions are subject to governance, explainability, and reversible control mechanisms.
 
-## Applicability to Military & Law-Enforcement Environments
+### Applicability to Military & Law-Enforcement Environments
 
 Battle-Hardened AI is suitable for use in defensive cyber security roles within military and law-enforcement organizations, including:
 
-Cyber defense research and development (R&D) programs
+- Cyber defense research and development (R&D) programs
 
-Security Operations Centers (SOC) and CERT environments
+- Security Operations Centers (SOC) and CERT environments
 
-National or organizational early-warning and threat-sensing deployments
+- National or organizational early-warning and threat-sensing deployments
 
-Controlled, observer-first monitoring systems with human-in-the-loop governance
+- Controlled, observer-first monitoring systems with human-in-the-loop governance
 
 The platform is not an offensive system and is not intended for autonomous or weaponized cyber operations.
+
+### Deployment Scope — What Can Be Protected
+
+Battle-Hardened AI can protect:
+
+- Home networks (gateway or monitoring node)
+- Company networks (LAN, VLAN, VPN, SOC observer)
+- Servers & data centers
+- Website hosting environments (placed at the web server or reverse proxy)
+- Cloud infrastructure (IaaS / PaaS telemetry)
+- Critical infrastructure research environments
+- Government & police SOC laboratories
+
+Protection coverage depends on placement:
+
+- **Gateway** = full network visibility
+- **Server** = host + hosted services
+- **Cloud** = API + flow-level visibility
 
 ## Deployment Model
 
@@ -26,12 +44,12 @@ Battle-Hardened AI follows a single-node-per-network architecture. Each protecte
 
 An optional private relay can be enabled to allow participating nodes to exchange sanitized, privacy-preserving AI training materials—such as signatures, statistical patterns, and reputation updates. This enables collective learning and continuous improvement across deployments without exposing sensitive traffic, payloads, or personally identifiable information.
 
-## Deployment & Access
+### Deployment & Access
 
 **Home / Lab usage:** USD 25 / month  
 **Organizations / SOCs:** USD 50 / month
 
-## Operator
+### Operator
 
 **Elite Cybersecurity Specialist** – 202403184091 (MA0319303)
 
@@ -41,7 +59,7 @@ An optional private relay can be enabled to allow participating nodes to exchang
 
 ## 18 Detection Signals (Core AI Capabilities)
 
-Battle-Hardened AI uses 18 independent detection signals, its like a samurai of the digital world combating ninjas (elite hackers), combined through a weighted ensemble to minimize false positives and prevent single-model failure.
+Battle-Hardened AI uses 18 independent detection signals, its like a Samurai of the digital world combating Ninjas (elite hackers), combined through a weighted ensemble to minimize false positives and prevent single-model failure.
 
 | # | Signal | Description |
 |---|--------|-------------|
@@ -89,7 +107,7 @@ This enables collective defense without exposing sensitive traffic or endpoint d
         Pre-processing & Ingestion
                 |
                 v
-         18 Detection Signals
+         18 Detection AI Signals
                 |
                 v
        Ensemble Decision Engine
@@ -143,24 +161,6 @@ This architecture creates a federated, privacy-preserving defense mesh where:
 - OSINT correlation
 - No payload storage
 
-## Deployment Scope — What Can Be Protected
-
-Battle-Hardened AI can protect:
-
-- Home networks (gateway or monitoring node)
-- Company networks (LAN, VLAN, VPN, SOC observer)
-- Servers & data centers
-- Website hosting environments (placed at the web server or reverse proxy)
-- Cloud infrastructure (IaaS / PaaS telemetry)
-- Critical infrastructure research environments
-- Government & police SOC laboratories
-
-Protection coverage depends on placement:
-
-- **Gateway** = full network visibility
-- **Server** = host + hosted services
-- **Cloud** = API + flow-level visibility
-
 ## Defensive-Only Assurance
 
 Battle-Hardened AI:
@@ -170,6 +170,46 @@ Battle-Hardened AI:
 - Does not exfiltrate customer traffic
 - Operates under observer-first principles
 - Supports human-in-the-loop enforcement
+
+## Dashboard Features
+
+The AI has 18 detection abilities; the web dashboard (`AI/inspector_ai_monitoring.html`) exposes **31 labeled sections** that surface their outputs, plus governance, compliance, cloud security, and resilience.
+
+| # | Section Title | Summary |
+|---|---------------|---------|
+| 1 | AI Training Network – Shared Machine Learning | P2P/federated training status, threats sent/learned between peers |
+| 2 | Network Devices – Live Monitor, Ports & History | Consolidated view of live devices, port scans, 7‑day history, and assets |
+| 3 | Attackers VPN/Tor De-Anonymization Statistics | VPN/Tor detection and de‑anonymization statistics |
+| 4 | Real AI/ML Models – Machine Learning Intelligence | ML models, Byzantine defense, model lineage, deterministic testing |
+| 5 | Security Overview – Live Statistics | High‑level security posture, key counters and KPIs |
+| 6 | Threat Analysis by Type | Breakdown of threats by type/severity |
+| 7 | IP Management & Threat Monitoring | Per‑IP risk, reputation, and management actions |
+| 8 | Failed Login Attempts (Battle-Hardened AI Server) | Authentication abuse and brute‑force monitoring |
+| 9 | Attack Type Breakdown | Distribution of attack types (visual breakdown) |
+| 10 | Automated Signature Extraction – Attack Pattern Analysis | Defensive signature extraction dashboard (patterns only, no payloads) |
+| 11 | System Health & Network Performance | System resources, network performance, and self‑protection (integrity) |
+| 12 | Compliance & Threat Governance | PCI/HIPAA/GDPR/SOC2 status, threat model, and audit summary |
+| 13 | Attack Chain Visualization (Graph Intelligence) | Lateral movement and kill‑chain visualization (graph intelligence) |
+| 14 | Decision Explainability Engine | Explainable AI views for decisions and forensic context |
+| 15 | Adaptive Honeypot – AI Training Sandbox | Honeypot activity, personas, and training impact |
+| 16 | AI Security Crawlers & Threat Intelligence Sources | Crawler status and external threat‑intel feed coverage |
+| 17 | Traffic Analysis & Inspection | Deep packet inspection, app‑aware blocking, encrypted traffic stats |
+| 18 | DNS & Geo Security | DNS tunneling/DGA metrics and geo‑IP risk/controls |
+| 19 | User & Identity Monitoring + Zero Trust | UEBA, insider‑threat analytics, Zero Trust posture |
+| 20 | Forensics & Threat Hunting | PCAP storage, hunt queries, and packet‑level investigations |
+| 21 | Sandbox Detonation | File detonation statistics and analysis capabilities |
+| 22 | Email/SMS Alerts | Alert configuration and notification metrics |
+| 23 | API for SOAR Integration + Workflow Automation | SOAR/API usage, playbooks, and integration health |
+| 24 | Vulnerability & Supply Chain Management | Vulnerability and software supply‑chain posture |
+| 25 | Cryptocurrency Mining Detection | Crypto‑mining detection and related statistics |
+| 26 | Dark Web Monitoring | Dark‑web‑related intelligence and monitoring |
+| 27 | Attack Simulation (Purple Team) | Purple‑team attack simulation and validation views |
+| 28 | Cloud Security Posture Management (CSPM) | Multi‑cloud misconfigurations, IAM risks, and cloud compliance |
+| 29 | Data Loss Prevention (DLP) | PII/PHI detections, exfiltration attempts, DLP coverage |
+| 30 | Backup & Recovery Status | Backup posture, ransomware resilience, and recovery tests |
+| 31 | Governance & Emergency Controls | Kill‑switch mode, approval queue, policy governance, audit/log health |
+
+These sections are backed by JSON/audit surfaces and exercised by the validation and operational runbooks documented in `ai-abilities.md`.
 
 ## Closing Statement
 
