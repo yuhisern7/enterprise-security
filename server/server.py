@@ -752,6 +752,34 @@ def clear_blocked_ips():
         }), 500
 
 
+@app.route('/inspector/ai-monitoring/retrain-ml', methods=['POST'])
+def retrain_ml_models():
+    """Force retrain ML models with all historical data"""
+    try:
+        # Force retrain using all available threat data
+        result = pcs_ai.retrain_ml_models_now()
+        
+        if result.get('success', False):
+            return jsonify({
+                'success': True,
+                'message': 'ML models retrained successfully',
+                'training_samples': result.get('training_samples', 0),
+                'trained_at': result.get('trained_at', _get_current_time().isoformat()),
+                'models_trained': result.get('models_trained', [])
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': result.get('error', 'Training failed')
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @app.route('/api/threat/block-ip', methods=['POST'])
 def block_threat_ip():
     """Manually block an IP from threat logs"""
