@@ -120,6 +120,8 @@ class RelayAITrainer:
             
             global_attacks = training_data.get("global_attacks", [])
             learned_signatures = training_data.get("learned_signatures", [])
+            exploitdb_exploits = training_data.get("exploitdb_exploits", [])
+            exploitdb_by_attack_type = training_data.get("exploitdb_by_attack_type", {})
             exploitdb_count = training_data.get("exploitdb_count", 0)
             
             if not global_attacks:
@@ -127,6 +129,8 @@ class RelayAITrainer:
             
             logger.info(f"📚 Loaded training data:")
             logger.info(f"   • {exploitdb_count:,} ExploitDB exploit signatures")
+            logger.info(f"   • {len(exploitdb_exploits):,} ExploitDB platform exploits (windows, linux, php, etc.)")
+            logger.info(f"   • {len(exploitdb_by_attack_type):,} attack type categories (SQL injection, XSS, RCE, etc.)")
             logger.info(f"   • {len(global_attacks):,} global attacks from worldwide subscribers")
             logger.info(f"   • {len(learned_signatures):,} learned attack patterns")
             
@@ -170,6 +174,8 @@ class RelayAITrainer:
         training_data = {
             "global_attacks": [],
             "learned_signatures": [],
+            "exploitdb_exploits": [],  # NEW: Platform-specific exploits
+            "exploitdb_by_attack_type": {},  # NEW: Attack-type organized exploits
             "exploitdb_count": 0
         }
         
@@ -204,17 +210,62 @@ class RelayAITrainer:
         
         logger.info(f"✅ Total attacks loaded from all files: {len(training_data['global_attacks'])}")
         
-        # Load learned signatures
+        # Load learned signatures (legacy format)
         sig_path = os.path.join(self.training_materials_dir, "ai_signatures", "learned_signatures.json")
         if os.path.exists(sig_path):
             with open(sig_path, 'r') as f:
-                training_data["learned_signatures"] = json.load(f)
+                sig_data = json.load(f)
+                # Handle both old format (dict with 'signatures') and new format (list)
+                if isinstance(sig_data, dict) and "signatures" in sig_data:
+                    training_data["learned_signatures"] = sig_data["signatures"]
+                elif isinstance(sig_data, list):
+                    training_data["learned_signatures"] = sig_data
+                else:
+                    training_data["learned_signatures"] = sig_data
+                logger.info(f"📚 Loaded learned_signatures.json: {len(training_data['learned_signatures'])} signatures")
         
-        # Count ExploitDB exploits
-        exploitdb_csv = os.path.join(self.training_materials_dir, "exploitdb", "files_exploits.csv")
-        if os.path.exists(exploitdb_csv):
-            with open(exploitdb_csv, 'r') as f:
-                training_data["exploitdb_count"] = sum(1 for _ in f) - 1  # Subtract header
+        # Load ExploitDB comprehensive outputs (NEW: Platform-specific JSONs)
+        exploitdb_sigs_dir = os.path.join(self.training_materials_dir, "exploitdb_signatures")
+        if os.path.exists(exploitdb_sigs_dir):
+            # Load ALL platform JSONs (windows_exploits.json, linux_exploits.json, etc.)
+            for platform_file in os.listdir(exploitdb_sigs_dir):
+                if platform_file.endswith('_exploits.json'):
+                    platform_path = os.path.join(exploitdb_sigs_dir, platform_file)
+                    try:
+                        with open(platform_path, 'r') as f:
+                            platform_data = json.load(f)
+                            if isinstance(platform_data, dict) and "exploits" in platform_data:
+                                exploits = platform_data["exploits"]
+                                training_data["exploitdb_exploits"].extend(exploits)
+                                logger.info(f"📚 Loaded {platform_file}: {len(exploits)} exploits")
+                    except Exception as e:
+                        logger.warning(f"Failed to load {platform_file}: {e}")
+            
+            # Load attack-type organized JSONs
+            attack_types_dir = os.path.join(exploitdb_sigs_dir, "by_attack_type")
+            if os.path.exists(attack_types_dir):
+                for attack_file in os.listdir(attack_types_dir):
+                    if attack_file.endswith('.json'):
+                        attack_type = attack_file.replace('.json', '')
+                        attack_path = os.path.join(attack_types_dir, attack_file)
+                        try:
+                            with open(attack_path, 'r') as f:
+                                attack_data = json.load(f)
+                                if isinstance(attack_data, dict) and "exploits" in attack_data:
+                                    training_data["exploitdb_by_attack_type"][attack_type] = attack_data["exploits"]
+                                    logger.info(f"📚 Loaded {attack_file}: {len(attack_data['exploits'])} exploits")
+                        except Exception as e:
+                            logger.warning(f"Failed to load {attack_file}: {e}")
+            
+            logger.info(f"✅ Total ExploitDB exploits loaded: {len(training_data['exploitdb_exploits'])}")
+            training_data["exploitdb_count"] = len(training_data["exploitdb_exploits"])
+        
+        # Fallback: Count from CSV if JSON not available
+        if training_data["exploitdb_count"] == 0:
+            exploitdb_csv = os.path.join(self.training_materials_dir, "exploitdb", "files_exploits.csv")
+            if os.path.exists(exploitdb_csv):
+                with open(exploitdb_csv, 'r') as f:
+                    training_data["exploitdb_count"] = sum(1 for _ in f) - 1  # Subtract header
         
         return training_data
     
