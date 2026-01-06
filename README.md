@@ -6,9 +6,13 @@ Battle-Hardened AI is an open, research-oriented Network Detection and Response 
 
 The system is explicitly designed around defensive-only operation, privacy preservation, and full auditability. It does not retain raw payloads or exploit code, and all automated actions are subject to governance, explainability, and reversible control mechanisms.
 
-### Built To Counter Elite Hackers
+### Built for Advanced Adversary Detection
 
-It'll be tough for Elite hackers to scan networks where Battle-Hardend AI is protecting because they would be detected and their IP's would be blocked, and if the ports are attacked it would be detected, recorded as AI machine learning materials and it disconnects the attackers, the AI becomes smarter after each attack to protect every other active Battle-Hardened AI server Worldwide connected through the nodes.
+Battle-Hardened AI is designed to make reconnaissance, scanning, and service probing difficult to perform without detection. Network scans, port enumeration, and repeated connection attempts are identified through multi-signal correlation and behavioral analysis.
+
+When such activity is detected, it can be logged, analyzed, and—where policy permits—subject to controlled response actions such as blocking or disconnection. These events are recorded as sanitized, privacy-preserving machine-learning artifacts, contributing to improved detection accuracy over time.
+
+Each confirmed incident strengthens the system’s defensive models locally and, when relay participation is enabled, contributes anonymized signatures and statistical patterns that help other Battle-Hardened AI deployments recognize similar adversary behavior earlier. In this way, the platform is designed to learn from real-world attacks while remaining defensive-only, governed, and auditable.
 
 ### Applicability to Military & Law-Enforcement Environments
 
