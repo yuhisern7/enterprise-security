@@ -50,19 +50,6 @@ Battle-Hardened AI follows a single-node-per-network architecture. Each protecte
 
 An optional private relay can be enabled to allow participating nodes to exchange sanitized, privacy-preserving AI training materials—such as signatures, statistical patterns, and reputation updates. This enables collective learning and continuous improvement across deployments without exposing sensitive traffic, payloads, or personally identifiable information.
 
-### Deployment & Access
-
-**Home / Lab usage:** USD 25 / month  
-**Organizations / SOCs:** USD 50 / month
-
-### Operator
-
-**Elite Cybersecurity Specialist** – 202403184091 (MA0319303)
-
-**Contact:** Yuhisern Navaratnam  
-**WhatsApp:** +60172791717  
-**Email:** yuhisern@protonmail.com
-
 ## 18 Detection Signals (Core AI Capabilities)
 
 Battle-Hardened AI uses 18 independent detection signals, combined through a weighted ensemble to minimize false positives and prevent single-model failure.
@@ -229,3 +216,16 @@ It is an open cyber defense research platform intended to explore how:
 - Kernel-level telemetry
 
 can be safely applied to modern network defense at organizational and national scale.
+
+### Deployment & Access
+
+**Home / Lab usage:** USD 25 / month  
+**Organizations / SOCs:** USD 50 / month
+
+### Operator
+
+**Elite Cybersecurity Specialist** – 202403184091 (MA0319303)
+
+**Contact:** Yuhisern Navaratnam  
+**WhatsApp:** +60172791717  
+**Email:** yuhisern@protonmail.com
