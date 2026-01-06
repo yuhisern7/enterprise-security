@@ -2,23 +2,29 @@
 
 An Open Research Platform for Network Detection & Response (NDR), Zero-Day Detection, and National Cyber Defense
 
-Battle-Hardened AI is an open, research-oriented Network Detection and Response (NDR) platform designed to study, evaluate, and deploy advanced defensive cybersecurity techniques. It integrates multi-signal detection, zero-day anomaly detection models, kernel-level telemetry, and policy-governed response mechanisms to support enterprise-scale and national-scale cyber defense research.
+Battle-Hardened AI is an open, research-oriented Network Detection and Response (NDR) platform designed to support the study, evaluation, and controlled deployment of advanced defensive cybersecurity techniques. The platform combines multi-signal detection, zero-day anomaly detection models, kernel-level telemetry, and policy-governed response mechanisms to enable enterprise-scale and national-scale cyber defense research.
 
-The system is designed with defensive-only constraints, privacy preservation, and auditability as first-class principles.
+The system is explicitly designed around defensive-only operation, privacy preservation, and full auditability. It does not retain raw payloads or exploit code, and all automated actions are subject to governance, explainability, and reversible control mechanisms.
 
-## Militaries could use Battle-Hardened AI:
+## Applicability to Military & Law-Enforcement Environments
 
-- In cyber defense R&D
+Battle-Hardened AI is suitable for use in defensive cyber security roles within military and law-enforcement organizations, including:
 
-- In SOC/CERT environments
+Cyber defense research and development (R&D) programs
 
-- As an early-warning and sensing platform
+Security Operations Centers (SOC) and CERT environments
 
-- As a controlled, observer-first system
+National or organizational early-warning and threat-sensing deployments
 
-Battle-Hardened AI operates as a single-node-per-network system. Each protected network requires only one Battle-Hardened AI server, without deploying agents on every endpoint.
+Controlled, observer-first monitoring systems with human-in-the-loop governance
 
-Optional connectivity to a private relay allows the system to exchange sanitized AI training materials (signatures, statistics, reputation updates) so that all participating nodes improve collectively over time.
+The platform is not an offensive system and is not intended for autonomous or weaponized cyber operations.
+
+## Deployment Model
+
+Battle-Hardened AI follows a single-node-per-network architecture. Each protected network requires only one Battle-Hardened AI server, eliminating the need for agents on every endpoint while still providing comprehensive network-level visibility.
+
+An optional private relay can be enabled to allow participating nodes to exchange sanitized, privacy-preserving AI training materials—such as signatures, statistical patterns, and reputation updates. This enables collective learning and continuous improvement across deployments without exposing sensitive traffic, payloads, or personally identifiable information.
 
 ## Deployment & Access
 
@@ -35,7 +41,7 @@ Optional connectivity to a private relay allows the system to exchange sanitized
 
 ## 18 Detection Signals (Core AI Capabilities)
 
-Battle-Hardened AI uses 18 independent detection signals, combined through a weighted ensemble to minimize false positives and prevent single-model failure.
+Battle-Hardened AI uses 18 independent detection signals, its like a samurai of the digital world combating ninjas (elite hackers), combined through a weighted ensemble to minimize false positives and prevent single-model failure.
 
 | # | Signal | Description |
 |---|--------|-------------|
