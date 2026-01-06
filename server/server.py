@@ -862,7 +862,7 @@ def sync_models_from_relay():
     try:
         from AI.training_sync_client import TrainingSyncClient
         
-        relay_url = os.getenv('MODEL_SYNC_URL', os.getenv('RELAY_URL', '').replace('ws://', 'http://').replace(':60001', ':60002'))
+        relay_url = os.getenv('MODEL_SYNC_URL', os.getenv('RELAY_URL', '').replace('wss://', 'https://').replace('ws://', 'https://').replace(':60001', ':60002'))
         
         if not relay_url:
             return jsonify({

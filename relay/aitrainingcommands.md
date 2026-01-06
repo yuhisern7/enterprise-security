@@ -106,17 +106,17 @@ docker exec security-relay-server python3 -c "import sklearn; print(sklearn.__ve
 
 ### Check Training Stats
 ```bash
-curl http://localhost:60002/stats
+curl https://localhost:60002/stats -k
 ```
 
 ### Test Model Distribution API
 ```bash
-curl http://localhost:60002/api/models/latest
+curl https://localhost:60002/api/models/latest -k
 ```
 
 ### Check Relay Server Health
 ```bash
-curl http://localhost:60001/health
+curl https://localhost:60001/health -k
 ```
 
 ## Git Workflow (VPS Deployment)

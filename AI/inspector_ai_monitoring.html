@@ -1540,7 +1540,7 @@
             • <strong>Anomaly Detection:</strong> IsolationForest identifies outliers (90% accuracy on zero-days)<br>
             • <strong>Threat Classification:</strong> RandomForest categorizes attacks into specific types (85%+ F1-score)<br>
             • <strong>IP Reputation:</strong> GradientBoosting predicts malicious IPs before they attack (92% precision)<br>
-            • <strong>Auto-Training:</strong> Models retrain every 24h with new threat data for continuous improvement<br>
+            • <strong>Auto-Training:</strong> Intelligent retraining schedule - 6h (small data), 12h (medium), 24h (large datasets)<br>
             • <strong>Hybrid Defense:</strong> ML predictions + rule-based patterns = maximum security coverage
           </p>
         </div>
@@ -1548,10 +1548,10 @@
         <!-- Manual Training Button - Always Visible -->
         <div style="margin-top: 1rem; padding: 1rem; background: rgba(95, 226, 255, 0.1); border-radius: 6px; border: 1px solid #5fe2ff;">
           <p style="margin: 0 0 0.75rem; color: #5fe2ff;">
-            ⚡ <strong>AUTO-TRAINING ACTIVE:</strong> Models automatically retrain every <strong>1 minute</strong> or every <strong>5 new threats</strong>.<br>
-            {% if ml_stats.training_data_size >= 5 %}You have {{ ml_stats.training_data_size }} threat events. Manual training is <em>optional</em> - system trains automatically.{% else %}Collecting data... {{ ml_stats.training_data_size }}/5 events for first auto-training.{% endif %}
+            ⚡ <strong>AUTO-TRAINING ACTIVE:</strong> Models retrain automatically based on data volume (6-24 hour intervals).<br>
+            {% if ml_stats.training_data_size >= 100 %}You have {{ ml_stats.training_data_size }} threat events. Manual training is <em>optional</em> - system trains automatically.{% else %}Collecting data... {{ ml_stats.training_data_size }}/100 events for first auto-training.{% endif %}
           </p>
-          <button onclick="forceRetrain()" style="margin: 0; background: linear-gradient(135deg, #5fe2ff, #4fc2df);" {% if ml_stats.training_data_size < 5 %}disabled{% endif %}>
+          <button onclick="forceRetrain()" style="margin: 0; background: linear-gradient(135deg, #5fe2ff, #4fc2df);" {% if ml_stats.training_data_size < 100 %}disabled{% endif %}>
             🔄 Force Retrain (Optional)
           </button>
         </div>
