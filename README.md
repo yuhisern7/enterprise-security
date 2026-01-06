@@ -1,18 +1,16 @@
 ## Battle-Hardened AI
 
-An Open Research Platform for Network Detection & Response (NDR), Zero-Day Detection, and National Cyber Defense
-
 Battle-Hardened AI is an open, research-oriented Network Detection and Response (NDR) platform designed to support the study, evaluation, and controlled deployment of advanced defensive cybersecurity techniques. The platform combines multi-signal detection, zero-day anomaly detection models, kernel-level telemetry, and policy-governed response mechanisms to enable enterprise-scale and national-scale cyber defense research.
 
 The system is explicitly designed around defensive-only operation, privacy preservation, and full auditability. It does not retain raw payloads or exploit code, and all automated actions are subject to governance, explainability, and reversible control mechanisms.
 
-### Built for Advanced Adversary Detection
+### Defend Against Cyber Terrorist
 
-Battle-Hardened AI is designed to make reconnaissance, scanning, and service probing difficult to perform without detection. Network scans, port enumeration, and repeated connection attempts are identified through multi-signal correlation and behavioral analysis.
+Battle-Hardened AI is designed to make reconnaissance, scanning, and service probing difficult to perform without detection. Network scans, port enumeration, and repeated connection attempts, and all sorts of cyber attacks are identified through multi-signal correlation and behavioral analysis.
 
 When such activity is detected, it can be logged, analyzed, and—where policy permits—subject to controlled response actions such as blocking or disconnection. These events are recorded as sanitized, privacy-preserving machine-learning artifacts, contributing to improved detection accuracy over time.
 
-Each confirmed incident strengthens the system’s defensive models locally and, when relay participation is enabled, contributes anonymized signatures and statistical patterns that help other Battle-Hardened AI deployments recognize similar adversary behavior earlier. In this way, the platform is designed to learn from real-world attacks while remaining defensive-only, governed, and auditable.
+Each confirmed incident strengthens the system’s defensive models locally and, when relay participation is enabled, contributes anonymized signatures and statistical patterns that help other Battle-Hardened AI deployments Worldwide recognize similar adversary behavior earlier. In this way, the platform is designed to learn from real-world attacks while remaining defensive-only, governed, and auditable.
 
 ### Applicability to Military & Law-Enforcement Environments
 
