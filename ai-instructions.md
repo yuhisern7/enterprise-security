@@ -165,6 +165,15 @@
   - Gate 4: cross-signal agreement (multi-signal consensus, with special handling for honeypots).
   - Gate 5: final confidence scoring.
   - Now **honeypot-aware**: honeypot hits are not bypassed by whitelists and can stand alone as strong evidence.
+    - Tunable via optional JSON config:
+      - Docker: `/app/json/fp_filter_config.json`.
+      - Native: `server/json/fp_filter_config.json`.
+      - Fields:
+        - `min_signals_for_confirmation` — minimum distinct signal types required (default: 2).
+        - `min_confidence_threshold` — minimum combined confidence 0.0–1.0 (default: 0.75).
+        - `temporal_window` — correlation window in seconds (default: 300).
+        - `behavior_repeat_threshold` — repetitions needed for strong behavior score (default: 3).
+      - You can also override the config path via `FP_FILTER_CONFIG` env var.
 - `AI/file_analyzer.py` — File scanning, metadata extraction, and static analysis hooks (e.g., for sandbox detonation).
 - `AI/formal_threat_model.py` — Encodes the formal threat model (policies, risk levels, conditions) used by the AI.
 - `AI/graph_intelligence.py` — Graph-based analysis of network entities for lateral movement, C2, and pivot detection.

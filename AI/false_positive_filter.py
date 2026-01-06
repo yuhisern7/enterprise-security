@@ -15,6 +15,8 @@ Only threats that pass all gates are confirmed as real attacks.
 
 import time
 import logging
+import os
+import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Tuple, Optional
 from collections import defaultdict
@@ -91,6 +93,54 @@ class FalsePositiveFilter:
         # Cleanup old data periodically
         self.last_cleanup = time.time()
         self.cleanup_interval = 3600  # 1 hour
+
+        # Optional: load tuning parameters from JSON config
+        self._load_config()
+
+    def _load_config(self) -> None:
+        """Load tuning parameters from fp_filter_config.json if present.
+
+        Uses the same Docker/monorepo layout convention as meta_decision_engine:
+        - Docker: /app/json/fp_filter_config.json
+        - Monorepo: server/json/fp_filter_config.json
+        """
+        try:
+            # Allow explicit override via environment variable
+            config_path = os.getenv("FP_FILTER_CONFIG")
+
+            if not config_path:
+                if os.path.exists('/app'):
+                    base_dir = '/app'
+                else:
+                    base_dir = os.path.join(os.path.dirname(__file__), '..', 'server')
+                config_path = os.path.join(base_dir, 'json', 'fp_filter_config.json')
+
+            if not os.path.exists(config_path):
+                return
+
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+
+            # Thresholds
+            self.min_signals_for_confirmation = config.get(
+                'min_signals_for_confirmation', self.min_signals_for_confirmation
+            )
+            self.min_confidence_threshold = config.get(
+                'min_confidence_threshold', self.min_confidence_threshold
+            )
+            self.temporal_window = config.get('temporal_window', self.temporal_window)
+            self.behavior_repeat_threshold = config.get(
+                'behavior_repeat_threshold', self.behavior_repeat_threshold
+            )
+
+            logger.info(
+                "[FP-FILTER] Loaded configuration from %s (min_signals=%s, min_conf=%.2f)",
+                config_path,
+                self.min_signals_for_confirmation,
+                self.min_confidence_threshold,
+            )
+        except Exception as e:
+            logger.warning(f"[FP-FILTER] Failed to load config: {e}")
     
     def assess_threat(self, signals: List[ThreatSignal]) -> ConfidenceScore:
         """
