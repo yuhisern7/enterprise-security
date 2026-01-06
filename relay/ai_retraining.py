@@ -11,6 +11,8 @@ Features:
 - Subscribers download ONLY these trained models (280 KB)
 """
 
+from __future__ import annotations  # Enable forward references for type hints
+
 import os
 import json
 import logging
