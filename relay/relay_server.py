@@ -257,8 +257,8 @@ async def update_attack_statistics():
         severities = {}
         
         for attack in attacks:
-            # Attack types
-            attack_type = attack.get('attack_type', 'unknown')
+            # Attack types (prefer canonical attack_type, but fall back to threat_type)
+            attack_type = attack.get('attack_type') or attack.get('threat_type', 'unknown')
             attack_types[attack_type] = attack_types.get(attack_type, 0) + 1
             
             # Countries

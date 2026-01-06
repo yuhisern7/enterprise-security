@@ -6685,7 +6685,13 @@
             const blocked = Object.values(data.blocked_apps || {}).reduce((a, b) => a + b, 0);
             document.getElementById('app-blocks').textContent = blocked.toString();
             
-            document.getElementById('encrypted-traffic').textContent = (data.encrypted_percent || 0) + '%';
+            const encryptedPercent = data.encrypted_percent || 0;
+            const suspiciousTlsSources = data.suspicious_tls_sources || 0;
+            // Show both overall encrypted share and how many sources look suspicious over TLS
+            document.getElementById('encrypted-traffic').textContent =
+              suspiciousTlsSources > 0
+                ? `${encryptedPercent}% / ${suspiciousTlsSources} suspicious`
+                : `${encryptedPercent}%`;
           }
         } catch (error) {
           console.error('Error loading traffic analysis:', error);

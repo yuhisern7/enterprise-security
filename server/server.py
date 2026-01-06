@@ -2530,6 +2530,44 @@ def get_traffic_analysis():
     try:
         if ADVANCED_FEATURES_AVAILABLE:
             stats = traffic_analyzer.get_stats()
+
+            # Enrich with TLS fingerprint statistics if available
+            try:
+                if os.path.exists('/app'):
+                    tls_metrics_file = "/app/json/tls_fingerprints.json"
+                else:
+                    tls_metrics_file = os.path.join(os.path.dirname(__file__), 'json', 'tls_fingerprints.json')
+
+                if os.path.exists(tls_metrics_file):
+                    with open(tls_metrics_file, 'r') as f:
+                        tls_data = json.load(f)
+
+                    sources = tls_data.get('sources', {}) if isinstance(tls_data, dict) else {}
+                    suspicious_sources = 0
+                    suspicious_flows = 0
+
+                    for src_ip, flow_stats in sources.items():
+                        if not isinstance(flow_stats, dict):
+                            continue
+
+                        nonstandard_ports = flow_stats.get('nonstandard_tls_ports', [])
+                        unique_dests = int(flow_stats.get('unique_dests', 0) or 0)
+                        total_flows = int(flow_stats.get('total_flows', 0) or 0)
+
+                        # Mark as suspicious if using nonstandard TLS ports or very high fan-out
+                        has_nonstandard = isinstance(nonstandard_ports, list) and len(nonstandard_ports) > 0
+                        high_fanout = unique_dests > 50 and total_flows > 200
+
+                        if has_nonstandard or high_fanout:
+                            suspicious_sources += 1
+                            suspicious_flows += total_flows
+
+                    stats['suspicious_tls_sources'] = suspicious_sources
+                    stats['suspicious_tls_flows'] = suspicious_flows
+            except Exception:
+                # Do not break traffic analysis if TLS metrics cannot be loaded
+                pass
+
             return jsonify(stats)
         else:
             return jsonify({'error': 'Traffic analyzer not available'}), 503
@@ -2540,7 +2578,38 @@ def get_traffic_analysis():
 def get_dns_stats():
     """Get DNS query statistics"""
     try:
-        # Cross-platform DNS activity estimate using psutil
+        # Prefer analyzer-generated DNS metrics when available
+        try:
+            if os.path.exists('/app'):
+                dns_metrics_file = "/app/json/dns_security.json"
+            else:
+                dns_metrics_file = os.path.join(os.path.dirname(__file__), 'json', 'dns_security.json')
+
+            if os.path.exists(dns_metrics_file):
+                with open(dns_metrics_file, 'r') as f:
+                    data = json.load(f)
+
+                sources = data.get('sources', {}) if isinstance(data, dict) else {}
+                total_queries = 0
+                suspicious_queries = 0
+
+                for src_ip, stats in sources.items():
+                    if not isinstance(stats, dict):
+                        continue
+                    total_queries += int(stats.get('total_queries', 0))
+                    suspicious_queries += int(stats.get('suspicious_queries', 0))
+
+                return jsonify({
+                    'total_queries': total_queries,
+                    'blocked_domains': 0,
+                    # Treat suspicious DNS patterns as tunneling / exfil attempts
+                    'tunneling_detected': suspicious_queries
+                })
+        except Exception:
+            # Fall back to legacy estimation below on any error
+            pass
+
+        # Fallback: cross-platform DNS activity estimate using psutil
         dns_count = 0
 
         try:

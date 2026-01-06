@@ -2489,9 +2489,29 @@ def _log_threat(ip_address: str, threat_type: str, details: str, level: ThreatLe
         # 🌐 RELAY: Send threat to global relay server for P2P mesh sharing
         if RELAY_AVAILABLE and os.getenv('RELAY_ENABLED', 'false').lower() == 'true':
             try:
+                # Multi-sensor deployments: tag each event with a stable sensor identifier
+                sensor_id = None
+                try:
+                    if NODE_FP_AVAILABLE:
+                        # Use node fingerprint hash as sensor ID when available
+                        sensor_id = node_fp.fingerprint.get('fingerprint_hash')
+                except Exception:
+                    sensor_id = None
+
+                if not sensor_id:
+                    # Fallback to hostname when node fingerprint is unavailable
+                    try:
+                        import platform
+                        sensor_id = platform.node()
+                    except Exception:
+                        sensor_id = 'unknown-sensor'
+
                 relay_threat({
                     'ip_address': ip_address,
                     'threat_type': threat_type,
+                    # Also expose a canonical attack_type field for relay analytics
+                    'attack_type': threat_type,
+                    'sensor_id': sensor_id,
                     'details': details,
                     'level': level.name if hasattr(level, 'name') else str(level),
                     'timestamp': event['timestamp'],

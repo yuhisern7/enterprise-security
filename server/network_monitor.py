@@ -15,6 +15,18 @@ import json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import AI.pcs_ai as pcs_ai
 
+# Optional advanced AI modules (behavioral heuristics, graph, DNS & TLS analyzers)
+try:
+    from AI.behavioral_heuristics import track_connection as bh_track_connection
+    from AI.graph_intelligence import track_connection as graph_track_connection
+    from AI.dns_analyzer import analyze_dns_query
+    from AI.tls_fingerprint import observe_tls_flow
+    ADVANCED_FLOW_ANALYTICS_AVAILABLE = True
+    print("[NETWORK] Advanced flow analytics (behavioral, graph, DNS, TLS) enabled")
+except ImportError as e:
+    ADVANCED_FLOW_ANALYTICS_AVAILABLE = False
+    print(f"[NETWORK] Advanced flow analytics not available: {e}")
+
 # Import performance monitoring
 try:
     import AI.network_performance as net_perf
@@ -34,7 +46,7 @@ def _get_current_time():
         return datetime.now(pytz.UTC)
 
 try:
-    from scapy.all import sniff, IP, TCP, UDP, ARP
+    from scapy.all import sniff, IP, TCP, UDP, ARP, DNS, DNSQR
     SCAPY_AVAILABLE = True
 except ImportError:
     SCAPY_AVAILABLE = False
@@ -185,6 +197,7 @@ class NetworkMonitor:
         """Analyze TCP packet for port scans and attacks"""
         tcp = packet[TCP]
         dst_port = tcp.dport
+        src_port = tcp.sport
         
         # Performance tracking: bandwidth and packet counts
         if PERFORMANCE_TRACKING_AVAILABLE:
@@ -195,7 +208,7 @@ class NetworkMonitor:
             except:
                 pass
         
-        # Track ports accessed by this IP
+        # Track ports accessed by this IP (simple port-scan heuristic)
         self.port_scan_tracker[src_ip]['ports'].add(dst_port)
         self.port_scan_tracker[src_ip]['last_seen'] = _get_current_time()
         
@@ -236,6 +249,51 @@ class NetworkMonitor:
                     )
                     pcs_ai._block_ip(src_ip)
                 self.connection_tracker[src_ip] = 0
+        
+        # Advanced flow analytics: behavioral heuristics, graph intelligence, TLS heuristics
+        if 'ADVANCED_FLOW_ANALYTICS_AVAILABLE' in globals() and ADVANCED_FLOW_ANALYTICS_AVAILABLE:
+            # Feed behavioral heuristics (flow UEBA)
+            try:
+                packet_size = len(packet)
+                bh_track_connection(
+                    entity_id=src_ip,
+                    dest_ip=dst_ip,
+                    dest_port=dst_port,
+                    src_port=src_port,
+                    protocol='tcp',
+                    payload_size=packet_size,
+                )
+            except Exception:
+                # Never break packet analysis on heuristics errors
+                pass
+
+            # Feed network graph for lateral movement / C2 patterns
+            try:
+                packet_size = len(packet)
+                graph_track_connection(src_ip, dst_ip, dst_port, "TCP", packet_size)
+            except Exception:
+                pass
+
+            # TLS / encrypted flow heuristics (metadata-only)
+            try:
+                # Treat standard TLS ports and high ephemeral ports with extra scrutiny
+                if dst_port in {443, 8443, 9443} or dst_port >= 1024:
+                    tls_result = observe_tls_flow(src_ip, dst_ip, dst_port, src_port, len(packet))
+                    if tls_result.get('suspicious') and tls_result.get('confidence', 0) >= 0.7:
+                        reasons = "; ".join(tls_result.get('reasons', []))
+                        pcs_ai._log_threat(
+                            ip_address=src_ip,
+                            threat_type=tls_result.get('threat_type', 'Encrypted C2 Suspected'),
+                            details=(
+                                f"Encrypted flow from {src_ip} to {dst_ip}:{dst_port} "
+                                f"flagged as suspicious. {reasons}"
+                            ),
+                            level=pcs_ai.ThreatLevel.SUSPICIOUS,
+                            action="detected",
+                            headers={},
+                        )
+            except Exception:
+                pass
     
     def _analyze_udp_packet(self, packet, src_ip, dst_ip):
         """Analyze UDP packet for attacks"""
@@ -266,6 +324,60 @@ class NetworkMonitor:
                 )
                 pcs_ai._block_ip(src_ip)
             self.connection_tracker[f"udp_{src_ip}"] = 0
+
+        # Advanced flow analytics: behavioral heuristics, graph intelligence, DNS heuristics
+        if 'ADVANCED_FLOW_ANALYTICS_AVAILABLE' in globals() and ADVANCED_FLOW_ANALYTICS_AVAILABLE:
+            # Feed behavioral heuristics
+            try:
+                packet_size = len(packet)
+                bh_track_connection(
+                    entity_id=src_ip,
+                    dest_ip=dst_ip,
+                    dest_port=dst_port,
+                    protocol='udp',
+                    payload_size=packet_size,
+                )
+            except Exception:
+                pass
+
+            # Feed graph intelligence
+            try:
+                packet_size = len(packet)
+                graph_track_connection(src_ip, dst_ip, dst_port, "UDP", packet_size)
+            except Exception:
+                pass
+
+            # DNS security (tunneling / DGA / exfil heuristics)
+            try:
+                if dst_port in (53, 5353) and packet.haslayer(DNS) and packet[DNS].qd is not None:
+                    qd = packet[DNS].qd
+                    qname = getattr(qd, 'qname', b'')
+                    if isinstance(qname, bytes):
+                        try:
+                            qname = qname.decode(errors='ignore')
+                        except Exception:
+                            qname = '<decode_error>'
+                    qtype = getattr(qd, 'qtype', 'UNKNOWN')
+                    dns_result = analyze_dns_query(
+                        src_ip=src_ip,
+                        query_name=str(qname),
+                        qtype=str(qtype),
+                        payload_len=len(packet),
+                    )
+                    if dns_result.get('suspicious') and dns_result.get('confidence', 0) >= 0.7:
+                        reasons = "; ".join(dns_result.get('reasons', []))
+                        pcs_ai._log_threat(
+                            ip_address=src_ip,
+                            threat_type=dns_result.get('threat_type', 'DNS Exfiltration Suspected'),
+                            details=(
+                                f"Suspicious DNS query from {src_ip} for {qname}. {reasons}"
+                            ),
+                            level=pcs_ai.ThreatLevel.SUSPICIOUS,
+                            action="detected",
+                            headers={}
+                        )
+            except Exception:
+                pass
     
     def _analyze_arp_packet(self, packet):
         """Analyze ARP packet for ARP spoofing"""
