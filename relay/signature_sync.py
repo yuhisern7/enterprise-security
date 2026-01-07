@@ -22,6 +22,7 @@ import json
 import logging
 import hashlib
 import os
+import sys
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 
@@ -314,8 +315,6 @@ class SignatureSyncService:
             # Check if rotation is needed (1GB limit for ML training logs)
             try:
                 # Import from AI folder (relay accesses AI modules)
-                import sys
-                import os
                 ai_path = os.path.join(os.path.dirname(__file__), '..', 'AI')
                 if ai_path not in sys.path:
                     sys.path.insert(0, ai_path)

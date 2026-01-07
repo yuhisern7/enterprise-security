@@ -11,6 +11,8 @@ FILE-BASED STORAGE (No Database Required):
 - Privacy-compliant: Anonymous attack patterns only
 """
 
+from __future__ import annotations
+
 import asyncio
 import json
 import logging

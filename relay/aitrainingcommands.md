@@ -1,3 +1,8 @@
+cd ~/battle-hardened-ai
+git fetch --all
+git reset --hard origin/main
+git pull
+
 # AI Training Troubleshooting Commands
 
 ## Force AI Training

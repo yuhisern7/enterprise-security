@@ -36,10 +36,11 @@ def run_service(name: str, script: str):
         )
         processes.append((name, process))
         
-        # Stream output
-        for line in process.stdout:
-            if line.strip():
-                logger.info(f"[{name}] {line.strip()}")
+        # Stream output (with None check)
+        if process.stdout:
+            for line in process.stdout:
+                if line.strip():
+                    logger.info(f"[{name}] {line.strip()}")
         
         process.wait()
         logger.warning(f"⚠️ {name} exited with code {process.returncode}")
@@ -91,8 +92,8 @@ def main():
     
     logger.info("")
     logger.info("✅ All services started!")
-    logger.info("   • WebSocket Relay: ws://0.0.0.0:60001")
-    logger.info("   • Model Distribution API: http://0.0.0.0:60002")
+    logger.info("   • WebSocket Relay: wss://0.0.0.0:60001")
+    logger.info("   • Model Distribution API: https://0.0.0.0:60002")
     logger.info("")
     logger.info("Press Ctrl+C to stop all services")
     logger.info("")
