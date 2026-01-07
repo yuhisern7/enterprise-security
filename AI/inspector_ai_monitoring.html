@@ -4375,9 +4375,25 @@
           const result = await response.json();
           
           if (result.success) {
+            // Remove the IP item from the DOM smoothly
+            const element = document.getElementById(`ip-item-${ip.replace(/\./g, '-')}`);
+            if (element) {
+              element.style.transition = 'opacity 0.3s ease-out';
+              element.style.opacity = '0';
+              setTimeout(() => element.remove(), 300);
+            }
+            
+            // Update the blocked IPs count in the tab button
+            const tabBtn = document.getElementById('ip-tab-blocked');
+            if (tabBtn) {
+              const match = tabBtn.textContent.match(/\((\d+)\)/);
+              if (match) {
+                const newCount = parseInt(match[1]) - 1;
+                tabBtn.textContent = tabBtn.textContent.replace(/\(\d+\)/, `(${newCount})`);
+              }
+            }
+            
             alert(`✅ IP ${ip} has been unblocked`);
-            document.getElementById(`ip-item-${ip.replace(/\./g, '-')}`).remove();
-            location.reload();
           } else {
             alert('❌ Error: ' + (result.message || 'Failed to unblock IP'));
           }
@@ -4412,9 +4428,35 @@
           const result = await response.json();
           
           if (result.success) {
+            // Remove the IP item from the DOM smoothly
+            const element = document.getElementById(`ip-item-${ip.replace(/\./g, '-')}`);
+            if (element) {
+              element.style.transition = 'opacity 0.3s ease-out';
+              element.style.opacity = '0';
+              setTimeout(() => element.remove(), 300);
+            }
+            
+            // Update the blocked IPs count
+            const blockedTabBtn = document.getElementById('ip-tab-blocked');
+            if (blockedTabBtn) {
+              const match = blockedTabBtn.textContent.match(/\((\d+)\)/);
+              if (match) {
+                const newCount = parseInt(match[1]) - 1;
+                blockedTabBtn.textContent = blockedTabBtn.textContent.replace(/\(\d+\)/, `(${newCount})`);
+              }
+            }
+            
+            // Update the whitelist count
+            const whitelistTabBtn = document.getElementById('ip-tab-whitelist');
+            if (whitelistTabBtn) {
+              const match = whitelistTabBtn.textContent.match(/\((\d+)\)/);
+              if (match) {
+                const newCount = parseInt(match[1]) + 1;
+                whitelistTabBtn.textContent = whitelistTabBtn.textContent.replace(/\(\d+\)/, `(${newCount})`);
+              }
+            }
+            
             alert(`✅ IP ${ip} has been whitelisted\n\nThis IP will never be blocked again.`);
-            document.getElementById(`ip-item-${ip.replace(/\./g, '-')}`).remove();
-            location.reload();
           } else {
             alert('❌ Error: ' + (result.message || 'Failed to whitelist IP'));
           }
