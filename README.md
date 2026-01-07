@@ -427,6 +427,23 @@ Battle-Hardened AI uses 18 independent detection signals, combined through a wei
 
 Ensemble decisions require cross-signal agreement, ensuring robustness and explainability.
 
+---
+
+## How Battle-Hardened AI Compares to Known NDRs
+
+| Platform               | Publicly Documented<br>AI Signals | Kernel<br>Telemetry | Federated<br>Learning | Explainability |
+|------------------------|-----------------------------------|---------------------|----------------------|----------------|
+| Darktrace              | ❌ Undisclosed                    | ❌                  | ❌                   | ❌ Limited     |
+| Vectra AI              | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
+| ExtraHop               | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
+| Cisco Secure NDR       | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
+| Suricata + ML          | ⚠️ Partial                        | ❌                  | ❌                   | ⚠️ Partial     |
+| **Battle-Hardened AI** | **✅ 18 documented**              | **✅ eBPF**         | **✅ Optional**      | **✅ Built-in**|
+
+**Key Differentiator:** No major commercial NDR vendor publicly documents 18 independent detection signals with this level of technical transparency.
+
+---
+
 ## Why Evasion is Nearly Impossible
 
 Battle-Hardened AI implements **defense-in-depth** through 18 independent detection systems running in parallel. An attacker cannot simply bypass one security layer—they must evade **all 18 signals simultaneously**, which is mathematically and practically infeasible for real attacks.
