@@ -5,6 +5,23 @@ Battle-Hardened AI is an open, research-oriented Network Detection and Response 
 
 The system is explicitly designed around defensive-only operation, privacy preservation, and full auditability. It does not retain raw payloads or exploit code, and all automated actions are subject to governance, explainability, and reversible control mechanisms.
 
+---
+
+## How Battle-Hardened AI Compares to Known NDRs
+
+| Platform               | Publicly Documented<br>AI Signals | Kernel<br>Telemetry | Federated<br>Learning | Explainability |
+|------------------------|-----------------------------------|---------------------|----------------------|----------------|
+| Darktrace              | ❌ Undisclosed                    | ❌                  | ❌                   | ❌ Limited     |
+| Vectra AI              | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
+| ExtraHop               | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
+| Cisco Secure NDR       | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
+| Suricata + ML          | ⚠️ Partial                        | ❌                  | ❌                   | ⚠️ Partial     |
+| **Battle-Hardened AI** | **✅ 18 documented**              | **✅ eBPF**         | **✅ Optional**      | **✅ Built-in**|
+
+**Key Differentiator:** No major commercial NDR vendor publicly documents 18 independent detection signals with this level of technical transparency.
+
+---
+
 ### Defense Against Advanced and Persistent Threats (APT)
 
 Battle-Hardened AI is designed to make reconnaissance, scanning, and service probing difficult to perform without detection. Network scans, port enumeration, repeated connection attempts, and all sorts of cyber attacks are identified through multi-signal correlation and behavioral analysis.
@@ -426,21 +443,6 @@ Battle-Hardened AI uses 18 independent detection signals, combined through a wei
 | 18 | Integrity Monitoring | Telemetry & model tampering detection |
 
 Ensemble decisions require cross-signal agreement, ensuring robustness and explainability.
-
----
-
-## How Battle-Hardened AI Compares to Known NDRs
-
-| Platform               | Publicly Documented<br>AI Signals | Kernel<br>Telemetry | Federated<br>Learning | Explainability |
-|------------------------|-----------------------------------|---------------------|----------------------|----------------|
-| Darktrace              | ❌ Undisclosed                    | ❌                  | ❌                   | ❌ Limited     |
-| Vectra AI              | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
-| ExtraHop               | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
-| Cisco Secure NDR       | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
-| Suricata + ML          | ⚠️ Partial                        | ❌                  | ❌                   | ⚠️ Partial     |
-| **Battle-Hardened AI** | **✅ 18 documented**              | **✅ eBPF**         | **✅ Optional**      | **✅ Built-in**|
-
-**Key Differentiator:** No major commercial NDR vendor publicly documents 18 independent detection signals with this level of technical transparency.
 
 ---
 
