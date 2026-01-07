@@ -878,9 +878,7 @@ The system continuously improves through feedback:
 
 ---
 
-### Complete Attack Detection & Response Flow
-
-Battle-Hardened AI processes every network packet through a sophisticated multi-stage pipeline. Each Battle-Hardened AI server acts as a trusted sensor-node for its own network, observing local traffic, logs, cloud APIs, identities, and backups. Raw traffic and exploit payloads are never shared—only sanitized statistical features, signatures, and reputation updates are extracted for collective learning.
+### Visual Attack Detection & Response Flow
 
 ```
 📥 PACKET ARRIVES
