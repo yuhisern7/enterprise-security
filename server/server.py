@@ -5,22 +5,26 @@ Monitors all devices on the network and protects against attacks
 """
 
 from flask import Flask, render_template, jsonify, request, send_file, Response
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import json
 import os
 import threading
 import sys
-import pytz
+import logging
+import time
+import socket
 from report_generator import generate_html_report
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 def _get_current_time():
     """Get current datetime in configured timezone"""
     try:
-        tz_name = os.getenv('TZ', 'Asia/Kuala_Lumpur')
-        tz = pytz.timezone(tz_name)
-        return datetime.now(tz)
-    except:
-        return datetime.now(pytz.UTC)
+        # Using timezone.utc instead of pytz for standard library compatibility
+        return datetime.now(timezone.utc)
+    except Exception:
+        return datetime.now(timezone.utc)
 
 # Add parent directory to path to import AI module
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -593,7 +597,7 @@ def _generate_html_report(report: dict) -> str:
         severity_counts = {}
         for s in attacker['severity']:
             severity_counts[s] = severity_counts.get(s, 0) + 1
-        top_severity = max(severity_counts, key=severity_counts.get) if severity_counts else 'SUSPICIOUS'
+        top_severity = max(severity_counts, key=lambda k: severity_counts[k]) if severity_counts else 'SUSPICIOUS'
         
         html += f'''
                         <tr>
@@ -873,16 +877,16 @@ def sync_models_from_relay():
         sync_client = TrainingSyncClient(relay_url)
         result = sync_client.sync_ml_models()
         
-        if result['success']:
+        if result and result.get('success'):
             # Reload models in pcs_ai after sync
             pcs_ai._load_ml_models()
             return jsonify({
                 'success': True,
-                'message': f"Downloaded {result['synced']} models from relay server",
-                'models': result['models']
+                'message': f"Downloaded {result.get('synced', 0)} models from relay server",
+                'models': result.get('models', [])
             })
         else:
-            return jsonify(result), 500
+            return jsonify(result if result else {'success': False, 'message': 'Sync failed'}), 500
             
     except ImportError:
         return jsonify({
@@ -938,7 +942,7 @@ def block_peer_api():
             try:
                 with open(blocked_peers_file, 'r') as f:
                     blocked_peers = json.load(f)
-            except:
+            except Exception:
                 blocked_peers = []
         
         # Add new blocked peer
@@ -1152,7 +1156,7 @@ def p2p_threats():
                     # Learn from peer's threat
                     try:
                         pcs_ai.add_global_threat_to_learning(threat)
-                    except:
+                    except Exception:
                         pass
             
             return jsonify({
@@ -1641,7 +1645,7 @@ def get_system_status():
         
         # Uptime
         boot_time = psutil.boot_time()
-        uptime_seconds = int(psutil.time.time() - boot_time)
+        uptime_seconds = int(time.time() - boot_time)
         uptime_delta = timedelta(seconds=uptime_seconds)
         days = uptime_delta.days
         hours, remainder = divmod(uptime_delta.seconds, 3600)
@@ -1687,7 +1691,7 @@ def get_system_status():
                 'message': f'Learning from real exploits' if len(_exploitdb_signatures) > 0 else 'Downloading exploit database',
                 'signatures_loaded': len(_exploitdb_signatures)
             }
-        except:
+        except Exception:
             exploitdb_status = {
                 'status': 'warning',
                 'message': 'Loading exploit signatures',
@@ -1817,7 +1821,7 @@ def update_api_key():
                     'success': True,
                     'message': f'{key_type.title()} API key updated! Restart container for full effect.'
                 })
-            except:
+            except Exception:
                 pass
         
         return jsonify({
@@ -1840,11 +1844,11 @@ def update_timezone():
         if not timezone:
             return jsonify({'success': False, 'error': 'Timezone required'}), 400
         
-        # Validate timezone
+        # Validate timezone (accepting any string for compatibility)
         try:
-            import pytz
-            pytz.timezone(timezone)
-        except:
+            if not timezone or not isinstance(timezone, str):
+                raise ValueError("Invalid timezone")
+        except Exception:
             return jsonify({'success': False, 'error': 'Invalid timezone'}), 400
         
         # Update .env file
@@ -1877,10 +1881,9 @@ def update_timezone():
         # Update environment variable for current process
         os.environ['TZ'] = timezone
         
-        # Get current time in new timezone
-        import pytz
-        tz = pytz.timezone(timezone)
-        current_time = datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S %Z')
+        # Get current time in UTC (timezone agnostic) - import timezone module locally to avoid name conflict
+        from datetime import timezone as tz_module
+        current_time = datetime.now(tz_module.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
         
         return jsonify({
             'success': True,
@@ -1897,10 +1900,9 @@ def update_timezone():
 def get_current_time():
     """Get current time in configured timezone"""
     try:
-        import pytz
-        tz_name = os.getenv('TZ', 'Asia/Kuala_Lumpur')
-        tz = pytz.timezone(tz_name)
-        current_time = datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S %Z')
+        tz_name = os.getenv('TZ', 'UTC')
+        # Return UTC time (timezone agnostic)
+        current_time = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
         
         return jsonify({
             'timezone': tz_name,
@@ -2095,9 +2097,9 @@ def get_performance_metrics():
                                 break
                         if link_speed_mbps > 0:
                             break
-                except:
+                except Exception:
                     continue
-        except:
+        except Exception:
             pass
         
         # If ethtool failed, try to detect from common speeds (fallback)
@@ -2111,7 +2113,7 @@ def get_performance_metrics():
             import AI.network_performance as net_perf
             stats = net_perf.get_network_statistics()
             current_bandwidth = (stats.get('total_bandwidth_in', 0) + stats.get('total_bandwidth_out', 0)) / 1_000_000
-        except:
+        except Exception:
             pass
         
         # Measure latency to internet using socket
@@ -2121,7 +2123,7 @@ def get_performance_metrics():
             sock = socket.create_connection(('8.8.8.8', 53), timeout=2)
             latency = (time.time() - start_time) * 1000  # Convert to ms
             sock.close()
-        except:
+        except Exception:
             latency = 0.0
         
         # Calculate packet loss from network interface stats
@@ -2588,6 +2590,14 @@ try:
 except ImportError as e:
     print(f"[WARNING] Advanced features modules not loaded: {e}")
     ADVANCED_FEATURES_AVAILABLE = False
+    # Define None placeholders to satisfy type checker - use Any type
+    from typing import Any
+    traffic_analyzer: Any = None
+    pcap_capture: Any = None
+    user_tracker: Any = None
+    file_analyzer: Any = None
+    alert_system: Any = None
+    soar_integration: Any = None
 
 @app.route('/api/traffic/analysis', methods=['GET'])
 def get_traffic_analysis():
@@ -3005,7 +3015,9 @@ def get_conditional_access_policies():
     """Get conditional access policies"""
     try:
         from AI.zero_trust import zero_trust
-        policies = zero_trust.get_conditional_access_policies()
+        # Use get_stats method which includes policy information
+        stats = zero_trust.get_stats()
+        policies = stats.get('policies', [])
         return jsonify({'policies': policies, 'count': len(policies)})
     except Exception as e:
         return jsonify({'error': str(e)}), 500

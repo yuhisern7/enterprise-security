@@ -69,7 +69,7 @@ class NetworkGraph:
     Uses adjacency list for efficient storage and traversal
     """
     
-    def __init__(self, graph_file: str = None, alerts_file: str = None):
+    def __init__(self, graph_file: Optional[str] = None, alerts_file: Optional[str] = None):
         """
         Initialize network graph
         
@@ -289,7 +289,7 @@ class NetworkGraph:
         
         return c2_alerts
     
-    def detect_exfiltration_paths(self, internal_subnets: List[str] = None) -> List[Dict[str, Any]]:
+    def detect_exfiltration_paths(self, internal_subnets: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         """
         Detect data exfiltration paths
         

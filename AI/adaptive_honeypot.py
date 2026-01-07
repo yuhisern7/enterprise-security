@@ -11,10 +11,8 @@ import time
 import json
 import re
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
-
-import pytz
 
 logger = logging.getLogger(__name__)
 
@@ -28,9 +26,8 @@ else:
 def _get_local_time() -> datetime:
     """Get current datetime in configured timezone (TZ env), fallback to UTC."""
     try:
-        tz_name = os.getenv('TZ', 'Asia/Kuala_Lumpur')
-        tz = pytz.timezone(tz_name)
-        return datetime.now(tz)
+        # Use timezone-aware datetime with UTC
+        return datetime.now(timezone.utc)
     except Exception:
         return datetime.utcnow()
 
@@ -237,7 +234,7 @@ class AdaptiveHoneypot:
         if self.server_socket:
             try:
                 self.server_socket.close()
-            except:
+            except Exception:
                 pass
         
         logger.info("🛑 Honeypot stopped")
@@ -295,7 +292,7 @@ class AdaptiveHoneypot:
                 client_socket.settimeout(5.0)
                 data = client_socket.recv(4096)
                 attacker_input = data.decode('utf-8', errors='ignore')
-            except:
+            except Exception:
                 attacker_input = "<no input>"
 
             ip_stats = self._update_ip_stats(ip_address)
@@ -340,7 +337,7 @@ class AdaptiveHoneypot:
         finally:
             try:
                 client_socket.close()
-            except:
+            except Exception:
                 pass
     
     def get_status(self) -> Dict:

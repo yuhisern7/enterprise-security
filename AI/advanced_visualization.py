@@ -12,10 +12,9 @@ All data generated automatically by AI for visualization in dashboards.
 
 import json
 import os
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from datetime import datetime, timedelta, timezone
+from typing import Dict, List, Optional, Tuple, Any
 from collections import defaultdict
-import pytz
 
 
 # Persistent storage
@@ -28,11 +27,10 @@ else:
 def _get_current_time():
     """Get current datetime in configured timezone"""
     try:
-        tz_name = os.getenv('TZ', 'Asia/Kuala_Lumpur')
-        tz = pytz.timezone(tz_name)
-        return datetime.now(tz)
-    except:
-        return datetime.now(pytz.UTC)
+        # Using timezone.utc instead of pytz for standard library compatibility
+        return datetime.now(timezone.utc)
+    except Exception:
+        return datetime.now(timezone.utc)
 
 
 def _load_threat_log() -> List[dict]:
@@ -290,7 +288,7 @@ def generate_attack_flows(time_range_minutes: int = 60) -> dict:
             continue
     
     # Group attacks by source IP and type
-    attack_flows = defaultdict(lambda: {
+    attack_flows: Dict[str, Any] = defaultdict(lambda: {
         'count': 0,
         'threat_types': set(),
         'severity': 'SAFE',
@@ -460,7 +458,7 @@ def generate_geographic_map() -> dict:
             continue
     
     # Group by country
-    country_stats = defaultdict(lambda: {
+    country_stats: Dict[str, Any] = defaultdict(lambda: {
         'attack_count': 0,
         'threat_types': set(),
         'severity_counts': defaultdict(int),

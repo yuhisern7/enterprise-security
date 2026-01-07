@@ -357,7 +357,7 @@ class SignatureSyncService:
             with open(self.signatures_file, 'r') as f:
                 data = json.load(f)
                 total_sigs = len(data.get('signatures', []))
-        except:
+        except Exception:
             pass
         
         return {

@@ -14,20 +14,11 @@ echo "⚠️  Your browser will show SSL warning (self-signed cert) - this is NO
 echo "    Click 'Advanced' → 'Proceed to localhost' to access dashboard"
 echo ""
 
-# Start Gunicorn with SSL, proxying to Flask
-# Gunicorn listens on HTTPS 60000, forwards to Flask on HTTP 5000
 cd /app
 
-# Start Flask in background
-python server.py &
-FLASK_PID=$!
-
-echo "Waiting for Flask to initialize..."
-sleep 10
-
+# Start Gunicorn with HTTPS (runs Flask app directly)
 echo "🔐 Starting Gunicorn with HTTPS (SSL)..."
 
-# Run Gunicorn with SSL on port 60000, proxying to Flask on 5000
 exec gunicorn \
     --certfile=/app/ssl/cert.pem \
     --keyfile=/app/ssl/key.pem \

@@ -645,7 +645,7 @@ class AdvancedOrchestration:
                 return context_val in expected_val
             elif operator == "not_in" or operator == RuleConditionOperator.NOT_IN.value:
                 return context_val not in expected_val
-        except:
+        except Exception:
             return False
         
         return False
