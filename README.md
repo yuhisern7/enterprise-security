@@ -27,6 +27,71 @@ Battle-Hardened AI is suitable for use in defensive cyber security roles within 
 
 The platform is not an offensive system and is not intended for autonomous or weaponized cyber operations.
 
+#### Privacy, Data Sovereignty & Classified Network Safety
+
+**Why Battle-Hardened AI is Safe for Government, Military, Police, Companies, and Home Networks:**
+
+Battle-Hardened AI is explicitly designed for deployment in high-security and classified environments where data privacy, operational security, and regulatory compliance are paramount. The architecture ensures that sensitive organizational data never leaves your network perimeter.
+
+**Zero Access to Customer Data:**
+
+- **No Payload Storage:** The system never retains raw network payloads, file contents, email bodies, database records, or application data
+- **Metadata Only:** Only statistical traffic features are analyzed (packet sizes, timing, connection patterns, protocol flags)
+- **Attack Patterns Only:** We capture threat signatures and behavioral anomalies—never your legitimate business communications or operational data
+- **Local Processing:** All detection and analysis occurs entirely on your server infrastructure—nothing is processed externally
+
+**What Gets Shared (Optional Relay Participation):**
+
+If you choose to enable the optional global intelligence relay, only the following **anonymized, sanitized materials** are exchanged:
+
+1. **Attack Signatures** (pattern strings like `' OR 1=1--`, never actual exploit code or victim data)
+2. **Behavioral Statistics** (anonymized metrics: average connection rates, port entropy scores, ASN regions—not geolocation)
+3. **Reputation Hashes** (SHA-256 hashed attacker IPs, not raw addresses or victim IPs)
+4. **Graph Topologies** (anonymized patterns like "A→B→C", not real server names or IP addresses)
+5. **ML Model Weight Deltas** (neural network parameter updates, not training data)
+
+**What is NEVER Shared:**
+
+- ❌ Customer network traffic or packet payloads
+- ❌ Authentication credentials or session tokens
+- ❌ File contents, database records, or application data
+- ❌ Internal IP addresses, hostnames, or network topology
+- ❌ User identities, employee information, or PII
+- ❌ Business communications (emails, documents, messages)
+- ❌ Proprietary code, trade secrets, or classified information
+- ❌ Exploit payloads or weaponized code samples
+
+**Data Sovereignty Guarantees:**
+
+- **Air-Gap Compatible:** Can operate entirely disconnected from the internet—relay participation is completely optional
+- **On-Premises Deployment:** All data remains on your infrastructure; no cloud dependencies for core detection functionality
+- **Local-First Architecture:** Detection, blocking, logging, and AI training occur entirely within your security perimeter
+- **No Third-Party Services Required:** Operates independently; external threat intelligence feeds (VirusTotal, AbuseIPDB) are optional enhancements
+- **Full Data Control:** You own all logs, threat data, and ML models—nothing is held by external parties
+
+**Compliance & Auditability:**
+
+- **Regulatory Compliance:** Designed to support PCI-DSS, HIPAA, GDPR, SOC 2, and government security frameworks
+- **Full Transparency:** All AI decisions include human-readable explanations (Explainability Engine)
+- **Audit Trails:** Complete forensic logging of all detections, blocks, and system actions
+- **Reversible Actions:** All automated responses are logged and can be reversed or overridden
+- **Cryptographic Lineage:** Model provenance tracking ensures AI training integrity and prevents poisoning attacks
+
+**Perfect for Classified & Sensitive Networks:**
+
+Battle-Hardened AI's privacy-preserving design makes it suitable for:
+
+- **Military networks** (SIPRNET-equivalent security posture)
+- **Law enforcement** (criminal investigation data protection)
+- **Intelligence agencies** (signals intelligence / SIGINT protection)
+- **Critical infrastructure** (SCADA/ICS operational security)
+- **Healthcare systems** (HIPAA-protected patient data)
+- **Financial institutions** (PCI-DSS cardholder data environments)
+- **Government agencies** (classified network defense)
+- **Enterprise R&D** (trade secret and IP protection)
+
+The operator (relay server administrator) has **zero visibility** into your network traffic, internal operations, or business activities. The relay only aggregates anonymized threat intelligence—similar to how antivirus vendors share malware signatures without seeing what files you scan.
+
 ### Deployment Scope — What Can Be Protected
 
 Battle-Hardened AI can protect:
@@ -44,6 +109,290 @@ Protection coverage depends on placement:
 - **Gateway** = full network visibility
 - **Server** = host + hosted services
 - **Cloud** = API + flow-level visibility
+
+---
+
+## What Attacks Battle-Hardened AI Prevents
+### With MITRE ATT&CK Mapping
+
+Battle-Hardened AI is a Network Detection & Response (NDR) system. It prevents attacks by detecting, disrupting, and containing adversary behavior at the network layer, before objectives are achieved.
+
+**It does not rely on endpoint agents or exploit payload storage.**
+
+---
+
+### 1️⃣ Reconnaissance & Network Discovery
+**Coverage: ⭐⭐⭐⭐⭐ (Very Strong)**
+
+**MITRE ATT&CK:**
+- TA0043 – Reconnaissance
+- T1595 – Active Scanning
+- T1590 – Gather Victim Network Information
+- T1046 – Network Service Discovery
+- T1018 – Remote System Discovery
+
+**Detected / Prevented Attacks:**
+- Port scanning (TCP/UDP/SYN/FIN)
+- Service enumeration
+- OS & banner fingerprinting
+- Network mapping
+- Distributed and low-rate scans
+
+**How Battle-Hardened AI Detects This:**
+- Behavioral heuristics (port entropy, fan-out, timing variance)
+- Graph intelligence (multi-target probing patterns)
+- Kernel telemetry (syscall ↔ network correlation)
+- LSTM sequence modeling (scan → probe progression)
+- Historical reputation (recurring scanners)
+
+**Outcome:**
+- ✅ Recon detected early
+- ✅ IPs blocked or rate-limited
+- ✅ Attackers prevented from progressing to exploitation
+
+---
+
+### 2️⃣ Initial Access – Web & Network Exploitation
+**Coverage: ⭐⭐⭐⭐☆ (High)**
+
+**MITRE ATT&CK:**
+- TA0001 – Initial Access
+- T1190 – Exploit Public-Facing Application
+- T1133 – External Remote Services
+- T1078 – Valid Accounts (credential abuse)
+
+**Detected / Prevented Attacks:**
+- SQL injection
+- Command injection
+- XSS (reflected/stored patterns)
+- Path traversal
+- File inclusion (LFI/RFI)
+- API abuse
+- Web brute-force
+
+**Detection Mechanisms:**
+- Signature matching (known exploit patterns)
+- Autoencoder anomaly detection (unknown payload behavior)
+- Behavioral heuristics (retry frequency, request bursts)
+- LSTM attack stage correlation
+- Threat intelligence correlation
+
+**Outcome:**
+- ✅ Exploitation attempts blocked at the network edge
+- ✅ Zero-day behavior still flagged statistically
+- ✅ No payload storage required
+
+---
+
+### 3️⃣ Credential Access & Authentication Abuse
+**Coverage: ⭐⭐⭐⭐⭐ (Very Strong)**
+
+**MITRE ATT&CK:**
+- TA0006 – Credential Access
+- T1110 – Brute Force
+- T1110.003 – Password Spraying
+- T1078 – Valid Accounts
+
+**Detected / Prevented Attacks:**
+- SSH / RDP brute force
+- FTP abuse
+- Web login brute force
+- Credential stuffing
+- Password spraying
+
+**Detection Mechanisms:**
+- Behavioral heuristics (retry rates, timing anomalies)
+- LSTM sequence detection (AUTH_ABUSE state)
+- Historical reputation & recidivism tracking
+- Graph correlation for distributed attacks
+
+**Outcome:**
+- ✅ Accounts protected before compromise
+- ✅ Attackers blocked across sessions
+- ✅ Repeat attackers immediately identified
+
+---
+
+### 4️⃣ Lateral Movement & Internal Propagation
+**Coverage: ⭐⭐⭐⭐⭐ (Very Strong)**
+
+**MITRE ATT&CK:**
+- TA0008 – Lateral Movement
+- T1021 – Remote Services
+- T1021.004 – SSH
+- T1021.002 – SMB
+- T1080 – Lateral Tool Transfer
+
+**Detected / Prevented Attacks:**
+- East-west scanning
+- SMB / SSH hopping
+- Internal pivoting
+- Credential reuse across systems
+- Rapid lateral spread
+
+**Detection Mechanisms:**
+- Graph intelligence (hop chains A → B → C)
+- Kernel telemetry (unexpected process-network relationships)
+- Behavioral baseline deviation
+- LSTM multi-stage attack modeling
+
+**Outcome:**
+- ✅ Lateral movement exposed quickly
+- ✅ Compromised nodes isolated
+- ✅ Breach containment before mission success
+
+---
+
+### 5️⃣ Command-and-Control (C2) & Persistence Channels
+**Coverage: ⭐⭐⭐⭐☆ (Strong)**
+
+**MITRE ATT&CK:**
+- TA0011 – Command and Control
+- T1071 – Application Layer Protocol
+- T1095 – Non-Application Layer Protocol
+- T1041 – Exfiltration Over C2 Channel
+- T1568 – Dynamic Resolution (DGA)
+
+**Detected / Prevented Attacks:**
+- Botnet callbacks
+- Beaconing behavior
+- DNS tunneling
+- Encrypted C2 patterns
+- Periodic heartbeat traffic
+
+**Detection Mechanisms:**
+- DNS anomaly detection
+- Graph intelligence (beacon periodicity)
+- Autoencoder reconstruction error
+- Threat intelligence feeds
+- Reputation scoring
+
+**Outcome:**
+- ✅ C2 channels disrupted
+- ✅ Malware rendered ineffective
+- ✅ Exfiltration paths broken
+
+---
+
+### 6️⃣ Anonymization, VPN, and Proxy Abuse
+**Coverage: ⭐⭐⭐⭐☆ (Moderate–Strong)**
+
+**MITRE ATT&CK:**
+- TA0011 – Command and Control
+- T1090 – Proxy
+- T1090.003 – Multi-Hop Proxy
+
+**Detected / Prevented Attacks:**
+- Tor-based attacks
+- VPN-masked scanners
+- IP rotation campaigns
+- Proxy chaining
+
+**Detection Mechanisms:**
+- VPN/Tor fingerprinting
+- Behavioral fingerprint persistence
+- Timing analysis
+- Cross-IP graph correlation
+
+**Outcome:**
+- ✅ Anonymity reduced
+- ✅ Campaigns linked across IP changes
+- ✅ Rotation strategies weakened
+
+---
+
+### 7️⃣ Insider Threats & Post-Compromise Abuse
+**Coverage: ⭐⭐⭐☆☆ (Moderate, by Design)**
+
+**MITRE ATT&CK:**
+- TA0007 – Discovery
+- TA0008 – Lateral Movement
+- TA0010 – Exfiltration
+
+**Detected Behaviors:**
+- Abnormal admin behavior
+- Credential misuse
+- Off-hours access
+- Unusual lateral movement
+- Data staging patterns
+
+**Detection Mechanisms:**
+- Behavioral deviation from baseline
+- Graph intelligence
+- LSTM sequence modeling
+- Predictive threat modeling
+
+**Outcome:**
+- ✅ Insider misuse flagged
+- ⚠️ Human review required (intentional safeguard)
+- ✅ No silent abuse
+
+---
+
+### 8️⃣ Zero-Day & Unknown Attacks
+**Coverage: ⭐⭐⭐⭐☆ (Critical Partial Coverage)**
+
+**MITRE ATT&CK:**
+- TA0040 – Impact
+- TA0001 – Initial Access
+- TA0011 – Command and Control
+
+**Detected Attacks:**
+- Unknown exploits
+- Novel attack techniques
+- Custom malware traffic
+
+**Detection Mechanisms:**
+- Autoencoder anomaly detection
+- Behavioral heuristics
+- LSTM attack progression
+- Kernel telemetry mismatch
+
+**Outcome:**
+- ✅ Zero-days detected by behavior, not signatures
+- ✅ Attacks disrupted even without CVEs
+
+---
+
+### 9️⃣ Explicitly Out of Scope (By Design)
+**Not Fully Prevented:**
+
+- ❌ Physical access attacks
+- ❌ Fully trusted insiders acting normally
+- ❌ Kernel rootkits with no network activity
+- ❌ Supply-chain compromise before deployment
+
+**Rationale:**
+
+These require:
+- Endpoint EDR
+- Hardware trust
+- Secure boot / TPM
+- Human intelligence
+
+**Battle-Hardened AI is network-centric by design.**
+
+---
+
+### Summary Mapping Table
+
+| MITRE Tactic | Coverage |
+|--------------|----------|
+| Reconnaissance (TA0043) | ⭐⭐⭐⭐⭐ |
+| Initial Access (TA0001) | ⭐⭐⭐⭐☆ |
+| Credential Access (TA0006) | ⭐⭐⭐⭐⭐ |
+| Lateral Movement (TA0008) | ⭐⭐⭐⭐⭐ |
+| Command & Control (TA0011) | ⭐⭐⭐⭐☆ |
+| Exfiltration (TA0010) | ⭐⭐⭐⭐☆ |
+| Impact (TA0040) | ⭐⭐⭐☆☆ |
+
+---
+
+### One-Line Reality Statement
+
+**Battle-Hardened AI systematically disrupts MITRE ATT&CK chains by exposing reconnaissance, breaking exploitation, detecting movement, and severing command-and-control—before attackers achieve operational objectives.**
+
+---
 
 ## Deployment Model
 

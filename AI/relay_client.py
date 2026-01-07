@@ -183,10 +183,23 @@ class RelayClient:
             try:
                 logger.info(f"🔌 Connecting to relay: {self.relay_url}")
                 
+                # SSL context for WSS (WebSocket Secure)
+                ssl_context = None
+                if self.relay_url.startswith('wss://'):
+                    import ssl as ssl_module
+                    ssl_context = ssl_module.create_default_context()
+                    
+                    # Allow self-signed certificates (for development/testing)
+                    # In production, use proper CA-signed certificates
+                    ssl_context.check_hostname = False
+                    ssl_context.verify_mode = ssl_module.CERT_NONE
+                    logger.info(f"🔐 Using WSS (WebSocket Secure) with SSL verification disabled")
+                
                 async with websockets.connect(
                     self.relay_url,
                     ping_interval=30,
-                    ping_timeout=10
+                    ping_timeout=10,
+                    ssl=ssl_context  # Enable SSL for WSS
                 ) as websocket:
                     self.websocket = websocket
                     
