@@ -62,6 +62,9 @@ server/crypto_keys/private_key.pem
 server/crypto_keys/public_key.pem
 server/crypto_keys/shared_secret.key
 
+# Relay folder (operator-only infrastructure, not for customers)
+relay/
+
 # Temporary files
 *.tmp
 temp/
