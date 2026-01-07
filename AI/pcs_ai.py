@@ -63,11 +63,10 @@ import ipaddress
 import logging
 import fcntl  # File locking for thread-safe JSON writes
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import List, Dict, Optional, Tuple
 from collections import defaultdict
-import pytz
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -312,13 +311,9 @@ _honeypot_beacons: Dict[str, Dict] = {}  # Tracking beacons for attacker identif
 # Helper function to get current time in configured timezone
 def _get_current_time():
     """Get current datetime in configured timezone from .env"""
-    try:
-        tz_name = os.getenv('TZ', 'Asia/Kuala_Lumpur')
-        tz = pytz.timezone(tz_name)
-        return datetime.now(tz)
-    except:
-        # Fallback to UTC if timezone not found
-        return datetime.now(pytz.UTC)
+    # Use UTC as standard library datetime.timezone provides timezone.utc
+    # For production: integrate with system timezone or zoneinfo for IANA timezones
+    return datetime.now(timezone.utc)
 
 # ============================================================================
 # REAL AI/ML MODELS - Machine Learning Security Intelligence
