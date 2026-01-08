@@ -305,7 +305,7 @@ class ZeroTrustMonitor:
         
         return results
     
-    def get_stats(self, devices: List[Dict] = None) -> Dict:
+    def get_stats(self, devices: Optional[List[Dict]] = None) -> Dict:
         """Get Zero Trust statistics"""
         if devices is None:
             devices = []

@@ -483,3 +483,49 @@ class CausalInferenceEngine:
             logger.error(f"[CAUSAL_INFERENCE] Failed to read analyses: {e}")
         
         return []
+
+
+# Singleton instance
+_causal_engine = None
+
+
+def get_causal_engine() -> CausalInferenceEngine:
+    """Get singleton causal inference engine instance."""
+    global _causal_engine
+    if _causal_engine is None:
+        _causal_engine = CausalInferenceEngine()
+    return _causal_engine
+
+
+def analyze_causality(entity_id: str, event_type: str, event_data: Dict) -> Optional[CausalInferenceResult]:
+    """Convenience function to analyze causality.
+    
+    Args:
+        entity_id: Entity identifier (e.g., IP address)
+        event_type: Type of event ('request', 'login', 'connection', etc.)
+        event_data: Event details including signals and context
+    
+    Returns:
+        CausalInferenceResult if analysis successful, None otherwise
+    """
+    engine = get_causal_engine()
+    
+    # Extract signals from event data
+    signals = event_data.get('existing_signals', [])
+    
+    # Build event object
+    event = {
+        'timestamp': event_data.get('timestamp', datetime.now(timezone.utc).isoformat()),
+        'entity_id': entity_id,
+        'event_type': event_type,
+        **event_data
+    }
+    
+    # Call analyze_root_cause with proper parameters
+    return engine.analyze_root_cause(
+        signals=signals,
+        event=event,
+        config_changes=event_data.get('config_changes'),
+        deployments=event_data.get('deployments'),
+        identity_events=event_data.get('identity_events')
+    )

@@ -168,6 +168,26 @@ except ImportError as e:
     print(f"[WARNING] Explainability engine not available: {e}")
     print("[INFO] Running without AI decision explanations")
 
+# Causal Inference Engine (Layer 19)
+try:
+    from AI.causal_inference import get_causal_engine, analyze_causality, CausalHypothesis, CausalLabel
+    CAUSAL_INFERENCE_AVAILABLE = True
+    print("[CAUSAL] Causal inference engine loaded - root cause analysis")
+except ImportError as e:
+    CAUSAL_INFERENCE_AVAILABLE = False
+    print(f"[WARNING] Causal inference engine not available: {e}")
+    print("[INFO] Running without causal reasoning")
+
+# Trust Degradation Graph (Layer 20)
+try:
+    from AI.trust_graph import get_trust_graph, track_entity, get_trust_score, EntityType
+    TRUST_GRAPH_AVAILABLE = True
+    print("[TRUST-GRAPH] Trust degradation tracking loaded - persistent entity trust")
+except ImportError as e:
+    TRUST_GRAPH_AVAILABLE = False
+    print(f"[WARNING] Trust graph not available: {e}")
+    print("[INFO] Running without trust degradation tracking")
+
 # Advanced Orchestration (Phase 8)
 try:
     from AI.advanced_orchestration import get_orchestrator
@@ -3819,6 +3839,106 @@ def assess_request_pattern(
             should_block=True,
             ip_address=ip_address,
         )
+    
+    # LAYER 19: Causal Inference - Analyze root cause and intent
+    if CAUSAL_INFERENCE_AVAILABLE and META_ENGINE_AVAILABLE:
+        try:
+            # Collect existing signal data for causal analysis
+            signal_data = {
+                'ip_address': ip_address,
+                'endpoint': endpoint,
+                'method': method,
+                'user_agent': user_agent,
+                'headers': headers or {},
+                'existing_signals': [s.to_dict() for s in detection_signals],
+                'timestamp': datetime.utcnow().isoformat()
+            }
+            
+            # Analyze causality
+            causal_result = analyze_causality(
+                entity_id=ip_address,
+                event_type='request',
+                event_data=signal_data
+            )
+            
+            if causal_result:
+                # Add causal inference signal
+                is_causal_threat = causal_result.causal_label in [CausalLabel.EXTERNAL_ATTACK, CausalLabel.INSIDER_MISUSE]
+                causal_confidence = causal_result.confidence
+                
+                if causal_confidence >= 0.5:  # Only add meaningful signals
+                    detection_signals.append(DetectionSignal(
+                        signal_type=SignalType.CAUSAL_INFERENCE,
+                        is_threat=is_causal_threat,
+                        confidence=causal_confidence,
+                        threat_level=MetaThreatLevel.DANGEROUS if is_causal_threat else MetaThreatLevel.INFO,
+                        details=f"Causal analysis: {', '.join(causal_result.primary_causes) if causal_result.primary_causes else 'No clear cause'} (label: {causal_result.causal_label.value})",
+                        timestamp=datetime.utcnow().isoformat(),
+                        metadata={
+                            'causal_label': causal_result.causal_label.value,
+                            'primary_causes': causal_result.primary_causes,
+                            'temporal_correlation': causal_result.temporal_correlation,
+                            'reasoning': causal_result.reasoning
+                        }
+                    ))
+                    
+                    if is_causal_threat:
+                        threats.append(f"🔍 CAUSAL: {', '.join(causal_result.primary_causes[:2])} (label: {causal_result.causal_label.value})")
+        except Exception as e:
+            logger.warning(f"[CAUSAL] Failed to analyze causality: {e}")
+    
+    # LAYER 20: Trust Degradation - Track entity trust over time
+    if TRUST_GRAPH_AVAILABLE and META_ENGINE_AVAILABLE:
+        try:
+            # Track this entity's behavior
+            track_entity(
+                entity_id=ip_address,
+                event_type='request',
+                event_data={
+                    'endpoint': endpoint,
+                    'method': method,
+                    'threat_signals': len([s for s in detection_signals if s.is_threat]),
+                    'total_signals': len(detection_signals),
+                    'timestamp': datetime.utcnow().isoformat()
+                }
+            )
+            
+            # Get current trust score
+            trust_info = get_trust_score(ip_address)
+            
+            if trust_info:
+                trust_score = trust_info.get('trust_score', 60.0)
+                trust_state_str = trust_info.get('state', 'UNKNOWN')
+                # Convert string to TrustState enum if needed
+                try:
+                    trust_state = TrustState[trust_state_str] if isinstance(trust_state_str, str) else trust_state_str
+                except (KeyError, AttributeError):
+                    trust_state = trust_state_str  # Use string if enum conversion fails
+                
+                # Add trust degradation signal
+                is_trust_threat = trust_score < 60.0  # Below MONITOR threshold
+                trust_confidence = 1.0 - (trust_score / 100.0)  # Low trust = high threat confidence
+                
+                if trust_score < 80.0:  # Only signal if not fully trusted
+                    detection_signals.append(DetectionSignal(
+                        signal_type=SignalType.TRUST_DEGRADATION,
+                        is_threat=is_trust_threat,
+                        confidence=trust_confidence if is_trust_threat else (trust_score / 100.0),
+                        threat_level=MetaThreatLevel.CRITICAL if trust_score < 20.0 else MetaThreatLevel.DANGEROUS,
+                        details=f"Trust state: {trust_state_str} (score: {trust_score})",
+                        timestamp=datetime.utcnow().isoformat(),
+                        metadata={
+                            'trust_score': trust_score,
+                            'trust_state': trust_state_str,
+                            'total_events': trust_info.get('total_events', 0),
+                            'threat_events': trust_info.get('threat_events', 0)
+                        }
+                    ))
+                    
+                    if is_trust_threat:
+                        threats.append(f"⚠️ TRUST: Entity in {trust_state_str} state (score: {trust_score})")
+        except Exception as e:
+            logger.warning(f"[TRUST-GRAPH] Failed to track trust: {e}")
     
     # PHASE 4: Check for graph-based threats (lateral movement, C2, exfiltration)
     if GRAPH_INTELLIGENCE_AVAILABLE:

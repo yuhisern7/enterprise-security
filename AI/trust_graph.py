@@ -404,3 +404,77 @@ class TrustDegradationGraph:
                 "critical (<20)": sum(1 for score in trust_scores if score < 20)
             }
         }
+
+
+# Singleton instance
+_trust_graph_instance = None
+
+
+def get_trust_graph() -> TrustDegradationGraph:
+    """Get singleton trust degradation graph instance."""
+    global _trust_graph_instance
+    if _trust_graph_instance is None:
+        _trust_graph_instance = TrustDegradationGraph()
+    return _trust_graph_instance
+
+
+def track_entity(entity_id: str, event_type: str, event_data: Dict,
+                entity_type: EntityType = EntityType.IP_ADDRESS) -> None:
+    """Convenience function to track entity behavior.
+    
+    Args:
+        entity_id: Entity identifier (e.g., IP address)
+        event_type: Type of event for penalty mapping
+        event_data: Event details
+        entity_type: Type of entity (default: IP_ADDRESS)
+    """
+    graph = get_trust_graph()
+    graph.update_trust(
+        entity_id=entity_id,
+        entity_type=entity_type,
+        event_type=event_type,
+        event_details=event_data
+    )
+
+
+def get_trust_score(entity_id: str) -> Optional[Dict]:
+    """Get trust score for an entity.
+    
+    Returns:
+        Dict with keys: trust_score, state, total_events, threat_events
+        None if entity not found
+    """
+    graph = get_trust_graph()
+    entity_data = graph.get_entity_trust(entity_id, EntityType.IP_ADDRESS)
+    
+    if entity_data is None:
+        return None
+    
+    # entity_data is just a float trust score from get_entity_trust
+    # We need to construct a full dict
+    trust_score = entity_data if isinstance(entity_data, float) else 60.0
+    
+    # Determine state from score
+    if trust_score >= 80.0:
+        state = 'TRUSTED'
+    elif trust_score >= 60.0:
+        state = 'NORMAL'
+    elif trust_score >= 40.0:
+        state = 'DEGRADED'
+    elif trust_score >= 20.0:
+        state = 'SUSPICIOUS'
+    else:
+        state = 'HOSTILE'
+    
+    return {
+        'trust_score': trust_score,
+        'state': state,
+        'total_events': 0,  # TODO: Track this in trust graph
+        'threat_events': 0   # TODO: Track this in trust graph
+    }
+
+
+def get_low_trust_entities(threshold: float = 40.0, limit: int = 100) -> List[Dict]:
+    """Get entities with low trust scores."""
+    graph = get_trust_graph()
+    return graph.get_low_trust_entities(threshold, limit)
