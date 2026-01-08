@@ -3431,6 +3431,45 @@ def get_behavioral_stats():
         return jsonify({'error': str(e)}), 500
 
 # ============================================================================
+# MODULE-LEVEL INITIALIZATION (runs on import, regardless of entry point)
+# ============================================================================
+
+# Initialize Relay Client (if enabled)
+print("[DEBUG] Initializing relay client...")
+try:
+    from AI.relay_client import start_relay_client, get_relay_status
+    print("[DEBUG] Relay client module imported successfully")
+    
+    def on_threat_received(threat):
+        """Process threats received from relay"""
+        try:
+            # Just log the threat for now (AI learning integration pending)
+            print(f"[RELAY] 📥 Received threat from {threat.get('source_peer')}: {threat.get('attack_type')} - IP: {threat.get('src_ip')}")
+        except Exception as e:
+            print(f"[RELAY ERROR] Failed to process threat: {e}")
+    
+    print("[DEBUG] Starting relay client...")
+    start_relay_client(on_threat_received)
+    print("[DEBUG] Relay client started, getting status...")
+    relay_status = get_relay_status()
+    
+    if relay_status.get('enabled'):
+        print(f"[RELAY] ⚠️  Connecting to relay server...")
+        print(f"[RELAY] URL: {relay_status.get('relay_url')}")
+        print(f"[RELAY] Peer: {relay_status.get('peer_name')}")
+        if relay_status.get('connected'):
+            print(f"[RELAY] ✅ Connected successfully!")
+        else:
+            print(f"[RELAY] ⏳ Connection in progress...")
+    else:
+        print("[RELAY] Disabled (set RELAY_ENABLED=true in .env)")
+    
+except Exception as e:
+    print(f"[WARNING] Relay client not available: {e}")
+    import traceback
+    traceback.print_exc()
+
+# ============================================================================
 # MAIN APPLICATION ENTRY POINT
 # ============================================================================
 
@@ -3448,28 +3487,6 @@ if __name__ == '__main__':
     print(f"[INFO] Encrypted P2P: https://localhost:{p2p_port} (HTTPS)")
     print(f"[INFO] AI/ML Security Engine: {'ACTIVE' if pcs_ai.ML_AVAILABLE else 'DISABLED (install scikit-learn)'}")
     print("=" * 70)
-    
-    # Initialize Relay Client (if enabled)
-    try:
-        from AI.relay_client import start_relay_client, get_relay_status
-        
-        def on_threat_received(threat):
-            """Process threats received from relay"""
-            try:
-                # Just log the threat for now (AI learning integration pending)
-                print(f"[RELAY] 📥 Received threat from {threat.get('source_peer')}: {threat.get('attack_type')} - IP: {threat.get('src_ip')}")
-            except Exception as e:
-                print(f"[RELAY ERROR] Failed to process threat: {e}")
-        
-        start_relay_client(on_threat_received)
-        relay_status = get_relay_status()
-        
-        if relay_status.get('enabled'):
-            print(f"[RELAY] Connected to: {relay_status.get('relay_url')}")
-            print(f"[RELAY] Peer name: {relay_status.get('peer_name')}")
-        
-    except Exception as e:
-        print(f"[WARNING] Relay client not available: {e}")
     
     # Initialize Signature Distribution System
     try:

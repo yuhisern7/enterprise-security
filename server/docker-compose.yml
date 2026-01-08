@@ -47,6 +47,11 @@ services:
       - SIGNATURE_MODE=${SIGNATURE_MODE:-auto}  # auto, master, or client
       - KERNEL_TELEMETRY_ENABLED=${KERNEL_TELEMETRY_ENABLED:-true}  # MODULE A: eBPF
       - KERNEL_TELEMETRY_INTERFACE=${KERNEL_TELEMETRY_INTERFACE:-eth0}
+      - RELAY_ENABLED=${RELAY_ENABLED:-false}
+      - RELAY_URL=${RELAY_URL:-}
+      - RELAY_CRYPTO_ENABLED=${RELAY_CRYPTO_ENABLED:-true}
+      - PEER_NAME=${PEER_NAME:-linux-node}
+      - CUSTOMER_ID=${CUSTOMER_ID:-}
     
     # Health check (uses HTTPS dashboard port, self-signed cert)
     healthcheck:
