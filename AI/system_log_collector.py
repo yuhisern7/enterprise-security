@@ -21,7 +21,7 @@ import subprocess
 import json
 import logging
 from datetime import datetime, timedelta
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class SystemLogCollector:
 
     def _empty_logs(self, message: Optional[str] = None) -> Dict:
         """Return an empty log structure, optionally with a single info entry."""
-        logs: Dict[str, list] = {
+        logs: Dict[str, Any] = {
             "crashes": [],
             "security": [],
             "authentication": [],

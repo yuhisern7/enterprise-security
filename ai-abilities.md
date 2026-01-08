@@ -84,8 +84,6 @@ Tests follow the same **7-stage pipeline** from the README, plus 3 additional va
 
 ## 0. Quick Reference: 18 Detection Signals → Implementation Files
 
-This maps each of the **18 parallel detection signals** (from README Stage 2) to their implementing modules.
-
 This maps each of the **18 active detection signals** from the README to the concrete files/modules that implement or feed that signal.
 
 1. **eBPF Kernel Telemetry**  

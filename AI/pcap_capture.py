@@ -114,9 +114,11 @@ class PCAPCapture:
                     if line.strip():
                         parts = line.split()
                         if len(parts) >= 5:
+                            # tcpdump format: timestamp protocol src > dst info...
+                            # parts[0]=timestamp, parts[1]=IP, parts[2]=src, parts[3]=>, parts[4]=dst
                             results.append({
                                 'timestamp': parts[0],
-                                'protocol': parts[2] if len(parts) > 2 else 'Unknown',
+                                'protocol': parts[1] if len(parts) > 1 else 'Unknown',
                                 'src_ip': parts[2] if len(parts) > 2 else 'N/A',
                                 'info': ' '.join(parts[3:])
                             })

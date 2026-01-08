@@ -33,11 +33,11 @@ logger = logging.getLogger(__name__)
 # TensorFlow imports with fallback
 try:
     import tensorflow as tf
-    from tensorflow import keras
-    from tensorflow.keras import layers
-    from tensorflow.keras.models import Sequential, load_model
-    from tensorflow.keras.layers import LSTM, Dense, Dropout
-    from tensorflow.keras.optimizers import Adam
+    from tensorflow import keras  # type: ignore[attr-defined]
+    from tensorflow.keras import layers  # type: ignore[import]
+    from tensorflow.keras.models import Sequential, load_model  # type: ignore[import]
+    from tensorflow.keras.layers import LSTM, Dense, Dropout  # type: ignore[import]
+    from tensorflow.keras.optimizers import Adam  # type: ignore[import]
     TF_AVAILABLE = True
 except ImportError:
     TF_AVAILABLE = False
@@ -65,7 +65,7 @@ class StateEvent:
     # Supporting signals
     signature_score: float = 0.0
     heuristic_score: float = 0.0
-    behavioral_features: Dict = None
+    behavioral_features: Optional[Dict] = None
     
     def __post_init__(self):
         if self.behavioral_features is None:
@@ -93,7 +93,7 @@ class SequenceAnalyzer:
     Learns multi-stage attack patterns from ordered events.
     """
     
-    def __init__(self, storage_dir: str = None):
+    def __init__(self, storage_dir: Optional[str] = None):
         if not TF_AVAILABLE:
             raise ImportError("TensorFlow required for sequence analysis. Install: pip install tensorflow")
         
@@ -257,7 +257,8 @@ class SequenceAnalyzer:
         """Initialize or load LSTM model"""
         if os.path.exists(self.model_path):
             try:
-                self.model = load_model(self.model_path)
+                assert TF_AVAILABLE, "TensorFlow not available"
+                self.model = load_model(self.model_path)  # type: ignore[possibly-unbound]
                 self.is_trained = True
                 logger.info(f"[SEQUENCE] Loaded trained LSTM model from {self.model_path}")
             except Exception as e:
@@ -268,21 +269,22 @@ class SequenceAnalyzer:
     
     def _build_model(self):
         """Build LSTM neural network architecture"""
-        self.model = Sequential([
+        assert TF_AVAILABLE, "TensorFlow not available"
+        self.model = Sequential([  # type: ignore[possibly-unbound]
             # LSTM layers
-            LSTM(64, return_sequences=True, input_shape=(self.sequence_length, self.feature_dim)),
-            Dropout(0.2),
-            LSTM(32, return_sequences=False),
-            Dropout(0.2),
+            LSTM(64, return_sequences=True, input_shape=(self.sequence_length, self.feature_dim)),  # type: ignore[possibly-unbound]
+            Dropout(0.2),  # type: ignore[possibly-unbound]
+            LSTM(32, return_sequences=False),  # type: ignore[possibly-unbound]
+            Dropout(0.2),  # type: ignore[possibly-unbound]
             
             # Dense layers for state classification
-            Dense(32, activation='relu'),
-            Dropout(0.2),
-            Dense(self.num_states, activation='softmax')  # Output: probability per state
+            Dense(32, activation='relu'),  # type: ignore[possibly-unbound]
+            Dropout(0.2),  # type: ignore[possibly-unbound]
+            Dense(self.num_states, activation='softmax')  # type: ignore[possibly-unbound]  # Output: probability per state
         ])
         
         self.model.compile(
-            optimizer=Adam(learning_rate=0.001),
+            optimizer=Adam(learning_rate=0.001),  # type: ignore[possibly-unbound]
             loss='categorical_crossentropy',
             metrics=['accuracy']
         )
@@ -324,7 +326,7 @@ class SequenceAnalyzer:
         return transitions
     
     def observe_event(self, entity_id: str, signature_score: float = 0.0,
-                     heuristic_score: float = 0.0, behavioral_features: Dict = None) -> StateEvent:
+                     heuristic_score: float = 0.0, behavioral_features: Optional[Dict] = None) -> StateEvent:
         """
         Observe a security event and classify its state.
         
@@ -428,11 +430,12 @@ class SequenceAnalyzer:
         # Prepare sequence for LSTM
         if self.is_trained and len(sequence) >= self.sequence_length:
             # Use LSTM model
+            assert self.model is not None, "Model not initialized"
             features = self._prepare_sequence_features(sequence[-self.sequence_length:])
             predictions = self.model.predict(np.expand_dims(features, axis=0), verbose=0)[0]
             
             # Get predicted next state
-            next_state_idx = np.argmax(predictions)
+            next_state_idx = int(np.argmax(predictions))
             next_state = self.idx_to_state[next_state_idx]
             next_state_prob = float(predictions[next_state_idx])
             current_state_prob = float(predictions[self.state_to_idx[current_state]])
@@ -440,7 +443,7 @@ class SequenceAnalyzer:
             # Use rule-based transition matrix
             current_idx = self.state_to_idx[current_state]
             predictions = self.transition_probs[current_idx]
-            next_state_idx = np.argmax(predictions)
+            next_state_idx = int(np.argmax(predictions))
             next_state = self.idx_to_state[next_state_idx]
             next_state_prob = float(predictions[next_state_idx])
             current_state_prob = 0.7  # Default confidence for rule-based
@@ -565,6 +568,7 @@ class SequenceAnalyzer:
         
         logger.info(f"[SEQUENCE] Training LSTM on {len(X)} sequences...")
         
+        assert self.model is not None, "Model not initialized"
         history = self.model.fit(
             X, y,
             epochs=epochs,
@@ -576,6 +580,7 @@ class SequenceAnalyzer:
         self.is_trained = True
         
         # Save model
+        assert self.model is not None, "Model not initialized"
         self.model.save(self.model_path)
         logger.info(f"[SEQUENCE] Model saved to {self.model_path}")
         
@@ -668,7 +673,7 @@ class SequenceAnalyzer:
 _sequence_analyzer = None
 
 
-def get_sequence_analyzer() -> SequenceAnalyzer:
+def get_sequence_analyzer() -> Optional[SequenceAnalyzer]:
     """Get or create global sequence analyzer instance"""
     global _sequence_analyzer
     if _sequence_analyzer is None:
@@ -682,7 +687,7 @@ def get_sequence_analyzer() -> SequenceAnalyzer:
 
 # Convenience functions
 def observe_event(entity_id: str, signature_score: float = 0.0,
-                 heuristic_score: float = 0.0, behavioral_features: Dict = None) -> Optional[StateEvent]:
+                 heuristic_score: float = 0.0, behavioral_features: Optional[Dict] = None) -> Optional[StateEvent]:
     """Observe and classify a security event"""
     analyzer = get_sequence_analyzer()
     if analyzer:

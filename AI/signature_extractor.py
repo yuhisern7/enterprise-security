@@ -235,7 +235,7 @@ class SignatureExtractor:
                 except:
                     pass
             
-            if encoding_used:
+            if encoding_used and decoded:
                 chain.append(encoding_used)
                 current = decoded
             else:

@@ -330,7 +330,12 @@ def detect_performance_anomaly(ip_address: str) -> Tuple[bool, float, str]:
     # Latency features
     features.append(metrics['latency']['avg_rtt'])
     features.append(metrics['latency']['jitter'])
-    features.append(metrics['latency']['max_rtt'] - metrics['latency']['min_rtt'])
+    
+    # RTT range (handle uninitialized min/max)
+    min_rtt = metrics['latency']['min_rtt']
+    max_rtt = metrics['latency']['max_rtt']
+    rtt_range = (max_rtt - min_rtt) if min_rtt != float('inf') and max_rtt > 0 else 0.0
+    features.append(rtt_range)
     
     # Packet loss features
     features.append(metrics['packet_loss']['loss_rate'])
@@ -357,7 +362,13 @@ def detect_performance_anomaly(ip_address: str) -> Tuple[bool, float, str]:
                     ip_features.append(np.max(recent_rates) if recent_rates else 0)
                     ip_features.append(m['latency']['avg_rtt'])
                     ip_features.append(m['latency']['jitter'])
-                    ip_features.append(m['latency']['max_rtt'] - m['latency']['min_rtt'])
+                    
+                    # RTT range (handle uninitialized min/max)
+                    min_rtt = m['latency']['min_rtt']
+                    max_rtt = m['latency']['max_rtt']
+                    rtt_range = (max_rtt - min_rtt) if min_rtt != float('inf') and max_rtt > 0 else 0.0
+                    ip_features.append(rtt_range)
+                    
                     ip_features.append(m['packet_loss']['loss_rate'])
                     ip_features.append(m['quality_score'])
                     all_features.append(ip_features)

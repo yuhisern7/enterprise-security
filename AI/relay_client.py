@@ -133,7 +133,8 @@ class RelayClient:
         
         # Add node fingerprint for peer compatibility filtering
         if NODE_FP_ENABLED:
-            node_fp = get_node_fingerprint()
+            assert 'get_node_fingerprint' in globals(), "get_node_fingerprint not available"
+            node_fp = get_node_fingerprint()  # type: ignore[possibly-unbound]
             safe_threat['node_fingerprint'] = {
                 'node_type': node_fp.fingerprint['node_type'],
                 'os': node_fp.fingerprint['os_info']['system'],
@@ -259,7 +260,8 @@ class RelayClient:
                     # Sign message if crypto enabled
                     if CRYPTO_ENABLED:
                         try:
-                            security = get_message_security()
+                            assert 'get_message_security' in globals(), "get_message_security not available"
+                            security = get_message_security()  # type: ignore[possibly-unbound]
                             threat = security.sign_message(threat)
                             logger.debug(f"🔐 Signed threat message with HMAC+RSA")
                         except Exception as e:
@@ -287,7 +289,8 @@ class RelayClient:
                 # Verify signed messages (threats only, control messages are from trusted relay)
                 if msg_type == 'threat' and CRYPTO_ENABLED:
                     try:
-                        security = get_message_security()
+                        assert 'get_message_security' in globals(), "get_message_security not available"
+                        security = get_message_security()  # type: ignore[possibly-unbound]
                         is_valid, reason = security.verify_message(data)
                         
                         if not is_valid:
@@ -333,7 +336,8 @@ class RelayClient:
                     
                     # Check peer compatibility (filter incompatible nodes)
                     if NODE_FP_ENABLED and 'node_fingerprint' in data:
-                        node_fp = get_node_fingerprint()
+                        assert 'get_node_fingerprint' in globals(), "get_node_fingerprint not available"
+                        node_fp = get_node_fingerprint()  # type: ignore[possibly-unbound]
                         peer_fp = data['node_fingerprint']
                         
                         compatibility = node_fp.get_compatibility_score(peer_fp)

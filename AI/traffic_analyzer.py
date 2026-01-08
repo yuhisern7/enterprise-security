@@ -124,21 +124,22 @@ class TrafficAnalyzer:
                         encrypted += 1
                 elif conn.type == 2:  # SOCK_DGRAM = UDP
                     protocols['UDP'] += 1
-                    
-                    # Identify application-aware blocking targets using process + ports
-                    proc_name = ''
-                    if conn.pid:
-                        try:
-                            proc_name = psutil.Process(conn.pid).name().lower()
-                        except (psutil.NoSuchProcess, psutil.AccessDenied):
-                            proc_name = ''
-                    rport = conn.raddr.port if conn.raddr else None
-                    lport = conn.laddr.port if conn.laddr else None
-                    
-                    if proc_name and 'tor' in proc_name:
-                        self.blocked_apps['Tor'] += 1
-                    elif rport in (6881, 6889) or lport in (6881, 6889):  # BitTorrent
-                        self.blocked_apps['BitTorrent'] += 1
+                
+                # Identify application-aware blocking targets using process + ports
+                # (applies to both TCP and UDP)
+                proc_name = ''
+                if conn.pid:
+                    try:
+                        proc_name = psutil.Process(conn.pid).name().lower()
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        proc_name = ''
+                rport = conn.raddr.port if conn.raddr else None
+                lport = conn.laddr.port if conn.laddr else None
+                
+                if proc_name and 'tor' in proc_name:
+                    self.blocked_apps['Tor'] += 1
+                elif rport in (6881, 6889) or lport in (6881, 6889):  # BitTorrent
+                    self.blocked_apps['BitTorrent'] += 1
         except Exception as e:
             print(f"[TRAFFIC] Error analyzing connections: {e}")
         

@@ -28,8 +28,22 @@ import threading
 import logging
 import urllib3
 
-
 logger = logging.getLogger(__name__)
+
+# Optional imports with graceful fallback
+try:
+    import requests
+    REQUESTS_AVAILABLE = True
+except ImportError:
+    REQUESTS_AVAILABLE = False
+    logger.warning("[SIGNATURE DIST] requests library not available - P2P features disabled")
+
+try:
+    from server.server import get_peer_urls  # type: ignore[attr-defined]
+    PEER_DISCOVERY_AVAILABLE = True
+except ImportError:
+    PEER_DISCOVERY_AVAILABLE = False
+    logger.warning("[SIGNATURE DIST] Peer discovery not available - P2P features limited")
 
 SIGNATURE_DIST_DISABLE_SSL_VERIFY = os.getenv("SIGNATURE_DIST_DISABLE_SSL_VERIFY", "false").lower() == "true"
 
@@ -95,7 +109,7 @@ class SignatureDistributionSystem:
     def _load_local_exploitdb(self):
         """Load signatures from local ExploitDB (master mode only)."""
         try:
-            from AI.exploitdb_scraper import get_scraper
+            from AI.exploitdb_scraper import get_scraper  # type: ignore[import]
             scraper = get_scraper()
             
             # Get all learned signatures
@@ -187,15 +201,17 @@ class SignatureDistributionSystem:
     
     def _request_signatures_from_peers(self, attack_type: str) -> Optional[List[Dict]]:
         """Request signatures from P2P peers."""
+        if not REQUESTS_AVAILABLE or not PEER_DISCOVERY_AVAILABLE:
+            return None
+        
         try:
-            import requests
-            from server.server import get_peer_urls
-
-            peer_urls = get_peer_urls()
+            assert 'get_peer_urls' in globals(), "get_peer_urls not available"
+            assert 'requests' in globals(), "requests not available"
+            peer_urls = get_peer_urls()  # type: ignore[possibly-unbound]
 
             for peer_url in peer_urls:
                 try:
-                    response = requests.get(
+                    response = requests.get(  # type: ignore[possibly-unbound]
                         f"{peer_url}/api/signatures/{attack_type}",
                         timeout=5,
                         verify=not SIGNATURE_DIST_DISABLE_SSL_VERIFY,
@@ -255,17 +271,19 @@ class SignatureDistributionSystem:
         if self.mode != "client":
             return
         
+        if not REQUESTS_AVAILABLE or not PEER_DISCOVERY_AVAILABLE:
+            return
+        
         with self._sync_lock:
             try:
-                import requests
-                from server.server import get_peer_urls
-
-                peer_urls = get_peer_urls()
+                assert 'get_peer_urls' in globals(), "get_peer_urls not available"
+                assert 'requests' in globals(), "requests not available"
+                peer_urls = get_peer_urls()  # type: ignore[possibly-unbound]
 
                 for peer_url in peer_urls:
                     try:
                         # Get list of available attack types
-                        response = requests.get(
+                        response = requests.get(  # type: ignore[possibly-unbound]
                             f"{peer_url}/api/signatures/types",
                             timeout=5,
                             verify=not SIGNATURE_DIST_DISABLE_SSL_VERIFY,
