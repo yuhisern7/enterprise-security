@@ -34,6 +34,8 @@ services:
       - DASHBOARD_PORT=${DASHBOARD_PORT:-60000}
       - P2P_PORT=${P2P_PORT:-60001}
       - SIGNATURE_MODE=${SIGNATURE_MODE:-auto}  # auto, master, or client
+      - KERNEL_TELEMETRY_ENABLED=${KERNEL_TELEMETRY_ENABLED:-false}  # MODULE A: eBPF (disabled on Windows)
+      - KERNEL_TELEMETRY_INTERFACE=${KERNEL_TELEMETRY_INTERFACE:-Ethernet}
     
     # Health check (uses HTTPS dashboard port, self-signed cert)
     healthcheck:
