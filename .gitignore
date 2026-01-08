@@ -32,6 +32,10 @@ server/json/*.json
 !server/json/sample_threats.json
 server/json/**/*.json
 
+# Runtime databases (IP reputation, forensics, etc.)
+server/json/*.db
+server/json/**/*.db
+
 # Docker volumes
 docker-volumes/
 
