@@ -4,7 +4,7 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 
 **Pipeline Stages:**
 1. **Data Ingestion & Normalization** → Packet capture, metadata extraction
-2. **18 Parallel Detections** → Independent threat assessments
+2. **20 Parallel Detections** → Independent threat assessments (18 primary + 2 strategic intelligence layers)
 3. **Ensemble Voting** → Weighted consensus decision
 4. **Response Execution** → Firewall blocks, logging, alerts
 5. **Training Extraction** → Privacy-preserving signatures
@@ -18,9 +18,9 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 | Pipeline Stage | Local JSON (server/json/) | Relay JSON (relay/ai_training_materials/) | Purpose |
 |----------------|---------------------------|-------------------------------------------|---------|
 | **Stage 1: Data Ingestion** | `connected_devices.json`, `device_history.json`, `network_monitor_state.json` | N/A | Device discovery, packet capture state |
-| **Stage 2: 18 Parallel Detections** | `threat_log.json`, `dns_security.json`, `tls_fingerprints.json`, `network_graph.json`, `lateral_movement_alerts.json`, `attack_sequences.json`, `behavioral_metrics.json`, `drift_baseline.json`, `drift_reports.json`, `model_lineage.json`, `reputation.db` | N/A | Individual signal outputs |
+| **Stage 2: 20 Parallel Detections** | `threat_log.json`, `dns_security.json`, `tls_fingerprints.json`, `network_graph.json`, `lateral_movement_alerts.json`, `attack_sequences.json`, `behavioral_metrics.json`, `drift_baseline.json`, `drift_reports.json`, `model_lineage.json`, `reputation.db`, `causal_analysis.json`, `trust_graph.json` | N/A | Individual signal outputs (18 primary + 2 strategic) |
 | **Stage 3: Ensemble Voting** | `decision_history.json`, `meta_engine_config.json`, `fp_filter_config.json` | N/A | Weighted voting, thresholds |
-| **Stage 4: Response Execution** | `threat_log.json`, `blocked_ips.json`, `comprehensive_audit.json`, `integrity_violations.json`, `forensic_reports/` | N/A | Actions, logging, alerts |
+| **Stage 4: Response Execution** | `threat_log.json`, `blocked_ips.json`, `comprehensive_audit.json`, `integrity_violations.json`, `forensic_reports/`, `causal_analysis.json`, `trust_graph.json` | N/A | Actions, logging, alerts, causal & trust state |
 | **Stage 5: Training Extraction** | `local_threat_intel.json`, `reputation_export.json` | `ai_signatures/learned_signatures.json`, `reputation_data/`, `training_datasets/`, `explainability_data/` | Privacy-preserving materials |
 | **Stage 6: Relay Sharing** | `crypto_keys/` (HMAC auth) | `global_attacks.json`, `attack_statistics.json`, `ai_signatures/learned_signatures.json`, `threat_intelligence/`, `ml_models/` | Global intelligence |
 | **Stage 7: Continuous Learning** | `drift_baseline.json`, `comprehensive_audit.json` (Byzantine events) | `trained_models/`, `ml_models/` (updated), `training_datasets/` | Retraining, adaptation |
@@ -49,9 +49,11 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 
 ---
 
-### Stage 2: Parallel Multi-Signal Detection (18 Signals)
+### Stage 2: Parallel Multi-Signal Detection (20 Signals)
 
-**Purpose:** 18 independent detection systems produce threat assessments
+**Purpose:** 20 independent detection systems produce threat assessments (18 primary + 2 strategic intelligence layers)
+
+**PRIMARY DETECTION SIGNALS (1-18): Direct threat identification**
 
 **Signal #1: eBPF Kernel Telemetry**
 - `AI/kernel_telemetry.py` — Syscall/network correlation
@@ -139,6 +141,29 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - `server/json/model_lineage.json` — Cryptographic lineage chain
 - `server/json/comprehensive_audit.json` — Lineage/integrity events
 
+**STRATEGIC INTELLIGENCE LAYERS (19-20): Context-aware analysis consuming signals 1-18**
+
+**Signal #19: Causal Inference Engine**
+- `AI/causal_inference.py` — Root cause analysis (WHY attacks happen, not just THAT they happened)
+- `server/json/causal_analysis.json` — Causal inference logs (auto-rotates at 10,000 entries)
+- **Purpose:** Distinguishes legitimate operational changes from disguised attacks
+- **Inputs:** Primary signals (1-18), deployment events, config changes, identity events (login/privilege changes)
+- **Output:** Causal labels (LEGITIMATE_CAUSE, AUTOMATION_SIDE_EFFECT, EXTERNAL_ATTACK, INSIDER_MISUSE, MISCONFIGURATION, UNKNOWN_CAUSE)
+- **Score Modulation:** Downgrade by -20% (legitimate), boost by +15% (attack), route to governance (misconfiguration)
+- **Position:** Runs AFTER primary signals, BEFORE ensemble decision
+- **Privacy:** Metadata-only analysis, no payloads/credentials/PII
+
+**Signal #20: Trust Degradation Graph**
+- `AI/trust_graph.py` — Zero-trust enforcement with persistent entity trust tracking
+- `server/json/trust_graph.json` — Entity trust state (persistent across restarts)
+- **Purpose:** Persistent memory prevents "try again later" strategies via non-linear trust degradation
+- **Tracked Entities:** IPs, devices, user accounts, services, APIs, cloud roles, containers (SHA-256 hashed)
+- **Trust Model:** 0-100 scale, event-weighted penalties (minor_anomaly=-5 to repeated_attack=-50), natural recovery (+1/day capped at 80% baseline)
+- **Actions:** ALLOW (≥80), MONITOR (60-79), RATE_LIMIT (40-59), ISOLATE (20-39), QUARANTINE (<20)
+- **Recidivism:** 3+ attacks in 7 days = exponential penalty
+- **Position:** Influences Stage 4 response severity, tracked by explainability engine (Signal #15)
+- **Privacy:** SHA-256 entity hashing, no PII, statistical scores only
+
 **Additional Detection Support:**
 - `AI/dns_analyzer.py` — DNS tunneling/DGA detection (feeds Signal #2)
 - `server/json/dns_security.json` — DNS analyzer metrics
@@ -148,23 +173,57 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 
 ---
 
-### Stage 3: Ensemble Decision Engine (Weighted Voting)
+### Stage 3: Ensemble Decision Engine (Sequential Intelligence Modulation)
 
-**Purpose:** Combine 18 signals → weighted consensus → threshold decision
+**Purpose:** Combine 20 signals → 5-step sequential modulation → final decision
 
 **AI Files:**
-- `AI/meta_decision_engine.py` — Weighted voting algorithm, authoritative boosting, consensus checks
+- `AI/meta_decision_engine.py` — Weighted voting, causal modulation, trust modulation, override logic
+- `AI/causal_inference.py` — Root cause analysis (Layer 19)
+- `AI/trust_graph.py` — Entity trust scoring (Layer 20)
 - `server/json/meta_engine_config.json` — Signal weights (0.65-0.98)
 - `server/json/decision_history.json` — Per-signal contributions audit
+- `server/json/causal_analysis.json` — Causal inference results
+- `server/json/trust_graph.json` — Entity trust state
 
-**Signal Weighting (configurable):**
-- Honeypot: 0.98, Threat Intel: 0.95, Graph: 0.92, Signature: 0.90, LSTM: 0.85, Behavioral: 0.75, Drift: 0.65
+**5-Step Sequential Modulation Flow:**
+
+**Step 1: Weighted Voting (Primary Signals 1-18)**
+- Calculate base score: Σ(weight × confidence × is_threat) / Σ(weight)
+- Signal weights: Honeypot 0.98, Threat Intel 0.95, Graph 0.92, Signature 0.90, Causal 0.88, LSTM 0.85, Behavioral 0.75, Drift 0.65
+
+**Step 2: Authoritative Signal Boosting**
+- Honeypot (confidence ≥0.7) → force score to 90%+
+- Threat Intel (confidence ≥0.9) → force score to 90%+
+- False Positive Filter (5/5 gates) → boost +10%
+
+**Step 3: Causal Inference Modulation (Layer 19)**
+- LEGITIMATE_CAUSE (≥0.85 confidence) → score -20%
+- AUTOMATION_SIDE_EFFECT (≥0.80 confidence) → score -15%
+- EXTERNAL_ATTACK (≥0.80 confidence) → score +15%
+- INSIDER_MISUSE (≥0.75 confidence) → score +10%
+- MISCONFIGURATION → route to governance (no auto-block)
+- UNKNOWN_CAUSE → human review required
+
+**Step 4: Trust Degradation Modulation (Layer 20)**
+- Trust ≥80 → normal threshold (75%)
+- Trust 60-79 → monitoring (+5% score boost)
+- Trust 40-59 → stricter threshold (65%, +10% boost)
+- Trust 20-39 → very strict (60%, +15% boost)
+- Trust <20 → auto-quarantine (force block)
+
+**Step 5: Final Decision with Override Logic**
+- Trust action "quarantine" → force block regardless of score
+- Trust action "isolate" → block if score ≥60%
+- Otherwise: block if score ≥75% (or ≥70% in APT mode)
 
 **Thresholds:**
-- ≥75% (0.75) → Auto-block
-- ≥70% (0.70 in APT mode) → Auto-block
-- ≥50% (0.50) → Log as threat
+- ≥75% (0.75) → Auto-block (normal mode)
+- ≥70% (0.70) → Auto-block (APT mode)
+- ≥60% (0.60) → Auto-block (low-trust entities, trust <40)
+- ≥50% (0.50) → Log as threat (no block)
 - <50% → Allow
+- Trust <20 → Auto-quarantine + SOC alert (ignores all thresholds)
 
 ---
 

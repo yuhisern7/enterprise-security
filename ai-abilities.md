@@ -30,10 +30,10 @@ Tests follow the same **7-stage pipeline** from the README, plus 3 additional va
 - **Goal:** Verify network_monitor captures traffic → normalizes metadata → feeds into detection signals
 - **Validates README:** "Stage 1: Data Ingestion & Normalization" (packet capture, metadata extraction)
 
-**Stage 2: Parallel Multi-Signal Detection (18 Signals)**
-- **Test:** Core detection pipeline (signatures, ML models, behavioral, LSTM, autoencoder, drift, graph, VPN/Tor, threat intel, FP filter, reputation, explainability, predictive, Byzantine, integrity)
-- **Goal:** All 18 signals fire independently → produce threat assessments → visible in local JSON
-- **Validates README:** "Stage 2: Parallel Multi-Signal Detection" (all 18 detection systems)
+**Stage 2: Parallel Multi-Signal Detection (20 Signals)**
+- **Test:** Core detection pipeline (18 primary signals: signatures, ML models, behavioral, LSTM, autoencoder, drift, graph, VPN/Tor, threat intel, FP filter, reputation, explainability, predictive, Byzantine, integrity) + 2 strategic intelligence layers (causal inference, trust degradation)
+- **Goal:** All 20 signals fire independently → produce threat assessments → visible in local JSON
+- **Validates README:** "Stage 2: Parallel Multi-Signal Detection" (20 detection systems: 18 primary + 2 strategic)
 
 **Stage 3: Ensemble Decision Engine (Weighted Voting)**
 - **Test:** Meta-decision engine combines signals → weighted consensus → threshold decisions (block/log/allow)
@@ -139,6 +139,29 @@ This maps each of the **20 active detection signals** from the README to the con
 
 18. **Integrity Monitoring (model & telemetry tampering)**  
 	Files: AI/self_protection.py; AI/emergency_killswitch.py; AI/cryptographic_lineage.py; AI/crypto_security.py; AI/policy_governance.py; server/json/integrity_violations.json; server/json/comprehensive_audit.json and audit_archive/ (governance/integrity + cryptographic lineage audit trail); AI/pcs_ai.py (routes integrity/self-protection and lineage/drift signals into the ensemble).
+
+**STRATEGIC INTELLIGENCE LAYERS (19-20):** Context-aware analysis consuming primary signals 1-18
+
+19. **Causal Inference Engine (root cause analysis)**  
+	Files: AI/causal_inference.py (585 lines, production-ready); AI/meta_decision_engine.py (_apply_causal_modulation method); server/json/causal_analysis.json (auto-rotates at 10,000 entries); AI/pcs_ai.py (integration point).  
+	**Purpose:** Distinguishes legitimate operational changes from disguised attacks via causal graphs (not correlations) and counterfactual testing.  
+	**Inputs:** DetectionSignal objects (1-18), deployment logs, config change events, identity events (login/privilege change), time-series metadata.  
+	**Output:** CausalInferenceResult with causal_label (LEGITIMATE_CAUSE/MISCONFIGURATION/AUTOMATION_SIDE_EFFECT/EXTERNAL_ATTACK/INSIDER_MISUSE/UNKNOWN_CAUSE), confidence (0.0-1.0), primary_causes[], non_causes[], reasoning.  
+	**Score Modulation:** Downgrade by -20% (legitimate), boost by +15% (attack), route to governance (misconfiguration), require human review (unknown).  
+	**Position:** Runs AFTER signals 1-18, BEFORE final ensemble decision.  
+	**Weight:** 0.88 (high reliability, context provides strong signal).  
+	**Privacy:** Metadata-only analysis, no payloads/credentials/PII.
+
+20. **Trust Degradation Graph (zero-trust entity tracking)**  
+	Files: AI/trust_graph.py (422 lines, production-ready); AI/meta_decision_engine.py (_apply_trust_modulation method); server/json/trust_graph.json (persistent across restarts); AI/pcs_ai.py (integration point).  
+	**Purpose:** Persistent memory prevents "try again later" strategies via non-linear trust degradation with permanent scarring (recovery capped at 80% of baseline).  
+	**Tracked Entities:** IPs, devices, user accounts, services, APIs, cloud roles, containers (SHA-256 hashed).  
+	**Trust Score:** 0-100 per entity, event-weighted penalties (minor_anomaly=-5 to repeated_attack=-50), natural recovery (+1/day capped at 80% baseline).  
+	**Trust Thresholds & Actions:** ≥80 (ALLOW), 60-79 (MONITOR, +5% score boost), 40-59 (RATE_LIMIT, +10% boost, 65% block threshold), 20-39 (ISOLATE, +15% boost, 60% block threshold), <20 (QUARANTINE, force block regardless of ensemble score).  
+	**Recidivism:** 3+ attacks in 7 days = exponential penalty.  
+	**Position:** Influences Stage 4 response severity, tracked by explainability engine (Signal #15).  
+	**Weight:** 0.90 (very high reliability, persistent memory prevents evasion).  
+	**Privacy:** SHA-256 entity hashing, no PII, statistical scores only.
 
 ---
 

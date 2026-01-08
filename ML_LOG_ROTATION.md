@@ -11,7 +11,7 @@ The following three critical ML training log files have automatic rotation:
 1. **`server/json/threat_log.json`** - Primary threat detection log
    - Location: Customer nodes (server/json/)
    - Updated by: `AI/pcs_ai.py` → `_save_threat_log()`
-   - Content: All detected threats from 18 parallel detection signals
+   - Content: All detected threats from 20 parallel detection signals (18 primary + 2 strategic intelligence layers)
 
 2. **`server/json/comprehensive_audit.json`** - Comprehensive audit trail
    - Location: Customer nodes (server/json/)

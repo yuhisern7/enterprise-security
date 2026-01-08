@@ -207,7 +207,7 @@ As long as these are set correctly in `server/.env` and the relay services are r
 ## Pipeline Stage Summary
 
 **Stage 1-5 (Customer Node):**
-- Data Ingestion → 18 Parallel Detections → Ensemble Voting → Response Execution → Training Material Extraction
+- Data Ingestion → 20 Parallel Detections (18 primary + 2 strategic) → Ensemble Voting → Response Execution → Training Material Extraction
 - All handled by `AI/` + `server/` folders
 - Uses local signatures from `AI/learned_signatures.json` (Stage 2 Signal #2)
 

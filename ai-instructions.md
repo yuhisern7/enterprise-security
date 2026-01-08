@@ -53,13 +53,13 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 
 ### Stage 2: Parallel Multi-Signal Detection (20 Signals)
 
-**README:** "⚡ 20 PARALLEL DETECTIONS (each signal produces independent threat assessment)"
+**README:** "⚡ 20 PARALLEL DETECTIONS (18 primary + 2 strategic intelligence layers)"
 
 **Implementation:** Each signal = independent AI module
 
 **Primary Detection Signals (1-18):** Direct threat detection from network traffic and system events.
 
-**Strategic Intelligence Layers (19-20):** Contextual analysis consuming outputs from signals 1-18.
+**Strategic Intelligence Layers (19-20):** Context-aware analysis consuming outputs from signals 1-18, deployment logs, config changes, and entity history.
 
 | # | Signal | Module(s) | Model/Data | Output |
 |---|--------|-----------|------------|--------|
@@ -96,8 +96,53 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 **Strategic Intelligence Layer Architecture:**
 
 **Layer 19 (Causal Inference Engine):**
+- **Module:** `AI/causal_inference.py` (585 lines, production-ready)
 - **Position:** Runs AFTER signals 1-18, BEFORE final ensemble decision
-- **Inputs:** DetectionSignal objects, system config change logs, deployment/CI events, identity events (login, privilege change), time-series metadata, network topology graph, cloud control-plane events
+- **Inputs:** DetectionSignal objects (1-18), system config change logs, deployment/CI events, identity events (login, privilege change), time-series metadata
+- **Core Logic:** Builds causal graphs (not correlations), tests counterfactuals, classifies root causes
+- **Causal Labels:** LEGITIMATE_CAUSE, MISCONFIGURATION, AUTOMATION_SIDE_EFFECT, EXTERNAL_ATTACK, INSIDER_MISUSE, UNKNOWN_CAUSE
+- **Temporal Correlation Windows:**
+  - Deployment events: 3600 seconds (1 hour)
+  - Config changes: 1800 seconds (30 minutes)
+  - Identity events: 900 seconds (15 minutes)
+- **Counterfactual Testing:** "Would this anomaly exist WITHOUT the deployment/config change?"
+- **Score Modulation:**
+  - Legitimate causes: -20% (legitimate_cause), -15% (automation_side_effect)
+  - Malicious causes: +15% (external_attack), +10% (insider_misuse)
+  - Misconfiguration: Route to governance queue (no auto-block)
+  - Unknown: Require human review
+- **Output:** CausalInferenceResult with causal_label, confidence (0.0-1.0), primary_causes[], non_causes[], reasoning
+- **JSON Persistence:** `server/json/causal_analysis.json` (auto-rotates at 10,000 entries)
+- **Privacy:** Never sees raw payloads, credentials, exploit code, or PII - operates only on detection outputs and metadata
+- **Weight in Ensemble:** 0.88 (high reliability, context provides strong signal)
+
+**Layer 20 (Trust Degradation Graph):**
+- **Module:** `AI/trust_graph.py` (422 lines, production-ready)
+- **Position:** Influences Stage 4 response severity, tracked by explainability engine (Signal #15)
+- **Tracked Entities:** IPs, devices, user accounts, services, APIs, cloud roles, containers
+- **Trust Score:** 0-100 per entity (internal baseline=100, external configurable baseline=60)
+- **Degradation Model:** Non-linear decay with event-weighted penalties
+  - minor_anomaly: -5
+  - failed_auth: -10
+  - suspicious_behavior: -15
+  - confirmed_attack: -25
+  - lateral_movement: -30
+  - data_exfiltration: -35
+  - integrity_breach: -40
+  - repeated_attack: -50 (exponential for recidivists)
+- **Recovery:** +1 trust per 24h without incident (slow recovery, capped at 80% of baseline - trust NEVER fully recovers)
+- **Recidivism Detection:** 3+ attacks in 7 days = exponential penalty
+- **Trust Thresholds & Actions:**
+  - ≥80: ALLOW (normal operation)
+  - 60-79: MONITOR (increased monitoring, +5% score boost)
+  - 40-59: RATE_LIMIT (connection throttling, +10% score boost, stricter 65% block threshold)
+  - 20-39: ISOLATE (deny-by-default firewall, +15% score boost, stricter 60% block threshold)
+  - <20: QUARANTINE (automatic quarantine + SOC alert, force block regardless of ensemble score)
+- **Output:** TrustStateUpdate with entity_id, previous_trust, current_trust, recommended_action, reasons[], timestamp
+- **JSON Persistence:** `server/json/trust_graph.json` (persistent across restarts)
+- **Privacy:** SHA-256 entity hashing, no PII retention, statistical scores only
+- **Weight in Ensemble:** 0.90 (very high reliability, persistent memory prevents evasion)
+- **Integration:** Feeds from Historical Reputation (Layer 14), influences response severity in Stage 4
 - **Forbidden Inputs:** Raw packet payloads, credentials, exploit code, PII
 - **Core Logic:** Builds causal graphs (not correlations), tests counterfactuals ("Would this anomaly exist without this config change?"), classifies root cause
 - **Causal Labels:** `LEGITIMATE_CAUSE`, `MISCONFIGURATION`, `AUTOMATION_SIDE_EFFECT`, `EXTERNAL_ATTACK`, `INSIDER_MISUSE`, `UNKNOWN_CAUSE`
