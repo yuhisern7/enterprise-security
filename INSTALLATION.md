@@ -7,9 +7,14 @@ Complete installation instructions for Windows, Linux, and macOS.
 ## 📋 Table of Contents
 
 - [Prerequisites](#prerequisites)
-- [Linux Installation](#linux-installation)
-- [Windows Installation](#windows-installation)
-- [macOS Installation](#macos-installation)
+- [Step 1: Install Docker](#step-1-install-docker)
+  - [Linux Docker Installation](#linux-docker-installation)
+  - [Windows Docker Installation](#windows-docker-installation)
+  - [macOS Docker Installation](#macos-docker-installation)
+- [Step 2: Install Battle-Hardened AI](#step-2-install-battle-hardened-ai)
+  - [Linux](#linux)
+  - [Windows](#windows)
+  - [macOS](#macos)
 - [Post-Installation](#post-installation)
 - [Troubleshooting](#troubleshooting)
 
@@ -17,57 +22,53 @@ Complete installation instructions for Windows, Linux, and macOS.
 
 ## Prerequisites
 
-### ✅ Required on All Platforms
+### ✅ System Requirements
 
-| Requirement | Minimum Version | Check Command |
-|-------------|----------------|---------------|
-| **Docker Engine** | 20.10.0+ | `docker --version` |
-| **Docker Compose** | v2.0.0+ | `docker compose version` |
-| **Disk Space** | 2 GB free | 5 GB recommended |
-| **RAM** | 2 GB | 4 GB recommended |
-| **Internet** | Required for initial build | |
+| Requirement | Minimum | Recommended |
+|-------------|---------|-------------|
+| **Operating System** | Windows 10 (build 19041+), Linux (Ubuntu 20.04+), macOS 11+ | Windows 11, Ubuntu 22.04+, macOS 13+ |
+| **Disk Space** | 2 GB free | 5 GB free |
+| **RAM** | 2 GB | 4 GB |
+| **Internet** | Required for installation | |
+| **Ports** | 60000 (Dashboard), 60001 (Relay - optional) | |
 
-### ✅ Required Ports
+### ❌ NOT Required (Everything Runs Inside Docker)
 
-- **60000** - HTTPS Dashboard (required)
-- **60001** - WebSocket Relay Client (optional, for global mesh)
+- ❌ Python installation
+- ❌ pip or package managers
+- ❌ System libraries (tcpdump, openssl, gcc)
+- ❌ Python packages (scikit-learn, tensorflow, flask)
+- ❌ SSL certificate setup
+- ❌ Admin/root access (except for Docker installation)
 
-### ❌ NOT Required (Included in Docker Container)
-
-- ❌ Python 3
-- ❌ pip
-- ❌ System packages (tcpdump, openssl, gcc)
-- ❌ Python libraries (scikit-learn, tensorflow, flask)
-- ❌ SSL certificates (auto-generated)
-- ❌ Root access for Python
+**You ONLY need Docker installed. Everything else is included in the container.**
 
 ---
 
-## Linux Installation
+## Step 1: Install Docker
 
-### Supported Distributions
+**⚠️ IMPORTANT:** You must install Docker BEFORE proceeding. Choose your operating system below:
 
-- Ubuntu 20.04+, 22.04, 24.04
-- Debian 11+, 12
-- RHEL 8+, 9
-- CentOS Stream 8+
-- Fedora 36+
-- Arch Linux (latest)
+---
 
-### Quick Install (Automated Script)
+### Linux Docker Installation
+
+#### Supported Linux Distributions
+
+✅ **Ubuntu** 20.04, 22.04, 24.04  
+✅ **Debian** 11, 12  
+✅ **RHEL/CentOS** 8+, 9  
+✅ **Fedora** 36+  
+✅ **Kali Linux** (all versions)
+
+---
+
+#### Ubuntu / Debian / Kali Linux
+
+**Copy and paste these commands into your terminal:**
 
 ```bash
-# Download and run installer
-curl -fsSL https://raw.githubusercontent.com/yuhisern7/battle-hardened-ai/main/install.sh | bash
-```
-
-### Manual Installation
-
-#### Step 1: Install Docker
-
-**Ubuntu/Debian:**
-```bash
-# Update package index
+# Update system
 sudo apt-get update
 
 # Install prerequisites
@@ -78,7 +79,7 @@ sudo install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
-# Add Docker repository
+# Add Docker repository (works for Ubuntu, Debian, Kali)
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
@@ -88,17 +89,53 @@ echo \
 sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# Add user to docker group (avoid sudo)
+# Start Docker service
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add your user to docker group (avoid needing sudo)
 sudo usermod -aG docker $USER
 
-# Logout and login again for group changes to take effect
+# Apply group changes (IMPORTANT - choose one option)
+# Option 1: Logout and login again (recommended)
+# Option 2: Run this command (temporary for current session)
+newgrp docker
 ```
 
-**RHEL/CentOS/Fedora:**
+**Verify Docker Installation:**
+
 ```bash
-# Install Docker
+docker --version
+# Should show: Docker version 20.10.0 or higher
+
+docker compose version
+# Should show: Docker Compose version v2.0.0 or higher
+
+docker ps
+# Should show empty list (no containers running yet)
+```
+
+**If you see "permission denied" error:**
+```bash
+sudo usermod -aG docker $USER
+newgrp docker
+# OR logout and login again
+```
+
+---
+
+#### RHEL / CentOS / Fedora
+
+**Copy and paste these commands:**
+
+```bash
+# Install prerequisites
 sudo dnf -y install dnf-plugins-core
+
+# Add Docker repository
 sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+
+# Install Docker
 sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Start Docker
@@ -107,57 +144,328 @@ sudo systemctl enable docker
 
 # Add user to docker group
 sudo usermod -aG docker $USER
+newgrp docker
 ```
 
-#### Step 2: Install Battle-Hardened AI
+**Verify:**
+```bash
+docker --version
+docker compose version
+docker ps
+```
+
+---
+
+### Windows Docker Installation
+
+#### Requirements
+
+- **Windows 10** (64-bit, build 19041 or higher) OR **Windows 11**
+- **Admin access** (only for installation)
+- **Internet connection**
+
+#### Step-by-Step Guide
+
+**1. Enable WSL2 (Windows Subsystem for Linux 2)**
+
+Open **PowerShell as Administrator** and run:
+
+```powershell
+wsl --install
+```
+
+**Restart your computer** when prompted.
+
+After restart, WSL will finish installing. You'll be asked to create a Ubuntu username and password (choose any - you won't need it for Battle-Hardened AI).
+
+**2. Download Docker Desktop**
+
+- Go to: https://www.docker.com/products/docker-desktop/
+- Click **"Download for Windows"**
+- Run the downloaded file: `Docker Desktop Installer.exe`
+
+**3. Install Docker Desktop**
+
+During installation:
+- ✅ **Check:** "Use WSL 2 instead of Hyper-V"
+- ✅ **Check:** "Add shortcut to desktop"
+- Click **"Ok"** and wait for installation to complete
+
+**4. Restart Computer** (required)
+
+**5. Start Docker Desktop**
+
+- Double-click **Docker Desktop** icon on desktop
+- Wait for notification: **"Docker Desktop is running"**
+- You may see a tutorial - you can skip it
+
+**6. Verify Docker Installation**
+
+Open **PowerShell** (regular user, NOT administrator) and run:
+
+```powershell
+docker --version
+# Should show: Docker version 20.10.0 or higher
+
+docker compose version  
+# Should show: Docker Compose version v2.0.0 or higher
+
+docker ps
+# Should show: CONTAINER ID   IMAGE   COMMAND   CREATED   STATUS   PORTS   NAMES
+# (empty list - this is correct)
+```
+
+**✅ Docker is now installed!** Keep Docker Desktop running in the background.
+
+---
+
+### macOS Docker Installation
+
+#### Requirements
+
+- **macOS 11 (Big Sur)** or higher
+- **Admin access**
+- **Internet connection**
+
+**⚠️ Note:** macOS is supported but NOT recommended for production use. Best for testing/development only.
+
+#### Installation Steps
+
+**1. Download Docker Desktop**
+
+- Go to: https://www.docker.com/products/docker-desktop/
+- Click **"Download for Mac"**
+- Choose your Mac type:
+  - **Apple Silicon (M1/M2/M3)** - newer Macs
+  - **Intel Chip** - older Macs
+
+**2. Install Docker Desktop**
+
+- Open the downloaded `Docker.dmg` file
+- Drag the **Docker** icon to **Applications** folder
+- Open **Docker** from Applications folder
+- Grant permissions when asked
+- Wait for **"Docker Desktop is running"** notification
+
+**3. Verify Installation**
+
+Open **Terminal** and run:
 
 ```bash
-# Clone repository
-git clone https://github.com/YOUR_USERNAME/battle-hardened-ai.git
-cd battle-hardened-ai/server
+docker --version
+# Should show: Docker version 20.10.0 or higher
 
-# Create configuration file
+docker compose version
+# Should show: Docker Compose version v2.0.0 or higher
+
+docker ps
+# Should show empty container list
+```
+
+**✅ Docker is now installed!**
+
+---
+
+## Step 2: Install Battle-Hardened AI
+
+**⚠️ Make sure Docker is installed and running first!**
+
+Choose your operating system:
+
+---
+
+### Linux
+
+### Linux
+
+**1. Clone Repository**
+
+```bash
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/battle-hardened-ai.git
+
+# Navigate to server directory
+cd battle-hardened-ai/server
+```
+
+**2. Create Configuration File**
+
+```bash
 cat > .env << 'EOF'
 # Battle-Hardened AI Configuration
 TZ=Asia/Kuala_Lumpur
 NETWORK_INTERFACE=eth0
 
-# Optional: Enable relay connection for global threat sharing
+# Optional: Global Threat Sharing (requires VPS relay server)
 RELAY_ENABLED=false
 # RELAY_URL=wss://YOUR_VPS_IP:60001
-# MODEL_SYNC_URL=https://YOUR_VPS_IP:60002
 RELAY_CRYPTO_ENABLED=true
 EOF
+```
 
-# Build and start container
+**3. Build and Start**
+
+```bash
+# Build and start the container (takes 3-5 minutes first time)
 docker compose up -d --build
 
-# Wait for startup
+# Wait for container to start
 sleep 10
 
 # Check status
-docker ps | grep battle-hardened-ai
+docker ps
 ```
 
-#### Step 3: Verify Installation
+You should see:
+```
+CONTAINER ID   IMAGE                  STATUS                    PORTS
+abc123def456   battle-hardened-ai    Up 10 seconds (healthy)   0.0.0.0:60000-60001->60000-60001/tcp
+```
+
+**4. Verify It's Working**
 
 ```bash
 # Check logs
-docker logs battle-hardened-ai --tail=50
+docker logs battle-hardened-ai --tail 20
 
-# Should see:
+# You should see:
 # ✅ ML models initialized successfully
 # [ENTERPRISE] System ready for commercial deployment
-
-# Test dashboard
-curl -k https://localhost:60000
 ```
 
-#### Step 4: Access Dashboard
+**5. Access Dashboard**
 
 Open browser: **https://localhost:60000**
 
-Accept self-signed SSL certificate warning (one-time).
+Accept the SSL certificate warning (click "Advanced" → "Proceed to localhost").
+
+**✅ Installation Complete!** The dashboard should show "0 threats detected" and green status indicators.
+
+---
+
+### Windows
+
+**1. Clone Repository**
+
+Open **PowerShell** (regular user, NOT administrator):
+
+```powershell
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/battle-hardened-ai.git
+
+# Navigate to server directory
+cd battle-hardened-ai\server
+```
+
+**2. Create Configuration File**
+
+```powershell
+# Create .env file
+@"
+# Battle-Hardened AI Configuration
+TZ=Asia/Kuala_Lumpur
+NETWORK_INTERFACE=eth0
+
+# Optional: Global Threat Sharing (requires VPS relay server)
+RELAY_ENABLED=false
+# RELAY_URL=wss://YOUR_VPS_IP:60001
+RELAY_CRYPTO_ENABLED=true
+"@ | Out-File -Encoding UTF8 .env
+```
+
+**3. Build and Start**
+
+```powershell
+# Build and start (takes 3-5 minutes first time)
+docker compose -f docker-compose.windows.yml up -d --build
+
+# Wait for container to start
+Start-Sleep -Seconds 10
+
+# Check status
+docker ps
+```
+
+You should see:
+```
+CONTAINER ID   IMAGE                  STATUS                    PORTS
+abc123def456   battle-hardened-ai    Up 10 seconds (healthy)   0.0.0.0:60000-60001->60000-60001/tcp
+```
+
+**4. Verify It's Working**
+
+```powershell
+# Check logs
+docker logs battle-hardened-ai --tail 20
+
+# You should see:
+# ✅ ML models initialized successfully
+# [ENTERPRISE] System ready for commercial deployment
+```
+
+**5. Access Dashboard**
+
+Open browser: **https://localhost:60000**
+
+Accept certificate warning (click "Advanced" → "Proceed to localhost (unsafe)").
+
+**✅ Installation Complete!**
+
+---
+
+### macOS
+
+**1. Clone Repository**
+
+Open **Terminal**:
+
+```bash
+# Clone repository
+git clone https://github.com/YOUR_USERNAME/battle-hardened-ai.git
+
+# Navigate to server directory
+cd battle-hardened-ai/server
+```
+
+**2. Create Configuration File**
+
+```bash
+cat > .env << 'EOF'
+# Battle-Hardened AI Configuration
+TZ=America/New_York
+NETWORK_INTERFACE=en0
+
+# Optional: Global Threat Sharing
+RELAY_ENABLED=false
+# RELAY_URL=wss://YOUR_VPS_IP:60001
+RELAY_CRYPTO_ENABLED=true
+EOF
+```
+
+**3. Build and Start**
+
+```bash
+# Build and start
+docker compose up -d --build
+
+# Wait
+sleep 10
+
+# Check status
+docker ps
+```
+
+**4. Verify**
+
+```bash
+docker logs battle-hardened-ai --tail 20
+```
+
+**5. Access Dashboard**
+
+Browser: **https://localhost:60000**
+
+**✅ Done!**
 
 ---
 
