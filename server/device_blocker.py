@@ -80,24 +80,67 @@ class DeviceBlocker:
         self._find_gateway()
     
     def _find_gateway(self):
-        """Find the network gateway (router)"""
+        """Find the network gateway (router) - cross-platform"""
+        if not SCAPY_AVAILABLE:
+            print("[BLOCKER] Scapy not available - device blocking disabled")
+            return
+            
         try:
             import subprocess
+            import platform
             import re
+            from scapy.all import ARP, Ether, srp
             
-            # Get default gateway
-            result = subprocess.check_output(['ip', 'route']).decode()
-            for line in result.split('\n'):
-                if 'default' in line:
-                    self.gateway_ip = line.split()[2]
-                    break
+            # Get default gateway based on OS
+            system = platform.system()
+            
+            if system == "Linux":
+                # Linux: use 'ip route' command
+                try:
+                    result = subprocess.check_output(['ip', 'route'], stderr=subprocess.DEVNULL).decode()
+                    for line in result.split('\n'):
+                        if 'default' in line:
+                            parts = line.split()
+                            if len(parts) >= 3:
+                                self.gateway_ip = parts[2]
+                                break
+                except FileNotFoundError:
+                    # Fallback to 'route' command if 'ip' not available
+                    result = subprocess.check_output(['route', '-n'], stderr=subprocess.DEVNULL).decode()
+                    for line in result.split('\n'):
+                        if line.startswith('0.0.0.0'):
+                            parts = line.split()
+                            if len(parts) >= 2:
+                                self.gateway_ip = parts[1]
+                                break
+                                
+            elif system == "Windows":
+                # Windows: use 'route print' command
+                result = subprocess.check_output(['route', 'print'], stderr=subprocess.DEVNULL).decode()
+                for line in result.split('\n'):
+                    if '0.0.0.0' in line and 'On-link' not in line:
+                        parts = line.split()
+                        # Find the gateway IP (usually third column after 0.0.0.0)
+                        if len(parts) >= 3:
+                            potential_gw = parts[2]
+                            # Validate it's an IP address
+                            if re.match(r'^\d+\.\d+\.\d+\.\d+$', potential_gw):
+                                self.gateway_ip = potential_gw
+                                break
+                                
+            elif system == "Darwin":  # macOS
+                result = subprocess.check_output(['route', '-n', 'get', 'default'], stderr=subprocess.DEVNULL).decode()
+                for line in result.split('\n'):
+                    if 'gateway:' in line:
+                        self.gateway_ip = line.split(':')[1].strip()
+                        break
             
             if not self.gateway_ip:
-                print("[ERROR] Could not find gateway IP")
+                print(f"[ERROR] Could not find gateway IP on {system}")
+                print("[BLOCKER] Device blocking disabled (gateway not detected)")
                 return
             
             # Get gateway MAC via ARP
-            from scapy.all import ARP, Ether, srp
             arp = ARP(pdst=self.gateway_ip)
             ether = Ether(dst="ff:ff:ff:ff:ff:ff")
             packet = ether/arp
@@ -110,16 +153,31 @@ class DeviceBlocker:
                 # Get local interface MAC
                 try:
                     self.local_mac = get_if_hwaddr(conf.iface)
-                except:
-                    self.local_mac = "00:00:00:00:00:00"
+                except Exception:
+                    # Fallback: try to get any interface MAC
+                    try:
+                        import netifaces
+                        interfaces = netifaces.interfaces()
+                        for iface in interfaces:
+                            try:
+                                self.local_mac = get_if_hwaddr(iface)
+                                if self.local_mac and self.local_mac != "00:00:00:00:00:00":
+                                    break
+                            except:
+                                continue
+                    except ImportError:
+                        self.local_mac = "00:00:00:00:00:00"
                 
                 print(f"[BLOCKER] Gateway: {self.gateway_ip} ({self.gateway_mac})")
                 print(f"[BLOCKER] Local MAC: {self.local_mac}")
+                print(f"[BLOCKER] ✅ Device blocking ready")
             else:
-                print("[ERROR] Could not find gateway MAC")
+                print("[ERROR] Could not find gateway MAC via ARP")
+                print("[BLOCKER] Device blocking disabled (gateway MAC not found)")
         
         except Exception as e:
             print(f"[ERROR] Gateway detection failed: {e}")
+            print("[BLOCKER] Device blocking disabled")
     
     def block_device(self, ip, mac):
         """
@@ -199,6 +257,11 @@ class DeviceBlocker:
         
         Sends packets every 2 seconds telling the device we are the gateway
         """
+        if not SCAPY_AVAILABLE:
+            return
+            
+        from scapy.all import ARP, Ether, sendp
+        
         print(f"[BLOCKER] Starting ARP spoof loop for {target_ip}")
         
         while _blocker_running and target_mac in _blocked_devices:
@@ -239,6 +302,11 @@ class DeviceBlocker:
         """
         Send correct ARP packets to restore normal gateway connection
         """
+        if not SCAPY_AVAILABLE:
+            return
+            
+        from scapy.all import ARP, Ether, sendp
+        
         try:
             # Send correct ARP: "Gateway is at REAL gateway MAC"
             correct_arp = ARP(

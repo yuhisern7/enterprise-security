@@ -30,8 +30,9 @@ RUN pip install --no-cache-dir --default-timeout=1000 --retries 5 -r requirement
 # Copy AI folder (contains pcs_ai.py, dashboard, and ml_models)
 COPY AI/ AI/
 
-# Copy crypto keys (customers must place 3 key files in server/crypto_keys/ before building)
-COPY server/crypto_keys/ ml_models/crypto_keys/
+# Create ml_models crypto_keys directory and copy customer keys
+RUN mkdir -p /app/ml_models/crypto_keys
+COPY server/crypto_keys/ /app/ml_models/crypto_keys/
 
 # Copy server files
 COPY server/server.py .

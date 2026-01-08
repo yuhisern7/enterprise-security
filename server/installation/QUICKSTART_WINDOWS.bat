@@ -31,8 +31,8 @@ docker compose -f docker-compose.windows.yml up -d --build
 
 echo.
 echo Container starting...
-echo Dashboard: http://localhost:60000
-echo P2P Port: https://localhost:60001
+echo Dashboard: https://localhost:60000 (HTTPS - Accept SSL warning)
+echo P2P Port: wss://localhost:60001
 echo.
 echo Waiting for container to be healthy...
 timeout /t 30 /nobreak >nul

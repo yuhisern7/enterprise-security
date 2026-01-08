@@ -7,14 +7,18 @@ import requests
 import time
 import sys
 import os
+import urllib3
 
-BASE_URL = f"http://localhost:{os.getenv('DASHBOARD_PORT', '60000')}"
+# Disable SSL warnings for self-signed certificates in testing
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+BASE_URL = f"https://localhost:{os.getenv('DASHBOARD_PORT', '60000')}"
 
 def test_connection():
     """Test if server is running"""
     print("🔍 Testing server connection...")
     try:
-        response = requests.get(BASE_URL, timeout=5)
+        response = requests.get(BASE_URL, timeout=5, verify=False)
         if response.status_code == 200:
             print("✅ Server is running!")
             return True
@@ -45,7 +49,7 @@ def test_attack_detection():
     for name, endpoint in attacks:
         try:
             print(f"  Testing {name}...", end=" ")
-            response = requests.get(BASE_URL + endpoint, timeout=5)
+            response = requests.get(BASE_URL + endpoint, timeout=5, verify=False)
             print("✅ Sent")
             detected += 1
             time.sleep(0.5)
@@ -68,7 +72,7 @@ def test_api():
     for endpoint in endpoints:
         try:
             print(f"  Testing {endpoint}...", end=" ")
-            response = requests.get(BASE_URL + endpoint, timeout=5)
+            response = requests.get(BASE_URL + endpoint, timeout=5, verify=False)
             if response.status_code == 200:
                 print("✅ OK")
             else:

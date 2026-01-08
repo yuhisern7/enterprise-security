@@ -107,19 +107,39 @@ else
     echo "⚠️  No firewall detected. Manually open port 60001 if needed."
 fi
 
-# Run setup
+# Setup server directory
 echo ""
-echo "🚀 Running deployment setup..."
-chmod +x setup_peer.sh
-./setup_peer.sh
+echo "🚀 Setting up server..."
+cd server
+
+# Create necessary directories
+mkdir -p json json/compliance_reports json/performance_metrics
+mkdir -p crypto_keys
+
+# Initialize JSON files
+echo "[]" > json/threat_log.json
+echo "[]" > json/blocked_ips.json
+echo "{}" > json/visualization_data.json
+
+# Copy environment template
+if [ ! -f ".env" ]; then
+    cp .env.linux .env
+    echo "✅ Created .env from template (configure RELAY_API_URL if using Premium mode)"
+fi
+
+# Start Docker container
+echo ""
+echo "🚀 Starting container..."
+docker compose up -d --build
 
 echo ""
 echo "=========================================="
 echo "✅ DEPLOYMENT COMPLETE!"
 echo "=========================================="
 echo ""
-echo "📊 Dashboard URL: http://$PUBLIC_IP:60000"
-echo "🌐 P2P Sync URL: https://$PUBLIC_IP:60001"
+echo "📊 Dashboard URL: https://$PUBLIC_IP:60000 (HTTPS - Secure)"
+echo "   ⚠️  Browser will show SSL warning (self-signed cert) - this is NORMAL"
+echo "🌐 P2P Sync URL: wss://$PUBLIC_IP:60001"
 echo ""
 echo "⚠️  IMPORTANT: Dashboard port 60000 is for internal use only!"
 echo "   Only share P2P URL (port 60001) with other containers."
