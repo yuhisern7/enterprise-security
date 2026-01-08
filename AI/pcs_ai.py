@@ -568,6 +568,13 @@ def _load_threat_data() -> None:
             with open(_THREAT_LOG_FILE, 'r') as f:
                 _threat_log = json.load(f)
             print(f"[SECURITY] Loaded {len(_threat_log)} threat events from disk")
+        else:
+            # Load sample threats for fresh installations
+            sample_file = os.path.join(os.path.dirname(__file__), '..', 'server', 'json', 'sample_threats.json')
+            if os.path.exists(sample_file):
+                with open(sample_file, 'r') as f:
+                    _threat_log = json.load(f)
+                print(f"[SECURITY] Fresh installation detected - loaded {len(_threat_log)} sample threats for training")
     except Exception as e:
         print(f"[WARNING] Failed to load threat log: {e}")
     

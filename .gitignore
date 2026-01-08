@@ -27,7 +27,9 @@ server/json/device_history.json
 server/json/connected_devices.json
 
 # All other runtime JSON under server/json (per-section data, behavior, forensics, etc.)
+# But KEEP sample_threats.json for fresh installations
 server/json/*.json
+!server/json/sample_threats.json
 server/json/**/*.json
 
 # Docker volumes
