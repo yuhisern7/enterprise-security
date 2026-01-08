@@ -21,7 +21,7 @@ class SOARIntegration:
         self.keys_file = os.path.join(json_dir, 'api_keys.json')
         self.stats_file = os.path.join(json_dir, 'api_stats.json')
         self.keys = self.load_keys()
-        self.stats = {'total_requests': 0, 'last_request': None}
+        self.stats = {'total_requests': 0, 'last_request': None, 'request_timings': []}
         self.load_stats()
         
     def load_keys(self) -> List[Dict]:
@@ -103,6 +103,7 @@ class SOARIntegration:
     
     def validate_key(self, api_key: str) -> bool:
         """Validate an API key"""
+        start_time = datetime.now()
         for key in self.keys:
             if key['key'] == api_key:
                 # Update usage stats
@@ -110,24 +111,35 @@ class SOARIntegration:
                 key['requests'] = key.get('requests', 0) + 1
                 self.save_keys()
                 
+                # Track request latency (in milliseconds)
+                elapsed = (datetime.now() - start_time).total_seconds() * 1000
                 self.stats['total_requests'] += 1
                 self.stats['last_request'] = datetime.now().isoformat()
+                
+                # Keep last 1000 request timings for accurate average
+                if 'request_timings' not in self.stats:
+                    self.stats['request_timings'] = []
+                self.stats['request_timings'].append(elapsed)
+                if len(self.stats['request_timings']) > 1000:
+                    self.stats['request_timings'] = self.stats['request_timings'][-1000:]
+                
                 self.save_stats()
                 return True
         return False
     
     def get_stats(self) -> Dict:
         """Get API usage statistics"""
-        # Calculate average latency (simulated based on request count)
+        # Calculate real average latency from actual request timings
         total_reqs = self.stats.get('total_requests', 0)
-        avg_latency = 5.2 if total_reqs > 100 else 8.7 if total_reqs > 10 else 12.3
+        request_timings = self.stats.get('request_timings', [])
+        avg_latency = sum(request_timings) / len(request_timings) if request_timings else 0.0
         
         return {
             'total_keys': len(self.keys),
             'active_keys': len([k for k in self.keys if k.get('last_used')]),
             'total_requests': total_reqs,
             'last_request': self.stats.get('last_request'),
-            'avg_latency_ms': avg_latency
+            'avg_latency_ms': round(avg_latency, 2)
         }
 
 # Global instance

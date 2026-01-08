@@ -13,6 +13,7 @@ import sys
 import logging
 import time
 import socket
+import platform
 from report_generator import generate_html_report
 
 # Setup logging
@@ -1389,6 +1390,46 @@ def get_attack_chains():
         }), 500
 
 
+@app.route('/api/graph-intelligence/demo-attack-chains', methods=['POST'])
+def generate_demo_attack_chains():
+    """Generate demo attack chains for visualization testing."""
+    try:
+        from AI.graph_intelligence import get_graph_intelligence
+        import time
+        
+        graph = get_graph_intelligence()
+        
+        # Simulate lateral movement attack (APT-style)
+        attacker = "203.0.113.50"
+        targets = ["192.168.1.10", "192.168.1.11", "192.168.1.12", "192.168.1.13"]
+        
+        # Create attack chain with short delays
+        for i, target in enumerate(targets):
+            if i > 0:
+                # Lateral movement: compromised host attacking next host
+                graph.add_connection(targets[i-1], target, 22, "TCP", 1024)
+            else:
+                # Initial compromise from external attacker
+                graph.add_connection(attacker, target, 22, "TCP", 1024)
+            time.sleep(0.05)
+        
+        # Simulate C2 botnet pattern
+        c2_server = "198.51.100.10"
+        for i in range(8):
+            bot = f"192.168.2.{i+10}"
+            graph.add_connection(c2_server, bot, 443, "TCP", 512)
+        
+        # Trigger lateral movement detection
+        graph.detect_lateral_movement(time_window_minutes=1, min_hops=2)
+        
+        logger.info("[DEMO] Generated demo attack chains for visualization")
+        return jsonify({'success': True, 'message': 'Demo attack chains generated'})
+        
+    except Exception as e:
+        logger.error(f"[API] Demo attack chains error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/api/explainability/decisions', methods=['GET'])
 def get_explainability_decisions():
     """Get AI decision explanations (Phase 7)."""
@@ -2073,39 +2114,75 @@ def get_performance_metrics():
         import socket
         import subprocess
         
-        # Try to get physical network interface speed from ethtool (host system)
+        # Try to get physical network interface speed (cross-platform)
         link_speed_mbps = 0
-        try:
-            # Common interface names
-            interfaces = ['eth0', 'eno1', 'enp0s3', 'wlan0', 'wlo1', 'ens18']
-            for iface in interfaces:
-                try:
-                    result = subprocess.run(
-                        ['ethtool', iface],
-                        capture_output=True,
-                        text=True,
-                        timeout=1
-                    )
-                    if result.returncode == 0:
-                        for line in result.stdout.split('\n'):
-                            if 'Speed:' in line:
-                                speed_str = line.split('Speed:')[1].strip()
-                                if 'Mb/s' in speed_str:
-                                    link_speed_mbps = int(speed_str.replace('Mb/s', '').strip())
-                                elif 'Gb/s' in speed_str:
-                                    link_speed_mbps = int(float(speed_str.replace('Gb/s', '').strip()) * 1000)
-                                break
-                        if link_speed_mbps > 0:
-                            break
-                except Exception:
-                    continue
-        except Exception:
-            pass
+        platform_system = platform.system()
         
-        # If ethtool failed, try to detect from common speeds (fallback)
+        # Windows: Use PowerShell to get actual link speed
+        if platform_system == 'Windows':
+            try:
+                # Get link speed using PowerShell Get-NetAdapter
+                result = subprocess.run(
+                    ['powershell', '-Command', 
+                     'Get-NetAdapter | Where-Object {$_.Status -eq "Up"} | Select-Object -First 1 -ExpandProperty LinkSpeed'],
+                    capture_output=True,
+                    text=True,
+                    timeout=2
+                )
+                if result.returncode == 0 and result.stdout.strip():
+                    speed_str = result.stdout.strip()
+                    # Parse formats like "1 Gbps", "100 Mbps", "10 Gbps"
+                    if 'Gbps' in speed_str:
+                        link_speed_mbps = int(float(speed_str.replace('Gbps', '').strip()) * 1000)
+                    elif 'Mbps' in speed_str:
+                        link_speed_mbps = int(speed_str.replace('Mbps', '').strip())
+            except Exception:
+                pass
+        
+        # Linux/Unix: Use ethtool
+        else:
+            try:
+                # Common interface names
+                interfaces = ['eth0', 'eno1', 'enp0s3', 'wlan0', 'wlo1', 'ens18']
+                for iface in interfaces:
+                    try:
+                        result = subprocess.run(
+                            ['ethtool', iface],
+                            capture_output=True,
+                            text=True,
+                            timeout=1
+                        )
+                        if result.returncode == 0:
+                            for line in result.stdout.split('\n'):
+                                if 'Speed:' in line:
+                                    speed_str = line.split('Speed:')[1].strip()
+                                    if 'Mb/s' in speed_str:
+                                        link_speed_mbps = int(speed_str.replace('Mb/s', '').strip())
+                                    elif 'Gb/s' in speed_str:
+                                        link_speed_mbps = int(float(speed_str.replace('Gb/s', '').strip()) * 1000)
+                                    break
+                            if link_speed_mbps > 0:
+                                break
+                    except Exception:
+                        continue
+            except Exception:
+                pass
+        
+        # If detection failed, use psutil to get stats as estimate (NOT hardcoded)
         if link_speed_mbps == 0:
-            # Assume Gigabit Ethernet as common default
-            link_speed_mbps = 1000
+            try:
+                # Try to estimate from psutil network stats (better than hardcoded value)
+                addrs = psutil.net_if_stats()
+                for iface, stats in addrs.items():
+                    if stats.isup and stats.speed > 0:
+                        link_speed_mbps = stats.speed
+                        break
+            except Exception:
+                pass
+        
+        # Only use fallback if all detection methods failed
+        if link_speed_mbps == 0:
+            link_speed_mbps = 0  # Show 0 instead of fake 1000
         
         # Calculate current throughput
         current_bandwidth = 0.0
