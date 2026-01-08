@@ -140,7 +140,6 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - `server/json/comprehensive_audit.json` — Lineage/integrity events
 
 **Additional Detection Support:**
-- `AI/file_rotation.py` — **[Stage 4 & 6: ML Training Log Management]** Automatic file rotation utility for ML training logs. Rotates `threat_log.json`, `comprehensive_audit.json`, and `global_attacks.json` at 1GB limit with numeric suffixes (_1, _2, _3, etc.) to prevent unbounded growth while preserving all attack data for ML training.
 - `AI/dns_analyzer.py` — DNS tunneling/DGA detection (feeds Signal #2)
 - `server/json/dns_security.json` — DNS analyzer metrics
 - `AI/tls_fingerprint.py` — Encrypted C2 detection (feeds Signal #8)
@@ -183,6 +182,7 @@ This document maps each file in `AI/`, `server/`, and `relay/` folders to the **
 - `AI/soar_api.py`, `AI/soar_workflows.py` — SOAR integration
 - `AI/policy_governance.py` — Approval workflows
 - `AI/emergency_killswitch.py` — SAFE_MODE override
+- `AI/file_rotation.py` — ML training log rotation utility (auto-rotates at 1GB)
 - `server/json/approval_requests.json` — Pending approvals
 - `server/json/comprehensive_audit.json` — Central audit log (all THREAT_DETECTED/INTEGRITY_VIOLATION/SYSTEM_ERROR events)
 - `server/json/integrity_violations.json` — Self-protection violations

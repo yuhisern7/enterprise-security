@@ -31,6 +31,26 @@ docker exec battle-hardened-ai python3 -c "from AI.relay_client import get_relay
 docker logs battle-hardened-ai | Select-String "RELAY" | Select-Object -Last 20
 ```
 
+### macOS (Terminal)
+```bash
+# Check relay connection status
+docker exec battle-hardened-ai python3 -c "
+from AI.relay_client import get_relay_status
+import json
+status = get_relay_status()
+print(json.dumps(status, indent=2))
+print('\n' + '='*50)
+if status.get('connected'):
+    print('✅ CONNECTED TO RELAY SERVER!')
+else:
+    print('❌ Not connected')
+    print(f\"Connection errors: {status.get('connection_errors', 0)}\")
+"
+
+# Check recent relay logs
+docker logs battle-hardened-ai 2>&1 | grep -E "RELAY" | tail -20
+```
+
 ---
 
 ## Common Error: "Errno 111 - Connection Refused"
@@ -127,6 +147,58 @@ docker logs battle-hardened-ai | Select-String "RELAY" | Select-Object -Last 10
 
 ---
 
+### macOS (Terminal)
+
+**Step 1: Allow outbound connections through macOS Firewall**
+
+**Option A: Using System Preferences (Recommended)**
+```bash
+# Check if firewall is enabled
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate
+
+# If enabled, add Docker to allowed applications
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /Applications/Docker.app
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblockapp /Applications/Docker.app
+```
+
+**Option B: Using pfctl (Advanced)**
+```bash
+# Create pf rule file for relay outbound connections
+sudo tee /etc/pf.anchors/battle-hardened-ai > /dev/null <<EOF
+# Allow outbound connections to Battle-Hardened AI relay server
+pass out proto tcp from any to 165.22.108.8 port {60001, 60002}
+EOF
+
+# Load the anchor into pf.conf if not already present
+if ! sudo grep -q "battle-hardened-ai" /etc/pf.conf; then
+    echo "load anchor \"battle-hardened-ai\" from \"/etc/pf.anchors/battle-hardened-ai\"" | sudo tee -a /etc/pf.conf
+fi
+
+# Enable and reload pf
+sudo pfctl -e -f /etc/pf.conf 2>/dev/null || sudo pfctl -f /etc/pf.conf
+```
+
+**Step 2: Restart container after firewall update**
+```bash
+cd ~/workspace/battle-hardened-ai/server
+docker compose restart
+
+# Wait for container to fully start
+sleep 15
+
+# Verify connection
+docker logs battle-hardened-ai 2>&1 | grep -E "RELAY" | tail -10
+```
+
+**Expected after fix:**
+```
+[RELAY] ✅ Connected to relay server
+[RELAY] Peer: macos-node
+[RELAY] Active peers: 3
+```
+
+---
+
 ## Diagnostic Tests
 
 ### Test 1: Basic Connectivity to VPS
@@ -151,6 +223,19 @@ Test-NetConnection -ComputerName 165.22.108.8 -Port 60001
 
 # Test HTTPS port 60002
 Invoke-WebRequest -Uri "https://165.22.108.8:60002/stats" -SkipCertificateCheck
+```
+
+**macOS:**
+```bash
+# Test if port 60001 is reachable (should connect if open)
+nc -zv 165.22.108.8 60001
+
+# Alternative: Use telnet (may need to install: brew install telnet)
+telnet 165.22.108.8 60001
+# Press Ctrl+] then type 'quit' to exit if connected
+
+# Test HTTPS port 60002 (Model Distribution API)
+curl -k -v https://165.22.108.8:60002/stats
 ```
 
 **Expected Results:**
@@ -186,6 +271,18 @@ docker exec battle-hardened-ai env | Select-String "RELAY"
 # PEER_NAME=windows-node
 ```
 
+**macOS:**
+```bash
+# Check if RELAY_URL is set correctly inside container
+docker exec battle-hardened-ai env | grep RELAY
+
+# Expected output:
+# RELAY_ENABLED=true
+# RELAY_URL=wss://165.22.108.8:60001
+# RELAY_CRYPTO_ENABLED=true
+# PEER_NAME=macos-node
+```
+
 ---
 
 ### Test 3: Check Firewall Rules
@@ -210,6 +307,21 @@ Get-NetFirewallRule -DisplayName "*Relay*" | Format-List DisplayName,Enabled,Dir
 
 # Check specific rule
 Get-NetFirewallRule -DisplayName "Battle-Hardened AI Relay Outbound" | Get-NetFirewallPortFilter
+```
+
+**macOS:**
+```bash
+# Check if macOS firewall is enabled
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --getglobalstate
+
+# Check allowed applications
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --listapps | grep -i docker
+
+# Check pf rules (if using pfctl method)
+sudo pfctl -sr 2>/dev/null | grep 165.22.108.8
+
+# View loaded pf anchors
+sudo pfctl -s Anchors 2>/dev/null
 ```
 
 ---
@@ -248,6 +360,32 @@ except Exception as e:
 docker exec battle-hardened-ai python3 -c "import socket; import sys; print('Testing connection to VPS 165.22.108.8:60001...'); sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM); sock.settimeout(5); result = sock.connect_ex(('165.22.108.8', 60001)); sock.close(); print('✅ SUCCESS: Port 60001 is REACHABLE' if result == 0 else f'❌ FAILED: Port 60001 is BLOCKED (code: {result})')"
 ```
 
+**macOS:**
+```bash
+# Test connectivity from INSIDE container using Python
+docker exec battle-hardened-ai python3 -c "
+import socket
+import sys
+
+print('Testing connection to VPS 165.22.108.8:60001...')
+try:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(5)
+    result = sock.connect_ex(('165.22.108.8', 60001))
+    sock.close()
+    
+    if result == 0:
+        print('✅ SUCCESS: Port 60001 is REACHABLE from container')
+        sys.exit(0)
+    else:
+        print(f'❌ FAILED: Port 60001 is BLOCKED (error code: {result})')
+        sys.exit(1)
+except Exception as e:
+    print(f'❌ ERROR: {e}')
+    sys.exit(1)
+"
+```
+
 ---
 
 ### Test 5: Check Your Public IP
@@ -267,6 +405,15 @@ curl ifconfig.me
 Invoke-RestMethod -Uri "https://ifconfig.me"
 
 # Should match: 118.100.245.156 (if same network as working Windows client)
+```
+
+**macOS:**
+```bash
+# Check your public IP address
+curl ifconfig.me
+
+# VPS sees Windows client as: 118.100.245.156
+# Compare your IP - if different network, may need VPS firewall adjustment
 ```
 
 ---
@@ -384,6 +531,21 @@ cat docker-compose.windows.yml | Select-String "ports:"
 # Restart Docker Desktop if network issues persist
 ```
 
+**macOS Solution:**
+```bash
+# macOS uses bridge mode - ensure ports are mapped
+cat docker-compose.yml | grep -A 2 "ports:"
+# Should show: - "60000:60000"
+
+# Restart Docker Desktop if network issues persist
+# From menu bar: Docker icon → Restart
+
+# Or via command line:
+osascript -e 'quit app "Docker"'
+sleep 5
+open -a Docker
+```
+
 ---
 
 ### Issue 3: ISP or Corporate Firewall Blocking WebSocket
@@ -434,6 +596,23 @@ Get-Content .env | Select-String "RELAY"
 
 # If missing or wrong, edit .env and restart
 notepad .env
+docker compose restart
+```
+
+**macOS Solution:**
+```bash
+# Check .env file
+cat ~/workspace/battle-hardened-ai/server/.env | grep RELAY
+
+# Should contain:
+# RELAY_ENABLED=true
+# RELAY_URL=wss://165.22.108.8:60001
+# RELAY_CRYPTO_ENABLED=true
+# PEER_NAME=macos-node
+
+# If missing or wrong, edit .env and restart
+nano ~/workspace/battle-hardened-ai/server/.env
+# Or use: vim, open -e, or TextEdit
 docker compose restart
 ```
 

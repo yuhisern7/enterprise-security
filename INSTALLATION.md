@@ -326,10 +326,14 @@ abc123def456   battle-hardened-ai    Up 10 seconds (healthy)   0.0.0.0:60000-600
 
 ```bash
 # Check logs
-docker logs battle-hardened-ai --tail 20
+docker logs battle-hardened-ai --tail 30
 
 # You should see:
-# ✅ ML models initialized successfully
+# [AI] 💡 Generating synthetic training data for immediate deployment...
+# [AI] ✅ Anomaly Detector trained on synthetic data
+# [AI] ✅ Threat Classifier trained: 10 classes
+# [AI] ✅ IP Reputation trained on synthetic data
+# [RELAY] WebSocket relay client loaded - unlimited global peers
 # [ENTERPRISE] System ready for commercial deployment
 ```
 
@@ -660,9 +664,9 @@ chmod +x install-linux.sh
 
 ---
 
-## Windows Installation
+### Windows Installation (Detailed Guide)
 
-### Supported Versions
+**Supported Versions:**
 
 - Windows 10 (64-bit, build 19041+)
 - Windows 11 (all versions)
@@ -890,9 +894,9 @@ powershell -ExecutionPolicy Bypass -File install-windows.ps1
 
 ---
 
-## macOS Installation
+### macOS Installation (Detailed Guide)
 
-### Supported Versions
+**Supported Versions:**
 
 - macOS 11 (Big Sur) or higher
 - macOS 12 (Monterey)

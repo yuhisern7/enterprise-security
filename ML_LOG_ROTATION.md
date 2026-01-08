@@ -40,7 +40,7 @@ threat_log.json (999 MB)
 threat_log.json (999 MB) → threat_log_1.json (renamed)
 threat_log.json (new file, starts empty)
 
-# After threat_log_1.json reaches 1GB:
+# After threat_log.json reaches 1GB again:
 threat_log_1.json (1 GB - preserved)
 threat_log.json (999 MB) → threat_log_2.json (renamed)
 threat_log.json (new file, starts empty)

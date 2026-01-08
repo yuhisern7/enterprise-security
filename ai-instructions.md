@@ -38,10 +38,16 @@ Stage 7: Continuous Learning
 **Data Flow:**
 ```
 Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocols, timestamps)
-→ schema normalization → feeds into 18 detection signals
+→ schema normalization → normalized event object
 ```
 
 **JSON Persistence:** `server/json/` (or `/app/json/` in Docker)
+
+**Stage 1 → Stage 2 Transition:**
+1. Network monitor creates normalized event: `{"src_ip": "...", "dst_ip": "...", "src_port": ..., "protocol": "...", "timestamp": "...", ...}`
+2. Event passed to `AI/pcs_ai.py` → `assess_threat(event)` method
+3. `assess_threat()` orchestrates all 18 detection signals in parallel using the same event object
+4. Each signal produces independent `DetectionSignal` object → fed into Stage 3 ensemble
 
 ---
 
@@ -78,6 +84,22 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 - **Behavioral (Signal #6):** `detect_low_and_slow()`, `detect_off_hours_activity()`, `detect_credential_reuse()`
 - **LSTM (Signal #7):** Campaign pattern matching (slow_burn, smash_and_grab, lateral_spread)
 - **Graph (Signal #10):** Weight increased 0.88→0.92 for lateral movement detection
+
+**Stage 2 Output Format:**
+Each signal produces:
+```python
+DetectionSignal(
+    signal_type=SignalType.SIGNATURE,  # or HONEYPOT, LSTM, etc.
+    is_threat=True,  # Boolean: is this signal detecting a threat?
+    confidence=0.92,  # Float 0.0-1.0: how confident is the signal?
+    details={...}    # Dict: signal-specific metadata
+)
+```
+
+**Stage 2 → Stage 3 Transition:**
+1. All 18 signals complete analysis → produce list of `DetectionSignal` objects
+2. Signals routed through `AI/false_positive_filter.py` (5-gate validation) → filters out low-confidence/whitelisted signals
+3. Filtered signals passed to `AI/meta_decision_engine.py` → weighted voting begins
 
 ---
 
@@ -118,6 +140,14 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 **Audit Trail:** `server/json/decision_history.json` (per-signal contributions)
 **Output:** `EnsembleDecision(threat_level, should_block, weighted_score, reasons)`
 
+**Stage 3 → Stage 4 Transition:**
+1. Ensemble engine calculates `weighted_score` (0.0-1.0) from all filtered signals
+2. Decision threshold applied:
+   - `≥ 0.75` (or 0.70 in APT mode): `should_block=True` → Stage 4 firewall block
+   - `≥ 0.50`: `should_block=False` but `threat_level=HIGH` → Stage 4 logs threat (no block)
+   - `< 0.50`: `threat_level=LOW` → allow, minimal logging
+3. `EnsembleDecision` object returned to `AI/pcs_ai.py` → triggers Stage 4 response actions
+
 ---
 
 ### Stage 4: Response Execution (Policy-Governed)
@@ -137,8 +167,8 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 | **SOAR Integration** | `AI/soar_api.py` | REST API to external platforms |
 
 **Multi-Surface Logging:**
-- `threat_log.json` — Primary threat log
-- `comprehensive_audit.json` — All THREAT_DETECTED/INTEGRITY_VIOLATION/SYSTEM_ERROR events
+- `threat_log.json` — Primary threat log *(auto-rotates at 1GB, see `AI/file_rotation.py`)*
+- `comprehensive_audit.json` — All THREAT_DETECTED/INTEGRITY_VIOLATION/SYSTEM_ERROR events *(auto-rotates at 1GB)*
 - `attack_sequences.json` — LSTM kill-chain progressions
 - `lateral_movement_alerts.json` — Graph intelligence hop chains
 - `behavioral_metrics.json` — Per-IP heuristics
@@ -148,10 +178,20 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 - `forensic_reports/*.json` — Explainability outputs
 - `decision_history.json` — Ensemble voting records
 
+**Note:** Files marked with *(auto-rotates at 1GB)* use `AI/file_rotation.py` to prevent unbounded growth. ML training reads all rotation files (`threat_log.json`, `threat_log_1.json`, `threat_log_2.json`, etc.) to preserve complete attack history. See `ML_LOG_ROTATION.md` for details.
+
 **Policy Governance:**
 - `AI/policy_governance.py` — Approval workflows
 - `server/json/approval_requests.json` — Pending approvals
 - `AI/emergency_killswitch.py` — SAFE_MODE override
+
+**Stage 4 → Stage 5 Transition:**
+1. Stage 4 writes attack details to `threat_log.json`, `comprehensive_audit.json`, and signal-specific logs
+2. Background extraction jobs scan logs periodically (every hour):
+   - `AI/signature_extractor.py` reads `threat_log.json` → extracts attack patterns → writes `extracted_signatures.json`
+   - `AI/reputation_tracker.py` reads `threat_log.json` → updates `reputation.db` with attacker IPs
+   - `AI/graph_intelligence.py` reads `lateral_movement_alerts.json` → updates `network_graph.json`
+3. Extracted materials staged locally in `server/json/` → ready for Stage 6 relay push
 
 ---
 
@@ -161,13 +201,22 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 
 **Implementation:**
 
-| Material Type | Module | Output Location | Privacy Protection |
-|--------------|--------|-----------------|-------------------|
-| **Signatures** | `AI/signature_extractor.py` | `relay/ai_training_materials/ai_signatures/learned_signatures.json` | Patterns only, zero exploit code |
-| **Behavioral Stats** | `AI/behavioral_heuristics.py` | Training datasets | Connection rate, port entropy (anonymized) |
-| **Reputation** | `AI/reputation_tracker.py` | `relay/ai_training_materials/reputation_data/` | SHA-256 hashed IPs (not raw) |
-| **Graph Topology** | `AI/graph_intelligence.py` | `relay/ai_training_materials/training_datasets/graph_topology.json` | A→B→C labels (not real IPs) |
-| **Model Weights** | `relay/ai_retraining.py` | `relay/ai_training_materials/ml_models/*.pkl` | Weight deltas only |
+**Customer-Side Extraction (Local Staging):**
+
+| Material Type | Module | Local Staging | Privacy Protection |
+|--------------|--------|---------------|-------------------|
+| **Signatures** | `AI/signature_extractor.py` | `server/json/extracted_signatures.json` | Patterns only, zero exploit code |
+| **Behavioral Stats** | `AI/behavioral_heuristics.py` | `server/json/behavioral_metrics.json` | Connection rate, port entropy (anonymized) |
+| **Reputation** | `AI/reputation_tracker.py` | `server/json/reputation.db` | SHA-256 hashed IPs (not raw) |
+| **Graph Topology** | `AI/graph_intelligence.py` | `server/json/network_graph.json` | A→B→C labels (not real IPs) |
+
+**Relay-Side Storage (After Stage 6 Push):**
+- Signatures → `relay/ai_training_materials/ai_signatures/learned_signatures.json`
+- Reputation → `relay/ai_training_materials/reputation_data/`
+- Graph patterns → `relay/ai_training_materials/training_datasets/graph_topology.json`
+- Attack records → `relay/ai_training_materials/global_attacks.json`
+
+**Stage 5 → Stage 6 Flow:** Customer extracts materials locally → `AI/relay_client.py` pushes to relay (every hour) → relay aggregates into training datasets
 
 **Privacy Guarantees:**
 - ✅ No raw exploit payloads stored
@@ -217,6 +266,15 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 - `relay/exploitdb_scraper.py` — ExploitDB integration (3,066+ patterns)
 - `relay/threat_crawler.py` — OSINT aggregation (VirusTotal, AbuseIPDB, URLhaus, MalwareBazaar)
 
+**Stage 6 → Stage 7 Transition:**
+1. Customer nodes push training materials to relay (every hour) → relay stores in `ai_training_materials/`
+2. Relay aggregates data from all customer nodes worldwide:
+   - Signatures merged into `learned_signatures.json` (deduplicated)
+   - Attack records appended to `global_attacks.json` (grows continuously, rotates at 1GB)
+   - Reputation data consolidated into `reputation_data/`
+3. Aggregated dataset triggers Stage 7 retraining (weekly) → new models trained → distributed back to customers
+4. **Critical:** `global_attacks.json` uses `AI/file_rotation.py` - ML training reads ALL rotation files (`global_attacks.json`, `global_attacks_1.json`, etc.) to preserve complete training history
+
 ---
 
 ### Stage 7: Continuous Learning Loop
@@ -260,6 +318,18 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 - **Human Validation:** SOC analyst confirms/rejects → ML improvement
 - **False Positive Reports:** Whitelist updates → FP filter tuning
 - **SOAR Playbook Results:** Successful remediation → reinforcement learning
+
+**Stage 7 → Stage 1 Feedback Loop (Completes the 7-Stage Cycle):**
+1. Relay retrains models using aggregated data → new `*.pkl` and `*.keras` models created
+2. Models pushed to relay API → `relay/training_sync_api.py` serves updated models
+3. Customer nodes pull updates (every 6 hours) via `AI/training_sync_client.py`:
+   - New signatures downloaded → merged into local signature database
+   - New ML models downloaded → replace old models in `ml_models/` and `AI/ml_models/`
+   - `AI/byzantine_federated_learning.py` validates updates (94% malicious rejection rate)
+4. Updated models loaded by Stage 2 detection signals → **improved accuracy for next packet analysis in Stage 1**
+5. Cycle repeats: better detection → more accurate training data → better models → better detection...
+
+**This continuous feedback loop enables the system to adapt to evolving threats without manual intervention.**
 
 ---
 
@@ -547,21 +617,26 @@ def threats_summary():
 ## 8. Quick Reference
 
 ### Key Modules by Stage
-- **Stage 1:** `server/network_monitor.py`, `AI/kernel_telemetry.py`
-- **Stage 2:** `AI/pcs_ai.py` (orchestrator), all 18 detection modules
+- **Stage 1:** `server/network_monitor.py`, `AI/kernel_telemetry.py`, `AI/system_log_collector.py`
+- **Stage 2:** `AI/pcs_ai.py` (orchestrator), all 18 detection modules (see Section 1 table)
 - **Stage 3:** `AI/meta_decision_engine.py`, `AI/false_positive_filter.py`
-- **Stage 4:** `server/device_blocker.py`, `AI/alert_system.py`
-- **Stage 5:** `AI/signature_extractor.py`, `AI/reputation_tracker.py`
-- **Stage 6:** `AI/relay_client.py`, `relay/relay_server.py`
-- **Stage 7:** `relay/ai_retraining.py`, `AI/drift_detector.py`
+- **Stage 4:** `server/device_blocker.py`, `AI/alert_system.py`, `AI/file_rotation.py` (logging infrastructure)
+- **Stage 5:** `AI/signature_extractor.py`, `AI/reputation_tracker.py`, `AI/graph_intelligence.py` (extraction)
+- **Stage 6:** `AI/relay_client.py`, `AI/signature_uploader.py`, `relay/relay_server.py`, `relay/signature_sync.py`
+- **Stage 7:** `relay/ai_retraining.py`, `relay/gpu_trainer.py`, `AI/drift_detector.py`, `AI/signature_distribution.py` (pulls updates)
 
 ### Critical JSON Files
-- `threat_log.json` — Primary threat log (Stage 4 output)
+- `threat_log.json` — Primary threat log (Stage 4 output) *(rotates at 1GB, ML reads all rotation files)*
+- `comprehensive_audit.json` — All THREAT_DETECTED/INTEGRITY_VIOLATION events *(rotates at 1GB)*
 - `decision_history.json` — Ensemble voting records (Stage 3)
-- `comprehensive_audit.json` — All THREAT_DETECTED/INTEGRITY_VIOLATION events
 - `reputation.db` — SQLite cross-session reputation (Stage 2 signal #14)
 - `meta_engine_config.json` — Signal weights (Stage 3 configuration)
-- `global_attacks.json` — Relay central attack log (Stage 6)
+- `global_attacks.json` — Relay central attack log (Stage 6) *(rotates at 1GB on relay server)*
+- `extracted_signatures.json` — Customer-side signature staging (Stage 5)
+- `network_graph.json` — Graph topology (Stage 2 signal #10, Stage 5 extraction)
+- `behavioral_metrics.json` — Per-IP heuristics (Stage 2 signal #6, Stage 5 extraction)
+
+**File Rotation:** See `AI/file_rotation.py` and `ML_LOG_ROTATION.md` - rotation files (`*_1.json`, `*_2.json`, etc.) are never deleted, ensuring ML training has complete attack history.
 
 ### Environment Variables
 - `APT_DETECTION_MODE=true` — Lower block threshold to 70%

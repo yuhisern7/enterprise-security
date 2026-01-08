@@ -48,7 +48,7 @@ These live under the `relay/` folder and should be deployed to your VPS.
     - Runs all crawlers, normalizes them into a flat threat list
     - Persists results via `save_results(...)`
   - `ThreatCrawlerManager.save_results(...)`
-    - Default path: `ml_models/threat_intelligence_crawled.json` (relative to `relay/`)
+    - Default path: `relay/ai_training_materials/threat_intelligence/` (relative to `relay/`)
     - This JSON is a **training artifact** consumed by Stage 7 ML retraining pipeline
     - Also feeds Stage 2 Signal #12 (Threat Intel Feeds) on customer nodes
 

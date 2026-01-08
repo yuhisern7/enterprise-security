@@ -321,7 +321,11 @@ show_json("/api/stats")        # Blocked IPs count
 
 ---
 
-## Section 8 – Failed Login Attempts (Battle-Hardened AI Server)
+## Section 8 – Failed Login Attempts (Stage 2: Signal #6 Behavioral)
+
+**Pipeline Stage:** Parallel Multi-Signal Detection
+**Detection Signal:** #6 Behavioral Heuristics
+**Purpose:** Tracks failed authentication attempts as part of behavioral threat scoring
 
 Backed by: `stats.failed_login_attempts` inside `pcs_ai.get_threat_statistics()`.
 
