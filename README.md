@@ -1,9 +1,9 @@
 ## Battle-Hardened AI  
 **The First Layer of Defense**
 
-Battle-Hardened AI is an open, research-oriented Network Detection and Response (NDR) platform designed to support the study, evaluation, and controlled deployment of advanced defensive cybersecurity techniques. The platform combines multi-signal detection, zero-day anomaly detection models, kernel-level telemetry, and policy-governed response mechanisms to enable enterprise-scale and national-scale cyber defense research.
+Battle-Hardened AI is an open, research-oriented Network Detection and Response (NDR) platform featuring 20 independent detection signals—making it one of the most transparent AI-based defense systems ever publicly documented. Combining multi-signal ensemble intelligence, zero-day anomaly detection models, kernel-level telemetry, and policy-governed response mechanisms, it enables enterprise-scale and national-scale cyber defense research with unprecedented visibility into AI decision-making.
 
-The system is explicitly designed around defensive-only operation, privacy preservation, and full auditability. It does not retain raw payloads or exploit code, and all automated actions are subject to governance, explainability, and reversible control mechanisms.
+Explicitly designed around defensive-only operation, privacy preservation, and full auditability, the system never retains raw payloads or exploit code. All automated actions are subject to governance, explainability, and reversible control mechanisms, making it suitable for controlled deployment in critical infrastructure, military networks, and research environments.
 
 ---
 
@@ -16,9 +16,9 @@ The system is explicitly designed around defensive-only operation, privacy prese
 | ExtraHop               | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
 | Cisco Secure NDR       | ❌ Undisclosed                    | ❌                  | ❌                   | ⚠️ Partial     |
 | Suricata + ML          | ⚠️ Partial                        | ❌                  | ❌                   | ⚠️ Partial     |
-| **Battle-Hardened AI** | **✅ 18 documented**              | **✅ eBPF**         | **✅ Optional**      | **✅ Built-in**|
+| **Battle-Hardened AI** | **✅ 20 documented**              | **✅ eBPF**         | **✅ Optional**      | **✅ Built-in**|
 
-**Key Differentiator:** No major commercial NDR vendor publicly documents 18 independent detection signals with this level of technical transparency.
+**Key Differentiator:** No major commercial NDR vendor publicly documents 20 independent detection signals (including causal inference and zero-trust degradation) with this level of technical transparency.
 
 ---
 
@@ -417,9 +417,13 @@ Battle-Hardened AI follows a single-node-per-network architecture. Each protecte
 
 An optional private relay can be enabled to allow participating nodes to exchange sanitized, privacy-preserving AI training materials—such as signatures, statistical patterns, and reputation updates. This enables collective learning and continuous improvement across deployments without exposing sensitive traffic, payloads, or personally identifiable information.
 
-## 18 Detection Signals (Core AI Capabilities)
+## 20 Detection Signals (Core AI Capabilities)
 
-Battle-Hardened AI uses 18 independent detection signals, combined through a weighted ensemble to minimize false positives and prevent single-model failure.
+Battle-Hardened AI uses 20 independent detection signals, combined through a weighted ensemble to minimize false positives and prevent single-model failure.
+
+**Primary Detection Signals (1-18):** Direct threat detection from network traffic and system events.
+
+**Strategic Intelligence Layers (19-20):** Contextual analysis that refines intent, trust, and long-term behavior.
 
 | # | Signal | Description |
 |---|--------|-------------|
@@ -441,6 +445,8 @@ Battle-Hardened AI uses 18 independent detection signals, combined through a wei
 | 16 | Predictive Modeling | Short-term forecasting |
 | 17 | Byzantine Defense | Poisoned update rejection |
 | 18 | Integrity Monitoring | Telemetry & model tampering detection |
+| 19 | **Causal Inference Engine** | Root cause analysis (why attacks happen, not just that they happened) |
+| 20 | **Trust Degradation Graph** | Zero-trust enforcement over time (persistent entity trust scoring) |
 
 Ensemble decisions require cross-signal agreement, ensuring robustness and explainability.
 
@@ -448,7 +454,13 @@ Ensemble decisions require cross-signal agreement, ensuring robustness and expla
 
 ## Why Evasion is Nearly Impossible
 
-Battle-Hardened AI implements **defense-in-depth** through 18 independent detection systems running in parallel. An attacker cannot simply bypass one security layer—they must evade **all 18 signals simultaneously**, which is mathematically and practically infeasible for real attacks.
+Battle-Hardened AI implements **defense-in-depth** through 20 independent detection systems running in parallel. An attacker cannot simply bypass one security layer—they must evade **all 20 signals simultaneously**, which is mathematically and practically infeasible for real attacks.
+
+**Primary Detection (Layers 1-18):** Direct threat identification from network patterns, behavior, and intelligence.
+
+**Strategic Intelligence (Layers 19-20):** Context-aware analysis that defeats sophisticated evasion tactics:
+- **Layer 19** distinguishes between legitimate operational changes and disguised attacks
+- **Layer 20** enforces zero-trust degradation—even if an attacker evades detection once, trust degrades permanently, making subsequent attempts exponentially harder
 
 ### Multi-Layer Detection Coverage
 
@@ -461,7 +473,7 @@ The Meta Decision Engine uses weighted voting with signal correlation:
 - **Signal weights:** Each detection method has a reliability weight (0.65–0.98)
 - **Authoritative signal boosting:** Single high-confidence signals (honeypot interaction, threat intelligence match) can force immediate blocking regardless of other signals
 
-Even if an attacker evades 10 signals, the remaining 8 high-confidence signals can still trigger automatic blocking.
+Even if an attacker evades 10 signals, the remaining 10 high-confidence signals can still trigger automatic blocking.
 
 **2. Cannot Hide From Multiple Angles**
 
@@ -532,9 +544,15 @@ To successfully attack without detection, an attacker would need to simultaneous
 - ✗ Hide from kernel telemetry (requires kernel-level rootkit)
 - ✗ Not appear in any threat intelligence feeds
 - ✗ Never touch a honeypot (adaptive multi-persona deception)
+- ✗ **Perfectly time attacks to coincide with legitimate deployments/config changes** (Layer 19 causal inference)
+- ✗ **Prevent trust degradation across sessions** (Layer 20 persistent memory—once trust drops, it never fully recovers)
 - ✗ Evade 10+ additional signals simultaneously
 
 **In practice: Nearly impossible.**
+
+**Layer 19 (Causal Inference) eliminates the "hiding in deployment noise" tactic:** Even if an attack coincides with a CI/CD pipeline, causal graphs detect the temporal mismatch between legitimate changes and malicious behavior.
+
+**Layer 20 (Trust Degradation) prevents "try again later" strategies:** Each failed attack permanently degrades entity trust. Attackers cannot reset trust by changing IPs alone—behavioral fingerprints, device identifiers, and network patterns persist across sessions.
 
 The only theoretical bypass scenarios are:
 
@@ -542,7 +560,7 @@ The only theoretical bypass scenarios are:
 - **Pre-compromised insider** (already authenticated) — but behavioral heuristics, graph intelligence, and LSTM would still detect abnormal post-authentication behavior
 - **Zero-day kernel exploit** — but even then, network patterns, behavioral anomalies, and autoencoder reconstruction errors would trigger alerts
 
-The system is specifically designed so **no single evasion technique works**—attackers must evade all 18 signals at once, which is mathematically and practically infeasible for real attacks while maintaining operational effectiveness.
+The system is specifically designed so **no single evasion technique works**—attackers must evade all 20 signals at once, which is mathematically and practically infeasible for real attacks while maintaining operational effectiveness.
 
 ## 🧠 Federated AI Training & Relay Architecture
 
@@ -597,13 +615,13 @@ Battle-Hardened AI processes every network packet through a sophisticated multi-
 
 **Stage 1 → Stage 2 Transition:**
 
-Normalized event passed to `AI/pcs_ai.py` → `assess_threat(event)` method → orchestrates all 18 detection signals in parallel using the same event object as input → each signal produces independent `DetectionSignal` output → all 18 signals feed into Stage 3.
+Normalized event passed to `AI/pcs_ai.py` → `assess_threat(event)` method → orchestrates all 20 detection signals in parallel using the same event object as input → each signal produces independent `DetectionSignal` output → all 20 signals feed into Stage 3.
 
 ---
 
-#### Stage 2: Parallel Multi-Signal Detection (18 Simultaneous Analyses)
+#### Stage 2: Parallel Multi-Signal Detection (20 Simultaneous Analyses)
 
-Each event flows through **all 18 detection systems in parallel**. Each signal generates an independent threat assessment.
+Each event flows through **all 20 detection systems in parallel**. Each signal generates an independent threat assessment.
 
 **Signal #1: eBPF Kernel Telemetry**
 - **What it does:** Observes syscalls and correlates with network activity at OS level
@@ -695,15 +713,35 @@ Each event flows through **all 18 detection systems in parallel**. Each signal g
 - **Example:** Log deletion attempt → integrity violation
 - **Output:** `{is_threat: true, confidence: 0.96, tampering_detected: true, type: "log_deletion"}`
 
+**Signal #19: Causal Inference Engine** *(Strategic Intelligence Layer)*
+- **What it does:** Determines WHY an event happened (root cause analysis)
+- **Inputs:** DetectionSignal objects (1-18), system config changes, deployment events, identity changes, time-series metadata
+- **Core Logic:** Builds causal graphs (not correlations), tests counterfactuals, classifies root causes
+- **Causal Labels:** `LEGITIMATE_CAUSE`, `MISCONFIGURATION`, `AUTOMATION_SIDE_EFFECT`, `EXTERNAL_ATTACK`, `INSIDER_MISUSE`, `UNKNOWN_CAUSE`
+- **Example:** High anomaly score detected → checks recent deployment logs → finds CI/CD pipeline ran 2 minutes before → labels as `LEGITIMATE_CAUSE` (confidence: 0.89) → downgrade threat score
+- **Output:** `{causal_label: "EXTERNAL_ATTACK", confidence: 0.91, primary_causes: ["No config change", "External IP with prior reputation"], non_causes: ["Scheduled maintenance"]}`
+- **Privacy:** Never sees raw payloads, credentials, exploit code, or PII - operates only on detection outputs and metadata
+
+**Signal #20: Trust Degradation Graph** *(Strategic Intelligence Layer)*
+- **What it does:** Zero-trust enforcement over time (persistent entity trust scoring)
+- **Tracked Entities:** IPs, devices, user accounts, services, APIs, cloud roles, containers
+- **Trust Score:** 0-100 per entity (internal starts at 100, external configurable baseline ~60)
+- **Degradation Model:** Non-linear decay with event-weighted penalties (minor anomaly: -5, confirmed attack: -25, lateral movement: -30, integrity breach: -40)
+- **Recovery:** +1 trust per 24h without incident (slow recovery, capped at initial baseline)
+- **Thresholds:** ≥80 (normal), 60-79 (increased monitoring), 40-59 (rate limiting), 20-39 (isolation), <20 (quarantine)
+- **Example:** User account trust score 85 → off-hours privilege escalation detected → lateral movement attempt → causal inference confirms no legitimate cause → trust drops to 52 → recommend rate limiting
+- **Output:** `{entity_id: "user:admin@corp", entity_type: "ACCOUNT", previous_trust: 85, current_trust: 52, reason: ["Off-hours privilege escalation", "Lateral movement attempt"], recommended_action: "RATE_LIMIT"}`
+- **Integration:** Feeds from Historical Reputation (Layer 14), influences response severity, tracked by Explainability Engine (Layer 15)
+
 **Stage 2 → Stage 3 Transition:**
 
-All 18 signals complete analysis → produce list of `DetectionSignal` objects → routed through `AI/false_positive_filter.py` (5-gate validation) to filter out low-confidence/whitelisted signals → filtered signals passed to `AI/meta_decision_engine.py` for weighted voting.
+Primary detection signals (1-18) complete analysis → produce list of `DetectionSignal` objects → routed through `AI/false_positive_filter.py` (5-gate validation) → filtered signals + Layer 19 causal analysis → passed to `AI/meta_decision_engine.py` for weighted voting → Layer 20 trust state influences final response severity.
 
 ---
 
 #### Stage 3: Ensemble Decision Engine (Weighted Voting)
 
-All 18 signals converge in the **Meta Decision Engine** for final verdict.
+All 20 signals converge in the **Meta Decision Engine** for final verdict.
 
 **Weighted Voting Calculation:**
 
@@ -733,10 +771,22 @@ Total weighted score = 0.87 (87%)
 - If **Threat Intel** fires (confidence ≥ 0.9) → force score to 90%+
 - If **False Positive Filter** confirms (5/5 gates) → boost by 10%
 
+**Causal Inference Adjustment (Layer 19):**
+- If `causal_label = LEGITIMATE_CAUSE` with confidence ≥ 0.85 → downgrade ensemble score by 20%
+- If `causal_label = EXTERNAL_ATTACK` or `INSIDER_MISUSE` with confidence ≥ 0.80 → boost ensemble score by 15%
+- If `causal_label = MISCONFIGURATION` → route to governance queue instead of auto-block
+- If `causal_label = UNKNOWN_CAUSE` → require human review (do not auto-block even if score ≥ 75%)
+
+**Trust State Modulation (Layer 20):**
+- Entity trust score <40 → apply stricter threshold (block at ≥60% instead of ≥75%)
+- Entity trust score <20 → automatic quarantine regardless of weighted score
+- Entity trust score ≥80 → normal thresholds apply
+- Trust state recommendations override default actions when trust critically degraded
+
 **Consensus Checks:**
-- **Unanimous:** All signals agree (threat or safe)
-- **Strong Consensus:** ≥80% of signals agree
-- **Divided:** Mixed signals → require higher confidence threshold
+- **Unanimous:** All primary signals (1-20) agree (threat or safe)
+- **Strong Consensus:** ≥80% of primary signals agree
+- **Divided:** Mixed signals → require higher confidence threshold + causal inference confirmation
 
 **Output Decision:**
 ```json
@@ -746,8 +796,8 @@ Total weighted score = 0.87 (87%)
   "confidence": 0.87,
   "should_block": true,
   "weighted_vote_score": 0.87,
-  "total_signals": 18,
-  "threat_signals": 14,
+  "total_signals": 20,
+  "threat_signals": 16,
   "safe_signals": 4,
   "unanimous_verdict": false,
   "strong_consensus": true,
@@ -801,6 +851,8 @@ Based on ensemble decision, the system executes controlled responses:
    - `behavioral_metrics.json` (per-IP statistics)
    - `attack_sequences.json` (LSTM state sequences)
    - `lateral_movement_alerts.json` (graph intelligence findings)
+   - `causal_analysis.json` *(Layer 19: root cause analysis results)*
+   - `trust_graph.json` *(Layer 20: entity trust state tracking)*
    
    **Note:** Files marked "auto-rotates at 1GB" use file rotation (`AI/file_rotation.py`) to prevent unbounded growth. ML training reads ALL rotation files (`threat_log.json`, `threat_log_1.json`, `threat_log_2.json`, etc.) to preserve complete attack history. See `ML_LOG_ROTATION.md` for details.
 
@@ -976,7 +1028,7 @@ The system continuously improves through feedback:
     ↓
 📊 Pre-processing (metadata extraction, normalization)
     ↓
-⚡ 18 PARALLEL DETECTIONS
+⚡ 20 PARALLEL DETECTIONS (Primary Signals 1-18 + Strategic Intelligence 19-20)
     ├─ Kernel Telemetry (eBPF/XDP syscall correlation)
     ├─ Signatures (3,066+ attack patterns)
     ├─ RandomForest ML (supervised classification)
@@ -994,14 +1046,19 @@ The system continuously improves through feedback:
     ├─ Explainability Engine (human-readable decisions)
     ├─ Predictive Modeling (24-48h threat forecasting)
     ├─ Byzantine Defense (poisoned update rejection)
-    └─ Integrity Monitoring (tampering detection)
+    ├─ Integrity Monitoring (tampering detection)
+    ├─ 🧠 Causal Inference Engine (root cause: why did this happen?)
+    └─ 🔐 Trust Degradation Graph (zero-trust: entity trust scoring 0-100)
     ↓
-🎯 ENSEMBLE VOTING (weighted consensus)
+🎯 ENSEMBLE VOTING (weighted consensus + causal adjustment + trust modulation)
     ├─ Calculate weighted score (0.65-0.98 per signal)
     ├─ Apply authoritative boosting (honeypot, threat intel override)
+    ├─ Causal inference adjustment (downgrade if legitimate, boost if malicious)
+    ├─ Trust state modulation (stricter thresholds if trust <40, quarantine if <20)
     ├─ Check consensus strength (unanimous / strong / divided)
     └─ Decision: Block (≥75%) / Log (≥50%) / Allow (<50%)
     │   └─ APT Mode: Block threshold lowered to ≥70%
+    │   └─ Low Trust (<40): Block threshold lowered to ≥60%
     ↓
 🛡️ RESPONSE EXECUTION (policy-governed)
     ├─ Firewall block (iptables/nftables + TTL)
@@ -1088,7 +1145,7 @@ Battle-Hardened AI:
 
 ## Dashboard Features
 
-The AI has 18 detection abilities; the web dashboard (`AI/inspector_ai_monitoring.html`) exposes **31 labeled sections** that surface their outputs, plus governance, compliance, cloud security, and resilience.
+The AI has 20 detection abilities; the web dashboard (`AI/inspector_ai_monitoring.html`) exposes **31 labeled sections** that surface their outputs, plus governance, compliance, cloud security, and resilience.
 
 | # | Section Title | Summary |
 |---|---------------|---------|

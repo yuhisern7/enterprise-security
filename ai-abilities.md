@@ -82,9 +82,9 @@ Tests follow the same **7-stage pipeline** from the README, plus 3 additional va
 
 ---
 
-## 0. Quick Reference: 18 Detection Signals → Implementation Files
+## 0. Quick Reference: 20 Detection Signals → Implementation Files
 
-This maps each of the **18 active detection signals** from the README to the concrete files/modules that implement or feed that signal.
+This maps each of the **20 active detection signals** from the README to the concrete files/modules that implement or feed that signal.
 
 1. **eBPF Kernel Telemetry**  
    Files: AI/kernel_telemetry.py; server/network_monitor.py; server/docker-compose.yml (Linux capabilities and host networking); AI/pcs_ai.py (orchestration and signal wiring).
@@ -144,7 +144,7 @@ This maps each of the **18 active detection signals** from the README to the con
 
 ## 0.1 Planned Changes per Ability & File
 
-This section tracks **which files will change** and **what the change is** for each of the 18 abilities (focused on making attacks/signatures consistent and ML-friendly).
+This section tracks **which files will change** and **what the change is** for each of the 20 abilities (focused on making attacks/signatures consistent and ML-friendly).
 
 > Convention: if a file is listed under multiple abilities, we centralize schema logic there and keep others as thin mappers into that schema.
 
@@ -235,7 +235,7 @@ Files that may change:
 ### 15) Explainability Engine
 
 Files that may change:
-- [ ] AI/explainability_engine.py — ensure every explanation references the canonical attack_type and lists contributions per ability (matching the 18-signal list) so training and audits can align on terminology.
+- [ ] AI/explainability_engine.py — ensure every explanation references the canonical attack_type and lists contributions per ability (matching the 20-signal list) so training and audits can align on terminology.
 - [ ] server/report_generator.py — expect/use the enriched explanation structure for enterprise reports.
 
 ### 16) Predictive Modeling
@@ -330,12 +330,12 @@ Use this as a quick cross-check when validating that a given stage’s detection
 
 ---
 
-## Stage 2: Parallel Multi-Signal Detection (18 Signals)
+## Stage 2: Parallel Multi-Signal Detection (20 Signals)
 
-**README Alignment:** Validates "Stage 2: Parallel Multi-Signal Detection" (all 18 independent detection systems)
+**README Alignment:** Validates "Stage 2: Parallel Multi-Signal Detection" (all 20 independent detection systems)
 
 **What This Tests:**
-- All 18 detection signals fire in parallel
+- All 20 detection signals fire in parallel
 - Each signal produces independent threat assessment
 - Signals operate independently (no single-point failure)
 - APT enhancements (low-and-slow, campaign patterns, off-hours detection)

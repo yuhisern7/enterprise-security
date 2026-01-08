@@ -4,7 +4,7 @@ This document maps the 31 dashboard sections to the **7-stage attack detection p
 
 **Pipeline Stages:**
 1. **Data Ingestion** → Packet capture, metadata extraction
-2. **18 Parallel Detections** → Independent threat assessments
+2. **20 Parallel Detections** → Independent threat assessments
 3. **Ensemble Voting** → Weighted consensus decision
 4. **Response Execution** → Firewall blocks, logging, alerts
 5. **Training Extraction** → Privacy-preserving signatures
@@ -49,11 +49,11 @@ def show_json(path: str):
 
 ---
 
-### Stage 2: Parallel Multi-Signal Detection (18 Signals)
+### Stage 2: Parallel Multi-Signal Detection (20 Signals)
 
 **Dashboard Sections:**
 - **Section 3:** VPN/Tor De-Anonymization (Signal #11)
-- **Section 4:** Real AI/ML Models (Signals #3-9, #16-18)
+- **Section 4:** Real AI/ML Models (Signals #3-9, #16-20)
 - **Section 6:** Threat Analysis by Type (All signals aggregated)
 - **Section 8:** Failed Login Attempts (Behavioral Signal #6)
 - **Section 10:** Automated Signature Extraction (Signal #2)
@@ -205,7 +205,7 @@ print(stats)
 
 ---
 
-## Section 4 – Real AI/ML Models (Stage 2: Signals #3-9, #16-18)
+## Section 4 – Real AI/ML Models (Stage 2: Signals #3-9, #16-20)
 
 **Pipeline Stage:** Parallel Multi-Signal Detection + Continuous Learning
 **Detection Signals:**
@@ -218,6 +218,8 @@ print(stats)
 - #16 Predictive Modeling
 - #17 Byzantine Defense
 - #18 Integrity Monitoring (Cryptographic Lineage)
+- #19 Causal Inference Engine
+- #20 Trust Degradation Graph
 
 **APIs:**
 - Internal: `pcs_ai.get_ml_model_stats()` (aggregated from multiple modules)
@@ -247,7 +249,7 @@ pprint(ml_stats)
 ## Section 5 – Security Overview (Stage 3: Ensemble Results)
 
 **Pipeline Stage:** Ensemble Decision Engine (Final Results)
-**Purpose:** High-level KPIs from ensemble voting across all 18 signals
+**Purpose:** High-level KPIs from ensemble voting across all 20 signals
 
 **APIs:**
 - Internal: `pcs_ai.get_threat_statistics()`
@@ -271,7 +273,7 @@ pprint(stats)
 
 ## Section 6 – Threat Analysis by Type (Stage 2: All Signals Aggregated)
 
-**Pipeline Stage:** Parallel Multi-Signal Detection (aggregated across all 18 signals)
+**Pipeline Stage:** Parallel Multi-Signal Detection (aggregated across all 20 signals)
 **Purpose:** Per-attack-type breakdown from ensemble classifications
 
 **APIs:**

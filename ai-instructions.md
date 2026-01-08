@@ -9,7 +9,7 @@
 **This system implements the README's 7-stage attack detection flow:**
 
 ```
-Stage 1: Data Ingestion → Stage 2: 18 Parallel Detections → Stage 3: Ensemble Voting → 
+Stage 1: Data Ingestion → Stage 2: 20 Parallel Detections → Stage 3: Ensemble Voting → 
 Stage 4: Response Execution → Stage 5: Training Extraction → Stage 6: Relay Sharing → 
 Stage 7: Continuous Learning
 ```
@@ -17,7 +17,7 @@ Stage 7: Continuous Learning
 **Three deployment tiers:**
 
 1. **Customer Node (server/ + AI/)** — Runs stages 1-5 locally, optionally connects to relay for stages 6-7
-2. **AI Intelligence Layer (AI/)** — Implements all 18 detection signals and ensemble logic (stages 2-3)
+2. **AI Intelligence Layer (AI/)** — Implements all 20 detection signals and ensemble logic (stages 2-3)
 3. **Central Relay (relay/)** — Operator-controlled training hub (stages 6-7, **NOT shipped to customers**)
 
 ---
@@ -46,16 +46,20 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 **Stage 1 → Stage 2 Transition:**
 1. Network monitor creates normalized event: `{"src_ip": "...", "dst_ip": "...", "src_port": ..., "protocol": "...", "timestamp": "...", ...}`
 2. Event passed to `AI/pcs_ai.py` → `assess_threat(event)` method
-3. `assess_threat()` orchestrates all 18 detection signals in parallel using the same event object
+3. `assess_threat()` orchestrates all 20 detection signals in parallel using the same event object
 4. Each signal produces independent `DetectionSignal` object → fed into Stage 3 ensemble
 
 ---
 
-### Stage 2: Parallel Multi-Signal Detection (18 Signals)
+### Stage 2: Parallel Multi-Signal Detection (20 Signals)
 
-**README:** "⚡ 18 PARALLEL DETECTIONS (each signal produces independent threat assessment)"
+**README:** "⚡ 20 PARALLEL DETECTIONS (each signal produces independent threat assessment)"
 
 **Implementation:** Each signal = independent AI module
+
+**Primary Detection Signals (1-18):** Direct threat detection from network traffic and system events.
+
+**Strategic Intelligence Layers (19-20):** Contextual analysis consuming outputs from signals 1-18.
 
 | # | Signal | Module(s) | Model/Data | Output |
 |---|--------|-----------|------------|--------|
@@ -77,6 +81,8 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 | 16 | **Predictive** | `AI/advanced_orchestration.py` | Threat predictions | 24-48h forecast |
 | 17 | **Byzantine Defense** | `AI/byzantine_federated_learning.py` | Peer trust scores | Update rejection |
 | 18 | **Integrity** | `AI/self_protection.py`, `AI/cryptographic_lineage.py` | Lineage chain | Tampering detection |
+| 19 | **Causal Inference** | `AI/causal_inference.py` (new) | Config change logs, deployment events | Root cause classification |
+| 20 | **Trust Degradation** | `AI/trust_graph.py` (new) | `trust_graph.json` (persistent) | Entity trust scores 0-100 |
 
 **Orchestration:** `AI/pcs_ai.py` → `assess_threat()` → constructs `DetectionSignal` objects
 
@@ -84,6 +90,31 @@ Raw packets → network_monitor.py → metadata extraction (IPs, ports, protocol
 - **Behavioral (Signal #6):** `detect_low_and_slow()`, `detect_off_hours_activity()`, `detect_credential_reuse()`
 - **LSTM (Signal #7):** Campaign pattern matching (slow_burn, smash_and_grab, lateral_spread)
 - **Graph (Signal #10):** Weight increased 0.88→0.92 for lateral movement detection
+- **Causal Inference (Signal #19):** Distinguishes APT "living off the land" (legitimate tools/timing) from actual attacks
+- **Trust Degradation (Signal #20):** Persistent attacker tracking across IP rotation, VPN changes, and session resets
+
+**Strategic Intelligence Layer Architecture:**
+
+**Layer 19 (Causal Inference Engine):**
+- **Position:** Runs AFTER signals 1-18, BEFORE final ensemble decision
+- **Inputs:** DetectionSignal objects, system config change logs, deployment/CI events, identity events (login, privilege change), time-series metadata, network topology graph, cloud control-plane events
+- **Forbidden Inputs:** Raw packet payloads, credentials, exploit code, PII
+- **Core Logic:** Builds causal graphs (not correlations), tests counterfactuals ("Would this anomaly exist without this config change?"), classifies root cause
+- **Causal Labels:** `LEGITIMATE_CAUSE`, `MISCONFIGURATION`, `AUTOMATION_SIDE_EFFECT`, `EXTERNAL_ATTACK`, `INSIDER_MISUSE`, `UNKNOWN_CAUSE`
+- **Modulation:** Downgrade ensemble score if legitimate cause, boost if malicious cause, route to governance if misconfiguration, require human review if unknown
+- **Output Format:** `CausalInferenceResult(causal_label, confidence, primary_causes[], non_causes[])`
+- **Privacy:** Never directly blocks traffic, only modulates confidence and governance
+
+**Layer 20 (Trust Degradation Graph):**
+- **Position:** Influences Stage 4 response severity based on persistent entity trust state
+- **Tracked Entities:** IP addresses, devices, user accounts, services, APIs, cloud roles, containers/workloads
+- **Trust Score:** 0-100 per entity (internal starts at 100, external configurable baseline ~60)
+- **Degradation Model:** Non-linear decay, event-weighted penalties (minor anomaly: -5, confirmed attack: -25, lateral movement: -30, integrity breach: -40)
+- **Recovery:** +1 trust per 24h without incident (slow recovery, capped at initial baseline)
+- **Trust Thresholds:** ≥80 (normal), 60-79 (increased monitoring), 40-59 (rate limiting), 20-39 (isolation/deny-by-default), <20 (quarantine + alert)
+- **Integration Points:** Feeds from Historical Reputation (Layer 14), influenced by Behavioral (Layer 6), Graph Intelligence (Layer 10), Integrity Monitoring (Layer 18)
+- **Output Format:** `TrustStateUpdate(entity_id, entity_type, previous_trust, current_trust, reason[], recommended_action)`
+- **Policy:** All actions remain policy-governed, auditable, reversible
 
 **Stage 2 Output Format:**
 Each signal produces:
@@ -97,9 +128,17 @@ DetectionSignal(
 ```
 
 **Stage 2 → Stage 3 Transition:**
-1. All 18 signals complete analysis → produce list of `DetectionSignal` objects
+1. Primary detection signals (1-18) complete analysis → produce list of `DetectionSignal` objects
 2. Signals routed through `AI/false_positive_filter.py` (5-gate validation) → filters out low-confidence/whitelisted signals
-3. Filtered signals passed to `AI/meta_decision_engine.py` → weighted voting begins
+3. **Layer 19 (Causal Inference)** analyzes filtered signals + system metadata → produces `CausalInferenceResult`:
+   - Checks recent config changes, deployments, identity events
+   - Builds causal graph to determine WHY event occurred
+   - Classifies as legitimate, misconfiguration, automation side-effect, attack, insider misuse, or unknown
+4. **Layer 20 (Trust Degradation)** retrieves entity trust state from persistent graph:
+   - Looks up current trust score for source IP/device/account
+   - Calculates trust degradation based on detected threats
+   - Generates `TrustStateUpdate` with recommended action
+5. Filtered signals + causal inference result + trust state → passed to `AI/meta_decision_engine.py` → weighted voting begins
 
 ---
 
@@ -118,8 +157,27 @@ DetectionSignal(
   if honeypot_confidence ≥ 0.7 or threat_intel_confidence ≥ 0.9:
       weighted_score = max(weighted_score, 0.90)
   
+  # Causal inference adjustment (Layer 19)
+  if causal_label == LEGITIMATE_CAUSE and causal_confidence ≥ 0.85:
+      weighted_score -= 0.20  # Downgrade by 20%
+  elif causal_label in [EXTERNAL_ATTACK, INSIDER_MISUSE] and causal_confidence ≥ 0.80:
+      weighted_score += 0.15  # Boost by 15%
+  elif causal_label == MISCONFIGURATION:
+      route_to_governance_queue()  # Don't auto-block
+  elif causal_label == UNKNOWN_CAUSE:
+      require_human_review = True  # No auto-block even if score ≥ 75%
+  
+  # Trust state modulation (Layer 20)
+  entity_trust = get_entity_trust_score(event.src_ip, event.user, event.device)
+  if entity_trust < 40:
+      block_threshold = 0.60  # Stricter threshold
+  elif entity_trust < 20:
+      return QUARANTINE  # Automatic quarantine regardless of score
+  else:
+      block_threshold = 0.75  # Normal threshold (or 0.70 in APT mode)
+  
   # Threshold decision
-  if weighted_score ≥ 0.75:  # or 0.70 in APT mode
+  if weighted_score ≥ block_threshold:
       return BLOCK
   elif weighted_score ≥ 0.50:
       return LOG_THREAT
@@ -177,6 +235,8 @@ DetectionSignal(
 - `integrity_violations.json` — Self-protection events
 - `forensic_reports/*.json` — Explainability outputs
 - `decision_history.json` — Ensemble voting records
+- `causal_analysis.json` — **Layer 19: Root cause analysis results**
+- `trust_graph.json` — **Layer 20: Entity trust state tracking (persistent across restarts)**
 
 **Note:** Files marked with *(auto-rotates at 1GB)* use `AI/file_rotation.py` to prevent unbounded growth. ML training reads all rotation files (`threat_log.json`, `threat_log_1.json`, `threat_log_2.json`, etc.) to preserve complete attack history. See `ML_LOG_ROTATION.md` for details.
 
@@ -468,7 +528,167 @@ battle-hardened-ai/
 3. **Route through `AI/false_positive_filter.py`** (multi-gate validation)
 4. **Feed into `AI/meta_decision_engine.py`** (ensemble voting)
 
-### Example: Adding Signal #19 (Hypothetical)
+### Example: Adding Signal #19 (Causal Inference) & Signal #20 (Trust Degradation)
+
+**Note:** Signals 19 and 20 are strategic intelligence layers, not primary detection signals. They consume outputs from signals 1-18.
+
+```python
+# In AI/causal_inference.py (new module)
+
+from enum import Enum
+from typing import List, Dict, Any
+
+class CausalLabel(Enum):
+    LEGITIMATE_CAUSE = "legitimate_cause"
+    MISCONFIGURATION = "misconfiguration"
+    AUTOMATION_SIDE_EFFECT = "automation_side_effect"
+    EXTERNAL_ATTACK = "external_attack"
+    INSIDER_MISUSE = "insider_misuse"
+    UNKNOWN_CAUSE = "unknown_cause"
+
+class CausalInferenceEngine:
+    def analyze_root_cause(self, signals: List[DetectionSignal], event: Dict[str, Any]) -> CausalInferenceResult:
+        """Determine WHY an event happened using causal graphs."""
+        # Build causal graph
+        recent_config_changes = self._get_recent_config_changes()
+        recent_deployments = self._get_recent_deployments()
+        identity_events = self._get_recent_identity_events()
+        
+        # Test counterfactuals
+        if self._temporal_correlation(event, recent_deployments, window=120):  # 2 minutes
+            return CausalInferenceResult(
+                causal_label=CausalLabel.LEGITIMATE_CAUSE,
+                confidence=0.89,
+                primary_causes=["CI/CD deployment 2 min before anomaly"],
+                non_causes=["External IP", "Attack pattern"]
+            )
+        
+        if not recent_config_changes and not recent_deployments:
+            if any(s.signal_type == SignalType.THREAT_INTEL and s.is_threat for s in signals):
+                return CausalInferenceResult(
+                    causal_label=CausalLabel.EXTERNAL_ATTACK,
+                    confidence=0.91,
+                    primary_causes=["No config change", "External IP with prior reputation"],
+                    non_causes=["Scheduled maintenance"]
+                )
+        
+        return CausalInferenceResult(
+            causal_label=CausalLabel.UNKNOWN_CAUSE,
+            confidence=0.50,
+            primary_causes=[],
+            non_causes=[]
+        )
+
+# In AI/trust_graph.py (new module)
+
+from enum import Enum
+
+class EntityType(Enum):
+    IP_ADDRESS = "ip"
+    DEVICE = "device"
+    ACCOUNT = "account"
+    SERVICE = "service"
+
+class TrustDegradationGraph:
+    def __init__(self):
+        self.trust_scores = {}  # {entity_id: trust_score}
+        self.trust_history = {}  # {entity_id: [(timestamp, score, reason)]}
+        
+    def get_trust_score(self, entity_id: str, entity_type: EntityType) -> int:
+        """Get current trust score (0-100) for entity."""
+        if entity_id not in self.trust_scores:
+            # Initial trust
+            if entity_type == EntityType.IP_ADDRESS:
+                # Internal vs external detection logic
+                return 100 if self._is_internal_ip(entity_id) else 60
+            return 100  # Devices, accounts start at 100
+        return self.trust_scores[entity_id]
+    
+    def degrade_trust(self, entity_id: str, event_severity: str, reason: str) -> TrustStateUpdate:
+        """Apply trust degradation based on event."""
+        previous_trust = self.get_trust_score(entity_id, EntityType.IP_ADDRESS)
+        
+        # Event-weighted penalties
+        penalties = {
+            "minor_anomaly": 5,
+            "confirmed_attack": 25,
+            "lateral_movement": 30,
+            "integrity_breach": 40
+        }
+        penalty = penalties.get(event_severity, 10)
+        
+        current_trust = max(0, previous_trust - penalty)
+        self.trust_scores[entity_id] = current_trust
+        
+        # Determine recommended action
+        if current_trust >= 80:
+            action = "NORMAL"
+        elif current_trust >= 60:
+            action = "INCREASED_MONITORING"
+        elif current_trust >= 40:
+            action = "RATE_LIMIT"
+        elif current_trust >= 20:
+            action = "ISOLATE"
+        else:
+            action = "QUARANTINE"
+        
+        return TrustStateUpdate(
+            entity_id=entity_id,
+            entity_type=EntityType.IP_ADDRESS,
+            previous_trust=previous_trust,
+            current_trust=current_trust,
+            reason=[reason],
+            recommended_action=action
+        )
+    
+    def recover_trust(self, hours_without_incident: int = 24):
+        """Slow trust recovery (+1 per 24h)."""
+        for entity_id in self.trust_scores:
+            if hours_without_incident >= 24:
+                # Cap recovery at initial baseline
+                max_trust = 100 if self._is_internal(entity_id) else 60
+                self.trust_scores[entity_id] = min(max_trust, self.trust_scores[entity_id] + 1)
+
+# In AI/pcs_ai.py (update assess_threat method)
+
+def assess_threat(self, event):
+    """Main orchestration (existing method with Layer 19 & 20 integration)."""
+    signals = []
+    
+    # Existing signals 1-18...
+    
+    # Route through FP filter
+    filtered_signals = self.fp_filter.filter(signals, event)
+    
+    # NEW: Layer 19 - Causal Inference
+    causal_result = self.causal_engine.analyze_root_cause(filtered_signals, event)
+    
+    # NEW: Layer 20 - Trust Degradation
+    entity_trust = self.trust_graph.get_trust_score(event["src_ip"], EntityType.IP_ADDRESS)
+    
+    # Ensemble decision (with Layer 19 & 20 modulation)
+    decision = self.meta_engine.make_decision(
+        filtered_signals, 
+        event, 
+        causal_result=causal_result,
+        entity_trust=entity_trust
+    )
+    
+    # Update trust graph if threat detected
+    if decision.should_block:
+        trust_update = self.trust_graph.degrade_trust(
+            event["src_ip"], 
+            "confirmed_attack",
+            f"Ensemble score: {decision.confidence}"
+        )
+        # Log trust update
+        self._log_trust_update(trust_update)
+    
+    # Log causal analysis
+    self._log_causal_analysis(causal_result)
+    
+    return decision
+```
 ```python
 # In AI/pcs_ai.py
 
@@ -618,8 +838,10 @@ def threats_summary():
 
 ### Key Modules by Stage
 - **Stage 1:** `server/network_monitor.py`, `AI/kernel_telemetry.py`, `AI/system_log_collector.py`
-- **Stage 2:** `AI/pcs_ai.py` (orchestrator), all 18 detection modules (see Section 1 table)
-- **Stage 3:** `AI/meta_decision_engine.py`, `AI/false_positive_filter.py`
+- **Stage 2:** `AI/pcs_ai.py` (orchestrator), all 20 detection modules:
+  - Primary signals 1-18 (see Section 1 table)
+  - Strategic intelligence: `AI/causal_inference.py` (Layer 19), `AI/trust_graph.py` (Layer 20)
+- **Stage 3:** `AI/meta_decision_engine.py`, `AI/false_positive_filter.py`, Layer 19 & 20 modulation
 - **Stage 4:** `server/device_blocker.py`, `AI/alert_system.py`, `AI/file_rotation.py` (logging infrastructure)
 - **Stage 5:** `AI/signature_extractor.py`, `AI/reputation_tracker.py`, `AI/graph_intelligence.py` (extraction)
 - **Stage 6:** `AI/relay_client.py`, `AI/signature_uploader.py`, `relay/relay_server.py`, `relay/signature_sync.py`
@@ -635,6 +857,8 @@ def threats_summary():
 - `extracted_signatures.json` — Customer-side signature staging (Stage 5)
 - `network_graph.json` — Graph topology (Stage 2 signal #10, Stage 5 extraction)
 - `behavioral_metrics.json` — Per-IP heuristics (Stage 2 signal #6, Stage 5 extraction)
+- `causal_analysis.json` — **Layer 19: Root cause analysis results (Stage 3 strategic intelligence)**
+- `trust_graph.json` — **Layer 20: Entity trust state tracking (persistent, survives restarts)**
 
 **File Rotation:** See `AI/file_rotation.py` and `ML_LOG_ROTATION.md` - rotation files (`*_1.json`, `*_2.json`, etc.) are never deleted, ensuring ML training has complete attack history.
 
