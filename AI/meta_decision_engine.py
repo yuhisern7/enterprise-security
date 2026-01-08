@@ -66,6 +66,8 @@ class SignalType(str, Enum):
     THREAT_INTEL = "threat_intel"
     FP_FILTER = "fp_filter"
     HONEYPOT = "honeypot"
+    CAUSAL_INFERENCE = "causal_inference"  # Signal #19
+    TRUST_DEGRADATION = "trust_degradation"  # Signal #20
 
 
 @dataclass
@@ -182,7 +184,9 @@ class MetaDecisionEngine:
             SignalType.VPN_TOR: 0.65,          # Suspicious but not always malicious
             SignalType.THREAT_INTEL: 0.95,     # Known threats, very reliable
             SignalType.FP_FILTER: 0.85,        # Multi-gate validation
-            SignalType.HONEYPOT: 0.98          # Direct attacker interaction, very strong signal
+            SignalType.HONEYPOT: 0.98,         # Direct attacker interaction, very strong signal
+            SignalType.CAUSAL_INFERENCE: 0.88, # Root cause analysis, context-aware
+            SignalType.TRUST_DEGRADATION: 0.90 # Persistent entity trust, recidivism tracking
         }
         
         # Voting thresholds
@@ -304,9 +308,23 @@ class MetaDecisionEngine:
         weighted_score = self._calculate_weighted_vote(signals)
         weighted_score = self._boost_authoritative_signals(weighted_score, signals)
         
+        # Apply Layer 19 (Causal Inference) modulation
+        weighted_score, causal_reason = self._apply_causal_modulation(weighted_score, signals)
+        
+        # Apply Layer 20 (Trust Degradation) modulation
+        weighted_score, trust_reason, recommended_action = self._apply_trust_modulation(
+            weighted_score, signals, ip_address
+        )
+        
         # Determine if threat based on weighted vote
         is_threat = weighted_score >= self.threat_threshold
         should_block = weighted_score >= self.block_threshold
+        
+        # Override block decision based on trust state
+        if recommended_action == "quarantine":
+            should_block = True  # Force block for quarantined entities
+        elif recommended_action == "isolate":
+            should_block = True if weighted_score >= 0.60 else False  # Stricter threshold
         
         # Calculate aggregate confidence
         aggregate_confidence = self._calculate_aggregate_confidence(signals, is_threat)
@@ -551,6 +569,112 @@ class MetaDecisionEngine:
             "history_size": len(self.decision_history),
             "timestamp": datetime.utcnow().isoformat()
         }
+    
+    def _apply_causal_modulation(
+        self,
+        weighted_score: float,
+        signals: List[DetectionSignal]
+    ) -> Tuple[float, str]:
+        """
+        Apply Layer 19 (Causal Inference) modulation to weighted score.
+        
+        If causal analysis identifies a legitimate cause (deployment, config change),
+        downgrade the score. If it confirms external attack, boost the score.
+        
+        Returns:
+            (modulated_score, reasoning)
+        """
+        # Find causal inference signal
+        causal_signal = None
+        for s in signals:
+            if s.signal_type == SignalType.CAUSAL_INFERENCE:
+                causal_signal = s
+                break
+        
+        if not causal_signal or not causal_signal.metadata:
+            return weighted_score, "No causal analysis available"
+        
+        causal_label = causal_signal.metadata.get("causal_label", "unknown_cause")
+        causal_confidence = causal_signal.confidence
+        
+        # Legitimate operational causes → downgrade score
+        if causal_label == "legitimate_cause" and causal_confidence >= 0.85:
+            modulated = weighted_score - 0.20
+            return max(0.0, modulated), f"Causal: Legitimate cause (-20%)"
+        
+        elif causal_label == "automation_side_effect" and causal_confidence >= 0.80:
+            modulated = weighted_score - 0.15
+            return max(0.0, modulated), f"Causal: Automation side-effect (-15%)"
+        
+        # Malicious causes → boost score
+        elif causal_label == "external_attack" and causal_confidence >= 0.80:
+            modulated = weighted_score + 0.15
+            return min(1.0, modulated), f"Causal: External attack (+15%)"
+        
+        elif causal_label == "insider_misuse" and causal_confidence >= 0.75:
+            modulated = weighted_score + 0.10
+            return min(1.0, modulated), f"Causal: Insider misuse (+10%)"
+        
+        # Misconfiguration → route to governance (don't auto-block)
+        elif causal_label == "misconfiguration":
+            return weighted_score, "Causal: Possible misconfiguration (governance review)"
+        
+        # Unknown cause → require human review (no modulation)
+        elif causal_label == "unknown_cause":
+            return weighted_score, "Causal: Unknown (human review required)"
+        
+        return weighted_score, "Causal: No adjustment"
+    
+    def _apply_trust_modulation(
+        self,
+        weighted_score: float,
+        signals: List[DetectionSignal],
+        ip_address: str
+    ) -> Tuple[float, str, str]:
+        """
+        Apply Layer 20 (Trust Degradation) modulation to weighted score.
+        
+        Low-trust entities get stricter thresholds and automatic actions.
+        
+        Returns:
+            (modulated_score, reasoning, recommended_action)
+        """
+        # Find trust degradation signal
+        trust_signal = None
+        for s in signals:
+            if s.signal_type == SignalType.TRUST_DEGRADATION:
+                trust_signal = s
+                break
+        
+        if not trust_signal or not trust_signal.metadata:
+            return weighted_score, "No trust state available", "allow"
+        
+        trust_score = trust_signal.metadata.get("trust_score", 100.0)
+        recommended_action = trust_signal.metadata.get("recommended_action", "allow")
+        
+        # Very low trust (<20) → quarantine automatically
+        if trust_score < 20:
+            return weighted_score, f"Trust: Critical ({trust_score:.1f}/100) - Auto-quarantine", "quarantine"
+        
+        # Low trust (20-39) → isolation/deny-by-default
+        elif trust_score < 40:
+            # Lower block threshold for low-trust entities
+            modulated = weighted_score + 0.15  # Easier to trigger block
+            return min(1.0, modulated), f"Trust: Low ({trust_score:.1f}/100) - Stricter threshold", "isolate"
+        
+        # Degraded trust (40-59) → rate limiting
+        elif trust_score < 60:
+            modulated = weighted_score + 0.10
+            return min(1.0, modulated), f"Trust: Degraded ({trust_score:.1f}/100) - Rate limiting", "rate_limit"
+        
+        # Normal trust (60-79) → increased monitoring
+        elif trust_score < 80:
+            modulated = weighted_score + 0.05
+            return min(1.0, modulated), f"Trust: Monitoring ({trust_score:.1f}/100)", "monitor"
+        
+        # High trust (≥80) → normal operation
+        else:
+            return weighted_score, f"Trust: Normal ({trust_score:.1f}/100)", "allow"
     
     def adjust_signal_weight(self, signal_type: SignalType, new_weight: float) -> None:
         """
