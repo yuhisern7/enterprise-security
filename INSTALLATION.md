@@ -396,10 +396,14 @@ abc123def456   battle-hardened-ai    Up 10 seconds (healthy)   0.0.0.0:60000-600
 
 ```powershell
 # Check logs
-docker logs battle-hardened-ai --tail 20
+docker logs battle-hardened-ai --tail 30
 
 # You should see:
-# ✅ ML models initialized successfully
+# [AI] 💡 Generating synthetic training data for immediate deployment...
+# [AI] ✅ Anomaly Detector trained on synthetic data
+# [AI] ✅ Threat Classifier trained: 10 classes
+# [AI] ✅ IP Reputation trained on synthetic data
+# [RELAY] WebSocket relay client loaded - unlimited global peers
 # [ENTERPRISE] System ready for commercial deployment
 ```
 
@@ -1112,11 +1116,21 @@ Open browser: **https://localhost:60000**
 
 You should see:
 - ✅ "0 threats detected" (clean start)
-- ✅ ML Status: "3 models trained"
-- ✅ Section 4: Auto-training active
-- ✅ System Status: All green
+- ✅ ML Status: "3 models trained" (auto-trained with synthetic data)
+- ✅ Section 4: Anomaly Detector, Threat Classifier, IP Reputation all showing "✅ TRAINED"
+- ✅ Section 29: Relay status (if enabled)
+- ✅ System Status: All green indicators
 
-### 3. Test Threat Detection
+### 3. Verify ML Models Trained
+
+Open Dashboard Section 4 - should show:
+- 🔍 Anomaly Detector: Status **✅ TRAINED** (IsolationForest, 100 trees)
+- 🎯 Threat Classifier: Status **✅ TRAINED** (RandomForest, 200 trees, 10 classes)
+- 📡 IP Reputation: Status **✅ TRAINED** (GradientBoosting, 150 rounds)
+
+**Note:** Models auto-train with synthetic data on first startup, then improve accuracy as real threats are detected. No manual training required.
+
+### 4. Test Threat Detection
 
 Trigger a test attack to verify the system works:
 
@@ -1130,7 +1144,7 @@ curl.exe -k "https://localhost:60000/?id=1' OR '1'='1"
 
 Reload dashboard - you should see **1 SQL Injection attack detected**.
 
-### 4. Configure Timezone (Optional)
+### 5. Configure Timezone (Optional)
 
 Edit `.env` file:
 ```bash
@@ -1145,7 +1159,7 @@ Restart container:
 docker compose restart
 ```
 
-### 5. Enable Relay Connection (Optional)
+### 6. Enable Relay Connection (Optional)
 
 For global threat sharing with VPS relay server:
 
@@ -1305,28 +1319,55 @@ macOS uses virtualization which is slower than native Linux.
 
 ### Issue: Can't connect to relay server
 
+**See detailed troubleshooting guides:**
+- **Client firewall issues:** `testconnection.md` (iptables, Windows Firewall, connectivity tests)
+- **VPS relay issues:** `relay/firewall.md` (ufw, DigitalOcean Cloud Firewall, port verification)
+
 ```bash
-# Test relay connectivity
+# Quick connectivity test
 curl -k https://YOUR_VPS_IP:60002/stats
 
-# Check RELAY_URL format
-RELAY_URL=wss://YOUR_VPS_IP:60001  # NOT ws://
+# Check RELAY_URL format (must use wss:// not ws://)
+RELAY_URL=wss://YOUR_VPS_IP:60001
 
-# Check firewall
-# VPS must allow ports 60001, 60002
+# Check relay status from inside container
+docker exec battle-hardened-ai python3 -c "from AI.relay_client import get_relay_status; import json; print(json.dumps(get_relay_status(), indent=2))"
+
+# Linux: Allow outbound to relay server
+sudo iptables -A OUTPUT -p tcp -d YOUR_VPS_IP --dport 60001 -j ACCEPT
+sudo iptables -A OUTPUT -p tcp -d YOUR_VPS_IP --dport 60002 -j ACCEPT
+
+# Windows: Allow outbound through Windows Firewall
+New-NetFirewallRule -DisplayName "Battle-Hardened AI Relay" -Direction Outbound -RemoteAddress YOUR_VPS_IP -RemotePort 60001,60002 -Protocol TCP -Action Allow
 ```
 
-### Issue: ML models not training
+### Issue: ML models showing "NOT TRAINED"
+
+**This should NOT happen anymore** - models auto-train with synthetic data on startup.
+
+If you see "NOT TRAINED" on dashboard:
 
 ```bash
-# Check logs
-docker logs battle-hardened-ai | grep "ML"
+# Check logs for training errors
+docker logs battle-hardened-ai | grep -E "ML|TRAINED|synthetic"
 
 # Should see:
-# [AI] ✅ ML models initialized successfully
+# [AI] 💡 Generating synthetic training data...
+# [AI] ✅ Anomaly Detector trained on synthetic data
+# [AI] ✅ Threat Classifier trained: 10 classes
+# [AI] ✅ IP Reputation trained on synthetic data
 
-# Force retrain
-docker exec battle-hardened-ai python3 -c "from AI import pcs_ai; pcs_ai.retrain_ml_models_now()"
+# If NOT shown, rebuild container (fix applied in latest version)
+cd battle-hardened-ai/server
+git pull
+docker compose down
+docker compose up -d --build
+
+# Wait 60 seconds for training
+sleep 60
+
+# Verify training completed
+docker exec battle-hardened-ai python3 -c "from AI import pcs_ai; print('Models trained:', pcs_ai._ml_last_trained)"
 ```
 
 ---
@@ -1387,14 +1428,17 @@ docker system prune -a
 
 ## Support & Resources
 
-- **GitHub Repository:** https://github.com/YOUR_USERNAME/battle-hardened-ai
-- **Documentation:** README.md
-- **Relay Setup:** testconnection.md
-- **AI Training:** relay/aitrainingcommands.md
+- **GitHub Repository:** https://github.com/yuhisern7/battle-hardened-ai
+- **Main Documentation:** README.md
+- **Client Relay Troubleshooting:** testconnection.md (firewall, connectivity, diagnostics)
+- **VPS Relay Troubleshooting:** relay/firewall.md (server-side firewall, Cloud Firewall)
+- **AI Training Commands:** relay/aitrainingcommands.md
 - **Model Distribution:** relay/MODEL_DISTRIBUTION_PROOF.md
+- **Dashboard Features:** dashboard.md
+- **AI Capabilities:** ai-abilities.md
 
 ---
 
-**Last Updated:** January 7, 2026  
-**Version:** 2.0  
+**Last Updated:** January 8, 2026  
+**Version:** 2.1  
 **Compatibility:** Docker 20.10+, Docker Compose v2.0+
