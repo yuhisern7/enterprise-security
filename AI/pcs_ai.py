@@ -688,6 +688,83 @@ def _unblock_github_ips() -> None:
 # REAL AI/ML FUNCTIONS - Machine Learning Core
 # ============================================================================
 
+def _train_on_relay_server() -> bool:
+    """Request training from relay server using 43,971 ExploitDB exploits.
+    
+    Instead of downloading 825 MB of training data, client connects to relay,
+    relay trains models using all available materials, client downloads trained models (280 KB).
+    
+    Returns:
+        bool: True if training succeeded and models downloaded, False otherwise
+    """
+    global _anomaly_detector, _threat_classifier, _ip_reputation_model, _feature_scaler
+    
+    if not ML_AVAILABLE:
+        return False
+    
+    try:
+        import requests
+        relay_url = os.getenv('RELAY_API_URL', 'https://relay:60002')
+        
+        # Request remote training
+        print(f"[AI] 📡 Connecting to {relay_url}/train ...")
+        response = requests.post(f"{relay_url}/train", timeout=300, verify=False)  # 5 min timeout for training
+        
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('success'):
+                print(f"[AI] ✅ Relay trained models using {result.get('exploits_used', 0)} exploits")
+                print(f"[AI] 📊 Accuracy: {result.get('accuracy', 0):.2%} | Time: {result.get('training_time', 0):.1f}s")
+                
+                # Download trained models
+                print("[AI] 📥 Downloading trained models from relay...")
+                
+                # Download anomaly detector
+                model_resp = requests.get(f"{relay_url}/models/anomaly_detector", verify=False)
+                if model_resp.status_code == 200:
+                    with open(_ANOMALY_MODEL_FILE, 'wb') as f:
+                        f.write(model_resp.content)
+                    _anomaly_detector = joblib.load(_ANOMALY_MODEL_FILE)
+                    print("[AI] ✅ Downloaded anomaly detector")
+                
+                # Download threat classifier
+                model_resp = requests.get(f"{relay_url}/models/threat_classifier", verify=False)
+                if model_resp.status_code == 200:
+                    with open(_THREAT_CLASSIFIER_FILE, 'wb') as f:
+                        f.write(model_resp.content)
+                    _threat_classifier = joblib.load(_THREAT_CLASSIFIER_FILE)
+                    print("[AI] ✅ Downloaded threat classifier")
+                
+                # Download IP reputation model
+                model_resp = requests.get(f"{relay_url}/models/ip_reputation", verify=False)
+                if model_resp.status_code == 200:
+                    with open(_IP_REPUTATION_FILE, 'wb') as f:
+                        f.write(model_resp.content)
+                    _ip_reputation_model = joblib.load(_IP_REPUTATION_FILE)
+                    print("[AI] ✅ Downloaded IP reputation model")
+                
+                # Download feature scaler
+                model_resp = requests.get(f"{relay_url}/models/feature_scaler", verify=False)
+                if model_resp.status_code == 200:
+                    with open(_SCALER_FILE, 'wb') as f:
+                        f.write(model_resp.content)
+                    _feature_scaler = joblib.load(_SCALER_FILE)
+                    print("[AI] ✅ Downloaded feature scaler")
+                
+                print(f"[AI] 🎉 All models trained remotely and downloaded successfully!")
+                return True
+            else:
+                print(f"[AI] ❌ Relay training failed: {result.get('message')}")
+                return False
+        else:
+            print(f"[AI] ❌ Relay training request failed: HTTP {response.status_code}")
+            return False
+    
+    except Exception as e:
+        print(f"[AI] ❌ Relay training error: {e}")
+        return False
+
+
 def _initialize_ml_models() -> None:
     """Initialize ML models for the first time."""
     global _anomaly_detector, _threat_classifier, _ip_reputation_model, _feature_scaler, _ml_last_trained
@@ -798,11 +875,22 @@ def _load_ml_models() -> None:
         )
         
         if not models_trained:
-            # Models exist but are NOT trained - auto-train on startup
+            # Models exist but are NOT trained
+            # OPTION 1: Train on RELAY SERVER (using 43,971 ExploitDB exploits)
+            if os.getenv('RELAY_ENABLED', 'false').lower() == 'true':
+                print(f"[AI] 🌐 Requesting training from relay server (43,971 ExploitDB exploits)...")
+                if _train_on_relay_server():
+                    print("[AI] ✅ Models trained remotely and downloaded from relay")
+                    return
+                else:
+                    print("[AI] ⚠️  Relay training failed, falling back to local training")
+            
+            # OPTION 2: Train locally with historical data
             if len(_threat_log) >= 100:
-                print(f"[AI] 🎓 AUTO-TRAINING on startup with {len(_threat_log)} historical threat events...")
+                print(f"[AI] 🎓 AUTO-TRAINING locally with {len(_threat_log)} historical threat events...")
                 _train_ml_models_from_history()
             else:
+                # OPTION 3: Fallback to synthetic data
                 print(f"[AI] ⚠️  Models initialized but NOT TRAINED")
                 print(f"[AI] 📚 Need at least 100 threat events to train (have {len(_threat_log)})")
                 print(f"[AI] 💡 Generating synthetic training data for immediate deployment...")
