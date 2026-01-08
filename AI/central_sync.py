@@ -149,8 +149,8 @@ class CentralServerSync:
             # Get threats since last sync
             params = {}
             if self.last_sync_time:
-                # Get threats from last hour to avoid missing any
-                since = (self.last_sync_time - timedelta(hours=1)).isoformat()
+                # Get threats since last sync (with small buffer for clock skew)
+                since = (self.last_sync_time - timedelta(seconds=60)).isoformat()
                 params['since'] = since
                 params['limit'] = 500
             else:

@@ -273,10 +273,11 @@ class ByzantineDefender:
         result = np.zeros(shape)
         
         for idx in np.ndindex(shape):
-            values = stacked[:, idx[0]] if len(shape) == 1 else stacked[:, idx[0], idx[1]]
+            # Extract values across all updates for this position
+            values = stacked[(slice(None),) + idx]
             sorted_values = np.sort(values)
             trimmed = sorted_values[f:n-f]  # Remove f from each end
-            result[idx] = np.mean(trimmed)
+            result[idx] = np.mean(trimmed) if len(trimmed) > 0 else 0.0
         
         stats = {
             "rejected_count": 2 * f,  # Trimmed from both ends

@@ -271,13 +271,15 @@ class BackupRecoveryMonitor:
             # If overall ransomware resilience is low, record a posture
             # incident as well so operators and the relay can see that the
             # environment is in a high-risk backup state.
-            if resilience_score < 40:
+            # Only log once per session to avoid spam
+            if resilience_score < 40 and not hasattr(self, '_resilience_logged'):
                 posture = {
                     'resilience_score': resilience_score,
                     'air_gapped_verified': air_gapped.get('verified', False),
                     'rto_meets_objective': rto.get('meets_objective', False),
                 }
                 self._log_resilience_posture(posture)
+                self._resilience_logged = True
         except Exception as e:
             print(f"[BACKUP] Failed to escalate backup/recovery issues: {e}")
         

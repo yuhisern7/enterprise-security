@@ -44,9 +44,9 @@ class MessageSecurity:
         # Ensure key directory exists for whichever path is active (cross-platform)
         os.makedirs(self.key_dir, exist_ok=True)
         
-        self.private_key_file = os.path.join(key_dir, "private_key.pem")
-        self.public_key_file = os.path.join(key_dir, "public_key.pem")
-        self.shared_secret_file = os.path.join(key_dir, "shared_secret.key")
+        self.private_key_file = os.path.join(self.key_dir, "private_key.pem")
+        self.public_key_file = os.path.join(self.key_dir, "public_key.pem")
+        self.shared_secret_file = os.path.join(self.key_dir, "shared_secret.key")
         
         # Get customer ID from environment (unique per installation)
         self.customer_id = os.getenv('CUSTOMER_ID', 'demo-customer-0000')

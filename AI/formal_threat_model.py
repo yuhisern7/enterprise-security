@@ -86,7 +86,7 @@ class FormalThreatModel:
     Other modules check these rules before taking action.
     """
     
-    def __init__(self, storage_dir: str = None):
+    def __init__(self, storage_dir: Optional[str] = None):
         """Initialize threat model."""
         base_dir = '/app' if os.path.exists('/app') else os.path.join(
             os.path.dirname(__file__), '..', 'server'

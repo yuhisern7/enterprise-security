@@ -90,7 +90,7 @@ class EmergencyKillSwitch:
     - Automatic fallback on errors
     """
     
-    def __init__(self, storage_dir: str = None):
+    def __init__(self, storage_dir: Optional[str] = None):
         """Initialize kill-switch."""
         base_dir = '/app' if os.path.exists('/app') else os.path.join(
             os.path.dirname(__file__), '..', 'server'
@@ -305,7 +305,7 @@ class ComprehensiveAuditLog:
     - Compliance-ready (GDPR, HIPAA, PCI-DSS)
     """
     
-    def __init__(self, storage_dir: str = None):
+    def __init__(self, storage_dir: Optional[str] = None):
         """Initialize audit logger."""
         base_dir = '/app' if os.path.exists('/app') else os.path.join(
             os.path.dirname(__file__), '..', 'server'
@@ -336,6 +336,15 @@ class ComprehensiveAuditLog:
             f"[AUDIT] Initialized (total events: {self.total_events}, enabled={self.enabled}, buffer_size={self.buffer_size}, max_events={AUDIT_MAX_EVENTS})"
         )
     
+    def __del__(self):
+        """Flush buffer on destruction to prevent event loss."""
+        try:
+            if hasattr(self, 'event_buffer') and len(self.event_buffer) > 0:
+                self._flush_buffer()
+        except Exception as e:
+            # Avoid exceptions during shutdown
+            pass
+    
     def log_event(
         self,
         event_type: AuditEventType,
@@ -343,9 +352,9 @@ class ComprehensiveAuditLog:
         action: str,
         target: str,
         outcome: str,
-        details: Dict = None,
+        details: Optional[Dict] = None,
         risk_level: str = "low",
-        metadata: Dict = None
+        metadata: Optional[Dict] = None
     ) -> AuditEvent:
         """
         Log an auditable event.

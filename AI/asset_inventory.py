@@ -21,8 +21,10 @@ class AssetInventory:
     def __init__(self):
         # Use /app in Docker, ./server/json outside Docker
         base_dir = '/app' if os.path.exists('/app') else os.path.join(os.path.dirname(__file__), '..', 'server')
-        self.inventory_file = os.path.join(base_dir, 'json', 'asset_inventory.json')
-        self.software_file = os.path.join(base_dir, 'json', 'software_inventory.json')
+        json_dir = os.path.join(base_dir, 'json')
+        os.makedirs(json_dir, exist_ok=True)
+        self.inventory_file = os.path.join(json_dir, 'asset_inventory.json')
+        self.software_file = os.path.join(json_dir, 'software_inventory.json')
         self.assets = self.load_inventory()
         
     def load_inventory(self) -> Dict:

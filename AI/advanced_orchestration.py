@@ -344,7 +344,20 @@ class AdvancedOrchestration:
         for entity, attacks in entity_attacks.items():
             if len(attacks) >= 3:  # At least 3 attacks
                 # Calculate average interval
-                timestamps = sorted([a.get("timestamp", 0) for a in attacks])
+                # Handle both float timestamps and datetime strings
+                timestamps = []
+                for a in attacks:
+                    ts = a.get("timestamp", 0)
+                    if isinstance(ts, str):
+                        try:
+                            from datetime import datetime
+                            dt = datetime.fromisoformat(ts.replace('Z', '+00:00'))
+                            ts = dt.timestamp()
+                        except:
+                            ts = time.time()
+                    timestamps.append(float(ts) if ts else 0)
+                
+                timestamps = sorted([t for t in timestamps if t > 0])
                 if len(timestamps) >= 2:
                     intervals = [timestamps[i+1] - timestamps[i] for i in range(len(timestamps)-1)]
                     avg_interval = sum(intervals) / len(intervals)
