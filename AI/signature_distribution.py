@@ -255,7 +255,7 @@ class SignatureDistributionSystem:
             'attack_type': attack_type,
             'signatures': signatures,
             'count': len(signatures),
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'source': 'local_exploitdb'
         }
     
@@ -301,7 +301,7 @@ class SignatureDistributionSystem:
                                         self._cached_signatures[attack_type] = sigs
                             
                             self._save_cached_signatures()
-                            self._last_sync_time = datetime.utcnow()
+                            self._last_sync_time = datetime.now(timezone.utc)
                             break
 
                     except Exception:

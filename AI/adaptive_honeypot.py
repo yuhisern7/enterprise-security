@@ -29,7 +29,7 @@ def _get_local_time() -> datetime:
         # Use timezone-aware datetime with UTC
         return datetime.now(timezone.utc)
     except Exception:
-        return datetime.utcnow()
+        return datetime.now(timezone.utc)
 
 
 class AdaptiveHoneypot:

@@ -108,7 +108,7 @@ class SignatureUploader:
             message = {
                 'type': 'signature_upload',
                 'signature': signature,
-                'timestamp': datetime.utcnow().isoformat(),
+                'timestamp': datetime.now(timezone.utc).isoformat(),
                 'node_version': '1.0.0'
             }
             

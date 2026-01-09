@@ -40,8 +40,8 @@ else:  # Native
     app = Flask(__name__, template_folder='../AI')
 app.config['SECRET_KEY'] = 'change-this-to-a-secure-random-key'
 
-# Load persistent data on startup
-pcs_ai._load_threat_data()
+# Note: _load_threat_data() is called automatically when pcs_ai module is imported
+# No need to call it again here
 
 @app.route('/')
 def dashboard():

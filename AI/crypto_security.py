@@ -173,7 +173,7 @@ class MessageSecurity:
         """
         # Add metadata
         message = message.copy()
-        message['timestamp'] = datetime.utcnow().isoformat() + 'Z'
+        message['timestamp'] = datetime.now(timezone.utc).isoformat() + 'Z'
         message['nonce'] = secrets.token_hex(16)  # 128-bit nonce
         message['peer_id'] = self._get_public_key_fingerprint()[:32]
         message['customer_id'] = self.customer_id  # Per-customer identification
@@ -225,7 +225,7 @@ class MessageSecurity:
                 if msg_time.tzinfo:
                     msg_time = msg_time.replace(tzinfo=None)
                 
-                age_seconds = (datetime.utcnow() - msg_time).total_seconds()
+                age_seconds = (datetime.now(timezone.utc) - msg_time).total_seconds()
                 
                 if abs(age_seconds) > self.message_window_seconds:
                     return False, f"Message timestamp outside window ({age_seconds:.0f}s old)"
@@ -260,7 +260,7 @@ class MessageSecurity:
             
             # Accept message - add nonce to cache
             self.nonce_cache.add(nonce)
-            self.nonce_expiry[nonce] = datetime.utcnow() + timedelta(seconds=self.message_window_seconds * 2)
+            self.nonce_expiry[nonce] = datetime.now(timezone.utc) + timedelta(seconds=self.message_window_seconds * 2)
 
             # Clean up expired/non-needed nonces
             self._cleanup_nonces()
@@ -273,7 +273,7 @@ class MessageSecurity:
     
     def _cleanup_nonces(self):
         """Remove expired nonces from cache"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         expired = [n for n, exp in self.nonce_expiry.items() if exp < now]
         
         for nonce in expired:

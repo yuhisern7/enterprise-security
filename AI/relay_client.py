@@ -125,7 +125,7 @@ class RelayClient:
             'severity': threat.get('severity', 'medium'),
             'src_ip': threat.get('src_ip', ''),
             'geolocation': threat.get('geolocation', {}),
-            'timestamp': threat.get('timestamp', datetime.utcnow().isoformat()),
+            'timestamp': threat.get('timestamp', datetime.now(timezone.utc).isoformat()),
             'ml_confidence': threat.get('ml_confidence', 0.0),
             'exploit_match': threat.get('exploit_match', ''),
             'cve_match': threat.get('cve_match', []),
@@ -311,7 +311,7 @@ class RelayClient:
                 elif msg_type == 'heartbeat_ack':
                     # Heartbeat acknowledgment - relay may include updated peer count
                     with self.lock:
-                        self.last_heartbeat = datetime.utcnow().isoformat()
+                        self.last_heartbeat = datetime.now(timezone.utc).isoformat()
                         # Update active_peers if relay sends it
                         if 'active_peers' in data:
                             self.active_peers = data.get('active_peers', 0)

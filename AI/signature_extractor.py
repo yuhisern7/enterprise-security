@@ -339,7 +339,7 @@ class SignatureExtractor:
                     'total_patterns': sum(len(v) for v in self.attack_patterns['attack_vectors'].values()),
                     'total_encodings_detected': sum(self.attack_patterns['encodings_used'].values()),
                     'total_keywords': sum(self.attack_patterns['attack_keywords'].values()),
-                    'last_updated': datetime.utcnow().isoformat(),
+                    'last_updated': datetime.now(timezone.utc).isoformat(),
                     'architecture': 'DEFENSIVE - Patterns only, NO exploit code'
                 },
                 'encodings_used': dict(self.attack_patterns['encodings_used']),

@@ -1,14 +1,14 @@
 """
 File Rotation Utility for ML Training Logs
 
-Implements automatic file rotation when files reach 1GB size limit.
-When a file reaches ~1GB, it's renamed with a numeric suffix (_1, _2, _3, etc.)
+Implements automatic file rotation when files reach 500MB size limit.
+When a file reaches ~500MB, it's renamed with a numeric suffix (_1, _2, _3, etc.)
 and a new file is created.
 
 This applies to ML training files that continuously log attacks:
-- threat_log.json
-- comprehensive_audit.json  
-- global_attacks.json
+- threat_log.json (local customer)
+- comprehensive_audit.json (local customer)
+- global_attacks.json (relay server - SANITIZED patterns only)
 
 Usage:
     from file_rotation import rotate_if_needed
@@ -24,9 +24,9 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-# 1GB in bytes (allowing some buffer before exact 1GB)
-MAX_FILE_SIZE = 1_000_000_000  # ~1GB
-SIZE_CHECK_THRESHOLD = 950_000_000  # Start checking at 950MB
+# 500MB in bytes (reduced from 1GB to prevent server crashes)
+MAX_FILE_SIZE = 500_000_000  # ~500MB
+SIZE_CHECK_THRESHOLD = 475_000_000  # Start checking at 475MB
 
 def get_file_size(filepath: str) -> int:
     """Get file size in bytes."""
@@ -51,7 +51,7 @@ def find_next_rotation_number(base_filepath: str) -> int:
     name, ext = os.path.splitext(filename)
     
     rotation_num = 1
-    while True:
+    while True:  # Infinite rotation support
         rotated_name = f"{name}_{rotation_num}{ext}"
         rotated_path = os.path.join(directory, rotated_name)
         
@@ -59,11 +59,6 @@ def find_next_rotation_number(base_filepath: str) -> int:
             return rotation_num
         
         rotation_num += 1
-        
-        # Safety limit to prevent infinite loops
-        if rotation_num > 10000:
-            logger.error(f"[ROTATION] Too many rotation files for {base_filepath}")
-            return rotation_num
 
 
 def rotate_file(filepath: str) -> Optional[str]:
@@ -208,7 +203,7 @@ def get_rotation_status(filepath: str) -> dict:
 
 
 def load_all_rotations(base_filepath: str) -> list:
-    """Load data from base file AND all rotation files.
+    """Load data from base file AND all rotation files (infinite rotation support).
     
     This is critical for ML training, compliance reporting, and analysis.
     The AI needs access to ALL historical attack data, not just the current file.
@@ -217,7 +212,8 @@ def load_all_rotations(base_filepath: str) -> list:
         base_filepath: Path to the base JSON file (e.g., /app/json/threat_log.json)
         
     Returns:
-        Combined list of all entries from base file + all rotation files
+        Combined list of all entries from base file + all rotation files (_1, _2, _3, ...)
+        Supports infinite rotations - will load threat_log_1.json through threat_log_999999.json etc.
         
     Example:
         # Load ALL threat logs (threat_log.json + threat_log_1.json + threat_log_2.json + ...)
@@ -245,7 +241,7 @@ def load_all_rotations(base_filepath: str) -> list:
         name, ext = os.path.splitext(filename)
         
         rotation_num = 1
-        while rotation_num <= 10000:  # Safety limit
+        while True:  # Infinite rotation support
             rotated_name = f"{name}_{rotation_num}{ext}"
             rotated_path = os.path.join(directory, rotated_name)
             

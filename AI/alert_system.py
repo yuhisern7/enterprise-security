@@ -160,7 +160,7 @@ class AlertSystem:
 
         attack_type = threat.get('threat_type', 'Unknown Threat')
         src_ip = threat.get('ip_address', 'Unknown IP')
-        timestamp = threat.get('timestamp') or datetime.utcnow().isoformat() + 'Z'
+        timestamp = threat.get('timestamp') or datetime.now(timezone.utc).isoformat() + 'Z'
         action = threat.get('action', 'monitored')
         details = threat.get('details', '')
 

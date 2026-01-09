@@ -121,7 +121,7 @@ class ThreatIntelligence:
         """
         result = {
             "ip": ip_address,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "threat_score": 0,  # 0-100 (100 = maximum threat)
             "sources": [],
             "details": {},
@@ -213,7 +213,7 @@ class ThreatIntelligence:
         tags = tags or []
         indicator_type = indicator_type.lower().strip()
         key = f"{indicator_type}:{value.strip().lower()}"
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
 
         existing = self.local_indicators.get(key, {
             "indicator": value.strip(),
@@ -314,7 +314,7 @@ class ThreatIntelligence:
         cache_key = ip_address
         if cache_key in _vt_cache:
             cached = _vt_cache[cache_key]
-            if datetime.utcnow() - cached["timestamp"] < timedelta(hours=1):
+            if datetime.now(timezone.utc) - cached["timestamp"] < timedelta(hours=1):
                 return cached["data"]
         
         # Rate limiting (4 requests/minute for free tier)
@@ -368,7 +368,7 @@ class ThreatIntelligence:
                 _bounded_cache_put(
                     _vt_cache,
                     cache_key,
-                    {"data": result, "timestamp": datetime.utcnow()},
+                    {"data": result, "timestamp": datetime.now(timezone.utc)},
                     VT_CACHE_MAX_ENTRIES,
                 )
                 
@@ -403,7 +403,7 @@ class ThreatIntelligence:
         cache_key = ip_address
         if cache_key in _abuseipdb_cache:
             cached = _abuseipdb_cache[cache_key]
-            if datetime.utcnow() - cached["timestamp"] < timedelta(hours=6):
+            if datetime.now(timezone.utc) - cached["timestamp"] < timedelta(hours=6):
                 return cached["data"]
         
         # Rate limiting (1000 requests/day = ~1 per minute to be safe)
@@ -448,7 +448,7 @@ class ThreatIntelligence:
                 _bounded_cache_put(
                     _abuseipdb_cache,
                     cache_key,
-                    {"data": result, "timestamp": datetime.utcnow()},
+                    {"data": result, "timestamp": datetime.now(timezone.utc)},
                     ABUSEIPDB_CACHE_MAX_ENTRIES,
                 )
                 
@@ -562,7 +562,7 @@ class ThreatIntelligence:
             "virustotal_cache_size": len(_vt_cache),
             "abuseipdb_cache_size": len(_abuseipdb_cache),
             "threat_intel_queries": len(_threat_intel_log),
-            "last_exploitdb_update": datetime.utcnow().isoformat()
+            "last_exploitdb_update": datetime.now(timezone.utc).isoformat()
         }
 
 
@@ -728,7 +728,7 @@ class HoneypotCrawler:
     def log_honeypot_attack(self, endpoint: str, ip: str, headers: Dict, payload: str):
         """Log attack attempt on honeypot for ML training"""
         attack = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "endpoint": endpoint,
             "ip": ip,
             "headers": headers,

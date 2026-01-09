@@ -61,7 +61,12 @@ import pickle
 import warnings
 import ipaddress
 import logging
-import fcntl  # File locking for thread-safe JSON writes
+try:
+    import fcntl  # File locking for thread-safe JSON writes (Linux/Unix only)
+    FCNTL_AVAILABLE = True
+except ImportError:
+    FCNTL_AVAILABLE = False
+    print("[WARNING] fcntl not available (Windows) - file locking disabled")
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from enum import Enum
@@ -411,13 +416,14 @@ def _save_threat_log() -> None:
             print(f"[WARNING] File rotation check failed: {e}")
         
         with open(_THREAT_LOG_FILE, 'w') as f:
-            # Acquire exclusive lock to prevent race conditions
-            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+            # Acquire exclusive lock to prevent race conditions (Linux/Unix only)
+            if FCNTL_AVAILABLE:
+                fcntl.flock(f.fileno(), fcntl.LOCK_EX)
             try:
                 json.dump(_threat_log, f, indent=2)
             finally:
-                # Release lock
-                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+                if FCNTL_AVAILABLE:
+                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
     except Exception as e:
         print(f"[WARNING] Failed to save threat log: {e}")
 
@@ -458,7 +464,7 @@ def _fetch_github_ip_ranges() -> None:
                 except ValueError:
                     pass
             
-            _GITHUB_IP_LAST_FETCH = datetime.utcnow()
+            _GITHUB_IP_LAST_FETCH = datetime.now(timezone.utc)
             print(f"[WHITELIST] ✅ Loaded {len(_GITHUB_IP_RANGES)} GitHub IP ranges")
             
     except Exception as e:
@@ -481,7 +487,7 @@ def _is_github_ip(ip_address: str) -> bool:
     
     # Refresh GitHub IP ranges every 24 hours
     if not _GITHUB_IP_RANGES or not _GITHUB_IP_LAST_FETCH or \
-       (datetime.utcnow() - _GITHUB_IP_LAST_FETCH) > timedelta(hours=24):
+       (datetime.now(timezone.utc) - _GITHUB_IP_LAST_FETCH) > timedelta(hours=24):
         _fetch_github_ip_ranges()
     
     try:
@@ -673,11 +679,23 @@ def _load_threat_data() -> None:
         print(f"[WARNING] Failed to load ML metrics: {e}")
     
     # Fetch GitHub IP ranges and unblock any GitHub IPs
-    _fetch_github_ip_ranges()
-    _unblock_github_ips()
+    try:
+        _fetch_github_ip_ranges()
+    except Exception as e:
+        print(f"[WARNING] Failed to fetch GitHub IP ranges: {e}")
+    
+    try:
+        _unblock_github_ips()
+    except Exception as e:
+        print(f"[WARNING] Failed to unblock GitHub IPs: {e}")
     
     # Load ML models
-    _load_ml_models()
+    try:
+        _load_ml_models()
+    except Exception as e:
+        print(f"[WARNING] Failed to load ML models: {e}")
+        import traceback
+        traceback.print_exc()
 
 
 def _unblock_github_ips() -> None:
@@ -827,7 +845,7 @@ def _initialize_ml_models() -> None:
     # Feature Scaler: Normalize features for better ML performance
     _feature_scaler = StandardScaler()
     
-    _ml_last_trained = datetime.utcnow()
+    _ml_last_trained = datetime.now(timezone.utc)
     
     print("[AI] ✅ ML models initialized successfully")
     print("[AI] - Anomaly Detector: IsolationForest (unsupervised)")
@@ -990,7 +1008,7 @@ def _extract_features_from_request(ip_address: str, endpoint: str, user_agent: s
     features.append(method_encoding)
     
     # Temporal features (2)
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     features.append(float(now.hour))  # Hour of day
     features.append(float(now.weekday()))  # Day of week
     
@@ -1126,7 +1144,7 @@ def _calculate_threat_weight(threat_timestamp: datetime) -> float:
     Returns:
         Weight multiplier (float between 0.1 and 10.0)
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     
     # Parse threat timestamp
     if isinstance(threat_timestamp, str):
@@ -1164,7 +1182,7 @@ def _expire_old_threats() -> int:
     """
     global _threat_log, _peer_threats
     
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     cutoff_date = now - timedelta(days=_THREAT_LOG_MAX_AGE_DAYS)
     
     # Filter local threats
@@ -1404,7 +1422,7 @@ def _train_ml_models_with_synthetic_data() -> None:
         _ip_reputation_model.fit(X_scaled, y_anomaly)
         print(f"[AI] ✅ IP Reputation trained on synthetic data")
         
-        _ml_last_trained = datetime.utcnow()
+        _ml_last_trained = datetime.now(timezone.utc)
         
         # Save trained models
         _save_ml_models()
@@ -1457,7 +1475,7 @@ def _train_ml_models_from_history() -> None:
         
         for log in all_threats:
             # Calculate time-based weight
-            timestamp = log.get('timestamp', datetime.utcnow().isoformat())
+            timestamp = log.get('timestamp', datetime.now(timezone.utc).isoformat())
             weight = _calculate_threat_weight(timestamp)
             
             # Skip expired threats (weight = 0)
@@ -1535,7 +1553,7 @@ def _train_ml_models_from_history() -> None:
         else:
             print(f"[AI] ⚠️  IP reputation model needs diverse data (classes: {len(unique_anomaly_classes)}). Skipping...")
         
-        _ml_last_trained = datetime.utcnow()
+        _ml_last_trained = datetime.now(timezone.utc)
         
         # Save models
         _save_ml_models()
@@ -1576,7 +1594,7 @@ def _should_retrain_ml_models() -> bool:
     if _ml_last_trained is None:
         return True
     
-    hours_since_training = (datetime.utcnow() - _ml_last_trained).total_seconds() / 3600
+    hours_since_training = (datetime.now(timezone.utc) - _ml_last_trained).total_seconds() / 3600
     
     # Exponential backoff based on data volume
     if len(_threat_log) < 1000:
@@ -2493,14 +2511,14 @@ def _create_tracking_beacon(ip_address: str, session_id: str) -> str:
     import base64
     
     # Create unique beacon ID
-    beacon_data = f"{ip_address}:{session_id}:{datetime.utcnow().isoformat()}"
+    beacon_data = f"{ip_address}:{session_id}:{datetime.now(timezone.utc).isoformat()}"
     beacon_hash = hashlib.sha256(beacon_data.encode()).hexdigest()[:16]
     
     # Store beacon for tracking
     _honeypot_beacons[beacon_hash] = {
         "original_ip": ip_address,
         "session_id": session_id,
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
         "accessed_from_ips": [ip_address],
         "geolocation_trail": [_get_geolocation(ip_address)]
     }
@@ -2559,7 +2577,7 @@ def _fingerprint_client(ip_address: str, user_agent: str, headers: dict, behavio
     # Store fingerprint with IP mapping
     if fingerprint not in _fingerprint_tracker:
         _fingerprint_tracker[fingerprint] = {
-            "first_seen": datetime.utcnow().isoformat(),
+            "first_seen": datetime.now(timezone.utc).isoformat(),
             "ips_used": set(),
             "user_agents": set(),
             "total_requests": 0
@@ -2978,7 +2996,7 @@ def _block_ip(ip_address: str) -> None:
 
 def _clean_old_records(ip: str, tracker: Dict[str, List[datetime]], minutes: int = 60) -> None:
     """Remove tracking records older than specified minutes."""
-    cutoff = datetime.utcnow() - timedelta(minutes=minutes)
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=minutes)
     if ip in tracker:
         tracker[ip] = [ts for ts in tracker[ip] if ts > cutoff]
 
@@ -3156,7 +3174,7 @@ def assess_login_attempt(
     
     # Track failed login attempts
     if not success:
-        _failed_login_tracker[ip_address].append(datetime.utcnow())
+        _failed_login_tracker[ip_address].append(datetime.now(timezone.utc))
         _save_tracking_data()  # Persist brute force tracking
     
     # Check for brute force attack (10+ failed attempts in 30 minutes - increased threshold)
@@ -3354,7 +3372,7 @@ def assess_request_pattern(
                             confidence=min(1.0, anomaly_score),
                             threat_level=MetaThreatLevel.SUSPICIOUS,
                             details=f"ML anomaly detected (score: {anomaly_score:.3f})",
-                            timestamp=datetime.utcnow().isoformat()
+                            timestamp=datetime.now(timezone.utc).isoformat()
                         ))
                 
                 # PHASE 2: Autoencoder Anomaly Detection (deep learning)
@@ -3373,7 +3391,7 @@ def assess_request_pattern(
                                 confidence=ae_score,
                                 threat_level=MetaThreatLevel.DANGEROUS,
                                 details=f"Autoencoder detected zero-day pattern (error: {recon_error:.4f})",
-                                timestamp=datetime.utcnow().isoformat()
+                                timestamp=datetime.now(timezone.utc).isoformat()
                             ))
                 else:
                     # Update baseline with SAFE traffic for drift detector
@@ -3398,7 +3416,7 @@ def assess_request_pattern(
                                 confidence=threat_conf,
                                 threat_level=MetaThreatLevel.DANGEROUS,
                                 details=f"ML classified as {threat_type}",
-                                timestamp=datetime.utcnow().isoformat()
+                                timestamp=datetime.now(timezone.utc).isoformat()
                             ))
                 
                 # 3. IP Reputation Prediction
@@ -3416,7 +3434,7 @@ def assess_request_pattern(
                                 confidence=reputation_score,
                                 threat_level=MetaThreatLevel.DANGEROUS,
                                 details=f"Malicious IP reputation",
-                                timestamp=datetime.utcnow().isoformat()
+                                timestamp=datetime.now(timezone.utc).isoformat()
                             ))
                 
                 # Store features for future training
@@ -3502,7 +3520,7 @@ def assess_request_pattern(
                     confidence=max(0.7, min(1.0, last_score)),
                     threat_level=meta_level,
                     details=f"Honeypot interactions: {honeypot_hits} hits (category={last_category})",
-                    timestamp=datetime.utcnow().isoformat(),
+                    timestamp=datetime.now(timezone.utc).isoformat(),
                     metadata={
                         "honeypot_hits": honeypot_hits,
                         "attack_category": last_category,
@@ -3580,7 +3598,7 @@ def assess_request_pattern(
     _clean_old_records(ip_address, _request_tracker, minutes=5)
     
     # Track request
-    _request_tracker[ip_address].append(datetime.utcnow())
+    _request_tracker[ip_address].append(datetime.now(timezone.utc))
     
     # Periodically save (every 100th request to avoid constant I/O)
     if sum(len(reqs) for reqs in _request_tracker.values()) % 100 == 0:
@@ -3851,7 +3869,7 @@ def assess_request_pattern(
                 'user_agent': user_agent,
                 'headers': headers or {},
                 'existing_signals': [s.to_dict() for s in detection_signals],
-                'timestamp': datetime.utcnow().isoformat()
+                'timestamp': datetime.now(timezone.utc).isoformat()
             }
             
             # Analyze causality
@@ -3873,7 +3891,7 @@ def assess_request_pattern(
                         confidence=causal_confidence,
                         threat_level=MetaThreatLevel.DANGEROUS if is_causal_threat else MetaThreatLevel.INFO,
                         details=f"Causal analysis: {', '.join(causal_result.primary_causes) if causal_result.primary_causes else 'No clear cause'} (label: {causal_result.causal_label.value})",
-                        timestamp=datetime.utcnow().isoformat(),
+                        timestamp=datetime.now(timezone.utc).isoformat(),
                         metadata={
                             'causal_label': causal_result.causal_label.value,
                             'primary_causes': causal_result.primary_causes,
@@ -3899,7 +3917,7 @@ def assess_request_pattern(
                     'method': method,
                     'threat_signals': len([s for s in detection_signals if s.is_threat]),
                     'total_signals': len(detection_signals),
-                    'timestamp': datetime.utcnow().isoformat()
+                    'timestamp': datetime.now(timezone.utc).isoformat()
                 }
             )
             
@@ -3926,7 +3944,7 @@ def assess_request_pattern(
                         confidence=trust_confidence if is_trust_threat else (trust_score / 100.0),
                         threat_level=MetaThreatLevel.CRITICAL if trust_score < 20.0 else MetaThreatLevel.DANGEROUS,
                         details=f"Trust state: {trust_state_str} (score: {trust_score})",
-                        timestamp=datetime.utcnow().isoformat(),
+                        timestamp=datetime.now(timezone.utc).isoformat(),
                         metadata={
                             'trust_score': trust_score,
                             'trust_state': trust_state_str,
@@ -3960,7 +3978,7 @@ def assess_request_pattern(
                                 confidence=threat.get('confidence', 0.85),
                                 threat_level=MetaThreatLevel.CRITICAL if threat['severity'] == 'CRITICAL' else MetaThreatLevel.DANGEROUS,
                                 details=threat['description'],
-                                timestamp=datetime.utcnow().isoformat()
+                                timestamp=datetime.now(timezone.utc).isoformat()
                             ))
                         
                         # Log critical graph threats
@@ -5709,7 +5727,14 @@ def clear_audit_log() -> Dict:
 
 
 # Load persistent threat data on module import
-_load_threat_data()
+try:
+    _load_threat_data()
+    print("[INIT] ✅ Threat data loaded successfully")
+except Exception as e:
+    print(f"[INIT ERROR] Failed to load threat data: {e}")
+    import traceback
+    traceback.print_exc()
+    print("[INIT WARNING] Continuing with empty threat database...")
 
 # Initialize Enterprise Threat Intelligence (VirusTotal, ExploitDB, Honeypots)
 if ENTERPRISE_FEATURES_AVAILABLE:

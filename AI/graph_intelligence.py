@@ -90,7 +90,7 @@ class NetworkGraph:
         
         # Tracking
         self.connection_count = 0
-        self.last_cleanup = datetime.utcnow()
+        self.last_cleanup = datetime.now(timezone.utc)
         self.alerts: List[LateralMovementAlert] = []
         
         # File paths for persistent JSON
@@ -140,7 +140,7 @@ class NetworkGraph:
             destination=destination,
             port=port,
             protocol=protocol,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             byte_count=byte_count
         )
         
@@ -150,7 +150,7 @@ class NetworkGraph:
         # Initialize node metadata if needed
         if source not in self.node_metadata:
             self.node_metadata[source] = {
-                "first_seen": datetime.utcnow().isoformat(),
+                "first_seen": datetime.now(timezone.utc).isoformat(),
                 "connection_count": 0,
                 "unique_destinations": set(),
                 "unique_ports": set()
@@ -198,7 +198,7 @@ class NetworkGraph:
             List of lateral movement alerts
         """
         alerts = []
-        cutoff_time = datetime.utcnow() - timedelta(minutes=time_window_minutes)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(minutes=time_window_minutes)
         
         # For each source node, find hop chains
         for source in self.nodes:
@@ -221,14 +221,14 @@ class NetworkGraph:
                             confidence = min(0.5 + (len(chain) - min_hops) * 0.1, 0.95)
                             
                             alert = LateralMovementAlert(
-                                alert_id=f"LM-{source}-{datetime.utcnow().timestamp()}",
+                                alert_id=f"LM-{source}-{datetime.now(timezone.utc).timestamp()}",
                                 source_ip=source,
                                 hop_chain=chain,
                                 hop_count=len(chain),
                                 time_window=time_span,
                                 ports_used=ports_used,
                                 severity=severity,
-                                timestamp=datetime.utcnow().isoformat(),
+                                timestamp=datetime.now(timezone.utc).isoformat(),
                                 confidence=confidence
                             )
                             
@@ -279,7 +279,7 @@ class NetworkGraph:
                     "beaconing_score": beaconing_score,
                     "confidence": confidence,
                     "severity": "HIGH" if confidence > 0.7 else "MEDIUM",
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 }
                 
                 c2_alerts.append(c2_alert)
@@ -334,7 +334,7 @@ class NetworkGraph:
                             "hops": len(path),
                             "severity": severity,
                             "confidence": confidence,
-                            "timestamp": datetime.utcnow().isoformat()
+                            "timestamp": datetime.now(timezone.utc).isoformat()
                         }
                         
                         exfil_alerts.append(exfil_alert)
@@ -416,7 +416,7 @@ class NetworkGraph:
                             "source_zone": source_zone,
                             "dest_zone": dest_zone,
                             "severity": "HIGH",
-                            "timestamp": datetime.utcnow().isoformat()
+                            "timestamp": datetime.now(timezone.utc).isoformat()
                         }
                         
                         violations.append(violation)
@@ -445,7 +445,7 @@ class NetworkGraph:
             "max_degree": max((self.get_degree(n) for n in self.nodes), default=0),
             "alert_count": len(self.alerts),
             "zones_configured": len(set(self.zones.values())),
-            "last_update": datetime.utcnow().isoformat(),
+            "last_update": datetime.now(timezone.utc).isoformat(),
             # Backwards-compatible aliases used by get_attack_chains
             "total_nodes": node_count,
             "total_edges": connection_count,
@@ -460,7 +460,7 @@ class NetworkGraph:
                 "metadata": {
                     "node_count": len(self.nodes),
                     "connection_count": self.connection_count,
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.now(timezone.utc).isoformat()
                 },
                 "nodes": list(self.nodes),
                 "adjacency": {
@@ -482,7 +482,7 @@ class NetworkGraph:
                 "graph_stats": self.get_graph_stats(),
                 "centrality_scores": self.calculate_betweenness_centrality(sample_size=50),
                 "lateral_movement_patterns": [alert.to_dict() for alert in self.alerts[-100:]],
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             with open(self.training_file, 'w') as f:
@@ -499,7 +499,7 @@ class NetworkGraph:
             alerts_data = {
                 "alerts": [alert.to_dict() for alert in self.alerts[-1000:]],  # Last 1000 alerts
                 "total_count": len(self.alerts),
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             with open(self.alerts_file, 'w') as f:
@@ -540,7 +540,7 @@ class NetworkGraph:
     
     def _cleanup_old_connections(self, max_age_hours: int = 24) -> None:
         """Remove connections older than max_age_hours"""
-        cutoff = datetime.utcnow() - timedelta(hours=max_age_hours)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
         removed = 0
         
         for source in list(self.adjacency.keys()):
@@ -559,7 +559,7 @@ class NetworkGraph:
             if not self.adjacency[source]:
                 del self.adjacency[source]
         
-        self.last_cleanup = datetime.utcnow()
+        self.last_cleanup = datetime.now(timezone.utc)
         
         if removed > 0:
             logger.info(f"[GRAPH] Cleaned up {removed} old connections")
@@ -796,7 +796,7 @@ class _DisabledGraph:
             "max_degree": 0,
             "alert_count": 0,
             "zones_configured": 0,
-            "last_update": datetime.utcnow().isoformat(),
+            "last_update": datetime.now(timezone.utc).isoformat(),
             "total_nodes": 0,
             "total_edges": 0,
         }

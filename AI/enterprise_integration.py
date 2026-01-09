@@ -166,7 +166,7 @@ class SecurityEventFormatter:
         priority = (facility * 8) + severity
         
         # Timestamp in RFC3339 format
-        timestamp = event.get("timestamp", datetime.utcnow().isoformat() + "Z")
+        timestamp = event.get("timestamp", datetime.now(timezone.utc).isoformat() + "Z")
         
         # Hostname
         hostname = socket.gethostname()
@@ -222,13 +222,13 @@ class SecurityEventFormatter:
                 "type": "indicator",
                 "spec_version": "2.1",
                 "id": f"indicator--{hashlib.sha256((event.get('ip_address', '') + event.get('timestamp', '')).encode()).hexdigest()}",
-                "created": event.get("timestamp", datetime.utcnow().isoformat() + "Z"),
-                "modified": event.get("timestamp", datetime.utcnow().isoformat() + "Z"),
+                "created": event.get("timestamp", datetime.now(timezone.utc).isoformat() + "Z"),
+                "modified": event.get("timestamp", datetime.now(timezone.utc).isoformat() + "Z"),
                 "name": f"{event.get('threat_type', 'Unknown Threat')} from {event.get('ip_address', 'Unknown')}",
                 "description": event.get("details", "Security threat detected"),
                 "pattern": f"[ipv4-addr:value = '{event.get('ip_address', '0.0.0.0')}']",
                 "pattern_type": "stix",
-                "valid_from": event.get("timestamp", datetime.utcnow().isoformat() + "Z"),
+                "valid_from": event.get("timestamp", datetime.now(timezone.utc).isoformat() + "Z"),
                 "labels": [
                     event.get("threat_type", "malicious-activity").lower().replace(" ", "-"),
                     event.get("level", "medium").lower()
@@ -242,10 +242,10 @@ class SecurityEventFormatter:
                 "type": "observed-data",
                 "spec_version": "2.1",
                 "id": f"observed-data--{hashlib.sha256((event.get('ip_address', '') + 'obs').encode()).hexdigest()}",
-                "created": event.get("timestamp", datetime.utcnow().isoformat() + "Z"),
-                "modified": event.get("timestamp", datetime.utcnow().isoformat() + "Z"),
-                "first_observed": event.get("timestamp", datetime.utcnow().isoformat() + "Z"),
-                "last_observed": event.get("timestamp", datetime.utcnow().isoformat() + "Z"),
+                "created": event.get("timestamp", datetime.now(timezone.utc).isoformat() + "Z"),
+                "modified": event.get("timestamp", datetime.now(timezone.utc).isoformat() + "Z"),
+                "first_observed": event.get("timestamp", datetime.now(timezone.utc).isoformat() + "Z"),
+                "last_observed": event.get("timestamp", datetime.now(timezone.utc).isoformat() + "Z"),
                 "number_observed": 1,
                 "objects": {
                     "0": {
@@ -408,7 +408,7 @@ class EnterpriseAPI:
         self.api_keys[api_key] = {
             "tenant_id": tenant_id,
             "permissions": permissions,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
             "active": True
         }
         
@@ -516,7 +516,7 @@ if __name__ == "__main__":
     
     # Test event formatting
     sample_event = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
         "ip_address": "203.0.113.42",
         "threat_type": "Port Scanning",
         "details": "Port scan detected: 15 ports scanned",

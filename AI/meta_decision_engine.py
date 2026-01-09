@@ -257,7 +257,7 @@ class MetaDecisionEngine:
                 "block_threshold": self.block_threshold,
                 "strong_consensus_threshold": self.strong_consensus_threshold,
                 "min_signals_for_decision": self.min_signals_for_decision,
-                "last_updated": datetime.utcnow().isoformat()
+                "last_updated": datetime.now(timezone.utc).isoformat()
             }
             
             with open(self.config_file, 'w') as f:
@@ -295,7 +295,7 @@ class MetaDecisionEngine:
                 strong_consensus=False,
                 signals=[],
                 primary_threats=[],
-                timestamp=datetime.utcnow().isoformat(),
+                timestamp=datetime.now(timezone.utc).isoformat(),
                 ip_address=ip_address,
                 endpoint=endpoint
             )
@@ -353,7 +353,7 @@ class MetaDecisionEngine:
             strong_consensus=strong_consensus,
             signals=signals,
             primary_threats=primary_threats,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             ip_address=ip_address,
             endpoint=endpoint
         )
@@ -567,7 +567,7 @@ class MetaDecisionEngine:
                 "signal_weights": {k.value: v for k, v in self.signal_weights.items()}
             },
             "history_size": len(self.decision_history),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     
     def _apply_causal_modulation(
@@ -760,7 +760,7 @@ class MetaDecisionEngine:
             history_data = {
                 "decisions": [d.to_dict() for d in self.decision_history[-1000:]],  # Last 1000
                 "metrics": self.metrics,
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
             
             with open(filepath, 'w') as f:
@@ -819,7 +819,7 @@ if __name__ == "__main__":
             confidence=0.95,
             threat_level=ThreatLevel.CRITICAL,
             details="SQL injection pattern detected",
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=datetime.now(timezone.utc).isoformat()
         ),
         DetectionSignal(
             signal_type=SignalType.BEHAVIORAL,
@@ -827,7 +827,7 @@ if __name__ == "__main__":
             confidence=0.78,
             threat_level=ThreatLevel.DANGEROUS,
             details="Suspicious behavioral pattern detected",
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=datetime.now(timezone.utc).isoformat()
         ),
         DetectionSignal(
             signal_type=SignalType.ML_ANOMALY,
@@ -835,7 +835,7 @@ if __name__ == "__main__":
             confidence=0.60,
             threat_level=ThreatLevel.SAFE,
             details="Traffic appears normal",
-            timestamp=datetime.utcnow().isoformat()
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
     ]
     

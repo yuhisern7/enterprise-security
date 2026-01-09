@@ -59,7 +59,7 @@ class NodeFingerprint:
             'feature_mins': [],
             'feature_maxs': [],
             'sample_count': 0,
-            'last_updated': datetime.utcnow().isoformat()
+            'last_updated': datetime.now(timezone.utc).isoformat()
         }
         
         fingerprint = {
@@ -69,7 +69,7 @@ class NodeFingerprint:
             'network_info': network_info,
             'traffic_profile': traffic_profile,
             'feature_stats': feature_stats,
-            'created_at': datetime.utcnow().isoformat(),
+            'created_at': datetime.now(timezone.utc).isoformat(),
         }
         
         # Generate hash
@@ -195,7 +195,7 @@ class NodeFingerprint:
             stats['feature_maxs'] = new_maxs.tolist()
             stats['sample_count'] = n_new
         
-        stats['last_updated'] = datetime.utcnow().isoformat()
+        stats['last_updated'] = datetime.now(timezone.utc).isoformat()
         self._save_fingerprint()
     
     def get_compatibility_score(self, peer_fingerprint: Dict[str, Any]) -> float:
