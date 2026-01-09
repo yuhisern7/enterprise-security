@@ -198,8 +198,9 @@ class RelayClient:
                 
                 async with websockets.connect(
                     self.relay_url,
-                    ping_interval=30,
-                    ping_timeout=10,
+                    ping_interval=20,
+                    ping_timeout=30,
+                    close_timeout=10,
                     ssl=ssl_context  # Enable SSL for WSS
                 ) as websocket:
                     self.websocket = websocket
