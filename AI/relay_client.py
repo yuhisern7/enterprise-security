@@ -12,7 +12,7 @@ import time
 import asyncio
 import threading
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional, Callable
 import websockets
 from websockets.client import WebSocketClientProtocol
