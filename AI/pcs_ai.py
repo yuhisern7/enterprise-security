@@ -1221,16 +1221,20 @@ def _expire_old_threats() -> int:
 def _parse_threat_timestamp(timestamp_str) -> datetime:
     """Parse threat timestamp with fallback for various formats."""
     if isinstance(timestamp_str, datetime):
+        # Ensure timezone-aware for comparison
+        if timestamp_str.tzinfo is None:
+            return timestamp_str.replace(tzinfo=timezone.utc)
         return timestamp_str
     
     try:
         dt = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
-        if dt.tzinfo is not None:
-            dt = dt.replace(tzinfo=None)
+        # Keep timezone-aware for comparison
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
         return dt
     except:
-        # Fallback to very old date if parsing fails
-        return datetime(2000, 1, 1)
+        # Fallback to very old date (timezone-aware)
+        return datetime(2000, 1, 1, tzinfo=timezone.utc)
 
 
 def _ml_predict_ip_reputation(features: np.ndarray) -> Tuple[bool, float]:
