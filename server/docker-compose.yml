@@ -5,6 +5,7 @@ services:
       dockerfile: server/Dockerfile
     image: battle-hardened-ai
     container_name: battle-hardened-ai
+    restart: unless-stopped  # Auto-restart on crash (unless manually stopped)
     network_mode: host   # Required for eBPF/XDP to see real traffic
     pid: host            # Required for syscall ↔ process correlation
     
@@ -36,6 +37,16 @@ services:
     # Environment variables (load from .env file in server directory)
     env_file:
       - .env
+    # Resource limits - prevent memory exhaustion attacks
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
     environment:
       - FLASK_ENV=${FLASK_ENV:-production}
       - TZ=${TZ:-Asia/Kuala_Lumpur}

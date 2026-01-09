@@ -3272,6 +3272,20 @@ def assess_login_attempt(
         ip_address=ip_address,
     )
 
+    except Exception as e:
+        # CRITICAL: Never crash on attack analysis - return safe default
+        logger.error(f"[ASSESS_REQUEST_CRASH_PROTECTION] {ip_address} - {type(e).__name__}: {str(e)}")
+        import traceback
+        logger.error(f"[TRACEBACK] {traceback.format_exc()}")
+        
+        # Return low-confidence "unknown" assessment (fail open for availability)
+        return SecurityAssessment(
+            level=ThreatLevel.INFO,
+            threats=[f"Analysis error: {type(e).__name__}"],
+            should_block=False,  # Don't block on error (availability > security)
+            ip_address=ip_address,
+        )
+
 
 def assess_request_pattern(
     ip_address: str,
@@ -3281,6 +3295,8 @@ def assess_request_pattern(
     headers: dict = None,
 ) -> SecurityAssessment:
     """Assess security risk based on request patterns with AI/ML + VPN/Tor detection.
+    
+    **CRASH-RESISTANT**: Never crashes on malformed/attack requests - handles all errors gracefully.
     
     Combines:
     - Real AI/ML anomaly detection (IsolationForest)
@@ -3301,7 +3317,7 @@ def assess_request_pattern(
     -------
     SecurityAssessment with threat level (AI-enhanced)
     """
-    threats: list[str] = []
+    try:\n        threats: list[str] = []
     
     # PHASE 5: Initialize signal collection for meta decision engine
     detection_signals = []
