@@ -12,7 +12,7 @@ import json
 import hashlib
 import platform
 import psutil
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, List, Tuple, Optional
 from pathlib import Path
 import numpy as np
