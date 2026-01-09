@@ -915,13 +915,19 @@ def _load_ml_models() -> None:
         if not models_trained:
             # Models exist but are NOT trained
             # OPTION 1: Train on RELAY SERVER (using 43,971 ExploitDB exploits)
-            if os.getenv('RELAY_ENABLED', 'false').lower() == 'true':
+            relay_url = os.getenv('RELAY_API_URL', '').strip()
+            if os.getenv('RELAY_ENABLED', 'false').lower() == 'true' and relay_url:
                 print(f"[AI] 🌐 Requesting training from relay server (43,971 ExploitDB exploits)...")
+                print(f"[AI] 📡 Relay URL: {relay_url}")
                 if _train_on_relay_server():
                     print("[AI] ✅ Models trained remotely and downloaded from relay")
                     return
                 else:
                     print("[AI] ⚠️  Relay training failed, falling back to local training")
+            elif os.getenv('RELAY_ENABLED', 'false').lower() == 'true':
+                print("[AI] ⚠️  RELAY_ENABLED=true but RELAY_API_URL is empty!")
+                print("[AI] 💡 Set RELAY_API_URL=https://your-vps-ip:60002 to enable centralized training")
+                print("[AI] 📚 See RELAY_SETUP.md for configuration instructions")
             
             # OPTION 2: Train locally with historical data
             if len(_threat_log) >= 100:
