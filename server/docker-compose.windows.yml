@@ -47,9 +47,9 @@ services:
       - SIGNATURE_MODE=${SIGNATURE_MODE:-auto}  # auto, master, or client
       - KERNEL_TELEMETRY_ENABLED=${KERNEL_TELEMETRY_ENABLED:-false}  # MODULE A: eBPF (disabled on Windows)
       - KERNEL_TELEMETRY_INTERFACE=${KERNEL_TELEMETRY_INTERFACE:-Ethernet}
-      - RELAY_ENABLED=${RELAY_ENABLED:-false}  # Enable remote training (set to true + configure URLs)
-      - RELAY_URL=${RELAY_URL:-}  # WebSocket relay (wss://your-vps-ip:60001) - see RELAY_SETUP.md
-      - RELAY_API_URL=${RELAY_API_URL:-}  # Model download API (https://your-vps-ip:60002) - see RELAY_SETUP.md
+      - RELAY_ENABLED=${RELAY_ENABLED:-true}  # Enable remote training
+      - RELAY_URL=${RELAY_URL:-}  # WebSocket relay (wss://your-vps-ip:60001)
+      - RELAY_API_URL=${RELAY_API_URL:-}  # Model download API (https://your-vps-ip:60002)
       - RELAY_CRYPTO_ENABLED=${RELAY_CRYPTO_ENABLED:-true}
       - CUSTOMER_ID=${CUSTOMER_ID:-}  # Unique customer identifier
       - PEER_NAME=${PEER_NAME:-windows-node}  # Customer location/name
