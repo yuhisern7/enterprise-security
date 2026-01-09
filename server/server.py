@@ -43,6 +43,48 @@ app.config['SECRET_KEY'] = 'change-this-to-a-secure-random-key'
 # Note: _load_threat_data() is called automatically when pcs_ai module is imported
 # No need to call it again here
 
+# ============================================================================
+# REQUEST INTERCEPTOR - ANALYZES ALL INCOMING REQUESTS FOR ATTACKS
+# ============================================================================
+
+@app.before_request
+def security_check():
+    """Intercept and analyze ALL requests for attacks BEFORE processing"""
+    # Skip security checks for static files
+    if request.path.startswith('/static/'):
+        return None
+    
+    # Get request details
+    ip_address = request.remote_addr or '0.0.0.0'
+    endpoint = request.full_path if request.query_string else request.path
+    user_agent = request.headers.get('User-Agent', '')
+    method = request.method
+    headers = dict(request.headers)
+    
+    # Analyze request for attacks using all 20 AI layers
+    assessment = pcs_ai.assess_request_pattern(
+        ip_address=ip_address,
+        endpoint=endpoint,
+        method=method,
+        user_agent=user_agent,
+        headers=headers
+    )
+    
+    # Block if threat detected
+    if assessment.should_block:
+        logger.warning(f"[BLOCKED] {ip_address} - {assessment.threats}")
+        return jsonify({
+            "error": "Request blocked by security system",
+            "reason": assessment.threats[0] if assessment.threats else "Security policy violation",
+            "ip": ip_address
+        }), 403
+    
+    return None  # Allow request to proceed
+
+# ============================================================================
+# DASHBOARD ROUTES
+# ============================================================================
+
 @app.route('/')
 def dashboard():
     """Main dashboard"""
