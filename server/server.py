@@ -1789,23 +1789,17 @@ def get_system_status():
         
         # Honeypots status
         try:
-            from AI.threat_intelligence import honeypot
-            honeypot_status = honeypot.get_honeypot_status() if hasattr(honeypot, 'get_honeypot_status') else {
-                'services': {},
-                'total_services': 0,
-                'enabled_services': 0,
-                'total_attacks': 0,
-                'attack_log_size': len(honeypot.attack_log) if hasattr(honeypot, 'attack_log') else 0,
-                'learned_patterns': len(honeypot.learned_patterns) if hasattr(honeypot, 'learned_patterns') else 0
-            }
+            from AI.real_honeypot import get_honeypot_status
+            honeypot_status = get_honeypot_status()
         except Exception as e:
             honeypot_status = {
-                'services': {},
+                'running': False,
+                'services': [],
                 'total_services': 0,
-                'enabled_services': 0,
+                'active_services': 0,
                 'total_attacks': 0,
-                'attack_log_size': 0,
-                'learned_patterns': 0
+                'patterns_learned': 0,
+                'attack_log_size': 0
             }
         
         # Threat Intelligence status
@@ -2597,26 +2591,26 @@ def manual_scan_devices():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-# API endpoints for Adaptive Honeypot
+# API endpoints for Real Honeypot (Section 15 Dashboard)
 # ============================================================================
 
 @app.route('/api/adaptive_honeypot/status', methods=['GET'])
 def adaptive_honeypot_status():
-    """Get adaptive honeypot status"""
+    """Get real honeypot status"""
     try:
-        from AI.adaptive_honeypot import get_honeypot_status
+        from AI.real_honeypot import get_honeypot_status
         status = get_honeypot_status()
 
-        # Normalize keys for dashboard while preserving and exposing rich metrics
+        # Format for dashboard section 15
         response = {
-            'running': bool(status.get('running', False)),
-            'persona': status.get('persona_name') or status.get('current_persona'),
-            'port': status.get('port'),
+            'running': status.get('running', False),
+            'persona': 'Multi-Service Honeypot',  # Real honeypot has multiple services
+            'port': '2121,2222,2323,3306,8080,2525,3389',  # All ports
             'attack_count': status.get('total_attacks', 0),
-            'persona_attack_counts': status.get('persona_attack_counts', {}),
-            'attack_categories': status.get('attack_categories', {}),
-            'average_suspicion_score': status.get('average_suspicion_score', 0.0),
-            'top_attackers': status.get('top_attackers', []),
+            'persona_attack_counts': {},  # Real honeypot doesn't use personas
+            'services': status.get('services', []),  # List of running services
+            'active_services': status.get('active_services', 0),
+            'total_services': status.get('total_services', 0),
         }
 
         return jsonify(response)
@@ -2625,47 +2619,52 @@ def adaptive_honeypot_status():
 
 @app.route('/api/adaptive_honeypot/personas', methods=['GET'])
 def adaptive_honeypot_personas():
-    """Get available service personas"""
+    """Get available honeypot services"""
     try:
-        from AI.adaptive_honeypot import get_available_personas
-        personas = get_available_personas()
-        return jsonify(personas)
+        # Real honeypot services (all run simultaneously)
+        services = [
+            {'name': 'SSH', 'port': 2222, 'enabled': True},
+            {'name': 'FTP', 'port': 2121, 'enabled': True},
+            {'name': 'Telnet', 'port': 2323, 'enabled': True},
+            {'name': 'MySQL', 'port': 3306, 'enabled': True},
+            {'name': 'HTTP Admin', 'port': 8080, 'enabled': True},
+            {'name': 'SMTP', 'port': 2525, 'enabled': True},
+            {'name': 'RDP', 'port': 3389, 'enabled': True}
+        ]
+        return jsonify(services)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/adaptive_honeypot/configure', methods=['POST'])
 def configure_adaptive_honeypot():
-    """Configure and start honeypot"""
+    """Real honeypot auto-starts - this endpoint returns status"""
     try:
-        from AI.adaptive_honeypot import start_honeypot
+        from AI.real_honeypot import get_honeypot_status
         
-        data = request.json
-        persona = data.get('persona', 'http_admin')
-        port = data.get('port', 8080)
-        custom_banner = data.get('custom_banner')
+        # Real honeypot runs all services automatically
+        # No configuration needed
+        status = get_honeypot_status()
         
-        success = start_honeypot(persona, port, custom_banner)
-        
-        if success:
+        if status.get('running'):
             return jsonify({
                 'success': True,
-                'message': f'Honeypot started as {persona} on port {port}'
+                'message': f'Real honeypot running with {status.get("active_services", 0)}/{status.get("total_services", 0)} services active'
             })
         else:
             return jsonify({
                 'success': False,
-                'error': 'Failed to start honeypot'
+                'error': 'Honeypot not running - restart server to start honeypot'
             }), 500
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/adaptive_honeypot/stop', methods=['POST'])
 def stop_adaptive_honeypot_api():
-    """Stop the honeypot"""
+    """Stop the honeypot (real honeypot stops on server shutdown)"""
     try:
-        from AI.adaptive_honeypot import stop_honeypot
-        stop_honeypot()
-        return jsonify({'success': True, 'message': 'Honeypot stopped'})
+        from AI.real_honeypot import stop_honeypots
+        stop_honeypots()
+        return jsonify({'success': True, 'message': 'Real honeypot services stopped'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
@@ -2673,9 +2672,10 @@ def stop_adaptive_honeypot_api():
 def adaptive_honeypot_attacks():
     """Get honeypot attack log"""
     try:
-        from AI.adaptive_honeypot import get_honeypot
+        from AI.real_honeypot import get_honeypot
         hp = get_honeypot()
-        attacks = hp.get_attack_log(limit=100)
+        # Return last 100 attacks from sandbox
+        attacks = hp.attack_log[-100:] if len(hp.attack_log) > 100 else hp.attack_log
         return jsonify(attacks)
     except Exception as e:
         return jsonify([], 500)
@@ -2685,9 +2685,10 @@ def adaptive_honeypot_attacks():
 def adaptive_honeypot_attack_history():
     """Get full honeypot attack history (bounded)."""
     try:
-        from AI.adaptive_honeypot import get_honeypot
+        from AI.real_honeypot import get_honeypot
         hp = get_honeypot()
-        attacks = hp.get_full_attack_log()
+        # Return full attack log from sandbox (max 1000)
+        attacks = hp.attack_log[-1000:] if len(hp.attack_log) > 1000 else hp.attack_log
         return jsonify(attacks)
     except Exception as e:
         return jsonify([], 500)
@@ -2698,29 +2699,13 @@ def adaptive_honeypot_attack_history():
 def toggle_honeypot():
     """Enable or disable a specific honeypot service (DEPRECATED)"""
     try:
-        from AI.threat_intelligence import honeypot
-        
-        data = request.json
-        service_id = data.get('service_id')
-        enabled = data.get('enabled', True)
-        
-        if not service_id:
-            return jsonify({'success': False, 'error': 'service_id required'}), 400
-        
-        success = honeypot.toggle_honeypot(service_id, enabled)
-        
-        if success:
-            # Redeploy honeypots
-            honeypot.deploy_honeypots()
-            
-            return jsonify({
-                'success': True,
-                'message': f'Honeypot {service_id} {"enabled" if enabled else "disabled"}',
-                'service_id': service_id,
-                'enabled': enabled
-            })
-        else:
-            return jsonify({'success': False, 'error': f'Unknown service: {service_id}'}), 404
+        # Real honeypot doesn't support toggle - always runs all services
+        # This endpoint is deprecated but kept for compatibility
+        return jsonify({
+            'success': True,
+            'message': 'Real honeypot runs all services - toggle not supported',
+            'note': 'This endpoint is deprecated'
+        })
             
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -2728,12 +2713,10 @@ def toggle_honeypot():
 
 # API endpoint to get honeypot details
 @app.route('/api/honeypot/status', methods=['GET'])
-def get_honeypot_status():
+def get_honeypot_status_endpoint():
     """Get detailed honeypot status"""
     try:
-        from AI.threat_intelligence import honeypot
-        
-        status = honeypot.get_honeypot_status()
+        status = get_honeypot_status()
         return jsonify(status)
         
     except Exception as e:
@@ -3547,6 +3530,16 @@ if __name__ == '__main__':
     monitoring_thread = threading.Thread(target=start_network_monitoring, daemon=True)
     monitoring_thread.start()
     
+    # Start real honeypot services
+    try:
+        from AI.real_honeypot import start_honeypots
+        print("[HONEYPOT] Starting real honeypot services...")
+        results = start_honeypots()
+        active = sum(1 for success in results.values() if success)
+        print(f"[HONEYPOT] ✅ Started {active}/{len(results)} honeypot ports")
+    except Exception as e:
+        print(f"[WARNING] Could not start honeypots: {e}")
+    
     # Check if SSL certificates exist
     import os
     ssl_cert = '/app/ssl/cert.pem'
@@ -3556,14 +3549,43 @@ if __name__ == '__main__':
     dashboard_port = int(os.getenv('DASHBOARD_PORT', '60000'))
     p2p_port = int(os.getenv('P2P_PORT', '60001'))
     
-    # HTTPS is handled by Gunicorn entrypoint - Flask runs in HTTP mode
-    print("📊 Starting server (HTTPS handled by container entrypoint)...")
-    print(f"📊 Dashboard: https://localhost:60000 (HTTPS - Secure)")
+    # Generate self-signed certificate if not exists
+    cert_file = 'ssl_cert.pem'
+    key_file = 'ssl_key.pem'
     
-    # Run Flask in HTTP mode (Gunicorn will handle HTTPS wrapping)
-    app.run(
-        host='0.0.0.0',
-        port=5000,  # Gunicorn listens on 5000 internally
-        debug=False,
-        threaded=True
-    )
+    if not os.path.exists(cert_file) or not os.path.exists(key_file):
+        print("[SSL] Generating self-signed certificate...")
+        import subprocess
+        try:
+            subprocess.run([
+                'openssl', 'req', '-x509', '-newkey', 'rsa:4096',
+                '-keyout', key_file, '-out', cert_file,
+                '-days', '365', '-nodes',
+                '-subj', '/CN=localhost'
+            ], check=True, capture_output=True)
+            print("[SSL] ✅ Certificate generated")
+        except:
+            print("[SSL] ⚠️ OpenSSL not found, running without HTTPS")
+            cert_file = None
+            key_file = None
+    
+    print("📊 Starting server...")
+    print(f"📊 Dashboard: https://localhost:{dashboard_port} (HTTPS - Secure)")
+    
+    # Run Flask with HTTPS
+    if cert_file and key_file and os.path.exists(cert_file):
+        app.run(
+            host='0.0.0.0',
+            port=dashboard_port,
+            debug=False,
+            threaded=True,
+            ssl_context=(cert_file, key_file)
+        )
+    else:
+        print("[WARNING] Running without HTTPS (SSL cert missing)")
+        app.run(
+            host='0.0.0.0',
+            port=dashboard_port,
+            debug=False,
+            threaded=True
+        )

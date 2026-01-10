@@ -443,6 +443,14 @@ if __name__ == '__main__':
     print("Network Monitor - Test Mode")
     print("Starting network monitoring...")
     
+    # Start real honeypot
+    try:
+        from AI.real_honeypot import start_honeypots
+        print("Starting real honeypot services...")
+        start_honeypots()
+    except Exception as e:
+        print(f"[WARNING] Could not start honeypots: {e}")
+    
     monitor = NetworkMonitor()
     monitor.start()
     

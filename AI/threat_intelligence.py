@@ -691,19 +691,11 @@ class HoneypotCrawler:
         
     def deploy_honeypots(self) -> List[str]:
         """
-        Deploy enabled honeypot services.
-        Returns list of active honeypot endpoints.
+        DEPRECATED: Fake virtual honeypot - use real_honeypot.py instead
+        This method now does nothing and returns empty list
         """
-        active_endpoints = []
-        enabled_count = 0
-        
-        for service_id, service in self.available_honeypots.items():
-            if service["enabled"]:
-                active_endpoints.extend(service["endpoints"])
-                enabled_count += 1
-        
-        print(f"[Honeypot] Deployed {enabled_count} honeypot services ({len(active_endpoints)} endpoints)")
-        return active_endpoints
+        # Virtual honeypot removed - use AI.real_honeypot instead
+        return []
     
     def toggle_honeypot(self, service_id: str, enabled: bool) -> bool:
         """Enable or disable a specific honeypot service"""
