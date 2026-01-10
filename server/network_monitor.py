@@ -151,16 +151,25 @@ class NetworkMonitor:
     def _sniff_packets(self):
         """Sniff network packets and analyze them"""
         try:
+            # Enable promiscuous mode to capture ALL network traffic (not just packets for this host)
+            # This allows monitoring of entire LAN segment
+            print("[NETWORK] Starting packet capture in PROMISCUOUS MODE")
+            print("[NETWORK] Monitoring entire network segment (all devices)")
+            
             # Sniff packets on all interfaces
             # filter="tcp or udp or arp" limits to relevant protocols
+            # promisc=1 enables promiscuous mode (captures all packets on network segment)
             sniff(
                 prn=self._analyze_packet,
                 filter="tcp or udp or arp",
                 store=False,
+                promisc=1,  # PROMISCUOUS MODE - captures all network traffic
                 stop_filter=lambda x: not self.running
             )
         except PermissionError:
-            print("[ERROR] Permission denied - run as root/sudo for network monitoring")
+            print("[ERROR] Permission denied - run as Administrator for network monitoring")
+            print("[ERROR] On Windows: Run PowerShell/CMD as Administrator")
+            print("[ERROR] Promiscuous mode requires elevated privileges")
         except Exception as e:
             print(f"[ERROR] Network monitoring error: {e}")
     
