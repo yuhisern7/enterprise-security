@@ -3532,13 +3532,21 @@ if __name__ == '__main__':
     
     # Start real honeypot services
     try:
-        from AI.real_honeypot import start_honeypots
+        from AI.real_honeypot import start_honeypots, get_honeypot_status
         print("[HONEYPOT] Starting real honeypot services...")
         results = start_honeypots()
         active = sum(1 for success in results.values() if success)
-        print(f"[HONEYPOT] ✅ Started {active}/{len(results)} honeypot ports")
+        print(f"[HONEYPOT] Startup results: {results}")
+        if active > 0:
+            print(f"[HONEYPOT] ✅ Started {active}/{len(results)} honeypot ports")
+            status = get_honeypot_status()
+            print(f"[HONEYPOT] Status check: running={status.get('running')}, active_services={status.get('active_services')}")
+        else:
+            print(f"[HONEYPOT] ❌ Failed to start any honeypot services - check port availability")
     except Exception as e:
-        print(f"[WARNING] Could not start honeypots: {e}")
+        print(f"[ERROR] Could not start honeypots: {e}")
+        import traceback
+        traceback.print_exc()
     
     # Get ports from environment variables (default to high ports to avoid conflicts)
     dashboard_port = int(os.getenv('DASHBOARD_PORT', '60000'))

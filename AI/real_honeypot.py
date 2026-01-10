@@ -219,9 +219,15 @@ class RealHoneypot:
         for service_id, service in self.services.items():
             results[service_id] = service.start()
         
-        self.running = True
+        # Set running to True if at least one service started
         active_count = sum(1 for success in results.values() if success)
-        logger.info(f"[HONEYPOT] Started {active_count}/{len(self.services)} real honeypot services")
+        self.running = active_count > 0
+        
+        if self.running:
+            logger.info(f"[HONEYPOT] ✅ Started {active_count}/{len(self.services)} real honeypot services")
+        else:
+            logger.error(f"[HONEYPOT] ❌ Failed to start any honeypot services!")
+        
         return results
     
     def stop_all(self):
