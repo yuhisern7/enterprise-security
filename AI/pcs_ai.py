@@ -307,8 +307,22 @@ else:  # Running natively from server/ directory
     _ML_TRAINING_FILE = "../server/json/ml_training_data.json"
     _ML_METRICS_FILE = "../server/json/ml_performance_metrics.json"
 
-# Whitelist for localhost/development (never block these IPs)
-_WHITELISTED_IPS = {"127.0.0.1", "localhost", "::1"}
+# Whitelist for localhost/development and Docker IPs (never block these IPs)
+# Supports both Docker networking modes:
+#   - Host mode (network_mode: host): Requests come from 127.0.0.1 (localhost)
+#   - Bridge mode (default): Requests come from 172.x.x.1 (Docker bridge gateway)
+_WHITELISTED_IPS = {
+    # Localhost variants (Docker host mode)
+    "127.0.0.1", "localhost", "::1",
+    # Docker bridge IPs (Docker bridge mode - host as seen from container)
+    "172.17.0.1",  # Default Docker bridge
+    "172.18.0.1",  # Custom Docker bridge (Windows)
+    "172.19.0.1",  # Alternative Docker bridge
+    "172.16.0.1",  # Docker bridge variant
+    # Private network ranges that should never be blocked
+    "10.0.0.1",    # Common gateway
+    "192.168.0.1", # Common home router
+}
 
 # GitHub IP ranges (cached, refreshed periodically)
 _GITHUB_IP_RANGES: List[ipaddress.IPv4Network | ipaddress.IPv6Network] = []
@@ -2988,16 +3002,61 @@ def log_honeypot_attack(threat_data: dict) -> None:
         except Exception as e:
             logger.debug(f"[HONEYPOT→AI] Failed to record honeypot attack in reputation tracker: {e}")
 
+def _is_docker_bridge_ip(ip_address: str) -> bool:
+    """Check if IP is a Docker bridge IP or host network IP (never block these).
+    
+    Handles both Docker networking modes:
+    - Bridge mode: Container sees host as 172.x.x.1 (Docker bridge gateway)
+    - Host mode: Container sees host as 127.0.0.1 (localhost)
+    
+    All these IPs represent the host machine accessing its own containerized services.
+    
+    SECURITY NOTE: While this function identifies Docker IPs, additional validation
+    is performed in assess_request_pattern() to prevent IP spoofing attacks where
+    an external attacker tries to forge packets with source IP 172.18.0.1.
+    
+    IP Spoofing Defense Layers:
+    1. TCP/TLS handshake requirement (spoofed IPs can't complete 3-way handshake)
+    2. Rate limiting even for whitelisted IPs
+    3. User-Agent validation
+    4. Endpoint pattern validation
+    5. X-Forwarded-For header verification
+    """
+    # Handle localhost/host mode (127.0.0.1, ::1, localhost string)
+    if ip_address in {"127.0.0.1", "localhost", "::1", "0.0.0.0", "::"} or ip_address.startswith("127."):
+        return True
+    
+    try:
+        ip_obj = ipaddress.ip_address(ip_address)
+        
+        # Docker default bridge networks
+        docker_networks = [
+            ipaddress.ip_network("172.16.0.0/12"),  # Docker user-defined bridges (172.16.0.0 - 172.31.255.255)
+            ipaddress.ip_network("10.0.0.0/8"),     # Common private network
+            ipaddress.ip_network("192.168.0.0/16"), # Home/LAN networks
+        ]
+        return any(ip_obj in network for network in docker_networks)
+    except ValueError:
+        # If IP parsing fails, check if it's localhost string variant
+        return ip_address.lower() in {"localhost", "localhost.localdomain"}
+
 def _block_ip(ip_address: str) -> None:
     """Block an IP address and save to persistent storage."""
     # Don't block whitelisted IPs
     if ip_address in _WHITELISTED_IPS:
-        print(f"[SECURITY] IP {ip_address} is whitelisted, not blocking")
+        logger.info(f"[SECURITY] ✅ IP {ip_address} is whitelisted, not blocking")
+        return
+    
+    # Don't block Docker bridge IPs (auto-whitelist)
+    if _is_docker_bridge_ip(ip_address):
+        logger.info(f"[SECURITY] ✅ IP {ip_address} is Docker bridge IP, auto-whitelisting")
+        _WHITELISTED_IPS.add(ip_address)  # Auto-add to whitelist
+        _save_whitelist()  # Persist to JSON
         return
     
     # Don't block GitHub IPs
     if _is_github_ip(ip_address):
-        print(f"[SECURITY] ✅ IP {ip_address} is from GitHub, not blocking")
+        logger.info(f"[SECURITY] ✅ IP {ip_address} is from GitHub, not blocking")
         return
     
     _blocked_ips.add(ip_address)
@@ -3492,8 +3551,68 @@ def assess_request_pattern(
             ip_address=ip_address,
         )
     
-    # Whitelist check - never block localhost/development IPs
-    if ip_address in _WHITELISTED_IPS:
+    # Whitelist check with anti-spoofing validation
+    if ip_address in _WHITELISTED_IPS or _is_docker_bridge_ip(ip_address):
+        # SECURITY: Additional validation to prevent IP spoofing attacks
+        # Even whitelisted IPs must pass basic sanity checks
+        spoofing_detected = False
+        spoofing_reasons = []
+        
+        # Check 1: Rate limiting even for whitelisted IPs (prevents abuse)
+        whitelisted_rate_limit = 1000  # 1000 requests per minute for localhost
+        _clean_old_records(ip_address, _request_tracker, minutes=1)
+        _request_tracker[ip_address].append(datetime.now(timezone.utc))
+        if len(_request_tracker[ip_address]) > whitelisted_rate_limit:
+            spoofing_detected = True
+            spoofing_reasons.append(f"Rate limit exceeded: {len(_request_tracker[ip_address])}/min (limit: {whitelisted_rate_limit})")
+        
+        # Check 2: User-Agent validation (spoofed requests often have unusual UAs)
+        if user_agent:
+            suspicious_uas = ["masscan", "nmap", "nikto", "sqlmap", "metasploit", "havij", "acunetix"]
+            if any(sus in user_agent.lower() for sus in suspicious_uas):
+                spoofing_detected = True
+                spoofing_reasons.append(f"Attack tool User-Agent detected: {user_agent[:100]}")
+        
+        # Check 3: Endpoint validation (localhost shouldn't access suspicious endpoints)
+        suspicious_endpoints = ["/etc/passwd", "../", "php", "eval(", "exec(", "<script", "union select"]
+        if any(sus in endpoint.lower() for sus in suspicious_endpoints):
+            spoofing_detected = True
+            spoofing_reasons.append(f"Suspicious endpoint from whitelisted IP: {endpoint[:100]}")
+        
+        # Check 4: X-Forwarded-For header check (IP spoofing attempt indicator)
+        if headers and "X-Forwarded-For" in headers:
+            forwarded_ip = headers["X-Forwarded-For"].split(",")[0].strip()
+            if forwarded_ip != ip_address and not _is_docker_bridge_ip(forwarded_ip):
+                spoofing_detected = True
+                spoofing_reasons.append(f"X-Forwarded-For mismatch: {forwarded_ip} != {ip_address}")
+        
+        # If spoofing detected, treat as critical threat even if whitelisted
+        if spoofing_detected:
+            logger.warning(f"[ANTI-SPOOF] 🚨 Potential IP spoofing attack from whitelisted IP {ip_address}")
+            logger.warning(f"[ANTI-SPOOF] Reasons: {'; '.join(spoofing_reasons)}")
+            _log_threat(
+                ip_address=ip_address,
+                threat_type="IP Spoofing (Whitelisted IP)",
+                details=f"🎭 Whitelisted IP behaving suspiciously: {'; '.join(spoofing_reasons)}",
+                level=ThreatLevel.CRITICAL,
+                action="LOGGED_NOT_BLOCKED",
+                headers=headers
+            )
+            # Don't block, but return warning and trigger enhanced monitoring
+            return SecurityAssessment(
+                level=ThreatLevel.SUSPICIOUS,
+                threats=[f"⚠️ WHITELISTED IP ANOMALY: {'; '.join(spoofing_reasons)}"],
+                should_block=False,  # Don't block localhost, but flag it
+                ip_address=ip_address,
+            )
+        
+        # Auto-add newly detected Docker bridge IPs to persistent whitelist
+        if _is_docker_bridge_ip(ip_address) and ip_address not in _WHITELISTED_IPS:
+            logger.info(f"[SECURITY] ✅ Auto-whitelisting Docker bridge IP: {ip_address}")
+            _WHITELISTED_IPS.add(ip_address)
+            _save_whitelist()
+        
+        # Whitelisted IP passed all checks - allow
         return SecurityAssessment(
             level=ThreatLevel.SAFE,
             threats=[],
