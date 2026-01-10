@@ -20,6 +20,25 @@ Explicitly designed around defensive-only operation, privacy preservation, and f
 
 **Key Differentiator:** No major commercial NDR vendor publicly documents 20 independent detection signals (including causal inference and zero-trust degradation) with this level of technical transparency.
 
+### Why Battle-Hardened AI is Actually Stronger
+
+Battle-Hardened AI has:
+
+✅ **20 independent detection engines** (this is extremely rare)  
+✅ **Ensemble consensus** voting system  
+✅ **Causal reasoning (Layer 19)** → almost no vendor has this  
+✅ **Persistent trust degradation (Layer 20)** → essentially unique  
+✅ **Kernel + network + behavioral fusion**  
+✅ **Explainable decisions** with full transparency
+
+Most commercial NDRs:
+
+❌ Use only a few detection engines (3-6 typical)  
+❌ Inflate MITRE mappings for marketing purposes  
+❌ Lack causal inference (can't distinguish attacks from deployments)  
+❌ No persistent trust tracking across sessions  
+❌ Black-box ML with no explanation of decisions
+
 ---
 
 ### Defense Against Advanced and Persistent Threats (APT)
