@@ -41,10 +41,10 @@ docker logs battle-hardened-ai | Select-String "RELAY" | Select-Object -Last 20
 ### Step 2: Test VPS Connectivity
 ```bash
 # Test if port is reachable
-telnet 165.22.108.8 60001
+telnet <VPS_IP> 60001
 
 # Windows alternative:
-Test-NetConnection -ComputerName 165.22.108.8 -Port 60001
+Test-NetConnection -ComputerName <VPS_IP> -Port 60001
 ```
 
 **Expected:** Connection should succeed  
@@ -57,7 +57,7 @@ Test-NetConnection -ComputerName 165.22.108.8 -Port 60001
 ### Linux (Kali/Ubuntu)
 ```bash
 # Allow outbound to VPS
-sudo ufw allow out to 165.22.108.8 port 60001 proto tcp
+sudo ufw allow out to <VPS_IP> port 60001 proto tcp
 sudo ufw reload
 
 # Restart container
@@ -70,7 +70,7 @@ sudo docker compose restart
 # Allow outbound to VPS
 New-NetFirewallRule -DisplayName "Battle-Hardened AI Relay" `
     -Direction Outbound `
-    -RemoteAddress 165.22.108.8 `
+    -RemoteAddress <VPS_IP> `
     -RemotePort 60001 `
     -Protocol TCP `
     -Action Allow
@@ -90,23 +90,23 @@ docker compose restart
 
 ```bash
 # From Windows PowerShell (transfer fixed code to VPS)
-scp relay\relay_server.py root@165.22.108.8:~/battle-hardened-ai/relay/
+scp relay\relay_server.py root@<VPS_IP>:~/battle-hardened-ai/relay/
 
 # Restart relay server on VPS
-ssh root@165.22.108.8 "cd battle-hardened-ai/relay && docker compose restart"
+ssh root@<VPS_IP> "cd battle-hardened-ai/relay && docker compose restart"
 
 # Wait 10 seconds
 Start-Sleep -Seconds 10
 
 # Verify relay is running
-ssh root@165.22.108.8 "docker logs security-relay-server --tail 20"
+ssh root@<VPS_IP> "docker logs security-relay-server --tail 20"
 ```
 
 ---
 
 ### Test 1: Check VPS Relay Server Status
 ```bash
-ssh root@165.22.108.8
+ssh root@<VPS_IP>
 
 # Check if relay container is running
 docker ps | grep relay
@@ -118,21 +118,21 @@ docker ps | grep relay
 
 ### Test 2: Check Active Connections on VPS
 ```bash
-ssh root@165.22.108.8
+ssh root@<VPS_IP>
 
 # View recent connections
 docker logs security-relay-server --tail 50 | grep "connected"
 
 # Look for:
-# ✅ New container connected: 118.100.245.156:58352 (Total: 1)
-# ✅ New container connected: 192.168.0.119:42156 (Total: 2)
+# ✅ New container connected: <CLIENT_IP>:58352 (Total: 1)
+# ✅ New container connected: <CLIENT_IP>:42156 (Total: 2)
 ```
 
 ---
 
 ### Test 3: Real-Time Connection Monitoring
 ```bash
-ssh root@165.22.108.8
+ssh root@<VPS_IP>
 
 # Watch connections in real-time
 docker logs security-relay-server --follow
@@ -144,7 +144,7 @@ docker logs security-relay-server --follow
 
 ### Test 4: Check WebSocket Port on VPS
 ```bash
-ssh root@165.22.108.8
+ssh root@<VPS_IP>
 
 # Verify port 60001 is listening
 netstat -tlnp | grep 60001
@@ -156,7 +156,7 @@ netstat -tlnp | grep 60001
 
 ### Test 5: Test WebSocket from VPS Itself
 ```bash
-ssh root@165.22.108.8
+ssh root@<VPS_IP>
 
 # Test WebSocket handshake
 curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" \
@@ -169,7 +169,7 @@ curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" \
 
 ### Test 6: Check VPS Firewall
 ```bash
-ssh root@165.22.108.8
+ssh root@<VPS_IP>
 
 # Check if ports are allowed
 ufw status | grep 60001
@@ -186,7 +186,7 @@ sudo ufw reload
 
 ```bash
 # Run this command from Windows/Linux to restart everything on VPS
-ssh root@165.22.108.8 << 'ENDSSH'
+ssh root@<VPS_IP> << 'ENDSSH'
 cd ~/battle-hardened-ai/relay
 docker compose down
 docker compose up -d
@@ -213,7 +213,7 @@ cat server/.env | grep RELAY
 
 # Should show:
 # RELAY_ENABLED=true
-# RELAY_URL=wss://165.22.108.8:60001
+# RELAY_URL=wss://<VPS_IP>:60001
 
 # Verify crypto key exists
 ls -lh server/crypto_keys/shared_secret.key
@@ -245,7 +245,7 @@ wc -c ~/Downloads/battle-hardened-ai/server/crypto_keys/shared_secret.key
 
 **On VPS Relay Server:**
 ```bash
-ssh root@165.22.108.8
+ssh root@<VPS_IP>
 
 # Check if crypto key exists
 ls -lh ~/battle-hardened-ai/relay/crypto_keys/shared_secret.key
@@ -333,7 +333,7 @@ asyncio.run(test())
 
 **Check VPS Logs for HMAC Verification:**
 ```bash
-ssh root@165.22.108.8
+ssh root@<VPS_IP>
 
 # Watch for incoming threat with HMAC verification
 docker logs security-relay-server --follow | grep -i "threat\|hmac\|signature"
@@ -349,7 +349,7 @@ docker logs security-relay-server --follow | grep -i "threat\|hmac\|signature"
 
 **VPS Relay Server:**
 ```bash
-ssh root@165.22.108.8
+ssh root@<VPS_IP>
 
 # Check message/threat counters
 docker logs security-relay-server --tail 100 | grep "📊 Stats"
@@ -382,7 +382,7 @@ Solution: Keys don't match between client and VPS
    sha256sum ~/battle-hardened-ai/relay/crypto_keys/shared_secret.key
 
 2. If different, copy Windows key to VPS:
-   scp server\crypto_keys\shared_secret.key root@165.22.108.8:~/battle-hardened-ai/relay/crypto_keys/
+   scp server\crypto_keys\shared_secret.key root@<VPS_IP>:~/battle-hardened-ai/relay/crypto_keys/
 ```
 
 **Issue: No HMAC logs appear**
@@ -407,7 +407,7 @@ Before deploying to production:
 
 - [ ] VPS relay server running LATEST relay_server.py (SCP command above)
 - [ ] VPS firewall allows ports 60001-60002
-- [ ] Client .env has RELAY_URL=wss://165.22.108.8:60001
+- [ ] Client .env has RELAY_URL=wss://<VPS_IP>:60001
 - [ ] Client has shared_secret.key in crypto_keys/
 - [ ] Test: `curl -k https://localhost:60000/api/relay/status`
 - [ ] Dashboard shows "Connected" status (green)
@@ -424,7 +424,7 @@ Before deploying to production:
 
 **VPS Logs:**
 ```
-✅ New container connected: 118.100.245.156:58352 (Total: 1)
+✅ New container connected: <CLIENT_IP>:58352 (Total: 1)
 ```
 
 **API Response:**

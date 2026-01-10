@@ -74,6 +74,9 @@ class HoneypotService:
         """Accept and handle connections"""
         while self.running:
             try:
+                if not self.socket:
+                    break
+                    
                 self.socket.settimeout(1.0)
                 client, addr = self.socket.accept()
                 self.attack_count += 1

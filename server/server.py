@@ -3540,11 +3540,6 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"[WARNING] Could not start honeypots: {e}")
     
-    # Check if SSL certificates exist
-    import os
-    ssl_cert = '/app/ssl/cert.pem'
-    ssl_key = '/app/ssl/key.pem'
-    
     # Get ports from environment variables (default to high ports to avoid conflicts)
     dashboard_port = int(os.getenv('DASHBOARD_PORT', '60000'))
     p2p_port = int(os.getenv('P2P_PORT', '60001'))

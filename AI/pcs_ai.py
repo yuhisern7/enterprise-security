@@ -1170,10 +1170,12 @@ def _calculate_threat_weight(threat_timestamp: datetime) -> float:
     if isinstance(threat_timestamp, str):
         try:
             threat_timestamp = datetime.fromisoformat(threat_timestamp.replace('Z', '+00:00'))
-            if threat_timestamp.tzinfo is not None:
-                threat_timestamp = threat_timestamp.replace(tzinfo=None)
         except:
             return 1.0  # Default weight if timestamp parsing fails
+    
+    # Ensure both datetimes are offset-aware or offset-naive
+    if threat_timestamp.tzinfo is None:
+        threat_timestamp = threat_timestamp.replace(tzinfo=timezone.utc)
     
     age_days = (now - threat_timestamp).total_seconds() / 86400
     
