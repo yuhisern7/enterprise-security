@@ -12,8 +12,8 @@
 
 ```bash
 # On Kali - after rebuilding with request interceptor fix
-curl "http://localhost:60000/test?id=1'%20OR%20'1'='1"
-curl "http://localhost:60000/test?name=<script>alert(1)</script>"
+curl -k "https://localhost:60000/test?id=1'%20OR%20'1'='1"
+curl -k "https://localhost:60000/test?name=<script>alert(1)</script>"
 # Repeat 10-20 times to build training data
 ```
 
@@ -124,7 +124,7 @@ ML models updated with new pattern
 
 ```bash
 # From Kali
-curl -X POST http://localhost:60000/inspector/ai-monitoring/retrain-ml
+curl -k -X POST https://localhost:60000/inspector/ai-monitoring/retrain-ml
 
 # Expected response:
 {
@@ -188,7 +188,7 @@ docker compose exec battle-hardened-ai ls -lh /app/ml_models/
 ```bash
 # From browser: Click "Force Retrain" button
 # Or via curl:
-curl -X POST http://localhost:60000/inspector/ai-monitoring/retrain-ml
+curl -k -X POST https://localhost:60000/inspector/ai-monitoring/retrain-ml
 
 # Check logs
 docker compose logs --tail=20 | grep "TRAIN\|ML"

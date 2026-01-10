@@ -202,7 +202,7 @@ docker compose logs | grep "Relay connected"
 
 ```bash
 # On customer machine - trigger manual training request
-curl -X POST http://localhost:60000/inspector/ai-monitoring/retrain-ml
+curl -k -X POST https://localhost:60000/inspector/ai-monitoring/retrain-ml
 
 # Check logs
 docker compose logs --tail=20 | grep "RELAY"

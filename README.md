@@ -7,6 +7,28 @@ Explicitly designed around defensive-only operation, privacy preservation, and f
 
 ---
 
+## ⚠️ Platform Requirements: Docker vs Native Execution
+
+**Network-Wide Protection Depends on Your Operating System:**
+
+### Linux (Recommended - Full Docker Support)
+- ✅ **Docker**: Full network-wide monitoring + Web GUI dashboard works perfectly
+- ✅ **Host Network Mode**: Docker can access entire network traffic
+- ✅ **Deployment**: `docker compose up -d` (easiest option)
+
+### Windows / macOS (Native Execution Required)
+- ❌ **Docker Limitation**: Bridge mode cannot monitor network-wide traffic (only container traffic)
+- ✅ **Native Python**: Required for full network protection
+- ✅ **Web GUI**: Accessible at `https://localhost:60000` when running natively
+- ⚠️ **Important**: Must run `python server.py` directly on host to protect entire network
+
+**Summary:**
+- **Linux users**: Use Docker (recommended)
+- **Windows/Mac users**: Must run natively with `python server.py` for network-wide protection
+- **GUI Dashboard**: Available on both Docker (Linux) and native execution (all platforms)
+
+---
+
 ## How Battle-Hardened AI Compares to Known NDRs
 
 | Platform               | Publicly Documented<br>AI Signals | Kernel<br>Telemetry | Federated<br>Learning | Explainability |

@@ -3533,7 +3533,7 @@ if __name__ == '__main__':
     dashboard_port = int(os.getenv('DASHBOARD_PORT', '60000'))
     p2p_port = int(os.getenv('P2P_PORT', '60001'))
     
-    print(f"[INFO] Dashboard: http://localhost:{dashboard_port}")
+    print(f"[INFO] Dashboard: https://localhost:{dashboard_port}")
     print(f"[INFO] Encrypted P2P: https://localhost:{p2p_port} (HTTPS)")
     print(f"[INFO] AI/ML Security Engine: {'ACTIVE' if pcs_ai.ML_AVAILABLE else 'DISABLED (install scikit-learn)'}")
     print("=" * 70)
@@ -3578,7 +3578,7 @@ if __name__ == '__main__':
     print("📊 Starting server...")
     print(f"📊 Dashboard: https://localhost:{dashboard_port} (HTTPS - Secure)")
     
-    # Run Flask with HTTPS
+    # Run Flask with HTTPS - REQUIRED
     if cert_file and key_file and os.path.exists(cert_file):
         app.run(
             host='0.0.0.0',
@@ -3588,10 +3588,8 @@ if __name__ == '__main__':
             ssl_context=(cert_file, key_file)
         )
     else:
-        print("[WARNING] Running without HTTPS (SSL cert missing)")
-        app.run(
-            host='0.0.0.0',
-            port=dashboard_port,
-            debug=False,
+        print("[ERROR] SSL certificates required! HTTPS is mandatory.")
+        print("[ERROR] Certificates should have been auto-generated. Check OpenSSL installation.")
+        raise Exception("SSL certificates required for secure operation")
             threaded=True
         )

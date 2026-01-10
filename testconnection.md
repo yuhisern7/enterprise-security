@@ -159,8 +159,8 @@ netstat -tlnp | grep 60001
 ssh root@<VPS_IP>
 
 # Test WebSocket handshake
-curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" \
-  http://localhost:60001
+curl -k -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" \
+  https://localhost:60001
 
 # Should return: HTTP/1.1 101 Switching Protocols
 ```

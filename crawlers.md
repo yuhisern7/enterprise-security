@@ -100,7 +100,7 @@ These files run on the customer node (Docker container), and learn from / talk t
   - Central place for pointing the customer to your VPS relay:
     - `RELAY_ENABLED=true`
     - `RELAY_URL=ws://YOUR_RELAY_IP_OR_HOST:60001`
-    - `MODEL_SYNC_URL=http://YOUR_RELAY_IP_OR_HOST:60002`
+    - `MODEL_SYNC_URL=https://YOUR_RELAY_IP_OR_HOST:60002`
   - When you build / run the Docker container, these variables are injected into the `server` process and `AI` modules.
 
 - `server/server.py`
@@ -176,7 +176,7 @@ You **do not** need to edit Python files to change relay IPs/URLs. Instead:
      ```env
      RELAY_ENABLED=true
      RELAY_URL=ws://YOUR_VPS_IP_OR_DOMAIN:60001
-     MODEL_SYNC_URL=http://YOUR_VPS_IP_OR_DOMAIN:60002
+     MODEL_SYNC_URL=https://YOUR_VPS_IP_OR_DOMAIN:60002
      RELAY_CRYPTO_ENABLED=true
      CUSTOMER_ID=your-customer-id
      PEER_NAME=your-node-name
@@ -197,7 +197,7 @@ From `server/.env` (inherited by AI modules):
 
 - `RELAY_ENABLED`  – `true` / `false`; turns Stage 6 relay client on/off
 - `RELAY_URL`      – WebSocket URL of the relay server (e.g. `ws://165.22.108.8:60001`)
-- `MODEL_SYNC_URL` – HTTP base URL for model/signature downloads (e.g. `http://165.22.108.8:60002`)
+- `MODEL_SYNC_URL` – HTTPS base URL for model/signature downloads (e.g. `https://165.22.108.8:60002`)
 - `RELAY_CRYPTO_ENABLED` – enables message signing/verification (HMAC)
 - `CUSTOMER_ID`    – unique ID used for crypto and multi‑tenant separation
 - `PEER_NAME`      – friendly name of this node in the relay mesh

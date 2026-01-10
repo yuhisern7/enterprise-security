@@ -31,9 +31,9 @@ class TrainingSyncClient:
     def __init__(self, relay_url: str = None):
         """
         Args:
-            relay_url: Relay server URL (e.g., http://vps-ip:60002)
+            relay_url: Relay server URL (e.g., https://vps-ip:60002)
         """
-        self.relay_url = relay_url or os.getenv('RELAY_URL', 'http://localhost:60002')
+        self.relay_url = relay_url or os.getenv('RELAY_URL', 'https://localhost:60002')
         # Store downloaded models where the AI engine expects them (ml_models/)
         # In Docker this resolves to /app/ml_models, matching pcs_ai._ML_MODELS_DIR.
         self.local_ml_dir = "ml_models"
@@ -114,7 +114,7 @@ def upload_honeypot_pattern(pattern_entry: Dict):
         return False
     
     try:
-        relay_url = os.getenv('RELAY_URL', 'http://165.22.108.8:60002')
+        relay_url = os.getenv('RELAY_URL', 'https://165.22.108.8:60002')
         
         # Send pattern to relay /api/honeypot/pattern endpoint
         response = requests.post(
@@ -144,7 +144,7 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(description='Sync ML models from relay server')
-    parser.add_argument('--relay-url', help='Relay server URL (e.g., http://vps-ip:60002)')
+    parser.add_argument('--relay-url', help='Relay server URL (e.g., https://vps-ip:60002)')
     parser.add_argument('--stats-only', action='store_true', help='Only show statistics')
     
     args = parser.parse_args()

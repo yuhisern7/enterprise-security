@@ -362,7 +362,7 @@ if __name__ == '__main__':
     
     # Set test environment
     os.environ['P2P_SYNC_ENABLED'] = 'true'
-    os.environ['PEER_URLS'] = 'http://localhost:5001,http://localhost:5002'
+    os.environ['PEER_URLS'] = 'https://localhost:5001,https://localhost:5002'
     os.environ['PEER_NAME'] = 'test-peer'
     
     sync = get_p2p_sync()
