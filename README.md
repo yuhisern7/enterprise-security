@@ -150,16 +150,26 @@ Battle-Hardened AI provides comprehensive detection across the MITRE ATT&CK fram
 
 ### Coverage Summary by Tactic
 
-| MITRE Tactic | Coverage | Primary Detection Signals |
-|--------------|----------|---------------------------|
-| TA0043 - Reconnaissance | ⭐⭐⭐⭐⭐ | #6 Behavioral, #10 Graph, #1 Kernel, #7 LSTM |
-| TA0001 - Initial Access | ⭐⭐⭐⭐☆ | #2 Signatures, #8 Autoencoder, #12 Threat Intel |
-| TA0006 - Credential Access | ⭐⭐⭐⭐⭐ | #6 Behavioral, #7 LSTM, #14 Reputation |
-| TA0008 - Lateral Movement | ⭐⭐⭐⭐⭐ | #10 Graph, #1 Kernel, #7 LSTM, #20 Trust |
-| TA0011 - Command & Control | ⭐⭐⭐⭐☆ | #10 Graph, #8 Autoencoder, #12 Threat Intel |
-| TA0010 - Exfiltration | ⭐⭐⭐⭐☆ | #10 Graph, #6 Behavioral, #8 Autoencoder |
-| TA0007 - Discovery | ⭐⭐⭐☆☆ | #6 Behavioral, #19 Causal, #20 Trust |
-| TA0040 - Impact | ⭐⭐⭐☆☆ | #8 Autoencoder, #19 Causal, #18 Integrity |
+| MITRE Tactic | Coverage | Techniques Covered | Primary Detection Signals |
+|--------------|----------|-------------------|---------------------------|
+| **TA0043 - Reconnaissance** | ⭐⭐⭐⭐⭐ | T1595, T1590, T1046, T1018 | #6 Behavioral, #10 Graph, #1 Kernel, #7 LSTM |
+| **TA0001 - Initial Access** | ⭐⭐⭐⭐☆ | T1190, T1133, T1078 | #2 Signatures, #8 Autoencoder, #12 Threat Intel |
+| **TA0006 - Credential Access** | ⭐⭐⭐⭐⭐ | T1110, T1110.003, T1078 | #6 Behavioral, #7 LSTM, #14 Reputation |
+| **TA0008 - Lateral Movement** | ⭐⭐⭐⭐⭐ | T1021, T1021.002, T1021.004, T1080, T1210, T1570 | #10 Graph, #1 Kernel, #7 LSTM, #20 Trust |
+| **TA0011 - Command & Control** | ⭐⭐⭐⭐☆ | T1071, T1095, T1041, T1568, T1090, T1090.003, T1079, T1108 | #10 Graph, #8 Autoencoder, #12 Threat Intel |
+| **TA0010 - Exfiltration** | ⭐⭐⭐⭐☆ | T1041, T1048 | #10 Graph, #6 Behavioral, #8 Autoencoder |
+| **TA0007 - Discovery** | ⭐⭐⭐☆☆ | T1018 | #6 Behavioral, #19 Causal, #20 Trust |
+| **TA0040 - Impact** | ⭐⭐⭐☆☆ | T1485, T1486, T1491 | #8 Autoencoder, #19 Causal, #18 Integrity |
+| **TA0003 - Persistence** | ⭐⭐⭐⭐☆ | T1505 | #1 Kernel, #2 Signatures, #18 Integrity |
+| **TA0004 - Privilege Escalation** | ⭐⭐⭐⭐☆ | T1055, T1068 | #1 Kernel, #8 Autoencoder |
+| **TA0005 - Defense Evasion** | ⭐⭐⭐⭐☆ | T1070, T1562 | #9 Drift, #18 Integrity, #1 Kernel |
+| **TA0002 - Execution** | ⭐⭐⭐⭐☆ | T1059 | #2 Signatures, #7 LSTM, #8 Autoencoder |
+| **TA0042 - Resource Development** | ⭐⭐⭐⭐☆ | T1583, T1584, T1608 | #5 Gradient Boost, #12 Threat Intel, #14 Reputation |
+| **TA0009 - Collection** | ⭐⭐⭐☆☆ | T1213 (implied) | #6 Behavioral, #19 Causal |
+| **TA0043 - Initial Access (Phishing)** | ⭐⭐⭐⭐☆ | T1566, T1204 | #16 Predictive, #12 Threat Intel |
+| **TA0006 - Supply Chain** | ⭐⭐⭐⭐☆ | T1195, T1199, T1565 | #17 Byzantine, #18 Integrity |
+
+**Note:** Some techniques appear under multiple tactics based on MITRE ATT&CK framework mappings.
 
 ---
 
