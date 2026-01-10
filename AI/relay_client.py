@@ -243,6 +243,17 @@ class RelayClient:
             return_when=asyncio.FIRST_COMPLETED
         )
         
+        # Log which task completed
+        for task in done:
+            task_name = "unknown"
+            if task == send_task:
+                task_name = "send_threats"
+            elif task == recv_task:
+                task_name = "receive_messages"
+            elif task == heartbeat_task:
+                task_name = "heartbeats"
+            logger.error(f"[RELAY] Task '{task_name}' completed unexpectedly: {task.exception() if task.exception() else 'no error'}")
+        
         # Cancel remaining tasks
         for task in pending:
             task.cancel()
@@ -278,14 +289,17 @@ class RelayClient:
                 
             except Exception as e:
                 logger.error(f"Error sending threats: {e}")
-                raise
+                # Don't crash the connection - just wait and retry
+                await asyncio.sleep(5)
     
     async def _receive_messages(self, websocket: WebSocketClientProtocol):
         """Receive messages from relay with cryptographic verification"""
+        logger.debug("[RELAY] _receive_messages task started, waiting for messages...")
         async for message in websocket:
             try:
                 data = json.loads(message)
                 msg_type = data.get('type')
+                logger.debug(f"[RELAY] Received message type: {msg_type}")
                 
                 # Verify signed messages (threats only, control messages are from trusted relay)
                 if msg_type == 'threat' and CRYPTO_ENABLED:
@@ -390,7 +404,8 @@ class RelayClient:
                 await websocket.send(json.dumps({'type': 'heartbeat'}))
             except Exception as e:
                 logger.error(f"Heartbeat error: {e}")
-                raise
+                # Don't crash - just retry
+                await asyncio.sleep(5)
 
 
 # Global singleton

@@ -71,8 +71,8 @@ exec gunicorn \
     --certfile=/app/ssl/cert.pem \
     --keyfile=/app/ssl/key.pem \
     --bind 0.0.0.0:60000 \
-    --workers 4 \
-    --threads 8 \
+    --workers 1 \
+    --threads 16 \
     --worker-class gthread \
     --timeout 120 \
     --graceful-timeout 30 \
@@ -82,5 +82,4 @@ exec gunicorn \
     --access-logfile - \
     --error-logfile - \
     --log-level info \
-    --preload \
     server:app

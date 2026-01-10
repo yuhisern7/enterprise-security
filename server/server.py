@@ -3483,6 +3483,8 @@ def get_behavioral_stats():
 # ============================================================================
 
 # Initialize Relay Client (if enabled)
+# CRITICAL: With --preload, this runs ONCE before worker fork
+# After fork, each worker imports but _relay_client singleton prevents re-initialization
 print("[DEBUG] Initializing relay client...")
 try:
     from AI.relay_client import start_relay_client, get_relay_status
@@ -3516,10 +3518,6 @@ except Exception as e:
     print(f"[WARNING] Relay client not available: {e}")
     import traceback
     traceback.print_exc()
-
-# ============================================================================
-# MAIN APPLICATION ENTRY POINT
-# ============================================================================
 
 if __name__ == '__main__':
     print("=" * 70)
