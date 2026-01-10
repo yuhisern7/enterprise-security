@@ -146,6 +146,8 @@ Protection coverage depends on placement:
 
 Battle-Hardened AI provides comprehensive detection across the MITRE ATT&CK framework. This section maps all 20 detection signals to specific tactics and techniques, providing complete visibility into defensive coverage.
 
+**Total MITRE ATT&CK Techniques Covered: 42 unique techniques** (including sub-techniques)
+
 ### Coverage Summary by Tactic
 
 | MITRE Tactic | Coverage | Primary Detection Signals |
@@ -411,20 +413,6 @@ These require:
 - Human intelligence
 
 **Battle-Hardened AI is network-centric by design.**
-
----
-
-### Summary Mapping Table
-
-| MITRE Tactic | Coverage |
-|--------------|----------|
-| Reconnaissance (TA0043) | ⭐⭐⭐⭐⭐ |
-| Initial Access (TA0001) | ⭐⭐⭐⭐☆ |
-| Credential Access (TA0006) | ⭐⭐⭐⭐⭐ |
-| Lateral Movement (TA0008) | ⭐⭐⭐⭐⭐ |
-| Command & Control (TA0011) | ⭐⭐⭐⭐☆ |
-| Exfiltration (TA0010) | ⭐⭐⭐⭐☆ |
-| Impact (TA0040) | ⭐⭐⭐☆☆ |
 
 ---
 
