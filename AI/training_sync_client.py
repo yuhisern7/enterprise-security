@@ -102,6 +102,43 @@ class TrainingSyncClient:
             return None
 
 
+def upload_honeypot_pattern(pattern_entry: Dict):
+    """
+    Upload honeypot attack pattern to relay server for global distribution
+    
+    Args:
+        pattern_entry: Dict with keys: timestamp, service, pattern, keywords, source
+    """
+    if not TRAINING_SYNC_ENABLED:
+        logger.debug("[HONEYPOT] Training sync disabled - pattern not uploaded")
+        return False
+    
+    try:
+        relay_url = os.getenv('RELAY_URL', 'http://165.22.108.8:60002')
+        
+        # Send pattern to relay /api/honeypot/pattern endpoint
+        response = requests.post(
+            f"{relay_url}/api/honeypot/pattern",
+            json=pattern_entry,
+            timeout=10,
+            verify=TRAINING_SYNC_VERIFY_TLS
+        )
+        
+        if response.status_code == 200:
+            logger.info(f"[HONEYPOT] Pattern uploaded to relay: {pattern_entry['service']}")
+            return True
+        else:
+            logger.warning(f"[HONEYPOT] Relay rejected pattern: {response.status_code}")
+            return False
+            
+    except requests.exceptions.ConnectionError:
+        logger.debug(f"[HONEYPOT] Relay server offline - pattern saved locally only")
+        return False
+    except Exception as e:
+        logger.debug(f"[HONEYPOT] Pattern upload failed: {e}")
+        return False
+
+
 def main():
     """Test ML model sync (NOT raw training data)"""
     import argparse
